@@ -1,1368 +1,1368 @@
 {
-  "workflow": {
-    "id": "Dgu2JgEFyzKDyHqc",
-    "meta": {
-      "name": "Digest new YouTube videos to Slack with Google Sheets, RapidAPI & GPT-4o-mini",
-      "id": 4801,
-      "site": "https://github.com/zengfr/n8n-workflow-all-templates"
+  "id": "Dgu2JgEFyzKDyHqc",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Digest new YouTube videos to Slack with Google Sheets, RapidAPI & GPT-4o-mini",
+    "wechat": "youandme10086",
+    "id": 4801,
+    "update_time": "2025-11-10"
+  },
+  "name": "YouTube RSS to Slack DIgest",
+  "tags": [
+    {
+      "id": "U7yroZQpInqB6NdO",
+      "name": "slack",
+      "createdAt": "2025-06-07T04:12:43.394Z",
+      "updatedAt": "2025-06-07T04:12:43.394Z"
     },
-    "name": "YouTube RSS to Slack DIgest",
-    "tags": [
-      {
-        "id": "U7yroZQpInqB6NdO",
-        "name": "slack",
-        "createdAt": "2025-06-07T04:12:43.394Z",
-        "updatedAt": "2025-06-07T04:12:43.394Z"
+    {
+      "id": "wrN9xw9yHvFfa0YA",
+      "name": "rapidapi",
+      "createdAt": "2025-06-07T04:12:49.808Z",
+      "updatedAt": "2025-06-07T04:12:49.808Z"
+    },
+    {
+      "id": "HN4QoMZjexklpkRv",
+      "name": "youtube",
+      "createdAt": "2025-06-07T04:12:54.514Z",
+      "updatedAt": "2025-06-07T04:12:54.514Z"
+    },
+    {
+      "id": "FpF0WUxxGoK09fhl",
+      "name": "openai",
+      "createdAt": "2025-06-07T04:12:57.942Z",
+      "updatedAt": "2025-06-07T04:12:57.942Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "f539cbde-f850-4d48-b1b9-40b764452b06",
+      "name": "Get Subtitles",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -660,
+        100
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
       },
-      {
-        "id": "wrN9xw9yHvFfa0YA",
-        "name": "rapidapi",
-        "createdAt": "2025-06-07T04:12:49.808Z",
-        "updatedAt": "2025-06-07T04:12:49.808Z"
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4a38af14-faf0-40f4-a467-e97328c001a1",
+      "name": "Get Timestamps",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -440,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const description = $('Fetch Video Details').first().json.snippet.description\nconst pattern = /(\\d{1,2}:\\d{2})\\s+(.*)/g;\nlet match;\nconst chapters = [];\n\nwhile ((match = pattern.exec(description)) !== null) {\n  chapters.push({\n    time: match[1],\n    title: match[2].replace(/[\\s:]/g, '_')\n  });\n}\n\nreturn chapters.map((chapter, index) => {\n  return {\n    json: {\n      start_time: chapter.time,\n      title: chapter.title,\n      end_time: chapters[index + 1] ? chapters[index + 1].time : null\n    }\n  };\n});\n"
       },
-      {
-        "id": "HN4QoMZjexklpkRv",
-        "name": "youtube",
-        "createdAt": "2025-06-07T04:12:54.514Z",
-        "updatedAt": "2025-06-07T04:12:54.514Z"
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "92df3a24-985d-48e0-89eb-74beb147b190",
+      "name": "Formatted Chapter Text",
+      "type": "n8n-nodes-base.code",
+      "notes": "Map timestamps to the xml transcript for a merged version to pass into OpenAI API",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Retrieve the XML data from the HTTP Request node\nconst transcriptXml = $node[\"Get Subtitles\"].json.data;  // Access the 'data' field\n\n// Clean the XML to ensure proper parsing\nlet cleanXml = transcriptXml.replace(/\\r?\\n|\\r/g, '');  // Remove newlines\ncleanXml = cleanXml.replace(/\\s+/g, ' ');  // Collapse whitespace\ncleanXml = cleanXml.replace(/&amp;/g, '&');  // Convert any encoded ampersands\ncleanXml = cleanXml.replace(/&amp;#39;/g, \"'\");  // Convert encoded apostrophe\ncleanXml = cleanXml.replace(/&#39;/g, \"'\");  // Convert encoded apostrophe\n\n\n// Define the regex to parse the XML content\nconst textRegex = /<text start=\"([\\d.]+)\" dur=\"[\\d.]+\">([^<]+)<\\/text>/g;\nconst transcriptData = [];\nlet match;\n\n// Parse the XML and extract the transcript data\nwhile ((match = textRegex.exec(cleanXml)) !== null) {\n  transcriptData.push({\n    start: parseFloat(match[1]),  // The start time is already in seconds\n    text: match[2]\n  });\n}\n\n// Function to convert minutes to seconds\nfunction minutesToSeconds(time) {\n  const parts = time.split(':');\n  if (parts.length === 2) {\n    return parseInt(parts[0]) * 60 + parseFloat(parts[1]);\n  } else {\n    return parseFloat(parts[0]);\n  }\n}\n\n// Combine chapters and subtitles (assuming chapters are provided by previous step)\nconst chapters = $input.all();\nconst tolerance = 2;  // Allowable tolerance in seconds for nearest match\nconst results = chapters.map((chapter, index) => {\n  const startTime = minutesToSeconds(chapter.json.start_time);  // Convert chapter start time to seconds\n  const endTime = chapter.json.end_time ? minutesToSeconds(chapter.json.end_time) : null;\n  let chapterText = '';\n\n  for (let i = 0; i < transcriptData.length; i++) {\n    const textStart = transcriptData[i].start;\n    \n    // Check if the transcript start time is within the chapter's time range, allowing for tolerance\n    if (textStart >= startTime - tolerance && (!endTime || textStart < endTime + tolerance)) {\n      chapterText += transcriptData[i].text + ' ';\n    } else if (textStart >= endTime) {\n      // Once we reach the start time of the next chapter, break out of the loop\n      break;\n    }\n  }\n\n  // Log the chapter text for each chapter\n  console.log(`Chapter ${index + 1} (${chapter.json.title}):`, chapterText.trim());\n\n  return {\n    chapter_no: index + 1,\n    chapter_name: chapter.json.title,\n    chapter_text: chapterText.trim()\n  };\n});\n\n// Log the final results\nconsole.log('Final Results:', results);\n\nreturn results;\n"
       },
-      {
-        "id": "FpF0WUxxGoK09fhl",
-        "name": "openai",
-        "createdAt": "2025-06-07T04:12:57.942Z",
-        "updatedAt": "2025-06-07T04:12:57.942Z"
-      }
-    ],
-    "nodes": [
-      {
-        "id": "f539cbde-f850-4d48-b1b9-40b764452b06",
-        "name": "Get Subtitles",
-        "type": "n8n-nodes-base.httpRequest",
-        "position": [
-          -660,
-          100
-        ],
-        "parameters": {
-          "url": "={{ $json.url }}",
-          "options": {}
-        },
-        "typeVersion": 4.2
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "8b713190-5fb5-4aaf-bf93-3ac0b8c9e561",
+      "name": "Generate Slack Blocks - Detailed Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        816,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const openAIResponse = $('Generate Summary').item.json.message.content;\n\n// Remove the leading and trailing backticks and \"json\\n\" if present\nconst contentString = openAIResponse.replace(/```json\\n|```/g, '').trim();\n\nlet content;\ntry {\n  content = JSON.parse(contentString);\n  console.log('Parsed JSON:', content);\n\n} catch (error) {\n  console.error('JSON Parsing Error:', error);\n  return [{ json: { error: 'Failed to parse JSON content.' } }];\n}\n\n// Extract the Quick Rundown Summary, Video Title, and Video Description\nconst quickRundownSummary = content.detailed_quick_rundown_summary;\nconst videoTitle = content.video_title;\nconst videoDescription = content.video_description;\n\n// Format the title and description for Slack\nconst titleAndDescription = `*${videoTitle}*\\n${videoDescription}\\n\\n`;\n\n// Join the bullet points into a single string, separated by new lines\nconst slackFormattedMessage = titleAndDescription + quickRundownSummary.join('\\n');\n\n// Log or return the formatted message\nconsole.log(slackFormattedMessage);\n\n// Create a simple text fallback for the Slack message\nconst fallbackText = `${videoTitle}\\n${videoDescription}\\nQuick Rundown:\\n${quickRundownSummary.join('\\n')}`;\n\n// Return the payload with blocks and fallback text\nreturn [\n  {\n    json: {\n      text: fallbackText,\n      blocks: slackFormattedMessage,\n    }\n  }\n];\n"
       },
-      {
-        "id": "4a38af14-faf0-40f4-a467-e97328c001a1",
-        "name": "Get Timestamps",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          -440,
-          100
-        ],
-        "parameters": {
-          "jsCode": "const description = $('Fetch Video Details').first().json.snippet.description\nconst pattern = /(\\d{1,2}:\\d{2})\\s+(.*)/g;\nlet match;\nconst chapters = [];\n\nwhile ((match = pattern.exec(description)) !== null) {\n  chapters.push({\n    time: match[1],\n    title: match[2].replace(/[\\s:]/g, '_')\n  });\n}\n\nreturn chapters.map((chapter, index) => {\n  return {\n    json: {\n      start_time: chapter.time,\n      title: chapter.title,\n      end_time: chapters[index + 1] ? chapters[index + 1].time : null\n    }\n  };\n});\n"
-        },
-        "typeVersion": 2,
-        "alwaysOutputData": true
+      "typeVersion": 2
+    },
+    {
+      "id": "6ef98839-1592-407d-a3d7-c91edbff2f4f",
+      "name": "Formatted Transcript w/o Chapters",
+      "type": "n8n-nodes-base.code",
+      "notes": "Map timestamps to the xml transcript for a merged version to pass into OpenAI API",
+      "position": [
+        220,
+        200
+      ],
+      "parameters": {
+        "jsCode": "// Retrieve the XML data from the HTTP Request node\nconst transcriptXml = $node[\"Get Subtitles\"].json.data;  // Access the 'data' field\n\n// Clean the XML to ensure proper parsing\nlet cleanXml = transcriptXml.replace(/\\r?\\n|\\r/g, '');  // Remove newlines\ncleanXml = cleanXml.replace(/\\s+/g, ' ');  // Collapse whitespace\ncleanXml = cleanXml.replace(/&amp;/g, '&');  // Convert any encoded ampersands\ncleanXml = cleanXml.replace(/&amp;#39;/g, \"'\");  // Convert encoded apostrophe\ncleanXml = cleanXml.replace(/&#39;/g, \"'\");  // Convert encoded apostrophe\n\n// Define the regex to parse the XML content\nconst textRegex = /<text start=\"([\\d.]+)\" dur=\"[\\d.]+\">([^<]+)<\\/text>/g;\nlet mergedText = '';\nlet match;\n\n// Parse the XML and extract the transcript data\nwhile ((match = textRegex.exec(cleanXml)) !== null) {\n  mergedText += match[2] + ' ';  // Append the text to the merged string\n}\n\n// Trim any extra whitespace\nmergedText = mergedText.trim();\n\n// Create the final JSON structure\nconst finalJson = {\n  video_title: $('Fetch Video Details').first().json.snippet.title,  // Replace with actual video title\n  video_description: $('Fetch Video Details').first().json.snippet.description,  // Replace with actual video description\n  merged_text: mergedText\n};\n\n// Return the final JSON structure\nreturn [\n  {\n    json: finalJson\n  }\n];\n"
       },
-      {
-        "id": "92df3a24-985d-48e0-89eb-74beb147b190",
-        "name": "Formatted Chapter Text",
-        "type": "n8n-nodes-base.code",
-        "notes": "Map timestamps to the xml transcript for a merged version to pass into OpenAI API",
-        "position": [
-          0,
-          0
-        ],
-        "parameters": {
-          "jsCode": "// Retrieve the XML data from the HTTP Request node\nconst transcriptXml = $node[\"Get Subtitles\"].json.data;  // Access the 'data' field\n\n// Clean the XML to ensure proper parsing\nlet cleanXml = transcriptXml.replace(/\\r?\\n|\\r/g, '');  // Remove newlines\ncleanXml = cleanXml.replace(/\\s+/g, ' ');  // Collapse whitespace\ncleanXml = cleanXml.replace(/&amp;/g, '&');  // Convert any encoded ampersands\ncleanXml = cleanXml.replace(/&amp;#39;/g, \"'\");  // Convert encoded apostrophe\ncleanXml = cleanXml.replace(/&#39;/g, \"'\");  // Convert encoded apostrophe\n\n\n// Define the regex to parse the XML content\nconst textRegex = /<text start=\"([\\d.]+)\" dur=\"[\\d.]+\">([^<]+)<\\/text>/g;\nconst transcriptData = [];\nlet match;\n\n// Parse the XML and extract the transcript data\nwhile ((match = textRegex.exec(cleanXml)) !== null) {\n  transcriptData.push({\n    start: parseFloat(match[1]),  // The start time is already in seconds\n    text: match[2]\n  });\n}\n\n// Function to convert minutes to seconds\nfunction minutesToSeconds(time) {\n  const parts = time.split(':');\n  if (parts.length === 2) {\n    return parseInt(parts[0]) * 60 + parseFloat(parts[1]);\n  } else {\n    return parseFloat(parts[0]);\n  }\n}\n\n// Combine chapters and subtitles (assuming chapters are provided by previous step)\nconst chapters = $input.all();\nconst tolerance = 2;  // Allowable tolerance in seconds for nearest match\nconst results = chapters.map((chapter, index) => {\n  const startTime = minutesToSeconds(chapter.json.start_time);  // Convert chapter start time to seconds\n  const endTime = chapter.json.end_time ? minutesToSeconds(chapter.json.end_time) : null;\n  let chapterText = '';\n\n  for (let i = 0; i < transcriptData.length; i++) {\n    const textStart = transcriptData[i].start;\n    \n    // Check if the transcript start time is within the chapter's time range, allowing for tolerance\n    if (textStart >= startTime - tolerance && (!endTime || textStart < endTime + tolerance)) {\n      chapterText += transcriptData[i].text + ' ';\n    } else if (textStart >= endTime) {\n      // Once we reach the start time of the next chapter, break out of the loop\n      break;\n    }\n  }\n\n  // Log the chapter text for each chapter\n  console.log(`Chapter ${index + 1} (${chapter.json.title}):`, chapterText.trim());\n\n  return {\n    chapter_no: index + 1,\n    chapter_name: chapter.json.title,\n    chapter_text: chapterText.trim()\n  };\n});\n\n// Log the final results\nconsole.log('Final Results:', results);\n\nreturn results;\n"
-        },
-        "notesInFlow": true,
-        "typeVersion": 2
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "6570c170-cd9f-444f-b033-d9417f435967",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -3520,
+        500
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
       },
-      {
-        "id": "8b713190-5fb5-4aaf-bf93-3ac0b8c9e561",
-        "name": "Generate Slack Blocks - Detailed Summary",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          816,
-          100
-        ],
-        "parameters": {
-          "jsCode": "const openAIResponse = $('Generate Summary').item.json.message.content;\n\n// Remove the leading and trailing backticks and \"json\\n\" if present\nconst contentString = openAIResponse.replace(/```json\\n|```/g, '').trim();\n\nlet content;\ntry {\n  content = JSON.parse(contentString);\n  console.log('Parsed JSON:', content);\n\n} catch (error) {\n  console.error('JSON Parsing Error:', error);\n  return [{ json: { error: 'Failed to parse JSON content.' } }];\n}\n\n// Extract the Quick Rundown Summary, Video Title, and Video Description\nconst quickRundownSummary = content.detailed_quick_rundown_summary;\nconst videoTitle = content.video_title;\nconst videoDescription = content.video_description;\n\n// Format the title and description for Slack\nconst titleAndDescription = `*${videoTitle}*\\n${videoDescription}\\n\\n`;\n\n// Join the bullet points into a single string, separated by new lines\nconst slackFormattedMessage = titleAndDescription + quickRundownSummary.join('\\n');\n\n// Log or return the formatted message\nconsole.log(slackFormattedMessage);\n\n// Create a simple text fallback for the Slack message\nconst fallbackText = `${videoTitle}\\n${videoDescription}\\nQuick Rundown:\\n${quickRundownSummary.join('\\n')}`;\n\n// Return the payload with blocks and fallback text\nreturn [\n  {\n    json: {\n      text: fallbackText,\n      blocks: slackFormattedMessage,\n    }\n  }\n];\n"
-        },
-        "typeVersion": 2
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3ea53e09-b01f-47d4-83ca-e82f918e37ca",
+      "name": "If newly published",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2420,
+        200
+      ],
+      "parameters": {
+        "jsCode": "// Set the interval (in minutes) during which a video is considered \"new\"\nconst runIntervalMinutes = 1000;\n\n// Get the current date/time\nconst currentTime = new Date();\n\n// Calculate the cutoff time by subtracting the run interval\nconst cutoffTime = new Date(currentTime.getTime() - runIntervalMinutes * 60 * 1000);\n\n// Access the feed entries from the first input item\nconst feedEntries = items[0].json.feed.entry || [];\n\n// Process each item passed from the previous node\n// Assumes each item has a `published` field in ISO 8601 format (e.g., \"2025-03-24T12:34:56Z\")\nconst newItems = feedEntries.map(item => {\n  const publishedDate = new Date(item.published);\n  \n  // Check if the video was published after the cutoff time\n  // If so, mark it as new by adding a `newVideo` property set to true\n  item.newVideo = publishedDate >= cutoffTime;\n  \n  // Optionally, attach some time info for debugging\n  item.cutoffTime = cutoffTime.toISOString();\n  item.publishedDateISO = publishedDate.toISOString();\n  \n  // Wrap each item in { json: ... } for n8n output format\n  return { json: item };\n});\n\nreturn newItems[0];\n"
       },
-      {
-        "id": "6ef98839-1592-407d-a3d7-c91edbff2f4f",
-        "name": "Formatted Transcript w/o Chapters",
-        "type": "n8n-nodes-base.code",
-        "notes": "Map timestamps to the xml transcript for a merged version to pass into OpenAI API",
-        "position": [
-          220,
-          200
-        ],
-        "parameters": {
-          "jsCode": "// Retrieve the XML data from the HTTP Request node\nconst transcriptXml = $node[\"Get Subtitles\"].json.data;  // Access the 'data' field\n\n// Clean the XML to ensure proper parsing\nlet cleanXml = transcriptXml.replace(/\\r?\\n|\\r/g, '');  // Remove newlines\ncleanXml = cleanXml.replace(/\\s+/g, ' ');  // Collapse whitespace\ncleanXml = cleanXml.replace(/&amp;/g, '&');  // Convert any encoded ampersands\ncleanXml = cleanXml.replace(/&amp;#39;/g, \"'\");  // Convert encoded apostrophe\ncleanXml = cleanXml.replace(/&#39;/g, \"'\");  // Convert encoded apostrophe\n\n// Define the regex to parse the XML content\nconst textRegex = /<text start=\"([\\d.]+)\" dur=\"[\\d.]+\">([^<]+)<\\/text>/g;\nlet mergedText = '';\nlet match;\n\n// Parse the XML and extract the transcript data\nwhile ((match = textRegex.exec(cleanXml)) !== null) {\n  mergedText += match[2] + ' ';  // Append the text to the merged string\n}\n\n// Trim any extra whitespace\nmergedText = mergedText.trim();\n\n// Create the final JSON structure\nconst finalJson = {\n  video_title: $('Fetch Video Details').first().json.snippet.title,  // Replace with actual video title\n  video_description: $('Fetch Video Details').first().json.snippet.description,  // Replace with actual video description\n  merged_text: mergedText\n};\n\n// Return the final JSON structure\nreturn [\n  {\n    json: finalJson\n  }\n];\n"
-        },
-        "notesInFlow": true,
-        "typeVersion": 2
-      },
-      {
-        "id": "6570c170-cd9f-444f-b033-d9417f435967",
-        "name": "Schedule Trigger",
-        "type": "n8n-nodes-base.scheduleTrigger",
-        "position": [
-          -3520,
-          500
-        ],
-        "parameters": {
-          "rule": {
-            "interval": [
-              {
-                "field": "minutes",
-                "minutesInterval": 10
-              }
-            ]
-          }
-        },
-        "typeVersion": 1.2
-      },
-      {
-        "id": "3ea53e09-b01f-47d4-83ca-e82f918e37ca",
-        "name": "If newly published",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          -2420,
-          200
-        ],
-        "parameters": {
-          "jsCode": "// Set the interval (in minutes) during which a video is considered \"new\"\nconst runIntervalMinutes = 1000;\n\n// Get the current date/time\nconst currentTime = new Date();\n\n// Calculate the cutoff time by subtracting the run interval\nconst cutoffTime = new Date(currentTime.getTime() - runIntervalMinutes * 60 * 1000);\n\n// Access the feed entries from the first input item\nconst feedEntries = items[0].json.feed.entry || [];\n\n// Process each item passed from the previous node\n// Assumes each item has a `published` field in ISO 8601 format (e.g., \"2025-03-24T12:34:56Z\")\nconst newItems = feedEntries.map(item => {\n  const publishedDate = new Date(item.published);\n  \n  // Check if the video was published after the cutoff time\n  // If so, mark it as new by adding a `newVideo` property set to true\n  item.newVideo = publishedDate >= cutoffTime;\n  \n  // Optionally, attach some time info for debugging\n  item.cutoffTime = cutoffTime.toISOString();\n  item.publishedDateISO = publishedDate.toISOString();\n  \n  // Wrap each item in { json: ... } for n8n output format\n  return { json: item };\n});\n\nreturn newItems[0];\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "dab0151c-c337-41eb-86b3-21e0f6a4ac4f",
-        "name": "Check for new videos",
-        "type": "n8n-nodes-base.if",
-        "position": [
-          -2200,
-          200
-        ],
-        "parameters": {
-          "options": {},
-          "conditions": {
-            "options": {
-              "version": 2,
-              "leftValue": "",
-              "caseSensitive": true,
-              "typeValidation": "strict"
-            },
-            "combinator": "and",
-            "conditions": [
-              {
-                "id": "bffc7ab0-0cf5-47c9-b772-826da21f8b22",
-                "operator": {
-                  "type": "boolean",
-                  "operation": "true",
-                  "singleValue": true
-                },
-                "leftValue": "={{ $json.newVideo }}",
-                "rightValue": ""
-              }
-            ]
-          }
-        },
-        "typeVersion": 2.2
-      },
-      {
-        "id": "18d40ceb-bf64-4d44-8ec9-8d27e2b721ab",
-        "name": "Get RSS Links",
-        "type": "n8n-nodes-base.googleSheets",
-        "position": [
-          -3300,
-          500
-        ],
-        "parameters": {
-          "options": {},
-          "sheetName": {
-            "__rl": true,
-            "mode": "list",
-            "value": 1930937118,
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=1930937118",
-            "cachedResultName": "RSS Feed URLs"
-          },
-          "documentId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
-            "cachedResultName": "YouTube RSS Tracker"
-          }
-        },
-        "credentials": {
-          "googleSheetsOAuth2Api": {
-            "id": "V4NHfo08zBK4IW4e",
-            "name": "[Naveen]Google Sheets account"
-          }
-        },
-        "typeVersion": 4.5
-      },
-      {
-        "id": "8da2db10-d478-42a2-b20b-91c439860d5c",
-        "name": "Filter for New Video",
-        "type": "n8n-nodes-base.googleSheets",
-        "position": [
-          -1980,
-          200
-        ],
-        "parameters": {
-          "options": {},
-          "filtersUI": {
-            "values": [
-              {
-                "lookupValue": "={{ $json.link.href }}",
-                "lookupColumn": "YouTube Link"
-              }
-            ]
-          },
-          "sheetName": {
-            "__rl": true,
-            "mode": "list",
-            "value": "gid=0",
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=0",
-            "cachedResultName": "Video Links"
-          },
-          "documentId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
-            "cachedResultName": "YouTube RSS Tracker"
-          }
-        },
-        "credentials": {
-          "googleSheetsOAuth2Api": {
-            "id": "V4NHfo08zBK4IW4e",
-            "name": "[Naveen]Google Sheets account"
-          }
-        },
-        "executeOnce": false,
-        "typeVersion": 4.4,
-        "alwaysOutputData": true
-      },
-      {
-        "id": "54539bf9-cdf9-49b4-970f-512931619787",
-        "name": "Check if the Video Exists",
-        "type": "n8n-nodes-base.if",
-        "position": [
-          -1760,
-          200
-        ],
-        "parameters": {
-          "options": {},
-          "conditions": {
-            "options": {
-              "version": 1,
-              "leftValue": "",
-              "caseSensitive": true,
-              "typeValidation": "strict"
-            },
-            "combinator": "and",
-            "conditions": [
-              {
-                "id": "030ada47-5a56-41dd-8d2a-ff1669a5f310",
-                "operator": {
-                  "type": "object",
-                  "operation": "empty",
-                  "singleValue": true
-                },
-                "leftValue": "={{ $json }}",
-                "rightValue": ""
-              }
-            ]
-          }
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "2eb43d7a-4c7b-4ed0-8039-3c111d25499d",
-        "name": "Sticky Note",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -3780,
-          280
-        ],
-        "parameters": {
-          "color": 4,
-          "width": 620,
-          "content": "## 1. Trigger & Source\n- **Kick-off every 10 min**  \n  Starts the workflow on a timer so you’re always working with fresh data.\n\n- **Grab feed list from Google Sheet**  \n  Pulls the latest RSS URLs so you can add or remove sources without touching the flow.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "142c3e97-4ad4-4851-acd9-a4dc6dd93d79",
-        "name": "Sticky Note1",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -2840,
-          520
-        ],
-        "parameters": {
-          "color": 4,
-          "width": 700,
-          "content": "## 2. Fetch & Batch\n- **Process one feed at a time**  \n  Keeps memory low and makes retry logic straightforward.\n\n- **HTTP GET to download each RSS**  \n  Grabs raw XML content for the next step.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "d037bd15-0f67-4e71-8154-f24ccc3022f6",
-        "name": "Sticky Note2",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -2300,
-          -20
-        ],
-        "parameters": {
-          "color": 4,
-          "width": 640,
-          "content": "## 3. Parse & Filter\n- **Convert XML → JSON**  \n  Translates RSS into clean JSON objects the rest of the flow can read.\n\n- **Keep only brand-new items**  \n  Drops anything older than your freshness window so you never double-post.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "5c1f7a6d-79c9-4895-921f-825276728637",
-        "name": "Batch RSS Items",
-        "type": "n8n-nodes-base.splitInBatches",
-        "position": [
-          -3080,
-          500
-        ],
-        "parameters": {
-          "options": {}
-        },
-        "typeVersion": 3
-      },
-      {
-        "id": "c5aeea13-b7ce-47a8-b96f-c2ed5293d216",
-        "name": "Fetch RSS Feed",
-        "type": "n8n-nodes-base.httpRequest",
-        "position": [
-          -2860,
-          200
-        ],
-        "parameters": {
-          "url": "={{ $json['RSS URL'] }}",
-          "options": {}
-        },
-        "typeVersion": 4.2
-      },
-      {
-        "id": "bfdc95a2-cd13-40e5-9602-d22a7910589d",
-        "name": "Parse RSS XML",
-        "type": "n8n-nodes-base.xml",
-        "position": [
-          -2640,
-          200
-        ],
-        "parameters": {
-          "options": {}
-        },
-        "typeVersion": 1,
-        "alwaysOutputData": true
-      },
-      {
-        "id": "e75818ea-f59e-4331-b4fd-700cb28fc925",
-        "name": "Fetch Video Details",
-        "type": "n8n-nodes-base.youTube",
-        "position": [
-          -1320,
-          100
-        ],
-        "parameters": {
-          "options": {},
-          "videoId": "={{ $('Check for new videos').first().json.link.href.split(\"=\")[1] }}",
-          "resource": "video",
-          "operation": "get"
-        },
-        "credentials": {
-          "youTubeOAuth2Api": {
-            "id": "056bqpBlpOZnUyaJ",
-            "name": "YouTube account"
-          }
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "0e35710d-69a5-4f7c-8405-9fef774d8df8",
-        "name": "Log New Videos",
-        "type": "n8n-nodes-base.googleSheets",
-        "position": [
-          -1540,
-          100
-        ],
-        "parameters": {
-          "columns": {
-            "value": {
-              "YouTube Link": "={{ $('Check for new videos').item.json.link.href }}"
-            },
-            "schema": [
-              {
-                "id": "YouTube Link",
-                "type": "string",
-                "display": true,
-                "removed": false,
-                "required": false,
-                "displayName": "YouTube Link",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              }
-            ],
-            "mappingMode": "defineBelow",
-            "matchingColumns": [
-              "YouTube Link"
-            ],
-            "attemptToConvertTypes": false,
-            "convertFieldsToString": false
-          },
-          "options": {},
-          "operation": "append",
-          "sheetName": {
-            "__rl": true,
-            "mode": "list",
-            "value": "gid=0",
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=0",
-            "cachedResultName": "Video Links"
-          },
-          "documentId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
-            "cachedResultName": "YouTube RSS Tracker"
-          }
-        },
-        "credentials": {
-          "googleSheetsOAuth2Api": {
-            "id": "V4NHfo08zBK4IW4e",
-            "name": "[Naveen]Google Sheets account"
-          }
-        },
-        "typeVersion": 4.4
-      },
-      {
-        "id": "20e47927-ec86-456e-b26a-c96fda7715e3",
-        "name": "Generate Summary",
-        "type": "@n8n/n8n-nodes-langchain.openAi",
-        "position": [
-          440,
-          100
-        ],
-        "parameters": {
-          "modelId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "gpt-4o-mini",
-            "cachedResultName": "GPT-4O-MINI"
-          },
-          "options": {},
-          "messages": {
-            "values": [
-              {
-                "content": "=You are an expert writer tasked with summarizing and elaborating on the following content extracted from a YouTube video. Your goal is to create two outputs:\n\nYou are an expert writer tasked with summarizing and elaborating on the following content extracted from a YouTube video. Your goal is to create two outputs in JSON format:\n\n1. A **Detailed Quick Rundown Summary**: This should be a detailed summary of the entire video content, capturing the key points and important excerpts from each chapter. The summary should be structured with bullet points, highlighting the most critical information and providing a comprehensive overview.\n\n2. A **Detailed Article**: This should be a more comprehensive article that expands on each section of the video, providing detailed explanations, insights, and structured content. The article should include titles, descriptions, and bullet points where appropriate.\n\n\n---\n\n### Context:\n- **Video Title**: {{ $json.video_title }}\n- **Video Description**: {{ $json.video_description }}\n\n\n### Segmented Content:\n{{ $json.merged_text }}\n\n\n---\n\n### Task:\n\n1. **Quick Rundown Summary**: Create a concise summary of the entire video content, highlighting the most important points in bullet form or short paragraphs.\n\n2. **Detailed Article**: Write a detailed article based on the segmented content, using proper titles, descriptions, and bullet points where necessary. The article should flow logically from one chapter to the next, providing a comprehensive view of the entire video.\n\n---\n\n**Generate both the Quick Rundown Summary and Detailed Article in the response.**\n\n### Example JSON Structure\n\nHere’s an example of what the output might look like:\n\n```json\n{\n  \"video_title\": \"[Insert Video Title Here]\",\n  \"video_description\": \"[Insert Video Description Here]\",\n  \"detailed_quick_rundown_summary\": [\n    \"• [Bullet point summarizing key information or an important excerpt from the video]\",\n    \"• [Another bullet point with critical content]\",\n    \"• [Continue with detailed points summarizing the entire video content]\"\n  ],\n  \"detailed_article\": {\n    \"chapters\": [\n      {\n        \"chapter_no\": 1,\n        \"chapter_title\": \"[Insert Chapter 1 Title Here]\",\n        \"chapter_summary\": \"[Provide a brief summary of this chapter]\",\n        \"chapter_content\": \"[Insert Chapter 1 Text Here with proper formatting and explanations]\"\n      },\n      {\n        \"chapter_no\": 2,\n        \"chapter_title\": \"[Insert Chapter 2 Title Here]\",\n        \"chapter_summary\": \"[Provide a brief summary of this chapter]\",\n        \"chapter_content\": \"[Insert Chapter 2 Text Here with proper formatting and explanations]\"\n      }\n      // Add more chapters as needed\n    ]\n  }\n}\n"
-              }
-            ]
-          }
-        },
-        "credentials": {
-          "openAiApi": {
-            "id": "ByDgQA1p4t7cntsz",
-            "name": "OpenAi account"
-          }
-        },
-        "typeVersion": 1.4
-      },
-      {
-        "id": "9c0c4eeb-7c96-4d48-a4b0-d74e8282c103",
-        "name": "Build AI Payload",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          220,
-          0
-        ],
-        "parameters": {
-          "jsCode": "// Assuming the input contains all 29 JSON objects in the `items` array\nconst items = $input.all(); // Get all incoming JSON objects\n\n// Extract the chapter data from each item and combine them\nconst chapters = items.map((item, index) => {\n  return {\n    chapter_no: index + 1,\n    chapter_name: item.json.chapter_name || `Chapter ${index + 1}`,\n    chapter_text: item.json.chapter_text\n  };\n});\n\n// Create the final JSON structure\nconst finalJson = {\n  video_title: $('Fetch Video Details').first().json.snippet.title,  // Replace with actual video title\n  video_description: $('Fetch Video Details').first().json.snippet.description,  // Replace with actual video description\n  merged_text: chapters\n};\n\n// Return the final JSON structure\nreturn [\n  {\n    json: finalJson\n  }\n];\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "d527709b-9664-448d-9437-e75872fb1e29",
-        "name": "Post to Slack",
-        "type": "n8n-nodes-base.slack",
-        "position": [
-          1036,
-          275
-        ],
-        "webhookId": "97a2ae1f-9ef8-488d-abb0-4cc4739d34fd",
-        "parameters": {
-          "text": "={{ $json.blocks }}\n\n\nYou can check the full video here 👉 {{ $('Check for new videos').first().json.link.href }}\n",
-          "select": "channel",
-          "channelId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "C0914FVFTDE",
-            "cachedResultName": "yt-rss-test-naveen"
-          },
-          "otherOptions": {},
-          "authentication": "oAuth2"
-        },
-        "credentials": {
-          "slackOAuth2Api": {
-            "id": "SHu14u83No77oxGg",
-            "name": "Slack account"
-          }
-        },
-        "typeVersion": 2.2
-      },
-      {
-        "id": "0024e377-40da-452d-a320-99378c63cc43",
-        "name": "Check for Timestamps",
-        "type": "n8n-nodes-base.if",
-        "position": [
-          -220,
-          100
-        ],
-        "parameters": {
-          "options": {},
-          "conditions": {
-            "options": {
-              "version": 1,
-              "leftValue": "",
-              "caseSensitive": true,
-              "typeValidation": "strict"
-            },
-            "combinator": "and",
-            "conditions": [
-              {
-                "id": "d7b2e3b9-2190-4038-876d-9ccefa85718a",
-                "operator": {
-                  "type": "object",
-                  "operation": "notEmpty",
-                  "singleValue": true
-                },
-                "leftValue": "={{ $json }}",
-                "rightValue": ""
-              }
-            ]
-          }
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "59551f76-42f6-4d61-acd5-c046646fa7be",
-        "name": "Fetch Subtitles URL",
-        "type": "n8n-nodes-base.httpRequest",
-        "position": [
-          -1100,
-          100
-        ],
-        "parameters": {
-          "url": "https://yt-api.p.rapidapi.com/subtitles",
-          "options": {},
-          "sendQuery": true,
-          "sendHeaders": true,
-          "authentication": "genericCredentialType",
-          "genericAuthType": "httpHeaderAuth",
-          "queryParameters": {
-            "parameters": [
-              {
-                "name": "id",
-                "value": "={{ $json.id }}"
-              }
-            ]
-          },
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "x-rapidapi-host",
-                "value": "yt-api.p.rapidapi.com"
-              }
-            ]
-          }
-        },
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "TkaNF3gX6mdxX68v",
-            "name": "RapidAPI/YTSubtitles Header Auth"
-          }
-        },
-        "typeVersion": 4.2
-      },
-      {
-        "id": "a0ac6aba-fdd6-491c-a50b-11b3c32619ba",
-        "name": "Format Response",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          -880,
-          100
-        ],
-        "parameters": {
-          "jsCode": "// Retrieve items from the previous node\nconst items = $input.all();\nlet finalUrl = '';\n\nfor (const item of items) {\n  const subtitles = item.json.subtitles;\n\n  // Prioritize \"English (auto-generated)\"\n  let subtitle = subtitles.find(\n    sub => sub.languageName === 'English (auto-generated)' && sub.languageCode === 'en'\n  );\n\n  // If \"English (auto-generated)\" is not found, fall back to \"English\"\n  if (!subtitle) {\n    subtitle = subtitles.find(\n      sub => sub.languageName === 'English' && sub.languageCode === 'en'\n    );\n  }\n\n  if (subtitle) {\n    // Ensure the URL contains 'fmt=srv1'\n    let url = subtitle.url;\n\n    if (!url.includes('fmt=srv1')) {\n      // If 'fmt=srv1' is not in the URL, add or replace the fmt parameter\n      if (url.includes('fmt=')) {\n        url = url.replace(/fmt=[^&]*/, 'fmt=srv1');\n      } else {\n        url += '&fmt=srv1';\n      }\n    }\n    // Set the final URL\n    finalUrl = url;\n    break; // Stop after finding the first match\n  }\n}\n\n// Return only the final URL\nreturn [{ json: { url: finalUrl } }];\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "91206cd9-4968-4ecc-a973-9588d15bdb50",
-        "name": "Link is Processed",
-        "type": "n8n-nodes-base.set",
-        "position": [
-          -1540,
-          300
-        ],
-        "parameters": {
-          "options": {},
-          "assignments": {
-            "assignments": [
-              {
-                "id": "a5950b6a-29fd-4f56-94a9-4706535730cb",
-                "name": "Output",
-                "type": "string",
-                "value": "Link is already processed"
-              }
-            ]
-          }
-        },
-        "typeVersion": 3.4
-      },
-      {
-        "id": "dbb63f27-9e24-4873-81df-547b56c798cf",
-        "name": "Sticky Note3",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -1220,
-          -100
-        ],
-        "parameters": {
-          "color": 4,
-          "width": 860,
-          "content": "## 4. Enrich & Summarize\n- **Pull video details + subtitles**  \n  Adds title, description, and transcript data for richer context.\n\n- **Send to AI for short summary**  \n  Generates a concise, readable recap ready for sharing.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "f65d7246-c4b9-4784-a172-09280b0597f1",
-        "name": "Sticky Note4",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          160,
-          500
-        ],
-        "parameters": {
-          "color": 4,
-          "width": 620,
-          "content": "## 5. Log & Notify\n- **Append new videos to sheet**  \n  Records what’s already been handled to prevent duplicates.\n\n- **Post summary to Slack**  \n  Drops the final digest into your channel so the team sees updates in real time.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "c09c61a3-298d-40bc-bf7d-39cbbbf54fe6",
-        "name": "Slack Trigger",
-        "type": "n8n-nodes-base.slackTrigger",
-        "position": [
-          -3500,
-          1260
-        ],
-        "webhookId": "84634578-172b-496b-91fc-17605a878885",
-        "parameters": {
-          "options": {},
-          "trigger": [
-            "app_mention"
-          ],
-          "channelId": {
-            "__rl": true,
-            "mode": "id",
-            "value": "C0914FVFTDE"
-          }
-        },
-        "credentials": {
-          "slackApi": {
-            "id": "YRlasKhU6zD9bRT1",
-            "name": "Naveen Slack account"
-          }
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "112a34af-2e8a-41dd-9e22-cb02f9ffae1f",
-        "name": "AI Agent",
-        "type": "@n8n/n8n-nodes-langchain.agent",
-        "position": [
-          -2760,
-          1260
-        ],
-        "parameters": {
-          "text": "=Check if {{ $json.rss_feed_url }} is already available in the sheets using `Get Rows` Google Sheets tool. If it's there, do nothing. If it's not in the sheet, then based on the user message {{ $('Slack Trigger').item.json.text }} \"add\" or \"remove\" it to the sheets using `Append Row` and `Delete Row` Google Sheets tools accordingly.",
+      "typeVersion": 2
+    },
+    {
+      "id": "dab0151c-c337-41eb-86b3-21e0f6a4ac4f",
+      "name": "Check for new videos",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -2200,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
           "options": {
-            "systemMessage": "You are an automation assistant managing RSS feed entries in a Google Sheet.\n\n1. First, check if `{{ $json.rss_feed_url }}` exists in the sheet using the `Get Rows` node.\n2. If the URL **already exists**:\n   - Do **nothing** unless the Slack message contains \"remove\", in which case delete the corresponding row using `Delete Row`.\n3. If the URL **does not exist**:\n   - If the Slack message (`{{ $('Slack Trigger').item.json.text }}`) contains \"add\", use `Append Row` to insert the URL.\n   - If the message contains \"remove\", do **nothing**.\n\nOnly act if the intent (\"add\" or \"remove\") is clearly mentioned in the Slack message.\n"
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
           },
-          "promptType": "define"
-        },
-        "typeVersion": 1.8
-      },
-      {
-        "id": "8fbe1750-c207-47f3-9a0c-2197febf4558",
-        "name": "Get Rows",
-        "type": "n8n-nodes-base.googleSheetsTool",
-        "position": [
-          -2720,
-          1480
-        ],
-        "parameters": {
-          "options": {},
-          "filtersUI": {
-            "values": [
-              {
-                "lookupValue": "={{ $('RSS Feed URL').item.json.rss_feed_url }}",
-                "lookupColumn": "RSS URL"
-              }
-            ]
-          },
-          "sheetName": {
-            "__rl": true,
-            "mode": "list",
-            "value": 1930937118,
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=1930937118",
-            "cachedResultName": "RSS Feed URLs"
-          },
-          "documentId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
-            "cachedResultName": "YouTube RSS Tracker"
-          }
-        },
-        "credentials": {
-          "googleSheetsOAuth2Api": {
-            "id": "V4NHfo08zBK4IW4e",
-            "name": "[Naveen]Google Sheets account"
-          }
-        },
-        "typeVersion": 4.5
-      },
-      {
-        "id": "1338c910-b227-4172-bb05-870603d3f57d",
-        "name": "Delete Row",
-        "type": "n8n-nodes-base.googleSheetsTool",
-        "position": [
-          -2600,
-          1480
-        ],
-        "parameters": {
-          "operation": "delete",
-          "sheetName": {
-            "__rl": true,
-            "mode": "list",
-            "value": 1930937118,
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=1930937118",
-            "cachedResultName": "RSS Feed URLs"
-          },
-          "documentId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
-            "cachedResultName": "YouTube RSS Tracker"
-          },
-          "startIndex": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Row_Number', \"Get `row_number` from `Get Rows` to determine which row to delete\", 'number') }}"
-        },
-        "credentials": {
-          "googleSheetsOAuth2Api": {
-            "id": "V4NHfo08zBK4IW4e",
-            "name": "[Naveen]Google Sheets account"
-          }
-        },
-        "typeVersion": 4.5
-      },
-      {
-        "id": "267d813b-2bb7-43ce-acd3-9089d4e92d2c",
-        "name": "Append Row",
-        "type": "n8n-nodes-base.googleSheetsTool",
-        "position": [
-          -2480,
-          1480
-        ],
-        "parameters": {
-          "columns": {
-            "value": {
-              "RSS URL": "={{ $('RSS Feed URL').item.json.rss_feed_url }}",
-              "YouTube Channel": "={{ $('Slack Trigger').item.json.attachments[0].from_url }}"
-            },
-            "schema": [
-              {
-                "id": "YouTube Channel",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "YouTube Channel",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bffc7ab0-0cf5-47c9-b772-826da21f8b22",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
               },
-              {
-                "id": "RSS URL",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "RSS URL",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              }
-            ],
-            "mappingMode": "defineBelow",
-            "matchingColumns": [],
-            "attemptToConvertTypes": false,
-            "convertFieldsToString": false
-          },
-          "options": {},
-          "operation": "append",
-          "sheetName": {
-            "__rl": true,
-            "mode": "list",
-            "value": 1930937118,
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=1930937118",
-            "cachedResultName": "RSS Feed URLs"
-          },
-          "documentId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
-            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
-            "cachedResultName": "YouTube RSS Tracker"
-          }
-        },
-        "credentials": {
-          "googleSheetsOAuth2Api": {
-            "id": "V4NHfo08zBK4IW4e",
-            "name": "[Naveen]Google Sheets account"
-          }
-        },
-        "typeVersion": 4.5
+              "leftValue": "={{ $json.newVideo }}",
+              "rightValue": ""
+            }
+          ]
+        }
       },
-      {
-        "id": "86560901-b68c-4d67-9ebd-3294a4ea42f6",
-        "name": "Get Channel ID",
-        "type": "n8n-nodes-base.httpRequest",
-        "position": [
-          -3280,
-          1260
-        ],
-        "parameters": {
-          "url": "https://youtube138.p.rapidapi.com/channel/details",
-          "options": {},
-          "sendQuery": true,
-          "sendHeaders": true,
-          "authentication": "genericCredentialType",
-          "genericAuthType": "httpHeaderAuth",
-          "queryParameters": {
-            "parameters": [
-              {
-                "name": "id",
-                "value": "={{ $json.blocks[0].elements[0].elements[2].url || $json.attachments[0].from_url }}"
-              },
-              {
-                "name": "hl",
-                "value": "en"
-              },
-              {
-                "name": "gl",
-                "value": "US"
-              }
-            ]
-          },
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "x-rapidapi-host",
-                "value": "youtube138.p.rapidapi.com"
-              }
-            ]
-          }
-        },
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "TkaNF3gX6mdxX68v",
-            "name": "RapidAPI/YTSubtitles Header Auth"
-          }
-        },
-        "typeVersion": 4.2
-      },
-      {
-        "id": "4abd10d8-e68e-4729-928d-0e466a00be8b",
-        "name": "OpenAI Chat Model",
-        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-        "position": [
-          -2840,
-          1480
-        ],
-        "parameters": {
-          "model": {
-            "__rl": true,
-            "mode": "list",
-            "value": "gpt-4o-mini"
-          },
-          "options": {}
-        },
-        "credentials": {
-          "openAiApi": {
-            "id": "ByDgQA1p4t7cntsz",
-            "name": "OpenAi account"
-          }
-        },
-        "typeVersion": 1.2
-      },
-      {
-        "id": "4941f63a-3560-4175-9e97-86f9c051ca5c",
-        "name": "RSS Feed URL",
-        "type": "n8n-nodes-base.set",
-        "position": [
-          -3060,
-          1260
-        ],
-        "parameters": {
-          "options": {},
-          "assignments": {
-            "assignments": [
-              {
-                "id": "81c9584a-4113-4b60-97e3-dcd8cf39882c",
-                "name": "rss_feed_url",
-                "type": "string",
-                "value": "=https://www.youtube.com/feeds/videos.xml?channel_id={{ $json.channelId }}"
-              }
-            ]
-          }
-        },
-        "typeVersion": 3.4
-      },
-      {
-        "id": "8901e407-973c-4c25-87ff-61c653448f3a",
-        "name": "Sticky Note5",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -3740,
-          960
-        ],
-        "parameters": {
-          "color": 5,
-          "width": 440,
-          "height": 280,
-          "content": "## 1. Slack Event Trigger\n- Kicks off whenever someone @mentions the bot in a channel, capturing the message text and channel context.\n\n### Example:\n\"@yourbotname, add this  `https://www.youtube.com/@mreflow`\"\n\n\"@yourbotname, delete/remove this  `https://www.youtube.com/@mreflow`\""
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "4b0e9642-6db1-4b91-8706-f7b5f2d6ba72",
-        "name": "Sticky Note6",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -3200,
-          1080
-        ],
-        "parameters": {
-          "color": 5,
-          "width": 800,
-          "height": 140,
-          "content": "## 2. Build RSS & Decide Action\n- Extracts the YouTube channel link from the message, converts it into a channel-specific RSS URL, and lets an AI step read the text to decide whether the user wants to **add** or **remove** that feed."
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "347b8f85-700e-4638-a1ce-3d96c754b22a",
-        "name": "Sticky Note9",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -4520,
-          860
-        ],
-        "parameters": {
-          "color": 5,
-          "width": 620,
-          "height": 420,
-          "content": "## Setting up Slack OAuth for Posting & Event Listening\n\n1. **Create a Slack App**: `api.slack.com/apps` → **Create New App** → “From scratch.”  \n2. **Add Bot Token Scopes**:  \n   - `chat:write` (post messages)  \n   - `channels:read` & `groups:read` (find channel IDs)  \n3. **Enable Event Subscriptions**:  \n   - Turn on **Event Subscriptions** → set your n8n public webhook URL.  \n   - Subscribe to the **`app_mention`** event so the bot fires when mentioned.  \n4. **Install the App**: Click **Install App**, authorize, and copy the **Bot User OAuth Token** (`xoxb-...`) into an n8n Slack credential.  \n5. **Invite Bot to Channel**: `/invite @YourBot` in the target channel.  \n6. **Test**: Send “`@YourBot add/remove {YouTube Channel link}`” and watch the workflow update the sheet.\n\n*(If you change scopes later, reinstall the app so the token picks up new permissions.)*\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "838fdb84-cbac-4a0f-860a-ea25f1459e58",
-        "name": "Sticky Note7",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -4500,
-          340
-        ],
-        "parameters": {
-          "width": 600,
-          "height": 420,
-          "content": "## 🔑 Setup & Credentials\n- **Google Sheets Template**  \n  > Make a copy of the master sheet here:  \n  > `https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=sharing`  \n  > Connect the copy with a **Google Sheets OAuth2** credential that has **edit** access so the workflow can read/write rows.\n\n- **RapidAPI – Subtitles Endpoint**  \n  > Sign up at `https://yt-api.p.rapidapi.com/subtitles` (free 300 calls / month).  \n  > Store your **X-RapidAPI-Key** in an n8n **Header Auth** credential—never hard-code it in the node.\n\n- **OpenAI API Key**  \n  > Create a key at `https://platform.openai.com/account/api-keys` and save it in an n8n **OpenAI** credential.  \n  > Monitor usage; long transcripts can eat tokens quickly.\n"
-        },
-        "typeVersion": 1
-      }
-    ],
-    "active": true,
-    "pinData": {},
-    "settings": {
-      "executionOrder": "v1"
+      "typeVersion": 2.2
     },
-    "versionId": "897c96d2-bbec-4446-8150-268049be132c",
-    "connections": {
-      "Get Rows": {
-        "ai_tool": [
-          [
+    {
+      "id": "18d40ceb-bf64-4d44-8ec9-8d27e2b721ab",
+      "name": "Get RSS Links",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -3300,
+        500
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1930937118,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=1930937118",
+          "cachedResultName": "RSS Feed URLs"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
+          "cachedResultName": "YouTube RSS Tracker"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "V4NHfo08zBK4IW4e",
+          "name": "[Naveen]Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "8da2db10-d478-42a2-b20b-91c439860d5c",
+      "name": "Filter for New Video",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1980,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
             {
-              "node": "AI Agent",
-              "type": "ai_tool",
-              "index": 0
+              "lookupValue": "={{ $json.link.href }}",
+              "lookupColumn": "YouTube Link"
             }
           ]
-        ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=0",
+          "cachedResultName": "Video Links"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
+          "cachedResultName": "YouTube RSS Tracker"
+        }
       },
-      "Append Row": {
-        "ai_tool": [
-          [
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "V4NHfo08zBK4IW4e",
+          "name": "[Naveen]Google Sheets account"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 4.4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "54539bf9-cdf9-49b4-970f-512931619787",
+      "name": "Check if the Video Exists",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1760,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
             {
-              "node": "AI Agent",
-              "type": "ai_tool",
-              "index": 0
+              "id": "030ada47-5a56-41dd-8d2a-ff1669a5f310",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json }}",
+              "rightValue": ""
             }
           ]
-        ]
+        }
       },
-      "Delete Row": {
-        "ai_tool": [
-          [
-            {
-              "node": "AI Agent",
-              "type": "ai_tool",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 2
+    },
+    {
+      "id": "2eb43d7a-4c7b-4ed0-8039-3c111d25499d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3780,
+        280
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "content": "## 1. Trigger & Source\n- **Kick-off every 10 min**  \n  Starts the workflow on a timer so you’re always working with fresh data.\n\n- **Grab feed list from Google Sheet**  \n  Pulls the latest RSS URLs so you can add or remove sources without touching the flow.\n"
       },
-      "RSS Feed URL": {
-        "main": [
-          [
-            {
-              "node": "AI Agent",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 1
+    },
+    {
+      "id": "142c3e97-4ad4-4851-acd9-a4dc6dd93d79",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2840,
+        520
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 700,
+        "content": "## 2. Fetch & Batch\n- **Process one feed at a time**  \n  Keeps memory low and makes retry logic straightforward.\n\n- **HTTP GET to download each RSS**  \n  Grabs raw XML content for the next step.\n"
       },
-      "Get RSS Links": {
-        "main": [
-          [
-            {
-              "node": "Batch RSS Items",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 1
+    },
+    {
+      "id": "d037bd15-0f67-4e71-8154-f24ccc3022f6",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2300,
+        -20
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 640,
+        "content": "## 3. Parse & Filter\n- **Convert XML → JSON**  \n  Translates RSS into clean JSON objects the rest of the flow can read.\n\n- **Keep only brand-new items**  \n  Drops anything older than your freshness window so you never double-post.\n"
       },
-      "Get Subtitles": {
-        "main": [
-          [
-            {
-              "node": "Get Timestamps",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 1
+    },
+    {
+      "id": "5c1f7a6d-79c9-4895-921f-825276728637",
+      "name": "Batch RSS Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -3080,
+        500
+      ],
+      "parameters": {
+        "options": {}
       },
-      "Parse RSS XML": {
-        "main": [
-          [
-            {
-              "node": "If newly published",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 3
+    },
+    {
+      "id": "c5aeea13-b7ce-47a8-b96f-c2ed5293d216",
+      "name": "Fetch RSS Feed",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2860,
+        200
+      ],
+      "parameters": {
+        "url": "={{ $json['RSS URL'] }}",
+        "options": {}
       },
-      "Post to Slack": {
-        "main": [
-          [
-            {
-              "node": "Batch RSS Items",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bfdc95a2-cd13-40e5-9602-d22a7910589d",
+      "name": "Parse RSS XML",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        -2640,
+        200
+      ],
+      "parameters": {
+        "options": {}
       },
-      "Slack Trigger": {
-        "main": [
-          [
-            {
-              "node": "Get Channel ID",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "e75818ea-f59e-4331-b4fd-700cb28fc925",
+      "name": "Fetch Video Details",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        -1320,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "videoId": "={{ $('Check for new videos').first().json.link.href.split(\"=\")[1] }}",
+        "resource": "video",
+        "operation": "get"
       },
-      "Fetch RSS Feed": {
-        "main": [
-          [
-            {
-              "node": "Parse RSS XML",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "056bqpBlpOZnUyaJ",
+          "name": "YouTube account"
+        }
       },
-      "Get Channel ID": {
-        "main": [
-          [
+      "typeVersion": 1
+    },
+    {
+      "id": "0e35710d-69a5-4f7c-8405-9fef774d8df8",
+      "name": "Log New Videos",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1540,
+        100
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "YouTube Link": "={{ $('Check for new videos').item.json.link.href }}"
+          },
+          "schema": [
             {
-              "node": "RSS Feed URL",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Get Timestamps": {
-        "main": [
-          [
-            {
-              "node": "Check for Timestamps",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Log New Videos": {
-        "main": [
-          [
-            {
-              "node": "Fetch Video Details",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Batch RSS Items": {
-        "main": [
-          [],
-          [
-            {
-              "node": "Fetch RSS Feed",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Format Response": {
-        "main": [
-          [
-            {
-              "node": "Get Subtitles",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Build AI Payload": {
-        "main": [
-          [
-            {
-              "node": "Generate Summary",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Generate Summary": {
-        "main": [
-          [
-            {
-              "node": "Generate Slack Blocks - Detailed Summary",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Schedule Trigger": {
-        "main": [
-          [
-            {
-              "node": "Get RSS Links",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Link is Processed": {
-        "main": [
-          [
-            {
-              "node": "Batch RSS Items",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "OpenAI Chat Model": {
-        "ai_languageModel": [
-          [
-            {
-              "node": "AI Agent",
-              "type": "ai_languageModel",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "If newly published": {
-        "main": [
-          [
-            {
-              "node": "Check for new videos",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Fetch Subtitles URL": {
-        "main": [
-          [
-            {
-              "node": "Format Response",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Fetch Video Details": {
-        "main": [
-          [
-            {
-              "node": "Fetch Subtitles URL",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Check for Timestamps": {
-        "main": [
-          [
-            {
-              "node": "Formatted Chapter Text",
-              "type": "main",
-              "index": 0
+              "id": "YouTube Link",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "YouTube Link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
             }
           ],
-          [
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "YouTube Link"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=0",
+          "cachedResultName": "Video Links"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
+          "cachedResultName": "YouTube RSS Tracker"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "V4NHfo08zBK4IW4e",
+          "name": "[Naveen]Google Sheets account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "20e47927-ec86-456e-b26a-c96fda7715e3",
+      "name": "Generate Summary",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        440,
+        100
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "options": {},
+        "messages": {
+          "values": [
             {
-              "node": "Formatted Transcript w/o Chapters",
-              "type": "main",
-              "index": 0
+              "content": "=You are an expert writer tasked with summarizing and elaborating on the following content extracted from a YouTube video. Your goal is to create two outputs:\n\nYou are an expert writer tasked with summarizing and elaborating on the following content extracted from a YouTube video. Your goal is to create two outputs in JSON format:\n\n1. A **Detailed Quick Rundown Summary**: This should be a detailed summary of the entire video content, capturing the key points and important excerpts from each chapter. The summary should be structured with bullet points, highlighting the most critical information and providing a comprehensive overview.\n\n2. A **Detailed Article**: This should be a more comprehensive article that expands on each section of the video, providing detailed explanations, insights, and structured content. The article should include titles, descriptions, and bullet points where appropriate.\n\n\n---\n\n### Context:\n- **Video Title**: {{ $json.video_title }}\n- **Video Description**: {{ $json.video_description }}\n\n\n### Segmented Content:\n{{ $json.merged_text }}\n\n\n---\n\n### Task:\n\n1. **Quick Rundown Summary**: Create a concise summary of the entire video content, highlighting the most important points in bullet form or short paragraphs.\n\n2. **Detailed Article**: Write a detailed article based on the segmented content, using proper titles, descriptions, and bullet points where necessary. The article should flow logically from one chapter to the next, providing a comprehensive view of the entire video.\n\n---\n\n**Generate both the Quick Rundown Summary and Detailed Article in the response.**\n\n### Example JSON Structure\n\nHere’s an example of what the output might look like:\n\n```json\n{\n  \"video_title\": \"[Insert Video Title Here]\",\n  \"video_description\": \"[Insert Video Description Here]\",\n  \"detailed_quick_rundown_summary\": [\n    \"• [Bullet point summarizing key information or an important excerpt from the video]\",\n    \"• [Another bullet point with critical content]\",\n    \"• [Continue with detailed points summarizing the entire video content]\"\n  ],\n  \"detailed_article\": {\n    \"chapters\": [\n      {\n        \"chapter_no\": 1,\n        \"chapter_title\": \"[Insert Chapter 1 Title Here]\",\n        \"chapter_summary\": \"[Provide a brief summary of this chapter]\",\n        \"chapter_content\": \"[Insert Chapter 1 Text Here with proper formatting and explanations]\"\n      },\n      {\n        \"chapter_no\": 2,\n        \"chapter_title\": \"[Insert Chapter 2 Title Here]\",\n        \"chapter_summary\": \"[Provide a brief summary of this chapter]\",\n        \"chapter_content\": \"[Insert Chapter 2 Text Here with proper formatting and explanations]\"\n      }\n      // Add more chapters as needed\n    ]\n  }\n}\n"
             }
           ]
-        ]
+        }
       },
-      "Check for new videos": {
-        "main": [
-          [
+      "credentials": {
+        "openAiApi": {
+          "id": "ByDgQA1p4t7cntsz",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "9c0c4eeb-7c96-4d48-a4b0-d74e8282c103",
+      "name": "Build AI Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Assuming the input contains all 29 JSON objects in the `items` array\nconst items = $input.all(); // Get all incoming JSON objects\n\n// Extract the chapter data from each item and combine them\nconst chapters = items.map((item, index) => {\n  return {\n    chapter_no: index + 1,\n    chapter_name: item.json.chapter_name || `Chapter ${index + 1}`,\n    chapter_text: item.json.chapter_text\n  };\n});\n\n// Create the final JSON structure\nconst finalJson = {\n  video_title: $('Fetch Video Details').first().json.snippet.title,  // Replace with actual video title\n  video_description: $('Fetch Video Details').first().json.snippet.description,  // Replace with actual video description\n  merged_text: chapters\n};\n\n// Return the final JSON structure\nreturn [\n  {\n    json: finalJson\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d527709b-9664-448d-9437-e75872fb1e29",
+      "name": "Post to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1036,
+        275
+      ],
+      "webhookId": "97a2ae1f-9ef8-488d-abb0-4cc4739d34fd",
+      "parameters": {
+        "text": "={{ $json.blocks }}\n\n\nYou can check the full video here 👉 {{ $('Check for new videos').first().json.link.href }}\n",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0914FVFTDE",
+          "cachedResultName": "yt-rss-test-naveen"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "SHu14u83No77oxGg",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0024e377-40da-452d-a320-99378c63cc43",
+      "name": "Check for Timestamps",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -220,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
             {
-              "node": "Filter for New Video",
-              "type": "main",
-              "index": 0
+              "id": "d7b2e3b9-2190-4038-876d-9ccefa85718a",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "59551f76-42f6-4d61-acd5-c046646fa7be",
+      "name": "Fetch Subtitles URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1100,
+        100
+      ],
+      "parameters": {
+        "url": "https://yt-api.p.rapidapi.com/subtitles",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "yt-api.p.rapidapi.com"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "TkaNF3gX6mdxX68v",
+          "name": "RapidAPI/YTSubtitles Header Auth"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a0ac6aba-fdd6-491c-a50b-11b3c32619ba",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -880,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Retrieve items from the previous node\nconst items = $input.all();\nlet finalUrl = '';\n\nfor (const item of items) {\n  const subtitles = item.json.subtitles;\n\n  // Prioritize \"English (auto-generated)\"\n  let subtitle = subtitles.find(\n    sub => sub.languageName === 'English (auto-generated)' && sub.languageCode === 'en'\n  );\n\n  // If \"English (auto-generated)\" is not found, fall back to \"English\"\n  if (!subtitle) {\n    subtitle = subtitles.find(\n      sub => sub.languageName === 'English' && sub.languageCode === 'en'\n    );\n  }\n\n  if (subtitle) {\n    // Ensure the URL contains 'fmt=srv1'\n    let url = subtitle.url;\n\n    if (!url.includes('fmt=srv1')) {\n      // If 'fmt=srv1' is not in the URL, add or replace the fmt parameter\n      if (url.includes('fmt=')) {\n        url = url.replace(/fmt=[^&]*/, 'fmt=srv1');\n      } else {\n        url += '&fmt=srv1';\n      }\n    }\n    // Set the final URL\n    finalUrl = url;\n    break; // Stop after finding the first match\n  }\n}\n\n// Return only the final URL\nreturn [{ json: { url: finalUrl } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "91206cd9-4968-4ecc-a973-9588d15bdb50",
+      "name": "Link is Processed",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1540,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a5950b6a-29fd-4f56-94a9-4706535730cb",
+              "name": "Output",
+              "type": "string",
+              "value": "Link is already processed"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "dbb63f27-9e24-4873-81df-547b56c798cf",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1220,
+        -100
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 860,
+        "content": "## 4. Enrich & Summarize\n- **Pull video details + subtitles**  \n  Adds title, description, and transcript data for richer context.\n\n- **Send to AI for short summary**  \n  Generates a concise, readable recap ready for sharing.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f65d7246-c4b9-4784-a172-09280b0597f1",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        500
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "content": "## 5. Log & Notify\n- **Append new videos to sheet**  \n  Records what’s already been handled to prevent duplicates.\n\n- **Post summary to Slack**  \n  Drops the final digest into your channel so the team sees updates in real time.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c09c61a3-298d-40bc-bf7d-39cbbbf54fe6",
+      "name": "Slack Trigger",
+      "type": "n8n-nodes-base.slackTrigger",
+      "position": [
+        -3500,
+        1260
+      ],
+      "webhookId": "84634578-172b-496b-91fc-17605a878885",
+      "parameters": {
+        "options": {},
+        "trigger": [
+          "app_mention"
+        ],
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0914FVFTDE"
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "YRlasKhU6zD9bRT1",
+          "name": "Naveen Slack account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "112a34af-2e8a-41dd-9e22-cb02f9ffae1f",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -2760,
+        1260
+      ],
+      "parameters": {
+        "text": "=Check if {{ $json.rss_feed_url }} is already available in the sheets using `Get Rows` Google Sheets tool. If it's there, do nothing. If it's not in the sheet, then based on the user message {{ $('Slack Trigger').item.json.text }} \"add\" or \"remove\" it to the sheets using `Append Row` and `Delete Row` Google Sheets tools accordingly.",
+        "options": {
+          "systemMessage": "You are an automation assistant managing RSS feed entries in a Google Sheet.\n\n1. First, check if `{{ $json.rss_feed_url }}` exists in the sheet using the `Get Rows` node.\n2. If the URL **already exists**:\n   - Do **nothing** unless the Slack message contains \"remove\", in which case delete the corresponding row using `Delete Row`.\n3. If the URL **does not exist**:\n   - If the Slack message (`{{ $('Slack Trigger').item.json.text }}`) contains \"add\", use `Append Row` to insert the URL.\n   - If the message contains \"remove\", do **nothing**.\n\nOnly act if the intent (\"add\" or \"remove\") is clearly mentioned in the Slack message.\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "8fbe1750-c207-47f3-9a0c-2197febf4558",
+      "name": "Get Rows",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        -2720,
+        1480
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $('RSS Feed URL').item.json.rss_feed_url }}",
+              "lookupColumn": "RSS URL"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1930937118,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=1930937118",
+          "cachedResultName": "RSS Feed URLs"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
+          "cachedResultName": "YouTube RSS Tracker"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "V4NHfo08zBK4IW4e",
+          "name": "[Naveen]Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "1338c910-b227-4172-bb05-870603d3f57d",
+      "name": "Delete Row",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        -2600,
+        1480
+      ],
+      "parameters": {
+        "operation": "delete",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1930937118,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=1930937118",
+          "cachedResultName": "RSS Feed URLs"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
+          "cachedResultName": "YouTube RSS Tracker"
+        },
+        "startIndex": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Row_Number', \"Get `row_number` from `Get Rows` to determine which row to delete\", 'number') }}"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "V4NHfo08zBK4IW4e",
+          "name": "[Naveen]Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "267d813b-2bb7-43ce-acd3-9089d4e92d2c",
+      "name": "Append Row",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        -2480,
+        1480
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "RSS URL": "={{ $('RSS Feed URL').item.json.rss_feed_url }}",
+            "YouTube Channel": "={{ $('Slack Trigger').item.json.attachments[0].from_url }}"
+          },
+          "schema": [
+            {
+              "id": "YouTube Channel",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "YouTube Channel",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RSS URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "RSS URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
             }
           ],
-          [
-            {
-              "node": "Batch RSS Items",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1930937118,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit#gid=1930937118",
+          "cachedResultName": "RSS Feed URLs"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=drivesdk",
+          "cachedResultName": "YouTube RSS Tracker"
+        }
       },
-      "Filter for New Video": {
-        "main": [
-          [
-            {
-              "node": "Check if the Video Exists",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "V4NHfo08zBK4IW4e",
+          "name": "[Naveen]Google Sheets account"
+        }
       },
-      "Formatted Chapter Text": {
-        "main": [
-          [
+      "typeVersion": 4.5
+    },
+    {
+      "id": "86560901-b68c-4d67-9ebd-3294a4ea42f6",
+      "name": "Get Channel ID",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -3280,
+        1260
+      ],
+      "parameters": {
+        "url": "https://youtube138.p.rapidapi.com/channel/details",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
             {
-              "node": "Build AI Payload",
-              "type": "main",
-              "index": 0
+              "name": "id",
+              "value": "={{ $json.blocks[0].elements[0].elements[2].url || $json.attachments[0].from_url }}"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "gl",
+              "value": "US"
             }
           ]
-        ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "youtube138.p.rapidapi.com"
+            }
+          ]
+        }
       },
-      "Check if the Video Exists": {
-        "main": [
-          [
-            {
-              "node": "Log New Videos",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Link is Processed",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "TkaNF3gX6mdxX68v",
+          "name": "RapidAPI/YTSubtitles Header Auth"
+        }
       },
-      "Formatted Transcript w/o Chapters": {
-        "main": [
-          [
-            {
-              "node": "Generate Summary",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4abd10d8-e68e-4729-928d-0e466a00be8b",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -2840,
+        1480
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
       },
-      "Generate Slack Blocks - Detailed Summary": {
-        "main": [
-          [
+      "credentials": {
+        "openAiApi": {
+          "id": "ByDgQA1p4t7cntsz",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4941f63a-3560-4175-9e97-86f9c051ca5c",
+      "name": "RSS Feed URL",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3060,
+        1260
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
             {
-              "node": "Post to Slack",
-              "type": "main",
-              "index": 0
+              "id": "81c9584a-4113-4b60-97e3-dcd8cf39882c",
+              "name": "rss_feed_url",
+              "type": "string",
+              "value": "=https://www.youtube.com/feeds/videos.xml?channel_id={{ $json.channelId }}"
             }
           ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8901e407-973c-4c25-87ff-61c653448f3a",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3740,
+        960
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 440,
+        "height": 280,
+        "content": "## 1. Slack Event Trigger\n- Kicks off whenever someone @mentions the bot in a channel, capturing the message text and channel context.\n\n### Example:\n\"@yourbotname, add this  `https://www.youtube.com/@mreflow`\"\n\n\"@yourbotname, delete/remove this  `https://www.youtube.com/@mreflow`\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4b0e9642-6db1-4b91-8706-f7b5f2d6ba72",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3200,
+        1080
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 800,
+        "height": 140,
+        "content": "## 2. Build RSS & Decide Action\n- Extracts the YouTube channel link from the message, converts it into a channel-specific RSS URL, and lets an AI step read the text to decide whether the user wants to **add** or **remove** that feed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "347b8f85-700e-4638-a1ce-3d96c754b22a",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4520,
+        860
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 620,
+        "height": 420,
+        "content": "## Setting up Slack OAuth for Posting & Event Listening\n\n1. **Create a Slack App**: `api.slack.com/apps` → **Create New App** → “From scratch.”  \n2. **Add Bot Token Scopes**:  \n   - `chat:write` (post messages)  \n   - `channels:read` & `groups:read` (find channel IDs)  \n3. **Enable Event Subscriptions**:  \n   - Turn on **Event Subscriptions** → set your n8n public webhook URL.  \n   - Subscribe to the **`app_mention`** event so the bot fires when mentioned.  \n4. **Install the App**: Click **Install App**, authorize, and copy the **Bot User OAuth Token** (`xoxb-...`) into an n8n Slack credential.  \n5. **Invite Bot to Channel**: `/invite @YourBot` in the target channel.  \n6. **Test**: Send “`@YourBot add/remove {YouTube Channel link}`” and watch the workflow update the sheet.\n\n*(If you change scopes later, reinstall the app so the token picks up new permissions.)*\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "838fdb84-cbac-4a0f-860a-ea25f1459e58",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4500,
+        340
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 420,
+        "content": "## 🔑 Setup & Credentials\n- **Google Sheets Template**  \n  > Make a copy of the master sheet here:  \n  > `https://docs.google.com/spreadsheets/d/1i3jZ_0npsEVtrMUSzGPV3Lbta3q7sArHHeNomlAuSMg/edit?usp=sharing`  \n  > Connect the copy with a **Google Sheets OAuth2** credential that has **edit** access so the workflow can read/write rows.\n\n- **RapidAPI – Subtitles Endpoint**  \n  > Sign up at `https://yt-api.p.rapidapi.com/subtitles` (free 300 calls / month).  \n  > Store your **X-RapidAPI-Key** in an n8n **Header Auth** credential—never hard-code it in the node.\n\n- **OpenAI API Key**  \n  > Create a key at `https://platform.openai.com/account/api-keys` and save it in an n8n **OpenAI** credential.  \n  > Monitor usage; long transcripts can eat tokens quickly.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "897c96d2-bbec-4446-8150-268049be132c",
+  "connections": {
+    "Get Rows": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
         ]
-      }
+      ]
+    },
+    "Append Row": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Row": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed URL": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get RSS Links": {
+      "main": [
+        [
+          {
+            "node": "Batch RSS Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Subtitles": {
+      "main": [
+        [
+          {
+            "node": "Get Timestamps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse RSS XML": {
+      "main": [
+        [
+          {
+            "node": "If newly published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Slack": {
+      "main": [
+        [
+          {
+            "node": "Batch RSS Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Channel ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch RSS Feed": {
+      "main": [
+        [
+          {
+            "node": "Parse RSS XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Channel ID": {
+      "main": [
+        [
+          {
+            "node": "RSS Feed URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Timestamps": {
+      "main": [
+        [
+          {
+            "node": "Check for Timestamps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log New Videos": {
+      "main": [
+        [
+          {
+            "node": "Fetch Video Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch RSS Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Fetch RSS Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Get Subtitles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI Payload": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Summary": {
+      "main": [
+        [
+          {
+            "node": "Generate Slack Blocks - Detailed Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get RSS Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Link is Processed": {
+      "main": [
+        [
+          {
+            "node": "Batch RSS Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If newly published": {
+      "main": [
+        [
+          {
+            "node": "Check for new videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Subtitles URL": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Video Details": {
+      "main": [
+        [
+          {
+            "node": "Fetch Subtitles URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Timestamps": {
+      "main": [
+        [
+          {
+            "node": "Formatted Chapter Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formatted Transcript w/o Chapters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for new videos": {
+      "main": [
+        [
+          {
+            "node": "Filter for New Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Batch RSS Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter for New Video": {
+      "main": [
+        [
+          {
+            "node": "Check if the Video Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatted Chapter Text": {
+      "main": [
+        [
+          {
+            "node": "Build AI Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if the Video Exists": {
+      "main": [
+        [
+          {
+            "node": "Log New Videos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Link is Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatted Transcript w/o Chapters": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Slack Blocks - Detailed Summary": {
+      "main": [
+        [
+          {
+            "node": "Post to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   }
 }

@@ -1,775 +1,775 @@
 {
-  "workflow": {
-    "id": "tUEm5XYFpv149YVQ",
-    "name": "Extract Medical reports from Google Drive with AI health advice",
-    "tags": [],
-    "nodes": [
-      {
-        "id": "a6a3e84a-be97-4579-ae73-8e3f1f26f4cf",
-        "name": "Download file",
-        "type": "n8n-nodes-base.googleDrive",
-        "position": [
-          1024,
-          464
-        ],
-        "parameters": {
-          "fileId": {
-            "__rl": true,
-            "mode": "id",
-            "value": "={{ $json.id }}"
-          },
-          "options": {},
-          "operation": "download"
+  "id": "tUEm5XYFpv149YVQ",
+  "name": "Extract Medical reports from Google Drive with AI health advice",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a6a3e84a-be97-4579-ae73-8e3f1f26f4cf",
+      "name": "Download file",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1024,
+        464
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
         },
-        "typeVersion": 3
+        "options": {},
+        "operation": "download"
       },
-      {
-        "id": "057e8d68-e51d-45fb-96c3-6aa45e2a2690",
-        "name": "Combine page Markdown",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          1840,
-          304
-        ],
-        "parameters": {
-          "jsCode": "// Merge markdown from all pages (works for any number of pages)\nconst pages = $json.pages;\nlet combinedMarkdown = \"\";\n\nfor (let i = 0; i < pages.length; i++) {\n  if (pages[i]?.markdown) {\n    combinedMarkdown += pages[i].markdown + \"\\n\";\n  }\n}\n\nreturn [{ json: { combined_markdown: combinedMarkdown } }];\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "d6af767c-c86e-4778-b604-122b48e91231",
-        "name": "Parse AI output to one-per-row",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          2192,
-          288
-        ],
-        "parameters": {
-          "jsCode": "const input = $input.first();\nlet data = input.json.message.content || input.json.content || input.json;\n\n// Remove markdown ``` or ```\nif (typeof data === 'string') {\n  data = data.replace(/```+[\\w]*\\s*/g, '').trim();\n}\n\n// Parse JSON\ntry {\n  data = JSON.parse(data);\n} catch (err) {\n  return [{\n    json: {\n      error: \"Failed to parse JSON\",\n      message: err.message,\n      raw: typeof data === 'string' ? data.substring(0, 500) : ''\n    }\n  }];\n}\n\n// Validate array\nif (!Array.isArray(data)) {\n  return [{\n    json: {\n      error: \"Parsed data is not an array\",\n      data\n    }\n  }];\n}\n\n// Map each array entry into a separate n8n item\nreturn data.map(item => {\n  // Clean reference interval: keep only numbers, hyphens, dots, spaces\n  let ref = item.reference_range || 'N/A';\n  if (ref && ref !== 'N/A') {\n    ref = ref.replace(/[^0-9.\\- ]/g, '').replace(/\\s*-\\s*/g, ' - ').replace(/\\s+/g, ' ').trim();\n  }\n  return {\n    json: {\n      'Diagnostic Centre': item.diagnostic_centre || 'N/A',\n      'Name': item.patient_name || 'N/A',\n      'Age': item.age || 'N/A',\n      'Gender': item.gender || 'N/A',\n      'Registered on': item.registration_date || 'N/A',\n      'Sample Type': item.sample_type || 'N/A',\n      'Test Name': item.test_name || 'N/A',\n      'Result': item.result_value !== undefined ? String(item.result_value) : 'N/A',\n      'Unit': item.unit || 'N/A',\n      'Biological reference Interval': ref\n    }\n  };\n});\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "280f592d-9b76-4653-8a5c-2292004bda36",
-        "name": "Out-of-Range Detection & Advice Fields",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          2416,
-          288
-        ],
-        "parameters": {
-          "jsCode": "function isOutOfRange(result, ref) {\n  if (!result || !ref) return false;\n  // strip units, trim spaces\n  let val = parseFloat((result + '').replace(/[^0-9.\\-]/g, ''));\n  let match = ref.match(/^\\s*(\\d+\\.?\\d*)\\s*-\\s*(\\d+\\.?\\d*)/); // \"0.3-1.2\" etc.\n  if (match) {\n    let low = parseFloat(match[1]);\n    let high = parseFloat(match[2]);\n    return (val < low || val > high);\n  }\n  if (ref.match(/^<\\s*(\\d+)/)) {\n    let high = parseFloat(ref.match(/^<\\s*(\\d+)/)[1]);\n    return (val >= high);\n  }\n  if (ref.match(/^>\\s*(\\d+)/)) {\n    let low = parseFloat(ref.match(/^>\\s*(\\d+)/)[1]);\n    return (val <= low);\n  }\n  return false; // fallback\n}\n\nlet outOfRangeItems = [];\nfor (let item of items) {\n  item.json['Dietary advice'] = '';\n  item.json['Lifestyle advice'] = '';\n  item.json['Exercise advice'] = '';\n  if (isOutOfRange(item.json['Result'], item.json['Biological reference Interval'])) {\n    outOfRangeItems.push(item);\n  }\n}\nreturn outOfRangeItems; // This will go to the AI node for advice\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "3e152598-d727-482a-99ca-a38d658dee9c",
-        "name": "Merge AI Response Back",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          2768,
-          288
-        ],
-        "parameters": {
-          "jsCode": "// Merge AI Response Back - SIMPLE VERSION\n// Assumes AI responses are in the same order as out-of-range items\n\nconsole.log('=== SIMPLE MERGE START ===');\n\nconst aiItems = items; // AI advice responses\nconst allRows = $('Out-of-Range Detection & Advice Fields').all();\n\nconsole.log('AI items:', aiItems.length);\nconsole.log('Medical rows:', allRows.length);\n\n// Process each row\nfor (let i = 0; i < allRows.length; i++) {\n  const row = allRows[i];\n  \n  let dietary = '';\n  let lifestyle = '';\n  let exercise = '';\n  \n  // If we have AI advice for this index\n  if (i < aiItems.length) {\n    const ai = aiItems[i];\n    \n    // Get content from various possible locations\n    let content = ai.json.content || ai.json.message?.content || ai.json.text || '';\n    \n    if (content) {\n      try {\n        // Remove code fences\n        content = content.replace(/```(?:json)?\\s*/g, '').replace(/```/g, '').trim();\n        \n        // Parse JSON\n        const obj = JSON.parse(content);\n        \n        dietary = obj[\"Dietary advice\"] || obj[\"dietary_advice\"] || '';\n        lifestyle = obj[\"Lifestyle advice\"] || obj[\"lifestyle_advice\"] || '';\n        exercise = obj[\"Exercise advice\"] || obj[\"exercise_advice\"] || '';\n        \n        console.log(`Row ${i}: Successfully extracted advice`);\n        \n      } catch (err) {\n        console.error(`Row ${i}: Parse error -`, err.message);\n      }\n    }\n  }\n  \n  row.json['Dietary advice'] = dietary;\n  row.json['Lifestyle advice'] = lifestyle;\n  row.json['Exercise advice'] = exercise;\n}\n\nconsole.log('=== SIMPLE MERGE COMPLETE ===');\nreturn allRows;"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "a62dfcf0-a9b0-443d-bf87-51c58e34662b",
-        "name": "Upload pdf/jpeg file to Google drive",
-        "type": "n8n-nodes-base.googleDriveTrigger",
-        "notes": "Folder ID is referenced from the 'Workflow User Configuration'\nFolder ID is read from workflow variable `GOOGLE_DRIVE_FOLDER_ID` (set via Workflow → Settings → Variables). You can also replace the expression directly in this field.",
-        "position": [
-          1008,
-          176
-        ],
-        "parameters": {
-          "event": "fileCreated",
-          "options": {},
-          "pollTimes": {
-            "item": [
-              {
-                "mode": "everyMinute"
-              }
-            ]
-          },
-          "triggerOn": "specificFolder",
-          "folderToWatch": {
-            "__rl": true,
-            "mode": "list",
-            "value": {
-              "mode": "list",
-              "value": "1mPJiZ...<your-folder-id-here>"
-            }
-          }
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "31350988-e198-493d-83c6-4cb3e6a832f7",
-        "name": "Extract from Image",
-        "type": "n8n-nodes-base.mistralAi",
-        "position": [
-          1584,
-          368
-        ],
-        "parameters": {
-          "options": {},
-          "documentType": "image_url"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "1addfa9f-7104-4da5-a78b-a4dd98e40843",
-        "name": "Check if PDF or Image",
-        "type": "n8n-nodes-base.if",
-        "position": [
-          1296,
-          272
-        ],
-        "parameters": {
-          "options": {},
-          "conditions": {
-            "options": {
-              "version": 2,
-              "leftValue": "",
-              "caseSensitive": true,
-              "typeValidation": "strict"
-            },
-            "combinator": "and",
-            "conditions": [
-              {
-                "id": "aad49b11-5871-422b-818f-431e53e9844f",
-                "operator": {
-                  "name": "filter.operator.equals",
-                  "type": "string",
-                  "operation": "equals"
-                },
-                "leftValue": "={{ $('Upload pdf/jpeg file to Google drive').item.json.mimeType }}",
-                "rightValue": "application/pdf"
-              }
-            ]
-          }
-        },
-        "typeVersion": 2.2
-      },
-      {
-        "id": "8fa34cb4-3775-49a7-9276-497c11988a6c",
-        "name": "Extract from PDF",
-        "type": "n8n-nodes-base.mistralAi",
-        "position": [
-          1584,
-          176
-        ],
-        "parameters": {
-          "options": {}
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "39376374-069f-4566-b06d-683154afe334",
-        "name": "Extract Medical Data (AI)",
-        "type": "@n8n/n8n-nodes-langchain.openAi",
-        "position": [
-          1952,
-          64
-        ],
-        "parameters": {
-          "modelId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "gpt-4o"
-          },
-          "options": {},
-          "messages": {
-            "values": [
-              {
-                "role": "system",
-                "content": "=You are an expert medical data extraction assistant specializing in diagnostic reports. Your role is to accurately identify and extract EVERY measurable test result (including all sub-parameters of multi-test panels like LFT, Haemogram, Lipid Profile, etc.) in a granular and structured fashion, for each page of the provided document.\nReturn only pure, valid JSON and ensure your output is reliable for direct ingestion by downstream data pipelines.\n"
-              },
-              {
-                "role": "user",
-                "content": "=Extract ALL individual test results (including every sub-parameter of multi-panel tests such as Liver Function Test, Haemogram, etc.) from the ENTIRE provided document. \n\nOutput instructions:\n- For EACH test or parameter, create a JSON object with these fields: \n  - diagnostic_centre: Name of the diagnostic center\n  - patient_name: Full patient name\n  - age: age of the patient in Years\n  - gender: gender of the patient\n  - registration_date: Registration date (DD-MMM-YYYY)\n  - sample_type: Type of sample (e.g., Serum, Plasma, Urine)\n  - test_name: Name of the specific test/parameter (e.g., 'Total Bilirubin', 'SGPT', 'Hemoglobin', etc.)\n  - result_value: Result value (only the numeric or string value, no additional text)\n  - unit: Unit of measurement, if present (e.g., mg/dL, g/L, etc.)\n  - reference_range: Normal reference range, if present\n\n- Return ONLY a valid JSON array of all detected test results/parameters. \n- Do not include any markdown, formatting, or code blocks—just the raw JSON array.\n- If a field is missing for a parameter, output an empty string (\"\").\n\nExample:\n[\n  {\n    \"diagnostic_centre\": \"VIJAYA DIAGNOSTIC CENTRE\",\n    \"patient_name\": \"Mr.XYZ\",\n    \"age\": \"58 Years\",\n    \"gender\": \"Male\",\n    \"registration_date\": \"26-Jan-2024\",\n    \"sample_type\": \"Fluoride Plasma\",\n    \"test_name\": \"Post Lunch Glucose\",\n    \"result_value\": \"236\",\n    \"unit\": \"mg/dL\",\n    \"reference_range\": \"100-140\"\n  },\n  {\n    \"diagnostic_centre\": \"VIJAYA DIAGNOSTIC CENTRE\",\n    \"patient_name\": \"Mr.XYZ\",\n    \"age\": \"58 Years\",\n    \"gender\": \"Male\",\n    \"registration_date\": \"26-Jan-2024\",\n    \"sample_type\": \"Serum\",\n    \"test_name\": \"Total Bilirubin\",\n    \"result_value\": \"0.8\",\n    \"unit\": \"mg/dL\",\n    \"reference_range\": \"0.3-1.2\"\n  }\n]\n\nReference {{ $json.combined_markdown }} to provide the full multi-page text as input.\n\n\nExtract every possible test entry into a single JSON array, without markdown, code fences, or comments. Every result/parameter from every page must be present as a separate object.\n"
-              }
-            ]
-          }
-        },
-        "typeVersion": 1.8
-      },
-      {
-        "id": "395f545b-2c39-4fe5-824c-56196d5c5b19",
-        "name": "General Health Advice(AI)",
-        "type": "@n8n/n8n-nodes-langchain.openAi",
-        "position": [
-          2528,
-          80
-        ],
-        "parameters": {
-          "modelId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "gpt-4o"
-          },
-          "options": {},
-          "messages": {
-            "values": [
-              {
-                "role": "system",
-                "content": "You are a physician-reviewed expert assistant specializing in actionable, personalized wellness guidance based on lab test results."
-              },
-              {
-                "content": "=For this out-of-range medical lab result:\n\nPatient: {{ $json.Name }}\nAge :{{ $json.Age }}\nGender:{{ $json.Gender }}\nTest Name: {{ $json['Test Name'] }}\nResult: {{ $json.Result }} {{ $json.Unit }}\nReference Range: {{ $json['Biological reference Interval'] }}\n\nPlease provide:\n- A two-sentence dietary/nutritional advice\n- A two-sentence lifestyle change suggestion\n- A two-sentence exercise recommendation\n\nReturn your answer ONLY as the following JSON object:\n{\n  \"Dietary advice\": \"...\",\n  \"Lifestyle advice\": \"...\",\n  \"Exercise advice\": \"...\"\n}\nDo not add any additional commentary."
-              }
-            ]
-          }
-        },
-        "typeVersion": 1.8
-      },
-      {
-        "id": "2e4e4a02-0492-4a27-bcd5-d22090a7e210",
-        "name": "Sticky Note",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          912,
-          -80
-        ],
-        "parameters": {
-          "color": 3,
-          "width": 288,
-          "height": 448,
-          "content": "## Google Drive Trigger\n\n## Upload file (Pdf/Image)\n\nMonitors a specific Google Drive folder for newly uploaded medical reports (PDF/image files). Triggers the workflow when a new file is detected (checks every minute)."
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "7077505f-39be-426e-bb8c-f39235900794",
-        "name": "Sticky Note1",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          944,
-          384
-        ],
-        "parameters": {
-          "color": 3,
-          "height": 448,
-          "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Download File\n\nDownloads the detected medical report file from Google Drive for processing."
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "713f9373-6461-4a1d-838a-e94b90e72e97",
-        "name": "Sticky Note2",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          1216,
-          48
-        ],
-        "parameters": {
-          "color": 5,
-          "width": 256,
-          "height": 544,
-          "content": "## Check if PDF/Image\n\nDetermines whether the uploaded file is a PDF or an image, routing to the appropriate extraction node."
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "79fb1da0-1c7a-4e9e-8588-a606227b02b7",
-        "name": "Sticky Note3",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          1488,
-          -80
-        ],
-        "parameters": {
-          "color": 6,
-          "width": 288,
-          "height": 896,
-          "content": "## Extract from PDF\n\nUses Mistral AI to extract text and structure from PDF medical reports using OCR capabilities.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Extract from Image\n\nUses Mistral AI to extract text from image-based medical reports (JPG, PNG, etc.) using vision capabilities."
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "c53123e0-f5a3-4e8e-af19-0838a3393c0a",
-        "name": "Sticky Note6",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          1792,
-          -80
-        ],
-        "parameters": {
-          "color": 4,
-          "width": 560,
-          "height": 896,
-          "content": "## Extract Medical Data (AI)\n\nUses GPT-4 to intelligently extract structured data from the medical report: patient details, test names, results, units, and reference ranges. Outputs pure JSON.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Combine page Markdown\n Merges markdown text from all pages of multi-page reports into a single combined text for unified processing.\n\n\n\n## Parse AI output to one-per-row\n Transforms the AI-generated JSON array into individual n8n items  (one per test result), cleans reference intervals, and standardizes field names for Google Sheets compatibility.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "83ee4286-c175-45a0-86b4-e8b997c72f6a",
-        "name": "Save Out-of-Range Results",
-        "type": "n8n-nodes-base.googleSheets",
-        "position": [
-          3024,
-          288
-        ],
-        "parameters": {
-          "sheet": {
-            "mode": "name",
-            "value": {
-              "mode": "name",
-              "value": "Out of Range Values"
-            }
-          },
-          "columns": {
-            "value": {
-              "Age": "={{ $json.Age }}",
-              "Name": "={{ $json.Name }}",
-              "Unit": "={{ $json.Unit }}",
-              "Gender": "={{ $json.Gender }}",
-              "Result": "={{ $json.Result }}",
-              "Test Name": "={{ $json['Test Name'] }}",
-              "Sample Type": "={{ $json['Sample Type'] }}",
-              "Dietary advice": "={{ $json['Dietary advice'] }}",
-              "Registered \non": "={{ $json['Registered on'] }}",
-              "Exercise advice": "={{ $json['Exercise advice'] }}",
-              "Lifestyle advice": "={{ $json['Lifestyle advice'] }}",
-              "Diagnostic Centre": "={{ $json['Diagnostic Centre'] }}",
-              "Biological \nreference Interval": "={{ $json['Biological reference Interval'] }}"
-            },
-            "schema": [
-              {
-                "id": "Diagnostic Centre",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Diagnostic Centre",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Name",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Name",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Age",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Age",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Gender",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Gender",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Registered \non",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Registered \non",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Sample Type",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Sample Type",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Test Name",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Test Name",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Result",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Result",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Unit",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Unit",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Biological \nreference Interval",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Biological \nreference Interval",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Dietary advice",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Dietary advice",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Lifestyle advice",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Lifestyle advice",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Exercise advice",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Exercise advice",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              }
-            ],
-            "mappingMode": "defineBelow",
-            "matchingColumns": [],
-            "attemptToConvertTypes": false,
-            "convertFieldsToString": false
-          },
-          "options": {},
-          "operation": "append",
-          "sheetName": {
-            "__rl": true,
-            "mode": "list",
-            "value": ""
-          },
-          "documentId": ""
-        },
-        "typeVersion": 4.7
-      },
-      {
-        "id": "50454400-4968-4e6e-adb5-4afe3cea01ec",
-        "name": "Sticky Note10",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          2368,
-          -80
-        ],
-        "parameters": {
-          "color": 4,
-          "width": 560,
-          "height": 896,
-          "content": "## Generate Health Advice (AI) \n\nUses GPT-4 to generate personalized dietary, lifestyle, and exercise recommendations for each out-of-range test result, considering patient age and gender.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Out-of-Range Detection & Advice Fields\nAnalyzes each test result against its reference range. Identifies abnormal values and routes them for personalized health advice generation.\n\n\n\n\n                                                                                                                                                                                                     \n## Merge AI Response Back\nCombines the AI-generated health advice with the corresponding medical test data, preparing complete records for final storage.\n\n\n\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "edbfa3ba-e4de-41d0-8e73-3026a882033f",
-        "name": "Sticky Note5",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          2944,
-          -80
-        ],
-        "parameters": {
-          "color": 2,
-          "width": 288,
-          "height": 928,
-          "content": "\n\n\n## Save Out-of-Range Results\n\nSaves abnormal test results along with personalized health advice to the \"Out of Range Values\" sheet in Google Sheets for priority review.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n ## Save All Test Results\n\nSaves every extracted test result to the \"All Values\" sheet in Google Sheets for comprehensive record-keeping.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "49a1f385-e91e-4047-808d-5b9134050339",
-        "name": "Save All Test Results",
-        "type": "n8n-nodes-base.googleSheets",
-        "position": [
-          3040,
-          512
-        ],
-        "parameters": {
-          "sheet": {
-            "mode": "name",
-            "value": {
-              "mode": "name",
-              "value": "All Values"
-            }
-          },
-          "columns": {
-            "value": {
-              "Age": "={{ $json.Age }}",
-              "Name": "={{ $json.Name }}",
-              "Unit": "={{ $json.Unit }}",
-              "Result": "={{ $json.Result }}",
-              "Test Name": "={{ $json['Test Name'] }}",
-              "Sample Type": "={{ $json['Sample Type'] }}"
-            },
-            "schema": [
-              {
-                "id": "Name",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Name",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Age",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Age",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Sample Type",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Sample Type",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Test Name",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Test Name",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Result",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Result",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Unit",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Unit",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              },
-              {
-                "id": "Biological \nreference Interval",
-                "type": "string",
-                "display": true,
-                "required": false,
-                "displayName": "Biological \nreference Interval",
-                "defaultMatch": false,
-                "canBeUsedToMatch": true
-              }
-            ],
-            "mappingMode": "defineBelow",
-            "matchingColumns": [],
-            "attemptToConvertTypes": false,
-            "convertFieldsToString": false
-          },
-          "options": {},
-          "operation": "append",
-          "sheetName": {
-            "__rl": true,
-            "mode": "list",
-            "value": ""
-          },
-          "documentId": ""
-        },
-        "typeVersion": 4.7
-      },
-      {
-        "id": "e7472172-098d-4a68-811b-89c593545003",
-        "name": "Sticky Note4",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          256,
-          -80
-        ],
-        "parameters": {
-          "width": 640,
-          "height": 912,
-          "content": "## Try It Out!\n\nUse n8n to extract medical test data from diagnostic reports uploaded to Google Drive, automatically detect abnormal values, and generate personalized health advice.\n\n### How it works\n\n1. Upload a medical report (PDF or image) to a monitored Google Drive folder\n2. Mistral AI extracts text using OCR while preserving document structure\n3. GPT-4 parses the extracted text into structured JSON (patient info, test names, results, units, reference ranges)\n4. All test results are saved to the \"All Values\" sheet in Google Sheets\n5. JavaScript code compares each result against its reference range to detect abnormalities\n6. For out-of-range values, GPT-4 generates personalized dietary, lifestyle, and exercise advice based on patient age and gender\n7. Abnormal results with recommendations are saved to the \"Out of Range Values\" sheet\n\n### How to use\n\n1. Set up Google Drive folder monitoring and Google Sheets with two tabs: \"All Values\" and \"Out of Range Values\"\n2. Configure API credentials for Google Drive, Mistral AI, and OpenAI (GPT-4)\n3. Upload medical reports to your monitored folder\n4. Review extracted data and personalized health advice in Google Sheets\n\n### Requirements\n\n* Google Drive and Sheets with OAuth2 authentication\n* Mistral AI API key for OCR\n* OpenAI API key (GPT-4 access required) for intelligent extraction and advice generation\n\n### Need Help?\n\n* See the detailed setup guide for step-by-step credential configuration\n* Join the n8n community forum for support"
-        },
-        "typeVersion": 1
-      }
-    ],
-    "active": false,
-    "pinData": {},
-    "settings": {
-      "executionOrder": "v1"
+      "typeVersion": 3
     },
-    "connections": {
-      "Download file": {
-        "main": [
-          [
+    {
+      "id": "057e8d68-e51d-45fb-96c3-6aa45e2a2690",
+      "name": "Combine page Markdown",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1840,
+        304
+      ],
+      "parameters": {
+        "jsCode": "// Merge markdown from all pages (works for any number of pages)\nconst pages = $json.pages;\nlet combinedMarkdown = \"\";\n\nfor (let i = 0; i < pages.length; i++) {\n  if (pages[i]?.markdown) {\n    combinedMarkdown += pages[i].markdown + \"\\n\";\n  }\n}\n\nreturn [{ json: { combined_markdown: combinedMarkdown } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d6af767c-c86e-4778-b604-122b48e91231",
+      "name": "Parse AI output to one-per-row",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2192,
+        288
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first();\nlet data = input.json.message.content || input.json.content || input.json;\n\n// Remove markdown ``` or ```\nif (typeof data === 'string') {\n  data = data.replace(/```+[\\w]*\\s*/g, '').trim();\n}\n\n// Parse JSON\ntry {\n  data = JSON.parse(data);\n} catch (err) {\n  return [{\n    json: {\n      error: \"Failed to parse JSON\",\n      message: err.message,\n      raw: typeof data === 'string' ? data.substring(0, 500) : ''\n    }\n  }];\n}\n\n// Validate array\nif (!Array.isArray(data)) {\n  return [{\n    json: {\n      error: \"Parsed data is not an array\",\n      data\n    }\n  }];\n}\n\n// Map each array entry into a separate n8n item\nreturn data.map(item => {\n  // Clean reference interval: keep only numbers, hyphens, dots, spaces\n  let ref = item.reference_range || 'N/A';\n  if (ref && ref !== 'N/A') {\n    ref = ref.replace(/[^0-9.\\- ]/g, '').replace(/\\s*-\\s*/g, ' - ').replace(/\\s+/g, ' ').trim();\n  }\n  return {\n    json: {\n      'Diagnostic Centre': item.diagnostic_centre || 'N/A',\n      'Name': item.patient_name || 'N/A',\n      'Age': item.age || 'N/A',\n      'Gender': item.gender || 'N/A',\n      'Registered on': item.registration_date || 'N/A',\n      'Sample Type': item.sample_type || 'N/A',\n      'Test Name': item.test_name || 'N/A',\n      'Result': item.result_value !== undefined ? String(item.result_value) : 'N/A',\n      'Unit': item.unit || 'N/A',\n      'Biological reference Interval': ref\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "280f592d-9b76-4653-8a5c-2292004bda36",
+      "name": "Out-of-Range Detection & Advice Fields",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2416,
+        288
+      ],
+      "parameters": {
+        "jsCode": "function isOutOfRange(result, ref) {\n  if (!result || !ref) return false;\n  // strip units, trim spaces\n  let val = parseFloat((result + '').replace(/[^0-9.\\-]/g, ''));\n  let match = ref.match(/^\\s*(\\d+\\.?\\d*)\\s*-\\s*(\\d+\\.?\\d*)/); // \"0.3-1.2\" etc.\n  if (match) {\n    let low = parseFloat(match[1]);\n    let high = parseFloat(match[2]);\n    return (val < low || val > high);\n  }\n  if (ref.match(/^<\\s*(\\d+)/)) {\n    let high = parseFloat(ref.match(/^<\\s*(\\d+)/)[1]);\n    return (val >= high);\n  }\n  if (ref.match(/^>\\s*(\\d+)/)) {\n    let low = parseFloat(ref.match(/^>\\s*(\\d+)/)[1]);\n    return (val <= low);\n  }\n  return false; // fallback\n}\n\nlet outOfRangeItems = [];\nfor (let item of items) {\n  item.json['Dietary advice'] = '';\n  item.json['Lifestyle advice'] = '';\n  item.json['Exercise advice'] = '';\n  if (isOutOfRange(item.json['Result'], item.json['Biological reference Interval'])) {\n    outOfRangeItems.push(item);\n  }\n}\nreturn outOfRangeItems; // This will go to the AI node for advice\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3e152598-d727-482a-99ca-a38d658dee9c",
+      "name": "Merge AI Response Back",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2768,
+        288
+      ],
+      "parameters": {
+        "jsCode": "// Merge AI Response Back - SIMPLE VERSION\n// Assumes AI responses are in the same order as out-of-range items\n\nconsole.log('=== SIMPLE MERGE START ===');\n\nconst aiItems = items; // AI advice responses\nconst allRows = $('Out-of-Range Detection & Advice Fields').all();\n\nconsole.log('AI items:', aiItems.length);\nconsole.log('Medical rows:', allRows.length);\n\n// Process each row\nfor (let i = 0; i < allRows.length; i++) {\n  const row = allRows[i];\n  \n  let dietary = '';\n  let lifestyle = '';\n  let exercise = '';\n  \n  // If we have AI advice for this index\n  if (i < aiItems.length) {\n    const ai = aiItems[i];\n    \n    // Get content from various possible locations\n    let content = ai.json.content || ai.json.message?.content || ai.json.text || '';\n    \n    if (content) {\n      try {\n        // Remove code fences\n        content = content.replace(/```(?:json)?\\s*/g, '').replace(/```/g, '').trim();\n        \n        // Parse JSON\n        const obj = JSON.parse(content);\n        \n        dietary = obj[\"Dietary advice\"] || obj[\"dietary_advice\"] || '';\n        lifestyle = obj[\"Lifestyle advice\"] || obj[\"lifestyle_advice\"] || '';\n        exercise = obj[\"Exercise advice\"] || obj[\"exercise_advice\"] || '';\n        \n        console.log(`Row ${i}: Successfully extracted advice`);\n        \n      } catch (err) {\n        console.error(`Row ${i}: Parse error -`, err.message);\n      }\n    }\n  }\n  \n  row.json['Dietary advice'] = dietary;\n  row.json['Lifestyle advice'] = lifestyle;\n  row.json['Exercise advice'] = exercise;\n}\n\nconsole.log('=== SIMPLE MERGE COMPLETE ===');\nreturn allRows;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a62dfcf0-a9b0-443d-bf87-51c58e34662b",
+      "name": "Upload pdf/jpeg file to Google drive",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "notes": "Folder ID is referenced from the 'Workflow User Configuration'\nFolder ID is read from workflow variable `GOOGLE_DRIVE_FOLDER_ID` (set via Workflow → Settings → Variables). You can also replace the expression directly in this field.",
+      "position": [
+        1008,
+        176
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
             {
-              "node": "Check if PDF or Image",
-              "type": "main",
-              "index": 0
+              "mode": "everyMinute"
             }
           ]
-        ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": {
+            "mode": "list",
+            "value": "1mPJiZ...<your-folder-id-here>"
+          }
+        }
       },
-      "Extract from PDF": {
-        "main": [
-          [
+      "typeVersion": 1
+    },
+    {
+      "id": "31350988-e198-493d-83c6-4cb3e6a832f7",
+      "name": "Extract from Image",
+      "type": "n8n-nodes-base.mistralAi",
+      "position": [
+        1584,
+        368
+      ],
+      "parameters": {
+        "options": {},
+        "documentType": "image_url"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1addfa9f-7104-4da5-a78b-a4dd98e40843",
+      "name": "Check if PDF or Image",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1296,
+        272
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
             {
-              "node": "Combine page Markdown",
-              "type": "main",
-              "index": 0
+              "id": "aad49b11-5871-422b-818f-431e53e9844f",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Upload pdf/jpeg file to Google drive').item.json.mimeType }}",
+              "rightValue": "application/pdf"
             }
           ]
-        ]
+        }
       },
-      "Extract from Image": {
-        "main": [
-          [
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8fa34cb4-3775-49a7-9276-497c11988a6c",
+      "name": "Extract from PDF",
+      "type": "n8n-nodes-base.mistralAi",
+      "position": [
+        1584,
+        176
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "39376374-069f-4566-b06d-683154afe334",
+      "name": "Extract Medical Data (AI)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1952,
+        64
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o"
+        },
+        "options": {},
+        "messages": {
+          "values": [
             {
-              "node": "Combine page Markdown",
-              "type": "main",
-              "index": 0
+              "role": "system",
+              "content": "=You are an expert medical data extraction assistant specializing in diagnostic reports. Your role is to accurately identify and extract EVERY measurable test result (including all sub-parameters of multi-test panels like LFT, Haemogram, Lipid Profile, etc.) in a granular and structured fashion, for each page of the provided document.\nReturn only pure, valid JSON and ensure your output is reliable for direct ingestion by downstream data pipelines.\n"
+            },
+            {
+              "role": "user",
+              "content": "=Extract ALL individual test results (including every sub-parameter of multi-panel tests such as Liver Function Test, Haemogram, etc.) from the ENTIRE provided document. \n\nOutput instructions:\n- For EACH test or parameter, create a JSON object with these fields: \n  - diagnostic_centre: Name of the diagnostic center\n  - patient_name: Full patient name\n  - age: age of the patient in Years\n  - gender: gender of the patient\n  - registration_date: Registration date (DD-MMM-YYYY)\n  - sample_type: Type of sample (e.g., Serum, Plasma, Urine)\n  - test_name: Name of the specific test/parameter (e.g., 'Total Bilirubin', 'SGPT', 'Hemoglobin', etc.)\n  - result_value: Result value (only the numeric or string value, no additional text)\n  - unit: Unit of measurement, if present (e.g., mg/dL, g/L, etc.)\n  - reference_range: Normal reference range, if present\n\n- Return ONLY a valid JSON array of all detected test results/parameters. \n- Do not include any markdown, formatting, or code blocks—just the raw JSON array.\n- If a field is missing for a parameter, output an empty string (\"\").\n\nExample:\n[\n  {\n    \"diagnostic_centre\": \"VIJAYA DIAGNOSTIC CENTRE\",\n    \"patient_name\": \"Mr.XYZ\",\n    \"age\": \"58 Years\",\n    \"gender\": \"Male\",\n    \"registration_date\": \"26-Jan-2024\",\n    \"sample_type\": \"Fluoride Plasma\",\n    \"test_name\": \"Post Lunch Glucose\",\n    \"result_value\": \"236\",\n    \"unit\": \"mg/dL\",\n    \"reference_range\": \"100-140\"\n  },\n  {\n    \"diagnostic_centre\": \"VIJAYA DIAGNOSTIC CENTRE\",\n    \"patient_name\": \"Mr.XYZ\",\n    \"age\": \"58 Years\",\n    \"gender\": \"Male\",\n    \"registration_date\": \"26-Jan-2024\",\n    \"sample_type\": \"Serum\",\n    \"test_name\": \"Total Bilirubin\",\n    \"result_value\": \"0.8\",\n    \"unit\": \"mg/dL\",\n    \"reference_range\": \"0.3-1.2\"\n  }\n]\n\nReference {{ $json.combined_markdown }} to provide the full multi-page text as input.\n\n\nExtract every possible test entry into a single JSON array, without markdown, code fences, or comments. Every result/parameter from every page must be present as a separate object.\n"
             }
           ]
-        ]
+        }
       },
-      "Check if PDF or Image": {
-        "main": [
-          [
+      "typeVersion": 1.8
+    },
+    {
+      "id": "395f545b-2c39-4fe5-824c-56196d5c5b19",
+      "name": "General Health Advice(AI)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2528,
+        80
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o"
+        },
+        "options": {},
+        "messages": {
+          "values": [
             {
-              "node": "Extract from PDF",
-              "type": "main",
-              "index": 0
+              "role": "system",
+              "content": "You are a physician-reviewed expert assistant specializing in actionable, personalized wellness guidance based on lab test results."
+            },
+            {
+              "content": "=For this out-of-range medical lab result:\n\nPatient: {{ $json.Name }}\nAge :{{ $json.Age }}\nGender:{{ $json.Gender }}\nTest Name: {{ $json['Test Name'] }}\nResult: {{ $json.Result }} {{ $json.Unit }}\nReference Range: {{ $json['Biological reference Interval'] }}\n\nPlease provide:\n- A two-sentence dietary/nutritional advice\n- A two-sentence lifestyle change suggestion\n- A two-sentence exercise recommendation\n\nReturn your answer ONLY as the following JSON object:\n{\n  \"Dietary advice\": \"...\",\n  \"Lifestyle advice\": \"...\",\n  \"Exercise advice\": \"...\"\n}\nDo not add any additional commentary."
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "2e4e4a02-0492-4a27-bcd5-d22090a7e210",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        912,
+        -80
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 288,
+        "height": 448,
+        "content": "## Google Drive Trigger\n\n## Upload file (Pdf/Image)\n\nMonitors a specific Google Drive folder for newly uploaded medical reports (PDF/image files). Triggers the workflow when a new file is detected (checks every minute)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7077505f-39be-426e-bb8c-f39235900794",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        944,
+        384
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 448,
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Download File\n\nDownloads the detected medical report file from Google Drive for processing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "713f9373-6461-4a1d-838a-e94b90e72e97",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1216,
+        48
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 256,
+        "height": 544,
+        "content": "## Check if PDF/Image\n\nDetermines whether the uploaded file is a PDF or an image, routing to the appropriate extraction node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "79fb1da0-1c7a-4e9e-8588-a606227b02b7",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1488,
+        -80
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 288,
+        "height": 896,
+        "content": "## Extract from PDF\n\nUses Mistral AI to extract text and structure from PDF medical reports using OCR capabilities.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Extract from Image\n\nUses Mistral AI to extract text from image-based medical reports (JPG, PNG, etc.) using vision capabilities."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c53123e0-f5a3-4e8e-af19-0838a3393c0a",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1792,
+        -80
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 560,
+        "height": 896,
+        "content": "## Extract Medical Data (AI)\n\nUses GPT-4 to intelligently extract structured data from the medical report: patient details, test names, results, units, and reference ranges. Outputs pure JSON.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Combine page Markdown\n Merges markdown text from all pages of multi-page reports into a single combined text for unified processing.\n\n\n\n## Parse AI output to one-per-row\n Transforms the AI-generated JSON array into individual n8n items  (one per test result), cleans reference intervals, and standardizes field names for Google Sheets compatibility.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "83ee4286-c175-45a0-86b4-e8b997c72f6a",
+      "name": "Save Out-of-Range Results",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3024,
+        288
+      ],
+      "parameters": {
+        "sheet": {
+          "mode": "name",
+          "value": {
+            "mode": "name",
+            "value": "Out of Range Values"
+          }
+        },
+        "columns": {
+          "value": {
+            "Age": "={{ $json.Age }}",
+            "Name": "={{ $json.Name }}",
+            "Unit": "={{ $json.Unit }}",
+            "Gender": "={{ $json.Gender }}",
+            "Result": "={{ $json.Result }}",
+            "Test Name": "={{ $json['Test Name'] }}",
+            "Sample Type": "={{ $json['Sample Type'] }}",
+            "Dietary advice": "={{ $json['Dietary advice'] }}",
+            "Registered \non": "={{ $json['Registered on'] }}",
+            "Exercise advice": "={{ $json['Exercise advice'] }}",
+            "Lifestyle advice": "={{ $json['Lifestyle advice'] }}",
+            "Diagnostic Centre": "={{ $json['Diagnostic Centre'] }}",
+            "Biological \nreference Interval": "={{ $json['Biological reference Interval'] }}"
+          },
+          "schema": [
+            {
+              "id": "Diagnostic Centre",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Diagnostic Centre",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Age",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Age",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Gender",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Gender",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Registered \non",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Registered \non",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sample Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Sample Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Test Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Test Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Result",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Result",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Unit",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Unit",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Biological \nreference Interval",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Biological \nreference Interval",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dietary advice",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Dietary advice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lifestyle advice",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Lifestyle advice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Exercise advice",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Exercise advice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
             }
           ],
-          [
-            {
-              "node": "Extract from Image",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": ""
       },
-      "Combine page Markdown": {
-        "main": [
-          [
-            {
-              "node": "Extract Medical Data (AI)",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 4.7
+    },
+    {
+      "id": "50454400-4968-4e6e-adb5-4afe3cea01ec",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2368,
+        -80
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 560,
+        "height": 896,
+        "content": "## Generate Health Advice (AI) \n\nUses GPT-4 to generate personalized dietary, lifestyle, and exercise recommendations for each out-of-range test result, considering patient age and gender.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n## Out-of-Range Detection & Advice Fields\nAnalyzes each test result against its reference range. Identifies abnormal values and routes them for personalized health advice generation.\n\n\n\n\n                                                                                                                                                                                                     \n## Merge AI Response Back\nCombines the AI-generated health advice with the corresponding medical test data, preparing complete records for final storage.\n\n\n\n"
       },
-      "Merge AI Response Back": {
-        "main": [
-          [
-            {
-              "node": "Save Out-of-Range Results",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 1
+    },
+    {
+      "id": "edbfa3ba-e4de-41d0-8e73-3026a882033f",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2944,
+        -80
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 288,
+        "height": 928,
+        "content": "\n\n\n## Save Out-of-Range Results\n\nSaves abnormal test results along with personalized health advice to the \"Out of Range Values\" sheet in Google Sheets for priority review.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n ## Save All Test Results\n\nSaves every extracted test result to the \"All Values\" sheet in Google Sheets for comprehensive record-keeping.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
       },
-      "Extract Medical Data (AI)": {
-        "main": [
-          [
+      "typeVersion": 1
+    },
+    {
+      "id": "49a1f385-e91e-4047-808d-5b9134050339",
+      "name": "Save All Test Results",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3040,
+        512
+      ],
+      "parameters": {
+        "sheet": {
+          "mode": "name",
+          "value": {
+            "mode": "name",
+            "value": "All Values"
+          }
+        },
+        "columns": {
+          "value": {
+            "Age": "={{ $json.Age }}",
+            "Name": "={{ $json.Name }}",
+            "Unit": "={{ $json.Unit }}",
+            "Result": "={{ $json.Result }}",
+            "Test Name": "={{ $json['Test Name'] }}",
+            "Sample Type": "={{ $json['Sample Type'] }}"
+          },
+          "schema": [
             {
-              "node": "Parse AI output to one-per-row",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "General Health Advice(AI)": {
-        "main": [
-          [
-            {
-              "node": "Merge AI Response Back",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Parse AI output to one-per-row": {
-        "main": [
-          [
-            {
-              "node": "Out-of-Range Detection & Advice Fields",
-              "type": "main",
-              "index": 0
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
             },
             {
-              "node": "Save All Test Results",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Upload pdf/jpeg file to Google drive": {
-        "main": [
-          [
+              "id": "Age",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Age",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
             {
-              "node": "Download file",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Out-of-Range Detection & Advice Fields": {
-        "main": [
-          [
+              "id": "Sample Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Sample Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
             {
-              "node": "General Health Advice(AI)",
-              "type": "main",
-              "index": 0
+              "id": "Test Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Test Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Result",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Result",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Unit",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Unit",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Biological \nreference Interval",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Biological \nreference Interval",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
             }
-          ]
-        ]
-      }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": ""
+      },
+      "typeVersion": 4.7
     },
-    "meta": {
-      "name": "Extract Medical Reports & Generate AI Health Advice with Mistral AI & GPT-4",
-      "id": 9839,
-      "site": "https://github.com/zengfr/n8n-workflow-all-templates"
+    {
+      "id": "e7472172-098d-4a68-811b-89c593545003",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        -80
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 912,
+        "content": "## Try It Out!\n\nUse n8n to extract medical test data from diagnostic reports uploaded to Google Drive, automatically detect abnormal values, and generate personalized health advice.\n\n### How it works\n\n1. Upload a medical report (PDF or image) to a monitored Google Drive folder\n2. Mistral AI extracts text using OCR while preserving document structure\n3. GPT-4 parses the extracted text into structured JSON (patient info, test names, results, units, reference ranges)\n4. All test results are saved to the \"All Values\" sheet in Google Sheets\n5. JavaScript code compares each result against its reference range to detect abnormalities\n6. For out-of-range values, GPT-4 generates personalized dietary, lifestyle, and exercise advice based on patient age and gender\n7. Abnormal results with recommendations are saved to the \"Out of Range Values\" sheet\n\n### How to use\n\n1. Set up Google Drive folder monitoring and Google Sheets with two tabs: \"All Values\" and \"Out of Range Values\"\n2. Configure API credentials for Google Drive, Mistral AI, and OpenAI (GPT-4)\n3. Upload medical reports to your monitored folder\n4. Review extracted data and personalized health advice in Google Sheets\n\n### Requirements\n\n* Google Drive and Sheets with OAuth2 authentication\n* Mistral AI API key for OCR\n* OpenAI API key (GPT-4 access required) for intelligent extraction and advice generation\n\n### Need Help?\n\n* See the detailed setup guide for step-by-step credential configuration\n* Join the n8n community forum for support"
+      },
+      "typeVersion": 1
     }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Check if PDF or Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from PDF": {
+      "main": [
+        [
+          {
+            "node": "Combine page Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from Image": {
+      "main": [
+        [
+          {
+            "node": "Combine page Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if PDF or Image": {
+      "main": [
+        [
+          {
+            "node": "Extract from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine page Markdown": {
+      "main": [
+        [
+          {
+            "node": "Extract Medical Data (AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge AI Response Back": {
+      "main": [
+        [
+          {
+            "node": "Save Out-of-Range Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Medical Data (AI)": {
+      "main": [
+        [
+          {
+            "node": "Parse AI output to one-per-row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "General Health Advice(AI)": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Response Back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI output to one-per-row": {
+      "main": [
+        [
+          {
+            "node": "Out-of-Range Detection & Advice Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save All Test Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload pdf/jpeg file to Google drive": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Out-of-Range Detection & Advice Fields": {
+      "main": [
+        [
+          {
+            "node": "General Health Advice(AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Extract Medical Reports & Generate AI Health Advice with Mistral AI & GPT-4",
+    "wechat": "youandme10086",
+    "id": 9839,
+    "update_time": "2025-11-10"
   }
 }

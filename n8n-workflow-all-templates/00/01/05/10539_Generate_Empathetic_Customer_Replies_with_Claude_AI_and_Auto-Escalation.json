@@ -1,0 +1,536 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Generate Empathetic Customer Replies with Claude AI and Auto-Escalation",
+    "wechat": "youandme10086",
+    "id": 10539,
+    "update_time": "2025-11-10"
+  },
+  "nodes": [
+    {
+      "id": "ac9638bd-e82e-473c-935d-77387f0827c6",
+      "name": "Test Input (Change Me)1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        832,
+        576
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={\n  \"text\": \"I'm really frustrated with your service. This is the third time I've had issues and nobody is helping me!\"\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3972b891-6ef7-4f31-915c-7b290932b36e",
+      "name": "Set Config1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1056,
+        576
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={\n  \"MAX_LEN\": 600,\n  \"ADD_FOLLOWUP_QUESTION\": true,\n  \"FORMALITY\": \"auto\",\n  \"EMOJI_ALLOWED\": false,\n  \"SIGNOFF\": \"\",\n  \"BLOCK_LINKS\": true,\n  \"RISK_WORDS\": [\n    \"refund\",\"chargeback\",\"lawsuit\",\"harassment\",\"self-harm\",\"suicide\",\"abuse\",\n    \"threat\",\"racist\",\"illegal\",\"hate\",\"scam\"\n  ]\n}",
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "546540d3-8889-4a5b-a06f-19322d9b386b",
+      "name": "Ensure Session1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1280,
+        576
+      ],
+      "parameters": {
+        "jsCode": "const j = $input.first().json || {};\nconst sid = j.sessionId || 'test-session-1';\nconst text = j.text || j.message || j.input || JSON.stringify(j);\nreturn [{ json: { ...j, sessionId: String(sid), text } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9f4b03fa-aa22-4cca-a71b-b8d5fa505e45",
+      "name": "AI Agent (Empathy)1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1568,
+        576
+      ],
+      "parameters": {
+        "text": "=You are an Empathy Reply Assistant for English-language messages.\nAnalyze the incoming text:\n<Text>{{ $json.text || $json.message || $json.input || JSON.stringify($json) }}</Text>\n\nGoals:\n1) Detect `sentiment` (positive|neutral|negative|mixed)\n2) Choose a natural human `tone` that fits the sender (warm, calm, upbeat, apologetic, confident, concise)\n3) Draft a short `reply` (<= {{ $('Set Config1').item.json.MAX_LEN }} chars) that:\n   - acknowledges the emotion first in plain English\n   - provides a practical next step or clarification\n   - {{ $('Set Config1').item.json.ADD_FOLLOWUP_QUESTION ? 'ends with a gentle question' : 'may end without a question' }}\n   - uses **no links**, **no hashtags**\n   - matches formality: {{ $('Set Config1').item.json.FORMALITY }} (auto|casual|polite)\n\nReturn **JSON only** with keys: sentiment, tone, reply, confidence (0.0–1.0), needs_handover (boolean).",
+        "options": {
+          "systemMessage": "Role: Empathetic, practical, concise. Avoid corporate cliches. Keep it in English. No URLs or hashtags."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "a9afe8de-3810-4b2b-978e-a30f22f487f5",
+      "name": "Anthropic Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        1504,
+        800
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-3-5-sonnet-latest",
+          "cachedResultName": "Claude 3.5 Sonnet (latest)"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1badd599-1d2a-484f-8219-3f03951c2ad4",
+      "name": "Memory (Recent 4)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1632,
+        800
+      ],
+      "parameters": {
+        "contextWindowLength": 4
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "6799d4c5-da73-4415-9d26-c87adfe0d990",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1760,
+        800
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"sentiment\": \"positive|neutral|negative|mixed\",\n  \"tone\": \"warm|calm|upbeat|apologetic|confident|concise\",\n  \"reply\": \"string\",\n  \"confidence\": 0.0,\n  \"needs_handover\": false\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "61a412c9-801c-4d5d-822a-8499a26d2607",
+      "name": "Post-Process & Sanitize1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1968,
+        576
+      ],
+      "parameters": {
+        "jsCode": "// Read config from Set Config node (stable across items)\nconst cfgNode = $nodes['Set Config1']?.data?.json || {};\nconst cfg = {\n  MAX_LEN: Number(cfgNode.MAX_LEN ?? 600),\n  EMOJI_ALLOWED: cfgNode.EMOJI_ALLOWED === false ? false : Boolean(cfgNode.EMOJI_ALLOWED),\n  SIGNOFF: String(cfgNode.SIGNOFF ?? ''),\n  BLOCK_LINKS: cfgNode.BLOCK_LINKS === undefined ? true : Boolean(cfgNode.BLOCK_LINKS)\n};\n\nconst input = $input.first().json || {};\nlet out = { ...input };\n\nout.sentiment = (out.sentiment || '').toLowerCase();\nout.tone = (out.tone || '').toLowerCase();\nout.reply = (out.reply || '').toString();\nout.confidence = (typeof out.confidence === 'number') ? out.confidence : 0.6;\nout.needs_handover = !!out.needs_handover;\n\nif (cfg.BLOCK_LINKS) {\n  out.reply = out.reply\n    .replace(/https?:\\/\\/\\S+/gi, '')\n    .replace(/#[\\w-]+/g, '')\n    .replace(/\\s{2,}/g, ' ');\n}\n\nif (cfg.EMOJI_ALLOWED === false) {\n  out.reply = out.reply.replace(/[\\p{Extended_Pictographic}\\p{Emoji_Component}]/gu, '');\n}\n\nout.reply = out.reply\n  .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/ig, '[email hidden]')\n  .replace(/\\b\\+?\\d[\\d\\s().-]{6,}\\b/g, '[phone hidden]');\n\nconst maxLen = Number(cfg.MAX_LEN || 600);\nif (out.reply.length > maxLen) {\n  out.reply = out.reply.slice(0, maxLen - 1).replace(/\\s+\\S*$/, '') + '…';\n}\n\nif (cfg.SIGNOFF && !/\\b(best|thanks|regards)\\b/i.test(out.reply)) {\n  out.reply = out.reply.trim() + \"\\n\" + cfg.SIGNOFF;\n}\n\nreturn [{ json: out }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c255267c-5dfb-47d9-9c9a-9a7ae4ada264",
+      "name": "Risk & Handover Rules1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2192,
+        576
+      ],
+      "parameters": {
+        "jsCode": "// Read RISK_WORDS from Set Config node\nconst cfgNode = $nodes['Set Config']?.data?.json || {};\nconst riskWords = Array.isArray(cfgNode.RISK_WORDS) ? cfgNode.RISK_WORDS : [];\n\nconst escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst riskPattern = riskWords.length ? '(' + riskWords.map(escapeRegex).join('|') + ')' : '(?!)';\nconst risk = new RegExp(riskPattern, 'i');\n\nconst j = $input.first().json || {};\nconst originalText = j.text || j.message || j.input || '';\n\nconst lowConfidence = (j.confidence || 0) < 0.45;\nconst highRisk = risk.test(originalText) || risk.test(j.reply || '');\nconst veryNegative = (j.sentiment || '') === 'negative';\n\nconst needsHandover = Boolean(j.needs_handover || lowConfidence || highRisk || veryNegative);\n\nreturn [{ json: { ...j, needs_handover: needsHandover, _debug: { lowConfidence, highRisk, veryNegative, originalText: String(originalText).substring(0,120), riskWordsUsed: riskWords } } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7aae0aff-287e-4c5c-b6d4-c2e5b42e2efb",
+      "name": "If needs_handover1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2416,
+        576
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e2876b8a-248f-41a9-95f2-cbb235ad7071",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.needs_handover }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "42085b59-d2d1-443b-9699-dbbe3ce86acf",
+      "name": "Draft (Needs Review)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2640,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "status",
+              "type": "string",
+              "value": "REVIEW"
+            },
+            {
+              "id": "a2",
+              "name": "note",
+              "type": "string",
+              "value": "Escalate to human: risk/low-confidence/negative tone detected."
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "529f1815-7913-424d-8908-ff282ceabcdd",
+      "name": "Draft (Auto-OK)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2640,
+        672
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "status",
+              "type": "string",
+              "value": "OK"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "9517622f-10ae-4597-81e6-4b426d266e4c",
+      "name": "for real-time replies",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        608,
+        672
+      ],
+      "webhookId": "7a62325a-0000-4724-8fe4-8829e3dea2fb",
+      "parameters": {
+        "path": "7a62325a-0000-4724-8fe4-8829e3dea2fb",
+        "options": {}
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "50a47075-c245-46f5-a103-9c240c03f519",
+      "name": "(5–10 min) for missed or queued",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        608,
+        848
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "66b91934-ac03-4d78-a816-052aebae5d8a",
+      "name": "Update a message",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2864,
+        688
+      ],
+      "webhookId": "d03b31ff-3de4-4953-a091-7445a6c48be5",
+      "parameters": {
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "operation": "update",
+        "otherOptions": {},
+        "updateFields": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "0dc9f0d7-38ff-4cf0-919e-c6d87b93168d",
+      "name": "Save to Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2848,
+        464
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Nodes": "={{ $json.nodes }}",
+            "Stars": "={{ $json.stars }}",
+            "File URL": "={{ $json.file_url }}",
+            "Repo URL": "={{ $json.repo_url }}",
+            "Use Case": "={{ $json.ai_use_case }}",
+            "Workflow": "={{ $json.workflow_name }}",
+            "Key Nodes": "={{ $json.key_nodes }}",
+            "AI Powered": "={{ $json.has_ai }}",
+            "AI Summary": "={{ $json.description }}",
+            "Difficulty": "={{ $json.ai_difficulty }}",
+            "Node Types": "={{ $json.node_types }}",
+            "Repository": "={{ $json.repository }}"
+          },
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Workflow"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": "={{ $('Config1').item.json.SHEET_NAME }}",
+        "documentId": "={{ $('Config1').item.json.SPREADSHEET_ID }}"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lQPBplQIZUZ1JZ5k",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "96ce7708-d101-4cb8-a242-1ca6e8727fd3",
+      "name": "for testing",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        608,
+        480
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3f86e343-aec8-4bd3-8f8d-ad09a1aae6e5",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        160
+      ],
+      "parameters": {
+        "width": 384,
+        "height": 368,
+        "content": "## Empathy Reply Assistant\n**What it does**  \nGenerates empathetic reply drafts, sanitizes content, and auto-escalates risky cases.\n\n**Flow**  \n1) Input (Manual / Webhook)  \n2) AI (Claude) → { sentiment, tone, reply, confidence }  \n3) Sanitize (links / PII / length)  \n4) Risk rules (keywords, negativity, low confidence)  \n5) Route → **OK** / **Needs Review**\n\n**Who for**  \nSupport, Community, Sales, CX, Automation builders"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab112a1e-bf36-4ee6-b8e5-9b0a500c4a5e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        608
+      ],
+      "parameters": {
+        "width": 384,
+        "height": 352,
+        "content": "## Routes & Thresholds\n**Escalate (Needs Review)** when:  \n- negative sentiment  \n- matches `RISK_WORDS`  \n- confidence < 0.45  \n- mentions legal / harassment / self-harm  \n\n**Auto-OK** when:  \n- no risk matched  \n- confidence ≥ 0.45  \n\n**Outputs**  \n- OK → sendable draft  \n- REVIEW → human check required"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fceb4bb7-0e2b-460e-901f-8dcb415fdb7e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 304,
+        "content": "## Setup (3–5 min)\n1. Connect **Anthropic** → Anthropic Chat Model  \n2. Edit **Set Config1**:  \n   - `MAX_LEN`, `FORMALITY`, `ADD_FOLLOWUP_QUESTION`  \n   - `EMOJI_ALLOWED`, `BLOCK_LINKS`  \n   - `RISK_WORDS` (add your terms)  \n3. Choose trigger:  \n   - **Manual** → testing  \n   - **Webhook** → real-time replies  \n   - **Schedule** → every 5–10 min  \n\n💡 Tip: keep secrets in **Credentials**, not nodes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b789e28c-1349-46fd-bbcd-161102405afa",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 224,
+        "content": "## Notes / Safety\n- 🔐 No hardcoded API keys → use **Credentials**  \n- 🧪 Treat outputs as **drafts** before sending  \n- 🧹 Remove test data before sharing publicly  \n- ⚙️ Tune thresholds & `RISK_WORDS` to your org policy  \n- 🗂️ Optionally log to Slack / Sheets for review  \n\nAuthor: **Yusuke (@yskautomation)**  \nLicense: **MIT**"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set Config1": {
+      "main": [
+        [
+          {
+            "node": "Ensure Session1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ensure Session1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent (Empathy)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory (Recent 4)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent (Empathy)1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If needs_handover1": {
+      "main": [
+        [
+          {
+            "node": "Draft (Needs Review)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft (Auto-OK)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent (Empathy)1": {
+      "main": [
+        [
+          {
+            "node": "Post-Process & Sanitize1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent (Empathy)1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "for real-time replies": {
+      "main": [
+        [
+          {
+            "node": "Test Input (Change Me)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Risk & Handover Rules1": {
+      "main": [
+        [
+          {
+            "node": "If needs_handover1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Input (Change Me)1": {
+      "main": [
+        [
+          {
+            "node": "Set Config1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post-Process & Sanitize1": {
+      "main": [
+        [
+          {
+            "node": "Risk & Handover Rules1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent (Empathy)1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(5–10 min) for missed or queued": {
+      "main": [
+        []
+      ]
+    }
+  }
+}

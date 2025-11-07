@@ -1,326 +1,326 @@
 {
-  "workflow": {
-    "id": "BiCF5Nmdl7SK4qjp",
-    "meta": {
-      "name": "Automated Weather Reports with OpenWeatherMap and Telegram ☀️",
-      "id": 6176,
-      "site": "https://github.com/zengfr/n8n-workflow-all-templates"
-    },
-    "name": "MS_WEATHER",
-    "tags": [],
-    "nodes": [
-      {
-        "id": "4a9e2697-2172-4e55-bd17-96170d5640a8",
-        "name": "Schedule Trigger",
-        "type": "n8n-nodes-base.scheduleTrigger",
-        "position": [
-          -360,
-          0
-        ],
-        "parameters": {
-          "rule": {
-            "interval": [
-              {
-                "field": "hours",
-                "hoursInterval": 12
-              }
-            ]
-          }
-        },
-        "typeVersion": 1.2
-      },
-      {
-        "id": "8474a7c2-523f-4da8-a9e5-bfdfa6b432df",
-        "name": "Set Location",
-        "type": "n8n-nodes-base.set",
-        "position": [
-          -80,
-          0
-        ],
-        "parameters": {
-          "options": {},
-          "assignments": {
-            "assignments": [
-              {
-                "id": "b9f4869a-2059-4b09-84e3-26c7d1e95d30",
-                "name": "lat",
-                "type": "string",
-                "value": "={{ $env.lat }}"
-              },
-              {
-                "id": "cc1b0b3a-4c99-4220-bfcb-439f817980a8",
-                "name": "long",
-                "type": "string",
-                "value": "={{ $env.long }}"
-              },
-              {
-                "id": "7d1ace36-bd24-43b1-928c-3e3b9c2dc655",
-                "name": "telegram_chat_id",
-                "type": "string",
-                "value": "={{ $env.telegram_chat_id }}"
-              }
-            ]
-          }
-        },
-        "typeVersion": 3.4
-      },
-      {
-        "id": "6c789184-4971-4407-8401-334b47165daf",
-        "name": "Weather: Current",
-        "type": "n8n-nodes-base.openWeatherMap",
-        "position": [
-          320,
-          -180
-        ],
-        "parameters": {
-          "language": "en",
-          "latitude": "={{ $json.lat }}",
-          "longitude": "={{ $json.long }}",
-          "locationSelection": "coordinates"
-        },
-        "credentials": {
-          "openWeatherMapApi": {
-            "id": "gxU3zHUaRcFe8A4U",
-            "name": "OpenWeatherMap account"
-          }
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "1bab62d5-d884-46e8-94af-9484a5ba2fbf",
-        "name": "Weather: 5Days",
-        "type": "n8n-nodes-base.openWeatherMap",
-        "position": [
-          320,
-          180
-        ],
-        "parameters": {
-          "language": "en",
-          "latitude": "={{ $json.lat }}",
-          "longitude": "={{ $json.long }}",
-          "operation": "5DayForecast",
-          "locationSelection": "coordinates"
-        },
-        "credentials": {
-          "openWeatherMapApi": {
-            "id": "gxU3zHUaRcFe8A4U",
-            "name": "OpenWeatherMap account"
-          }
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "cb860b7f-2dc6-4aaf-8d7b-01d391437342",
-        "name": "Merge",
-        "type": "n8n-nodes-base.merge",
-        "position": [
-          660,
-          0
-        ],
-        "parameters": {
-          "mode": "combine",
-          "options": {},
-          "combineBy": "combineByPosition"
-        },
-        "typeVersion": 3.2
-      },
-      {
-        "id": "43d58689-f6fa-4a88-8a3c-04cfc212b498",
-        "name": "Report: Prepare",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          920,
-          0
-        ],
-        "parameters": {
-          "jsCode": "/* ── Weather-to-Telegram Markdown  ────────────────────────────────────────────\n   Input:  $json  ← OpenWeatherMap /forecast (5-day / 3-hour) single object\n   Output: telegram-ready markdown string in  msg.markdown_report\n────────────────────────────────────────────────────────────────────────────── */\n\nconst data = $json;                // full API response\nconst city = data.city;            // city block\nconst blocks = data.list ?? [];    // 3-hour forecasts\n\n/* ── helpers ──────────────────────────────────────────────────────────────── */\nconst esc = t => t.toString().replace(/[_*[\\]()~`>#+\\-=|{}.!]/g, '\\\\$&');\nconst fmtT = t => `${Math.round(t)}°C`;\nconst fmtDay = ts => new Date(ts * 1000)\n\t.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });\nconst emoji = id => (\n\tid === 800 ? '☀️' :\n\tid >= 801 && id <= 804 ? '☁️' :\n\tid >= 200 && id <= 232 ? '⛈️' :\n\tid >= 300 && id <= 321 ? '🌦️' :\n\tid >= 500 && id <= 531 ? '🌧️' :\n\tid >= 600 && id <= 622 ? '❄️'  :\n\tid >= 700 && id <= 781 ? '🌫️'  : '🌤️'\n);\n\n/* ── aggregate daily lows / highs (and grab a noon sample for the icon) ──── */\nconst days = {};   // key = yyyy-mm-dd\n\nfor (const b of blocks) {\n\tconst d = new Date(b.dt * 1000);\n\tconst key = d.toISOString().slice(0,10);           // YYYY-MM-DD\n\tconst bucket = days[key] ?? (days[key] = {\n\t\ttsNoon : b.dt,          // will be overwritten until closest to 12:00\n\t\ticonId : b.weather[0].id,\n\t\tdesc   : b.weather[0].main,\n\t\tlo     : b.main.temp_min,\n\t\thi     : b.main.temp_max\n\t});\n\n\tbucket.lo = Math.min(bucket.lo, b.main.temp_min);\n\tbucket.hi = Math.max(bucket.hi, b.main.temp_max);\n\n\t// keep icon sample closest to noon (12:00 ±1h)\n\tconst hr = d.getHours();\n\tif (Math.abs(hr - 12) < Math.abs(new Date(bucket.tsNoon*1000).getHours() - 12)) {\n\t\tbucket.tsNoon = b.dt;\n\t\tbucket.iconId = b.weather[0].id;\n\t\tbucket.desc   = b.weather[0].main;\n\t}\n}\n\n/* sort days & take first 5 */\nconst dayKeys = Object.keys(days).sort().slice(0,5);\n\n/* today’s range (index 0) */\nconst today = days[dayKeys[0]];\n\n/* ── build markdown ───────────────────────────────────────────────────────── */\nconst ln = '\\n';\nconst hr = '\\n──────────\\n';\n\nlet md  = `*${esc(city.name)}, ${esc(city.country)} – Weather*${hr}`;\n\nmd += '*Now*\\n';\nmd += `🌡️ Temp: \\`${fmtT(data.list[0].main.temp)}\\`  (feels like \\`${fmtT(data.list[0].main.feels_like)}\\`)${ln}`;\nmd += `📉 Low / High today: \\`${fmtT(today.lo)} – ${fmtT(today.hi)}\\`${ln}`;\nmd += `🛰️ Condition: \\`${esc(data.list[0].weather[0].description)}\\`${ln}`;\nmd += `💧 Humidity: \\`${data.list[0].main.humidity}%\\`    `;\nmd += `💨 Wind: \\`${Math.round(data.list[0].wind.speed*3.6)} km/h\\`${hr}`;\n\nmd += '*5-Day Forecast*' + ln;\nfor (const k of dayKeys) {\n\tconst d = days[k];\n\tmd += `➡️ *${esc(fmtDay(d.tsNoon))}* `;\n\tmd += `\\`${fmtT(d.lo)} – ${fmtT(d.hi)}\\` `;\n\tmd += `${emoji(d.iconId)} _${esc(d.desc)}_\\n`;\n}\n\n/* ── return for Telegram node ─────────────────────────────────────────────── */\nreturn { json: { markdown_report: md }};"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "7cab6251-db7f-4fb0-ad08-bf0e060cfc64",
-        "name": "Send a text message",
-        "type": "n8n-nodes-base.telegram",
-        "position": [
-          1240,
-          0
-        ],
-        "webhookId": "5738ca6e-ad42-4f46-8938-bf37c033ec3e",
-        "parameters": {
-          "text": "={{ $json.markdown_report }}",
-          "chatId": "={{ $('Set Location').item.json.telegram_chat_id }}",
-          "additionalFields": {
-            "parse_mode": "Markdown",
-            "appendAttribution": false
-          }
-        },
-        "credentials": {
-          "telegramApi": {
-            "id": "OymlVCuTPYhVa2B9",
-            "name": "Telegram account"
-          }
-        },
-        "typeVersion": 1.2
-      },
-      {
-        "id": "c4f57a04-c22d-4f7b-a0aa-dd08c384d4bd",
-        "name": "Sticky Note",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -140,
-          -140
-        ],
-        "parameters": {
-          "color": 5,
-          "width": 220,
-          "height": 340,
-          "content": "## Set inputs \n- lat\n- long\n- telegram_chat_id"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "8b144fce-d64a-42ec-b381-c49ff7f5fc89",
-        "name": "Sticky Note1",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          260,
-          -240
-        ],
-        "parameters": {
-          "color": 4,
-          "width": 220,
-          "height": 220,
-          "content": "## Current Weather"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "440fb2e0-148a-4d4c-85f3-1031f13e0554",
-        "name": "Sticky Note2",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          260,
-          120
-        ],
-        "parameters": {
-          "color": 4,
-          "width": 220,
-          "height": 220,
-          "content": "## 5-Day Weather"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "a537e327-dfcc-455c-a821-1d5d2f4cae21",
-        "name": "Sticky Note3",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          860,
-          -60
-        ],
-        "parameters": {
-          "color": 3,
-          "width": 220,
-          "height": 220,
-          "content": "## Report"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "493b915f-b04b-445f-b603-6378463b6e91",
-        "name": "Sticky Note4",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          1180,
-          -60
-        ],
-        "parameters": {
-          "color": 6,
-          "width": 220,
-          "height": 220,
-          "content": "## Send"
-        },
-        "typeVersion": 1
-      }
-    ],
-    "active": false,
-    "pinData": {},
-    "settings": {
-      "executionOrder": "v1"
-    },
-    "versionId": "a7059c98-a414-42fb-a0b5-5991d90e4dcf",
-    "connections": {
-      "Merge": {
-        "main": [
-          [
+  "id": "BiCF5Nmdl7SK4qjp",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Automated Weather Reports with OpenWeatherMap and Telegram ☀️",
+    "wechat": "youandme10086",
+    "id": 6176,
+    "update_time": "2025-11-10"
+  },
+  "name": "MS_WEATHER",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4a9e2697-2172-4e55-bd17-96170d5640a8",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -360,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
             {
-              "node": "Report: Prepare",
-              "type": "main",
-              "index": 0
+              "field": "hours",
+              "hoursInterval": 12
             }
           ]
-        ]
+        }
       },
-      "Set Location": {
-        "main": [
-          [
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8474a7c2-523f-4da8-a9e5-bfdfa6b432df",
+      "name": "Set Location",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -80,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
             {
-              "node": "Weather: Current",
-              "type": "main",
-              "index": 0
+              "id": "b9f4869a-2059-4b09-84e3-26c7d1e95d30",
+              "name": "lat",
+              "type": "string",
+              "value": "={{ $env.lat }}"
             },
             {
-              "node": "Weather: 5Days",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Weather: 5Days": {
-        "main": [
-          [
+              "id": "cc1b0b3a-4c99-4220-bfcb-439f817980a8",
+              "name": "long",
+              "type": "string",
+              "value": "={{ $env.long }}"
+            },
             {
-              "node": "Merge",
-              "type": "main",
-              "index": 1
+              "id": "7d1ace36-bd24-43b1-928c-3e3b9c2dc655",
+              "name": "telegram_chat_id",
+              "type": "string",
+              "value": "={{ $env.telegram_chat_id }}"
             }
           ]
-        ]
+        }
       },
-      "Report: Prepare": {
-        "main": [
-          [
-            {
-              "node": "Send a text message",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6c789184-4971-4407-8401-334b47165daf",
+      "name": "Weather: Current",
+      "type": "n8n-nodes-base.openWeatherMap",
+      "position": [
+        320,
+        -180
+      ],
+      "parameters": {
+        "language": "en",
+        "latitude": "={{ $json.lat }}",
+        "longitude": "={{ $json.long }}",
+        "locationSelection": "coordinates"
       },
-      "Schedule Trigger": {
-        "main": [
-          [
-            {
-              "node": "Set Location",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "gxU3zHUaRcFe8A4U",
+          "name": "OpenWeatherMap account"
+        }
       },
-      "Weather: Current": {
-        "main": [
-          [
-            {
-              "node": "Merge",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "typeVersion": 1
+    },
+    {
+      "id": "1bab62d5-d884-46e8-94af-9484a5ba2fbf",
+      "name": "Weather: 5Days",
+      "type": "n8n-nodes-base.openWeatherMap",
+      "position": [
+        320,
+        180
+      ],
+      "parameters": {
+        "language": "en",
+        "latitude": "={{ $json.lat }}",
+        "longitude": "={{ $json.long }}",
+        "operation": "5DayForecast",
+        "locationSelection": "coordinates"
+      },
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "gxU3zHUaRcFe8A4U",
+          "name": "OpenWeatherMap account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cb860b7f-2dc6-4aaf-8d7b-01d391437342",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "43d58689-f6fa-4a88-8a3c-04cfc212b498",
+      "name": "Report: Prepare",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        920,
+        0
+      ],
+      "parameters": {
+        "jsCode": "/* ── Weather-to-Telegram Markdown  ────────────────────────────────────────────\n   Input:  $json  ← OpenWeatherMap /forecast (5-day / 3-hour) single object\n   Output: telegram-ready markdown string in  msg.markdown_report\n────────────────────────────────────────────────────────────────────────────── */\n\nconst data = $json;                // full API response\nconst city = data.city;            // city block\nconst blocks = data.list ?? [];    // 3-hour forecasts\n\n/* ── helpers ──────────────────────────────────────────────────────────────── */\nconst esc = t => t.toString().replace(/[_*[\\]()~`>#+\\-=|{}.!]/g, '\\\\$&');\nconst fmtT = t => `${Math.round(t)}°C`;\nconst fmtDay = ts => new Date(ts * 1000)\n\t.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });\nconst emoji = id => (\n\tid === 800 ? '☀️' :\n\tid >= 801 && id <= 804 ? '☁️' :\n\tid >= 200 && id <= 232 ? '⛈️' :\n\tid >= 300 && id <= 321 ? '🌦️' :\n\tid >= 500 && id <= 531 ? '🌧️' :\n\tid >= 600 && id <= 622 ? '❄️'  :\n\tid >= 700 && id <= 781 ? '🌫️'  : '🌤️'\n);\n\n/* ── aggregate daily lows / highs (and grab a noon sample for the icon) ──── */\nconst days = {};   // key = yyyy-mm-dd\n\nfor (const b of blocks) {\n\tconst d = new Date(b.dt * 1000);\n\tconst key = d.toISOString().slice(0,10);           // YYYY-MM-DD\n\tconst bucket = days[key] ?? (days[key] = {\n\t\ttsNoon : b.dt,          // will be overwritten until closest to 12:00\n\t\ticonId : b.weather[0].id,\n\t\tdesc   : b.weather[0].main,\n\t\tlo     : b.main.temp_min,\n\t\thi     : b.main.temp_max\n\t});\n\n\tbucket.lo = Math.min(bucket.lo, b.main.temp_min);\n\tbucket.hi = Math.max(bucket.hi, b.main.temp_max);\n\n\t// keep icon sample closest to noon (12:00 ±1h)\n\tconst hr = d.getHours();\n\tif (Math.abs(hr - 12) < Math.abs(new Date(bucket.tsNoon*1000).getHours() - 12)) {\n\t\tbucket.tsNoon = b.dt;\n\t\tbucket.iconId = b.weather[0].id;\n\t\tbucket.desc   = b.weather[0].main;\n\t}\n}\n\n/* sort days & take first 5 */\nconst dayKeys = Object.keys(days).sort().slice(0,5);\n\n/* today’s range (index 0) */\nconst today = days[dayKeys[0]];\n\n/* ── build markdown ───────────────────────────────────────────────────────── */\nconst ln = '\\n';\nconst hr = '\\n──────────\\n';\n\nlet md  = `*${esc(city.name)}, ${esc(city.country)} – Weather*${hr}`;\n\nmd += '*Now*\\n';\nmd += `🌡️ Temp: \\`${fmtT(data.list[0].main.temp)}\\`  (feels like \\`${fmtT(data.list[0].main.feels_like)}\\`)${ln}`;\nmd += `📉 Low / High today: \\`${fmtT(today.lo)} – ${fmtT(today.hi)}\\`${ln}`;\nmd += `🛰️ Condition: \\`${esc(data.list[0].weather[0].description)}\\`${ln}`;\nmd += `💧 Humidity: \\`${data.list[0].main.humidity}%\\`    `;\nmd += `💨 Wind: \\`${Math.round(data.list[0].wind.speed*3.6)} km/h\\`${hr}`;\n\nmd += '*5-Day Forecast*' + ln;\nfor (const k of dayKeys) {\n\tconst d = days[k];\n\tmd += `➡️ *${esc(fmtDay(d.tsNoon))}* `;\n\tmd += `\\`${fmtT(d.lo)} – ${fmtT(d.hi)}\\` `;\n\tmd += `${emoji(d.iconId)} _${esc(d.desc)}_\\n`;\n}\n\n/* ── return for Telegram node ─────────────────────────────────────────────── */\nreturn { json: { markdown_report: md }};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7cab6251-db7f-4fb0-ad08-bf0e060cfc64",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1240,
+        0
+      ],
+      "webhookId": "5738ca6e-ad42-4f46-8938-bf37c033ec3e",
+      "parameters": {
+        "text": "={{ $json.markdown_report }}",
+        "chatId": "={{ $('Set Location').item.json.telegram_chat_id }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "OymlVCuTPYhVa2B9",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c4f57a04-c22d-4f7b-a0aa-dd08c384d4bd",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -140
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 340,
+        "content": "## Set inputs \n- lat\n- long\n- telegram_chat_id"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b144fce-d64a-42ec-b381-c49ff7f5fc89",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        -240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 220,
+        "height": 220,
+        "content": "## Current Weather"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "440fb2e0-148a-4d4c-85f3-1031f13e0554",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        120
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 220,
+        "height": 220,
+        "content": "## 5-Day Weather"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a537e327-dfcc-455c-a821-1d5d2f4cae21",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        -60
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 220,
+        "height": 220,
+        "content": "## Report"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "493b915f-b04b-445f-b603-6378463b6e91",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        -60
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 220,
+        "height": 220,
+        "content": "## Send"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a7059c98-a414-42fb-a0b5-5991d90e4dcf",
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Report: Prepare",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
+    },
+    "Set Location": {
+      "main": [
+        [
+          {
+            "node": "Weather: Current",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Weather: 5Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weather: 5Days": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Report: Prepare": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Location",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weather: Current": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   }
 }

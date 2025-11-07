@@ -1,277 +1,277 @@
 {
-  "workflow": {
-    "id": "ikJVgTYkNi4QGQSa",
-    "meta": {
-      "name": "Send deduplicated Kubernetes(EKS/GKE/AKS) error logs from Grafana Loki to Slack",
-      "id": 7021,
-      "site": "https://github.com/zengfr/n8n-workflow-all-templates"
+  "id": "ikJVgTYkNi4QGQSa",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Send deduplicated Kubernetes(EKS/GKE/AKS) error logs from Grafana Loki to Slack",
+    "wechat": "youandme10086",
+    "id": 7021,
+    "update_time": "2025-11-10"
+  },
+  "name": "Loki-logs-slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b8d9c924-e6d2-456d-a4cb-b3a86ddd5b63",
+      "name": "📥 Query Loki for Error Logs",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -20,
+        180
+      ],
+      "parameters": {
+        "url": "http://loki-gateway.monitoring.svc.cluster.local:8080/loki/api/v1/query_range",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "{namespace=\"monitoring\"} |= \"error\""
+            },
+            {
+              "name": "start",
+              "value": "={{ (Date.now() - 10 * 60 * 1000) * 1000000 }}"
+            },
+            {
+              "name": "end",
+              "value": "={{ Date.now() * 1000000 }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
     },
-    "name": "Loki-logs-slack",
-    "tags": [],
-    "nodes": [
-      {
-        "id": "b8d9c924-e6d2-456d-a4cb-b3a86ddd5b63",
-        "name": "📥 Query Loki for Error Logs",
-        "type": "n8n-nodes-base.httpRequest",
-        "position": [
-          -20,
-          180
-        ],
-        "parameters": {
-          "url": "http://loki-gateway.monitoring.svc.cluster.local:8080/loki/api/v1/query_range",
-          "options": {},
-          "sendQuery": true,
-          "queryParameters": {
-            "parameters": [
-              {
-                "name": "query",
-                "value": "{namespace=\"monitoring\"} |= \"error\""
-              },
-              {
-                "name": "start",
-                "value": "={{ (Date.now() - 10 * 60 * 1000) * 1000000 }}"
-              },
-              {
-                "name": "end",
-                "value": "={{ Date.now() * 1000000 }}"
-              }
-            ]
-          }
-        },
-        "typeVersion": 4.2
+    {
+      "id": "119d2d65-1ea5-4f10-bdcc-2b96078e62c3",
+      "name": "🕒 Every 5 Min Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -320,
+        180
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
       },
-      {
-        "id": "119d2d65-1ea5-4f10-bdcc-2b96078e62c3",
-        "name": "🕒 Every 5 Min Trigger",
-        "type": "n8n-nodes-base.scheduleTrigger",
-        "position": [
-          -320,
-          180
-        ],
-        "parameters": {
-          "rule": {
-            "interval": [
-              {
-                "field": "minutes"
-              }
-            ]
-          }
-        },
-        "typeVersion": 1.2
-      },
-      {
-        "id": "645bbb13-b417-4752-9bee-12571e9b8127",
-        "name": "🧹 Extract Log Fields",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          260,
-          180
-        ],
-        "parameters": {
-          "jsCode": "const results = $json.data.result || [];\nconst output = [];\n\nfor (const entry of results) {\n  const stream = entry.stream;\n  const logs = entry.values;\n\n  for (const [timestampNs, logLine] of logs) {\n    let extractedLog = null;\n\n    // Try to extract `content:` from inside extracteddata=\"map[...]\"\n    const extractedMatch = logLine.match(/extracteddata=\".*?content:(.*?)(?:\\s\\w+:|]\")/s);\n    if (extractedMatch && extractedMatch[1]) {\n      extractedLog = extractedMatch[1]\n        .replace(/\\\\\"/g, '\"')\n        .replace(/\\\\\\\\/g, '\\\\')\n        .trim();\n    }\n\n    // If not extracted, fall back to raw logLine if it looks usable\n    if (!extractedLog && logLine.includes(\"level=\")) {\n      extractedLog = logLine.trim();\n    }\n\n    // Filter out unwanted log levels\n    if (extractedLog && /level=(debug|info)/i.test(extractedLog)) {\n      continue; // Skip this log\n    }\n\n    output.push({\n      json: {\n        log: extractedLog || null,\n        pod: stream.pod || \"unknown\",\n        node: stream.node || \"unknown\",\n        namespace: stream.namespace || \"unknown\",\n        container: stream.container || \"unknown\",\n        timestamp: new Date(Number(timestampNs) / 1e6).toISOString()\n      }\n    });\n  }\n}\n\nreturn output;\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "e14bd03a-0fe9-4cc9-9a5b-0a88efd29f98",
-        "name": "🧠 Remove Duplicate Alerts",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          580,
-          180
-        ],
-        "parameters": {
-          "jsCode": "const seen = new Set();\nconst output = [];\n\nfunction normalizeLog(log) {\n  return log\n    .replace(/ts=\\S+/g, '')                   // Remove 'ts=...' timestamps\n    .replace(/\\d+(\\.\\d+)?/g, '#')             // Replace all numbers with #\n    .replace(/'[^']*'/g, '\\'X\\'')             // Mask quoted strings\n    .replace(/\\\"[^\\\"]*\\\"/g, '\"X\"')            // Mask quoted strings\n    .toLowerCase()\n    .trim();\n}\n\nfor (const item of items) {\n  const pod = item.json.pod || 'unknown';\n  const log = item.json.log || '';\n\n  const normalized = normalizeLog(log);\n  const dedupKey = `${pod}::${normalized}`;\n\n  if (!seen.has(dedupKey)) {\n    seen.add(dedupKey);\n    output.push(item);\n  }\n}\n\nreturn output;\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "9542d315-ca20-4430-8510-342e70940b1e",
-        "name": "📤 Send Alerts to Slack",
-        "type": "n8n-nodes-base.httpRequest",
-        "position": [
-          860,
-          180
-        ],
-        "parameters": {
-          "url": "https://slack.com/api/chat.postMessage",
-          "method": "POST",
-          "options": {},
-          "sendBody": true,
-          "sendHeaders": true,
-          "authentication": "genericCredentialType",
-          "bodyParameters": {
-            "parameters": [
-              {
-                "name": "channel",
-                "value": "#k8s-alerts"
-              },
-              {
-                "name": "text",
-                "value": "=🚨 *Kubernetes Error Detected* *Pod:* {{$json[\"pod\"]}} *Namespace:* {{$json[\"namespace\"]}} *Container:* {{$json[\"container\"]}} *Node:* {{$json[\"node\"]}} *Timestamp:* {{$json[\"timestamp\"]}} *Log:* ```{{$json[\"log\"]}}```"
-              }
-            ]
-          },
-          "genericAuthType": "httpBearerAuth",
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Content-Type",
-                "value": "application/json"
-              }
-            ]
-          }
-        },
-        "credentials": {
-          "httpBearerAuth": {
-            "id": "JZgctPlMp90LiCqI",
-            "name": "Bearer YOUR_TOKEN_HERE account"
-          }
-        },
-        "typeVersion": 4.2
-      },
-      {
-        "id": "a4e2ab3e-c6db-45eb-926b-ea92da23a8cb",
-        "name": "Sticky Note",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -480,
-          -280
-        ],
-        "parameters": {
-          "width": 280,
-          "height": 400,
-          "content": "## 🔔 Loki Error Logs to Slack (Deduplicated)\n\nThis workflow monitors Kubernetes logs via Loki and sends only **unique** errors to Slack every 5 minutes.\n\n### What It Does:\n- Queries Loki logs for error patterns\n- Filters & parses relevant logs\n- Removes duplicate alerts\n- Sends clean Slack messages\n\n📌 Customize this by editing the regex in the Loki node or modifying deduplication logic.\n\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "42637755-742c-43a1-b37b-376830460397",
-        "name": "Sticky Note1",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -400,
-          380
-        ],
-        "parameters": {
-          "color": 7,
-          "height": 320,
-          "content": "### 🕒 Trigger\n\nRuns every 5 minutes.\nYou can adjust this interval as needed.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "a5800428-c913-4ea9-b74a-23ff21825bd9",
-        "name": "Sticky Note2",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -100,
-          380
-        ],
-        "parameters": {
-          "color": 7,
-          "height": 320,
-          "content": "### 📥 Loki Log Query\n\nSends an HTTP request to Loki with:\n- Time range: last 10 minutes\n- Regex match: error, failed, timeout, oom, etc.\n- Namespaces can be customized\n\nEdit the regex to customize which logs you want.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "dbde5ffe-f631-4732-a2f0-8d6c697e203f",
-        "name": "Sticky Note3",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          220,
-          380
-        ],
-        "parameters": {
-          "color": 7,
-          "height": 320,
-          "content": "### 🧹 Log Parsing\n\nParses log entries from Loki response.\nExtracts:\n- Pod\n- Namespace\n- Container\n- Node\n- Timestamp\n- Log content\n\nSkips null/empty logs automatically.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "83a18658-0b88-4c96-bd5e-0c8b55515758",
-        "name": "Sticky Note4",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          520,
-          380
-        ],
-        "parameters": {
-          "color": 7,
-          "height": 320,
-          "content": "### 🧠 Deduplication\n\nThis removes repeated alerts (same log content) in the current batch.\nUseful to avoid Slack spam during repeated errors.\n"
-        },
-        "typeVersion": 1
-      },
-      {
-        "id": "247c5a22-8520-42f0-a895-14b732d3896f",
-        "name": "Sticky Note5",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          820,
-          380
-        ],
-        "parameters": {
-          "color": 7,
-          "height": 320,
-          "content": "### 📤 Slack Notification\n\nPosts each alert to a Slack channel using Slack API.\nThe message includes:\n- 🚨 Emoji\n- Pod metadata\n- Log message (wrapped in triple backticks)\n\nEnsure you’ve set your Slack token + channel name.\n"
-        },
-        "typeVersion": 1
-      }
-    ],
-    "active": false,
-    "pinData": {},
-    "settings": {
-      "executionOrder": "v1"
+      "typeVersion": 1.2
     },
-    "versionId": "f9fd9ad5-0f02-42dc-9807-e5fa007dec5d",
-    "connections": {
-      "🧹 Extract Log Fields": {
-        "main": [
-          [
-            {
-              "node": "🧠 Remove Duplicate Alerts",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+    {
+      "id": "645bbb13-b417-4752-9bee-12571e9b8127",
+      "name": "🧹 Extract Log Fields",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        260,
+        180
+      ],
+      "parameters": {
+        "jsCode": "const results = $json.data.result || [];\nconst output = [];\n\nfor (const entry of results) {\n  const stream = entry.stream;\n  const logs = entry.values;\n\n  for (const [timestampNs, logLine] of logs) {\n    let extractedLog = null;\n\n    // Try to extract `content:` from inside extracteddata=\"map[...]\"\n    const extractedMatch = logLine.match(/extracteddata=\".*?content:(.*?)(?:\\s\\w+:|]\")/s);\n    if (extractedMatch && extractedMatch[1]) {\n      extractedLog = extractedMatch[1]\n        .replace(/\\\\\"/g, '\"')\n        .replace(/\\\\\\\\/g, '\\\\')\n        .trim();\n    }\n\n    // If not extracted, fall back to raw logLine if it looks usable\n    if (!extractedLog && logLine.includes(\"level=\")) {\n      extractedLog = logLine.trim();\n    }\n\n    // Filter out unwanted log levels\n    if (extractedLog && /level=(debug|info)/i.test(extractedLog)) {\n      continue; // Skip this log\n    }\n\n    output.push({\n      json: {\n        log: extractedLog || null,\n        pod: stream.pod || \"unknown\",\n        node: stream.node || \"unknown\",\n        namespace: stream.namespace || \"unknown\",\n        container: stream.container || \"unknown\",\n        timestamp: new Date(Number(timestampNs) / 1e6).toISOString()\n      }\n    });\n  }\n}\n\nreturn output;\n"
       },
-      "🕒 Every 5 Min Trigger": {
-        "main": [
-          [
-            {
-              "node": "📥 Query Loki for Error Logs",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "typeVersion": 2
+    },
+    {
+      "id": "e14bd03a-0fe9-4cc9-9a5b-0a88efd29f98",
+      "name": "🧠 Remove Duplicate Alerts",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        580,
+        180
+      ],
+      "parameters": {
+        "jsCode": "const seen = new Set();\nconst output = [];\n\nfunction normalizeLog(log) {\n  return log\n    .replace(/ts=\\S+/g, '')                   // Remove 'ts=...' timestamps\n    .replace(/\\d+(\\.\\d+)?/g, '#')             // Replace all numbers with #\n    .replace(/'[^']*'/g, '\\'X\\'')             // Mask quoted strings\n    .replace(/\\\"[^\\\"]*\\\"/g, '\"X\"')            // Mask quoted strings\n    .toLowerCase()\n    .trim();\n}\n\nfor (const item of items) {\n  const pod = item.json.pod || 'unknown';\n  const log = item.json.log || '';\n\n  const normalized = normalizeLog(log);\n  const dedupKey = `${pod}::${normalized}`;\n\n  if (!seen.has(dedupKey)) {\n    seen.add(dedupKey);\n    output.push(item);\n  }\n}\n\nreturn output;\n"
       },
-      "🧠 Remove Duplicate Alerts": {
-        "main": [
-          [
+      "typeVersion": 2
+    },
+    {
+      "id": "9542d315-ca20-4430-8510-342e70940b1e",
+      "name": "📤 Send Alerts to Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        860,
+        180
+      ],
+      "parameters": {
+        "url": "https://slack.com/api/chat.postMessage",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
             {
-              "node": "📤 Send Alerts to Slack",
-              "type": "main",
-              "index": 0
+              "name": "channel",
+              "value": "#k8s-alerts"
+            },
+            {
+              "name": "text",
+              "value": "=🚨 *Kubernetes Error Detected* *Pod:* {{$json[\"pod\"]}} *Namespace:* {{$json[\"namespace\"]}} *Container:* {{$json[\"container\"]}} *Node:* {{$json[\"node\"]}} *Timestamp:* {{$json[\"timestamp\"]}} *Log:* ```{{$json[\"log\"]}}```"
             }
           ]
-        ]
+        },
+        "genericAuthType": "httpBearerAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
       },
-      "📥 Query Loki for Error Logs": {
-        "main": [
-          [
-            {
-              "node": "🧹 Extract Log Fields",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "JZgctPlMp90LiCqI",
+          "name": "Bearer YOUR_TOKEN_HERE account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a4e2ab3e-c6db-45eb-926b-ea92da23a8cb",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -280
+      ],
+      "parameters": {
+        "width": 280,
+        "height": 400,
+        "content": "## 🔔 Loki Error Logs to Slack (Deduplicated)\n\nThis workflow monitors Kubernetes logs via Loki and sends only **unique** errors to Slack every 5 minutes.\n\n### What It Does:\n- Queries Loki logs for error patterns\n- Filters & parses relevant logs\n- Removes duplicate alerts\n- Sends clean Slack messages\n\n📌 Customize this by editing the regex in the Loki node or modifying deduplication logic.\n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "42637755-742c-43a1-b37b-376830460397",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        380
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 320,
+        "content": "### 🕒 Trigger\n\nRuns every 5 minutes.\nYou can adjust this interval as needed.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a5800428-c913-4ea9-b74a-23ff21825bd9",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        380
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 320,
+        "content": "### 📥 Loki Log Query\n\nSends an HTTP request to Loki with:\n- Time range: last 10 minutes\n- Regex match: error, failed, timeout, oom, etc.\n- Namespaces can be customized\n\nEdit the regex to customize which logs you want.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dbde5ffe-f631-4732-a2f0-8d6c697e203f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        380
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 320,
+        "content": "### 🧹 Log Parsing\n\nParses log entries from Loki response.\nExtracts:\n- Pod\n- Namespace\n- Container\n- Node\n- Timestamp\n- Log content\n\nSkips null/empty logs automatically.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "83a18658-0b88-4c96-bd5e-0c8b55515758",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        380
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 320,
+        "content": "### 🧠 Deduplication\n\nThis removes repeated alerts (same log content) in the current batch.\nUseful to avoid Slack spam during repeated errors.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "247c5a22-8520-42f0-a895-14b732d3896f",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        380
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 320,
+        "content": "### 📤 Slack Notification\n\nPosts each alert to a Slack channel using Slack API.\nThe message includes:\n- 🚨 Emoji\n- Pod metadata\n- Log message (wrapped in triple backticks)\n\nEnsure you’ve set your Slack token + channel name.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f9fd9ad5-0f02-42dc-9807-e5fa007dec5d",
+  "connections": {
+    "🧹 Extract Log Fields": {
+      "main": [
+        [
+          {
+            "node": "🧠 Remove Duplicate Alerts",
+            "type": "main",
+            "index": 0
+          }
         ]
-      }
+      ]
+    },
+    "🕒 Every 5 Min Trigger": {
+      "main": [
+        [
+          {
+            "node": "📥 Query Loki for Error Logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Remove Duplicate Alerts": {
+      "main": [
+        [
+          {
+            "node": "📤 Send Alerts to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Query Loki for Error Logs": {
+      "main": [
+        [
+          {
+            "node": "🧹 Extract Log Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   }
 }

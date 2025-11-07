@@ -1,791 +1,791 @@
 {
-  "workflow": {
-    "meta": {
-      "name": "Email to Notion Knowledge Base with IMAP, Postgres Dedup and Telegram Alert",
-      "id": 7385,
-      "site": "https://github.com/zengfr/n8n-workflow-all-templates"
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Email to Notion Knowledge Base with IMAP, Postgres Dedup and Telegram Alert",
+    "wechat": "youandme10086",
+    "id": 7385,
+    "update_time": "2025-11-10"
+  },
+  "nodes": [
+    {
+      "id": "f69ede00-31fd-4c5f-b4ac-1dc3ed08d9c0",
+      "name": "Email Trigger (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "position": [
+        -928,
+        656
+      ],
+      "parameters": {
+        "options": {
+          "forceReconnect": 60,
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "typeVersion": 2.1
     },
-    "nodes": [
-      {
-        "id": "f69ede00-31fd-4c5f-b4ac-1dc3ed08d9c0",
-        "name": "Email Trigger (IMAP)",
-        "type": "n8n-nodes-base.emailReadImap",
-        "position": [
-          -928,
-          656
-        ],
-        "parameters": {
+    {
+      "id": "2ebe795e-796c-4996-a6d2-29c463bbfe06",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -704,
+        656
+      ],
+      "parameters": {
+        "jsCode": "/**\n * Function Node — Normalize & Dedupe (multi-item, no require)\n * Memproses SEMUA items dari IMAP/HTML node dan mengeluarkan jumlah item yang sama.\n * Output per item:\n * { title, snippet, bodyText, slug, messageId, sentAt, fromAddress, sourceUrl, debugFields }\n */\n\n/* ---------- Helpers (dipakai di tiap item) ---------- */\nfunction toISO(d) {\n  const dt = d ? new Date(d) : new Date();\n  return isNaN(dt) ? new Date().toISOString() : dt.toISOString();\n}\nfunction slugify(s) {\n  return String(s || '')\n    .trim().toLowerCase()\n    .replace(/\\s+/g, '-')        // spasi -> -\n    .replace(/[^a-z0-9-]/g, '')  // buang non URL-safe\n    .replace(/-+/g, '-')         // rapikan multiple -\n    .replace(/^-+|-+$/g, '');    // trim - di awal/akhir\n}\nfunction limit(str, max) {\n  const s = String(str || '').replace(/\\s+/g, ' ').trim();\n  return s.length <= max ? s : s.slice(0, max - 1).trim() + '…';\n}\nfunction firstUrlFrom(text) {\n  const s = String(text || '');\n  const m = s.match(/https?:\\/\\/[^\\s<>\"'`]+/i);\n  return m ? m[0] : '';\n}\nfunction extractFromAddress(from) {\n  if (!from) return '';\n  if (typeof from === 'string') {\n    const m = from.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : from.trim();\n  }\n  if (from.value && Array.isArray(from.value) && from.value[0]?.address) {\n    return from.value[0].address;\n  }\n  if (from.text) {\n    const m = String(from.text).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : String(from.text).trim();\n  }\n  if (from.address) return String(from.address);\n  return '';\n}\nfunction stripHtmlToText(html, fallbackText = '') {\n  let h = String(html || '');\n  if (!h) return String(fallbackText || '');\n  h = h.replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n       .replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  let t = h.replace(/<\\/?[^>]+>/g, ' ');\n  return t.replace(/\\s+/g, ' ').trim();\n}\nfunction simpleHash(str) {\n  let hash = 0;\n  const s = String(str || '');\n  for (let i = 0; i < s.length; i++) {\n    hash = (hash << 5) - hash + s.charCodeAt(i);\n    hash |= 0; // 32-bit\n  }\n  return Math.abs(hash).toString(16);\n}\n\n/* ---------- PROSES SEMUA ITEM ---------- */\nconst titleMax = 140;\nconst snippetMax = 260;\n\nreturn items.map((item) => {\n  const j = item.json || {};\n\n  // 1) SUBJECT (multi-jalur)\n  const subject =\n    j.subject ??\n    j.headers?.subject ??\n    j.message?.subject ??\n    '(no subject)';\n\n  // 2) BODY (multi-jalur) — dukung hasil HTML node juga (mis. bodyText)\n  const htmlCandidates = [\n    j.bodyTextHtml,   // beberapa node\n    j.textHtml,\n    j.html,\n    j.body?.html,\n    j.message?.html,\n  ];\n  const textCandidates = [\n    j.bodyText,       // kalau HTML node menaruh hasil disini\n    j.textPlain,\n    j.text,\n    j.body?.text,\n    j.message?.text,\n  ];\n\n  const htmlSrc = htmlCandidates.find(v => v && String(v).trim().length > 0);\n  let text = textCandidates.find(v => v && String(v).trim().length > 0) || '';\n\n  if (htmlSrc) {\n    text = stripHtmlToText(htmlSrc, text);\n  } else {\n    text = String(text).replace(/\\s+/g, ' ').trim();\n  }\n\n  // 3) DATE (multi-jalur)\n  const rawDate =\n    j.date ??\n    j.internalDate ??\n    j.headers?.date ??\n    j.message?.date ??\n    new Date().toISOString();\n  const sentAt = toISO(rawDate);\n\n  // 4) FROM (multi-jalur)\n  const fromCandidate =\n    j.from ??\n    j.headers?.from ??\n    j.message?.from ??\n    '';\n  const fromAddress = extractFromAddress(fromCandidate);\n\n  // 5) Title/Slug/Snippet\n  const title = limit(String(subject || '(no subject)').trim(), titleMax);\n  const slug = slugify(title);\n  const snippet = limit(text, snippetMax);\n\n  // 6) URL pertama (opsional)\n  const sourceUrl = firstUrlFrom(text) || '';\n\n  // 7) messageId (fallback hash)\n  let messageId =\n    (j.messageId ?? j.headers?.['message-id'] ?? j.message?.messageId ?? '').toString().trim();\n  if (!messageId) {\n    messageId = simpleHash(`${title}__${sentAt}`);\n  }\n\n  // 8) Debug asal field (opsional, boleh dihapus nanti)\n  const debugFields = {\n    subjectPickedFrom: subject === j.subject ? 'subject'\n      : subject === j.headers?.subject ? 'headers.subject'\n      : subject === j.message?.subject ? 'message.subject'\n      : '(default)',\n    bodyPickedFrom: htmlSrc ? 'HTML→text'\n      : (textCandidates.find(v => v && String(v).trim().length > 0) ? 'plain text' : '(none)'),\n    datePickedFrom: rawDate === j.date ? 'date'\n      : rawDate === j.internalDate ? 'internalDate'\n      : rawDate === j.headers?.date ? 'headers.date'\n      : rawDate === j.message?.date ? 'message.date'\n      : '(default now)',\n    fromPickedFrom: typeof fromCandidate === 'string' ? '(string)'\n      : fromCandidate?.value ? 'from.value[0]'\n      : fromCandidate?.text ? 'from.text'\n      : '(unknown)',\n  };\n\n  return {\n    json: {\n      title,\n      snippet,\n      bodyText: text,\n      slug,\n      messageId,\n      sentAt,\n      fromAddress,\n      sourceUrl,\n      debugFields, // hapus kalau sudah yakin\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7b18f198-1e29-4cf7-b5c4-ca483e4f4486",
+      "name": "Execute a SQL query",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -480,
+        656
+      ],
+      "parameters": {
+        "query": "SELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = '{{ $json.messageId }}'\n) AS exists;\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "39cbc53e-23e4-426f-b879-e1a2fc81c4b8",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -256,
+        656
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
           "options": {
-            "forceReconnect": 60,
-            "customEmailConfig": "[\"UNSEEN\"]"
-          }
-        },
-        "typeVersion": 2.1
-      },
-      {
-        "id": "2ebe795e-796c-4996-a6d2-29c463bbfe06",
-        "name": "Code",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          -704,
-          656
-        ],
-        "parameters": {
-          "jsCode": "/**\n * Function Node — Normalize & Dedupe (multi-item, no require)\n * Memproses SEMUA items dari IMAP/HTML node dan mengeluarkan jumlah item yang sama.\n * Output per item:\n * { title, snippet, bodyText, slug, messageId, sentAt, fromAddress, sourceUrl, debugFields }\n */\n\n/* ---------- Helpers (dipakai di tiap item) ---------- */\nfunction toISO(d) {\n  const dt = d ? new Date(d) : new Date();\n  return isNaN(dt) ? new Date().toISOString() : dt.toISOString();\n}\nfunction slugify(s) {\n  return String(s || '')\n    .trim().toLowerCase()\n    .replace(/\\s+/g, '-')        // spasi -> -\n    .replace(/[^a-z0-9-]/g, '')  // buang non URL-safe\n    .replace(/-+/g, '-')         // rapikan multiple -\n    .replace(/^-+|-+$/g, '');    // trim - di awal/akhir\n}\nfunction limit(str, max) {\n  const s = String(str || '').replace(/\\s+/g, ' ').trim();\n  return s.length <= max ? s : s.slice(0, max - 1).trim() + '…';\n}\nfunction firstUrlFrom(text) {\n  const s = String(text || '');\n  const m = s.match(/https?:\\/\\/[^\\s<>\"'`]+/i);\n  return m ? m[0] : '';\n}\nfunction extractFromAddress(from) {\n  if (!from) return '';\n  if (typeof from === 'string') {\n    const m = from.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : from.trim();\n  }\n  if (from.value && Array.isArray(from.value) && from.value[0]?.address) {\n    return from.value[0].address;\n  }\n  if (from.text) {\n    const m = String(from.text).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : String(from.text).trim();\n  }\n  if (from.address) return String(from.address);\n  return '';\n}\nfunction stripHtmlToText(html, fallbackText = '') {\n  let h = String(html || '');\n  if (!h) return String(fallbackText || '');\n  h = h.replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n       .replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  let t = h.replace(/<\\/?[^>]+>/g, ' ');\n  return t.replace(/\\s+/g, ' ').trim();\n}\nfunction simpleHash(str) {\n  let hash = 0;\n  const s = String(str || '');\n  for (let i = 0; i < s.length; i++) {\n    hash = (hash << 5) - hash + s.charCodeAt(i);\n    hash |= 0; // 32-bit\n  }\n  return Math.abs(hash).toString(16);\n}\n\n/* ---------- PROSES SEMUA ITEM ---------- */\nconst titleMax = 140;\nconst snippetMax = 260;\n\nreturn items.map((item) => {\n  const j = item.json || {};\n\n  // 1) SUBJECT (multi-jalur)\n  const subject =\n    j.subject ??\n    j.headers?.subject ??\n    j.message?.subject ??\n    '(no subject)';\n\n  // 2) BODY (multi-jalur) — dukung hasil HTML node juga (mis. bodyText)\n  const htmlCandidates = [\n    j.bodyTextHtml,   // beberapa node\n    j.textHtml,\n    j.html,\n    j.body?.html,\n    j.message?.html,\n  ];\n  const textCandidates = [\n    j.bodyText,       // kalau HTML node menaruh hasil disini\n    j.textPlain,\n    j.text,\n    j.body?.text,\n    j.message?.text,\n  ];\n\n  const htmlSrc = htmlCandidates.find(v => v && String(v).trim().length > 0);\n  let text = textCandidates.find(v => v && String(v).trim().length > 0) || '';\n\n  if (htmlSrc) {\n    text = stripHtmlToText(htmlSrc, text);\n  } else {\n    text = String(text).replace(/\\s+/g, ' ').trim();\n  }\n\n  // 3) DATE (multi-jalur)\n  const rawDate =\n    j.date ??\n    j.internalDate ??\n    j.headers?.date ??\n    j.message?.date ??\n    new Date().toISOString();\n  const sentAt = toISO(rawDate);\n\n  // 4) FROM (multi-jalur)\n  const fromCandidate =\n    j.from ??\n    j.headers?.from ??\n    j.message?.from ??\n    '';\n  const fromAddress = extractFromAddress(fromCandidate);\n\n  // 5) Title/Slug/Snippet\n  const title = limit(String(subject || '(no subject)').trim(), titleMax);\n  const slug = slugify(title);\n  const snippet = limit(text, snippetMax);\n\n  // 6) URL pertama (opsional)\n  const sourceUrl = firstUrlFrom(text) || '';\n\n  // 7) messageId (fallback hash)\n  let messageId =\n    (j.messageId ?? j.headers?.['message-id'] ?? j.message?.messageId ?? '').toString().trim();\n  if (!messageId) {\n    messageId = simpleHash(`${title}__${sentAt}`);\n  }\n\n  // 8) Debug asal field (opsional, boleh dihapus nanti)\n  const debugFields = {\n    subjectPickedFrom: subject === j.subject ? 'subject'\n      : subject === j.headers?.subject ? 'headers.subject'\n      : subject === j.message?.subject ? 'message.subject'\n      : '(default)',\n    bodyPickedFrom: htmlSrc ? 'HTML→text'\n      : (textCandidates.find(v => v && String(v).trim().length > 0) ? 'plain text' : '(none)'),\n    datePickedFrom: rawDate === j.date ? 'date'\n      : rawDate === j.internalDate ? 'internalDate'\n      : rawDate === j.headers?.date ? 'headers.date'\n      : rawDate === j.message?.date ? 'message.date'\n      : '(default now)',\n    fromPickedFrom: typeof fromCandidate === 'string' ? '(string)'\n      : fromCandidate?.value ? 'from.value[0]'\n      : fromCandidate?.text ? 'from.text'\n      : '(unknown)',\n  };\n\n  return {\n    json: {\n      title,\n      snippet,\n      bodyText: text,\n      slug,\n      messageId,\n      sentAt,\n      fromAddress,\n      sourceUrl,\n      debugFields, // hapus kalau sudah yakin\n    }\n  };\n});\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "7b18f198-1e29-4cf7-b5c4-ca483e4f4486",
-        "name": "Execute a SQL query",
-        "type": "n8n-nodes-base.postgres",
-        "position": [
-          -480,
-          656
-        ],
-        "parameters": {
-          "query": "SELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = '{{ $json.messageId }}'\n) AS exists;\n",
-          "options": {},
-          "operation": "executeQuery"
-        },
-        "typeVersion": 2.6
-      },
-      {
-        "id": "39cbc53e-23e4-426f-b879-e1a2fc81c4b8",
-        "name": "If",
-        "type": "n8n-nodes-base.if",
-        "position": [
-          -256,
-          656
-        ],
-        "parameters": {
-          "options": {},
-          "conditions": {
-            "options": {
-              "version": 2,
-              "leftValue": "",
-              "caseSensitive": true,
-              "typeValidation": "strict"
-            },
-            "combinator": "and",
-            "conditions": [
-              {
-                "id": "086a03b2-23c7-4a90-904e-420bbd480a0a",
-                "operator": {
-                  "type": "boolean",
-                  "operation": "false",
-                  "singleValue": true
-                },
-                "leftValue": "={{ $json.exists }}",
-                "rightValue": ""
-              }
-            ]
-          }
-        },
-        "typeVersion": 2.2
-      },
-      {
-        "id": "ee6394e8-31f1-4962-9c56-c7fa924e162c",
-        "name": "Create a database page",
-        "type": "n8n-nodes-base.notion",
-        "position": [
-          -32,
-          656
-        ],
-        "parameters": {
-          "title": "={{ $('Code').item.json.title }}",
-          "options": {},
-          "resource": "databasePage",
-          "databaseId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "",
-            "cachedResultUrl": "",
-            "cachedResultName": "Email Knowledge Base"
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
           },
-          "propertiesUi": {
-            "propertyValues": [
-              {
-                "key": "date|date",
-                "date": "={{ $('Code').item.json.sentAt }}"
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "086a03b2-23c7-4a90-904e-420bbd480a0a",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
               },
-              {
-                "key": "summary|rich_text",
-                "textContent": "={{ $('Code').item.json.snippet }}"
-              },
-              {
-                "key": "sourceUrl|url",
-                "urlValue": "={{ $('Code').item.json.sourceUrl }}",
-                "ignoreIfEmpty": true
-              },
-              {
-                "key": "From|rich_text",
-                "textContent": "={{ $('Code').item.json.fromAddress }}"
-              },
-              {
-                "key": "Slug|rich_text",
-                "textContent": "={{ $('Code').item.json.slug }}"
-              }
-            ]
-          }
-        },
-        "typeVersion": 2.2
+              "leftValue": "={{ $json.exists }}",
+              "rightValue": ""
+            }
+          ]
+        }
       },
-      {
-        "id": "7d3d8ece-4dc4-484c-a6ba-11a706933de5",
-        "name": "Send a text message",
-        "type": "n8n-nodes-base.telegram",
-        "position": [
-          192,
-          656
-        ],
-        "webhookId": "e529cba8-37ec-4427-8404-b1d20e4924c7",
-        "parameters": {
-          "additionalFields": {}
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ee6394e8-31f1-4962-9c56-c7fa924e162c",
+      "name": "Create a database page",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        -32,
+        656
+      ],
+      "parameters": {
+        "title": "={{ $('Code').item.json.title }}",
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": "Email Knowledge Base"
         },
-        "typeVersion": 1.2
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "date|date",
+              "date": "={{ $('Code').item.json.sentAt }}"
+            },
+            {
+              "key": "summary|rich_text",
+              "textContent": "={{ $('Code').item.json.snippet }}"
+            },
+            {
+              "key": "sourceUrl|url",
+              "urlValue": "={{ $('Code').item.json.sourceUrl }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "From|rich_text",
+              "textContent": "={{ $('Code').item.json.fromAddress }}"
+            },
+            {
+              "key": "Slug|rich_text",
+              "textContent": "={{ $('Code').item.json.slug }}"
+            }
+          ]
+        }
       },
-      {
-        "id": "a2c4f333-cb90-44a5-9469-bc89d33e7824",
-        "name": "Sticky Note",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -1008,
-          -160
-        ],
-        "parameters": {
-          "width": 640,
-          "height": 672,
-          "content": "0) Create Postgres Table (run once)\nCREATE TABLE IF NOT EXISTS email_kb_index (\n  message_id     TEXT PRIMARY KEY,\n  slug           TEXT,\n  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),\n  notion_page_id TEXT\n);\n\n1) IMAP Email (Trigger)\n\nOptions → customEmailConfig: [\"UNSEEN\"]\n\n(Gmail) Host: imap.gmail.com, Port: 993, SSL/TLS.\n\nKey output fields: subject, textHtml/textPlain/html, date, messageId, from.\n\n2) Function (Normalize)\n\nConvert HTML → plain text (fallback to textPlain).\n\nOutput fields:\n\ntitle, snippet(≤260), bodyText, slug (lowercase, spaces→-, remove non [a-z0-9-])\n\nmessageId (use header, fallback hash title+sentAt)\n\nsentAt (ISO), fromAddress, sourceUrl (first URL in body)\n\n3) Postgres (Execute Query) — Check Duplicate\n\nSafe query that always returns output:\n\nSELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = $1\n) AS exists;\n\n\nQuery Parameters: $1 = ={{ $json.messageId }}\n\n 5. IF — Only Continue if New\n\nCondition: Left ={{ $json.exists }} equals false\n\nTrue → continue\n\nFalse → stop/log (duplicate)"
-        },
-        "typeVersion": 1
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7d3d8ece-4dc4-484c-a6ba-11a706933de5",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        192,
+        656
+      ],
+      "webhookId": "e529cba8-37ec-4427-8404-b1d20e4924c7",
+      "parameters": {
+        "additionalFields": {}
       },
-      {
-        "id": "d3cd1192-79e8-4d02-b157-5611f53f9141",
-        "name": "Sticky Note1",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -352,
-          -96
-        ],
-        "parameters": {
-          "color": 3,
-          "width": 672,
-          "height": 528,
-          "content": "6. Notion — Create Page (Parent: Database)\nDatabase ID: paste the 32-character ID → ensure the database is shared with the integration.\nProperty mapping (adjust to your Notion column names):\nTitle (Title) ← ={{ $json.title }}\nSummary (Rich text) ← ={{ $json.snippet }}\nTags (Multi-select) ← (optional, array of strings)\nSource (URL) ← ={{ $json.sourceUrl }}\nFrom (Text/Email) ← ={{ $json.fromAddress }}\nDate (Date) ← ={{ $json.sentAt }}\nSlug (Text) ← ={{ $json.slug }}\nNotes (Rich text/Long text, optional) ← ={{ $json.bodyText }}\n\n7. (Recommended) Postgres — Mark as Processed\nAfter Notion succeeds:\nINSERT INTO email_kb_index (message_id, slug, created_at, notion_page_id)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (message_id) DO NOTHING;\n\nParams:\n$1 = ={{ $json.messageId }}\n$2 = ={{ $json.slug }}\n$3 = ={{ $json.sentAt }}\n$4 = ={{ $node[\"Create a database page\"].json.id }}\nReplace with your actual Notion node name.\n\n3. Telegram — Notification\nChat ID: ={{ $env.TELEGRAM_CHAT_ID }}\nText (Markdown):\n\n✅ Saved to Notion\n*{{ $json.title }}*\nFrom: {{ $json.fromAddress }}\nDate: {{ $json.sentAt }}\nLink: {{ $json.sourceUrl || '-' }}\n\nparseMode: Markdown"
-        },
-        "typeVersion": 1
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a2c4f333-cb90-44a5-9469-bc89d33e7824",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        -160
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 672,
+        "content": "0) Create Postgres Table (run once)\nCREATE TABLE IF NOT EXISTS email_kb_index (\n  message_id     TEXT PRIMARY KEY,\n  slug           TEXT,\n  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),\n  notion_page_id TEXT\n);\n\n1) IMAP Email (Trigger)\n\nOptions → customEmailConfig: [\"UNSEEN\"]\n\n(Gmail) Host: imap.gmail.com, Port: 993, SSL/TLS.\n\nKey output fields: subject, textHtml/textPlain/html, date, messageId, from.\n\n2) Function (Normalize)\n\nConvert HTML → plain text (fallback to textPlain).\n\nOutput fields:\n\ntitle, snippet(≤260), bodyText, slug (lowercase, spaces→-, remove non [a-z0-9-])\n\nmessageId (use header, fallback hash title+sentAt)\n\nsentAt (ISO), fromAddress, sourceUrl (first URL in body)\n\n3) Postgres (Execute Query) — Check Duplicate\n\nSafe query that always returns output:\n\nSELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = $1\n) AS exists;\n\n\nQuery Parameters: $1 = ={{ $json.messageId }}\n\n 5. IF — Only Continue if New\n\nCondition: Left ={{ $json.exists }} equals false\n\nTrue → continue\n\nFalse → stop/log (duplicate)"
       },
-      {
-        "id": "eb42b744-cf6a-49d5-9c5f-5109d823e2af",
-        "name": "Email Trigger (IMAP)1",
-        "type": "n8n-nodes-base.emailReadImap",
-        "disabled": true,
-        "position": [
-          -544,
-          -96
-        ],
-        "parameters": {
+      "typeVersion": 1
+    },
+    {
+      "id": "d3cd1192-79e8-4d02-b157-5611f53f9141",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -352,
+        -96
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 672,
+        "height": 528,
+        "content": "6. Notion — Create Page (Parent: Database)\nDatabase ID: paste the 32-character ID → ensure the database is shared with the integration.\nProperty mapping (adjust to your Notion column names):\nTitle (Title) ← ={{ $json.title }}\nSummary (Rich text) ← ={{ $json.snippet }}\nTags (Multi-select) ← (optional, array of strings)\nSource (URL) ← ={{ $json.sourceUrl }}\nFrom (Text/Email) ← ={{ $json.fromAddress }}\nDate (Date) ← ={{ $json.sentAt }}\nSlug (Text) ← ={{ $json.slug }}\nNotes (Rich text/Long text, optional) ← ={{ $json.bodyText }}\n\n7. (Recommended) Postgres — Mark as Processed\nAfter Notion succeeds:\nINSERT INTO email_kb_index (message_id, slug, created_at, notion_page_id)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (message_id) DO NOTHING;\n\nParams:\n$1 = ={{ $json.messageId }}\n$2 = ={{ $json.slug }}\n$3 = ={{ $json.sentAt }}\n$4 = ={{ $node[\"Create a database page\"].json.id }}\nReplace with your actual Notion node name.\n\n3. Telegram — Notification\nChat ID: ={{ $env.TELEGRAM_CHAT_ID }}\nText (Markdown):\n\n✅ Saved to Notion\n*{{ $json.title }}*\nFrom: {{ $json.fromAddress }}\nDate: {{ $json.sentAt }}\nLink: {{ $json.sourceUrl || '-' }}\n\nparseMode: Markdown"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eb42b744-cf6a-49d5-9c5f-5109d823e2af",
+      "name": "Email Trigger (IMAP)1",
+      "type": "n8n-nodes-base.emailReadImap",
+      "disabled": true,
+      "position": [
+        -544,
+        -96
+      ],
+      "parameters": {
+        "options": {
+          "forceReconnect": 60,
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1dd93fa5-e5c8-4dd2-963e-1130ff968a73",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "disabled": true,
+      "position": [
+        -544,
+        48
+      ],
+      "parameters": {
+        "jsCode": "/**\n * Function Node — Normalize & Dedupe (multi-item, no require)\n * Memproses SEMUA items dari IMAP/HTML node dan mengeluarkan jumlah item yang sama.\n * Output per item:\n * { title, snippet, bodyText, slug, messageId, sentAt, fromAddress, sourceUrl, debugFields }\n */\n\n/* ---------- Helpers (dipakai di tiap item) ---------- */\nfunction toISO(d) {\n  const dt = d ? new Date(d) : new Date();\n  return isNaN(dt) ? new Date().toISOString() : dt.toISOString();\n}\nfunction slugify(s) {\n  return String(s || '')\n    .trim().toLowerCase()\n    .replace(/\\s+/g, '-')        // spasi -> -\n    .replace(/[^a-z0-9-]/g, '')  // buang non URL-safe\n    .replace(/-+/g, '-')         // rapikan multiple -\n    .replace(/^-+|-+$/g, '');    // trim - di awal/akhir\n}\nfunction limit(str, max) {\n  const s = String(str || '').replace(/\\s+/g, ' ').trim();\n  return s.length <= max ? s : s.slice(0, max - 1).trim() + '…';\n}\nfunction firstUrlFrom(text) {\n  const s = String(text || '');\n  const m = s.match(/https?:\\/\\/[^\\s<>\"'`]+/i);\n  return m ? m[0] : '';\n}\nfunction extractFromAddress(from) {\n  if (!from) return '';\n  if (typeof from === 'string') {\n    const m = from.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : from.trim();\n  }\n  if (from.value && Array.isArray(from.value) && from.value[0]?.address) {\n    return from.value[0].address;\n  }\n  if (from.text) {\n    const m = String(from.text).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : String(from.text).trim();\n  }\n  if (from.address) return String(from.address);\n  return '';\n}\nfunction stripHtmlToText(html, fallbackText = '') {\n  let h = String(html || '');\n  if (!h) return String(fallbackText || '');\n  h = h.replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n       .replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  let t = h.replace(/<\\/?[^>]+>/g, ' ');\n  return t.replace(/\\s+/g, ' ').trim();\n}\nfunction simpleHash(str) {\n  let hash = 0;\n  const s = String(str || '');\n  for (let i = 0; i < s.length; i++) {\n    hash = (hash << 5) - hash + s.charCodeAt(i);\n    hash |= 0; // 32-bit\n  }\n  return Math.abs(hash).toString(16);\n}\n\n/* ---------- PROSES SEMUA ITEM ---------- */\nconst titleMax = 140;\nconst snippetMax = 260;\n\nreturn items.map((item) => {\n  const j = item.json || {};\n\n  // 1) SUBJECT (multi-jalur)\n  const subject =\n    j.subject ??\n    j.headers?.subject ??\n    j.message?.subject ??\n    '(no subject)';\n\n  // 2) BODY (multi-jalur) — dukung hasil HTML node juga (mis. bodyText)\n  const htmlCandidates = [\n    j.bodyTextHtml,   // beberapa node\n    j.textHtml,\n    j.html,\n    j.body?.html,\n    j.message?.html,\n  ];\n  const textCandidates = [\n    j.bodyText,       // kalau HTML node menaruh hasil disini\n    j.textPlain,\n    j.text,\n    j.body?.text,\n    j.message?.text,\n  ];\n\n  const htmlSrc = htmlCandidates.find(v => v && String(v).trim().length > 0);\n  let text = textCandidates.find(v => v && String(v).trim().length > 0) || '';\n\n  if (htmlSrc) {\n    text = stripHtmlToText(htmlSrc, text);\n  } else {\n    text = String(text).replace(/\\s+/g, ' ').trim();\n  }\n\n  // 3) DATE (multi-jalur)\n  const rawDate =\n    j.date ??\n    j.internalDate ??\n    j.headers?.date ??\n    j.message?.date ??\n    new Date().toISOString();\n  const sentAt = toISO(rawDate);\n\n  // 4) FROM (multi-jalur)\n  const fromCandidate =\n    j.from ??\n    j.headers?.from ??\n    j.message?.from ??\n    '';\n  const fromAddress = extractFromAddress(fromCandidate);\n\n  // 5) Title/Slug/Snippet\n  const title = limit(String(subject || '(no subject)').trim(), titleMax);\n  const slug = slugify(title);\n  const snippet = limit(text, snippetMax);\n\n  // 6) URL pertama (opsional)\n  const sourceUrl = firstUrlFrom(text) || '';\n\n  // 7) messageId (fallback hash)\n  let messageId =\n    (j.messageId ?? j.headers?.['message-id'] ?? j.message?.messageId ?? '').toString().trim();\n  if (!messageId) {\n    messageId = simpleHash(`${title}__${sentAt}`);\n  }\n\n  // 8) Debug asal field (opsional, boleh dihapus nanti)\n  const debugFields = {\n    subjectPickedFrom: subject === j.subject ? 'subject'\n      : subject === j.headers?.subject ? 'headers.subject'\n      : subject === j.message?.subject ? 'message.subject'\n      : '(default)',\n    bodyPickedFrom: htmlSrc ? 'HTML→text'\n      : (textCandidates.find(v => v && String(v).trim().length > 0) ? 'plain text' : '(none)'),\n    datePickedFrom: rawDate === j.date ? 'date'\n      : rawDate === j.internalDate ? 'internalDate'\n      : rawDate === j.headers?.date ? 'headers.date'\n      : rawDate === j.message?.date ? 'message.date'\n      : '(default now)',\n    fromPickedFrom: typeof fromCandidate === 'string' ? '(string)'\n      : fromCandidate?.value ? 'from.value[0]'\n      : fromCandidate?.text ? 'from.text'\n      : '(unknown)',\n  };\n\n  return {\n    json: {\n      title,\n      snippet,\n      bodyText: text,\n      slug,\n      messageId,\n      sentAt,\n      fromAddress,\n      sourceUrl,\n      debugFields, // hapus kalau sudah yakin\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "de0849c9-a638-42ce-b436-9f50000f5b0c",
+      "name": "Execute a SQL query1",
+      "type": "n8n-nodes-base.postgres",
+      "disabled": true,
+      "position": [
+        -544,
+        208
+      ],
+      "parameters": {
+        "query": "SELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = '{{ $json.messageId }}'\n) AS exists;\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "c092af6c-aa61-432f-9212-7723fdecef1c",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "disabled": true,
+      "position": [
+        -544,
+        368
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
           "options": {
-            "forceReconnect": 60,
-            "customEmailConfig": "[\"UNSEEN\"]"
-          }
-        },
-        "typeVersion": 2.1
-      },
-      {
-        "id": "1dd93fa5-e5c8-4dd2-963e-1130ff968a73",
-        "name": "Code1",
-        "type": "n8n-nodes-base.code",
-        "disabled": true,
-        "position": [
-          -544,
-          48
-        ],
-        "parameters": {
-          "jsCode": "/**\n * Function Node — Normalize & Dedupe (multi-item, no require)\n * Memproses SEMUA items dari IMAP/HTML node dan mengeluarkan jumlah item yang sama.\n * Output per item:\n * { title, snippet, bodyText, slug, messageId, sentAt, fromAddress, sourceUrl, debugFields }\n */\n\n/* ---------- Helpers (dipakai di tiap item) ---------- */\nfunction toISO(d) {\n  const dt = d ? new Date(d) : new Date();\n  return isNaN(dt) ? new Date().toISOString() : dt.toISOString();\n}\nfunction slugify(s) {\n  return String(s || '')\n    .trim().toLowerCase()\n    .replace(/\\s+/g, '-')        // spasi -> -\n    .replace(/[^a-z0-9-]/g, '')  // buang non URL-safe\n    .replace(/-+/g, '-')         // rapikan multiple -\n    .replace(/^-+|-+$/g, '');    // trim - di awal/akhir\n}\nfunction limit(str, max) {\n  const s = String(str || '').replace(/\\s+/g, ' ').trim();\n  return s.length <= max ? s : s.slice(0, max - 1).trim() + '…';\n}\nfunction firstUrlFrom(text) {\n  const s = String(text || '');\n  const m = s.match(/https?:\\/\\/[^\\s<>\"'`]+/i);\n  return m ? m[0] : '';\n}\nfunction extractFromAddress(from) {\n  if (!from) return '';\n  if (typeof from === 'string') {\n    const m = from.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : from.trim();\n  }\n  if (from.value && Array.isArray(from.value) && from.value[0]?.address) {\n    return from.value[0].address;\n  }\n  if (from.text) {\n    const m = String(from.text).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : String(from.text).trim();\n  }\n  if (from.address) return String(from.address);\n  return '';\n}\nfunction stripHtmlToText(html, fallbackText = '') {\n  let h = String(html || '');\n  if (!h) return String(fallbackText || '');\n  h = h.replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n       .replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  let t = h.replace(/<\\/?[^>]+>/g, ' ');\n  return t.replace(/\\s+/g, ' ').trim();\n}\nfunction simpleHash(str) {\n  let hash = 0;\n  const s = String(str || '');\n  for (let i = 0; i < s.length; i++) {\n    hash = (hash << 5) - hash + s.charCodeAt(i);\n    hash |= 0; // 32-bit\n  }\n  return Math.abs(hash).toString(16);\n}\n\n/* ---------- PROSES SEMUA ITEM ---------- */\nconst titleMax = 140;\nconst snippetMax = 260;\n\nreturn items.map((item) => {\n  const j = item.json || {};\n\n  // 1) SUBJECT (multi-jalur)\n  const subject =\n    j.subject ??\n    j.headers?.subject ??\n    j.message?.subject ??\n    '(no subject)';\n\n  // 2) BODY (multi-jalur) — dukung hasil HTML node juga (mis. bodyText)\n  const htmlCandidates = [\n    j.bodyTextHtml,   // beberapa node\n    j.textHtml,\n    j.html,\n    j.body?.html,\n    j.message?.html,\n  ];\n  const textCandidates = [\n    j.bodyText,       // kalau HTML node menaruh hasil disini\n    j.textPlain,\n    j.text,\n    j.body?.text,\n    j.message?.text,\n  ];\n\n  const htmlSrc = htmlCandidates.find(v => v && String(v).trim().length > 0);\n  let text = textCandidates.find(v => v && String(v).trim().length > 0) || '';\n\n  if (htmlSrc) {\n    text = stripHtmlToText(htmlSrc, text);\n  } else {\n    text = String(text).replace(/\\s+/g, ' ').trim();\n  }\n\n  // 3) DATE (multi-jalur)\n  const rawDate =\n    j.date ??\n    j.internalDate ??\n    j.headers?.date ??\n    j.message?.date ??\n    new Date().toISOString();\n  const sentAt = toISO(rawDate);\n\n  // 4) FROM (multi-jalur)\n  const fromCandidate =\n    j.from ??\n    j.headers?.from ??\n    j.message?.from ??\n    '';\n  const fromAddress = extractFromAddress(fromCandidate);\n\n  // 5) Title/Slug/Snippet\n  const title = limit(String(subject || '(no subject)').trim(), titleMax);\n  const slug = slugify(title);\n  const snippet = limit(text, snippetMax);\n\n  // 6) URL pertama (opsional)\n  const sourceUrl = firstUrlFrom(text) || '';\n\n  // 7) messageId (fallback hash)\n  let messageId =\n    (j.messageId ?? j.headers?.['message-id'] ?? j.message?.messageId ?? '').toString().trim();\n  if (!messageId) {\n    messageId = simpleHash(`${title}__${sentAt}`);\n  }\n\n  // 8) Debug asal field (opsional, boleh dihapus nanti)\n  const debugFields = {\n    subjectPickedFrom: subject === j.subject ? 'subject'\n      : subject === j.headers?.subject ? 'headers.subject'\n      : subject === j.message?.subject ? 'message.subject'\n      : '(default)',\n    bodyPickedFrom: htmlSrc ? 'HTML→text'\n      : (textCandidates.find(v => v && String(v).trim().length > 0) ? 'plain text' : '(none)'),\n    datePickedFrom: rawDate === j.date ? 'date'\n      : rawDate === j.internalDate ? 'internalDate'\n      : rawDate === j.headers?.date ? 'headers.date'\n      : rawDate === j.message?.date ? 'message.date'\n      : '(default now)',\n    fromPickedFrom: typeof fromCandidate === 'string' ? '(string)'\n      : fromCandidate?.value ? 'from.value[0]'\n      : fromCandidate?.text ? 'from.text'\n      : '(unknown)',\n  };\n\n  return {\n    json: {\n      title,\n      snippet,\n      bodyText: text,\n      slug,\n      messageId,\n      sentAt,\n      fromAddress,\n      sourceUrl,\n      debugFields, // hapus kalau sudah yakin\n    }\n  };\n});\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "de0849c9-a638-42ce-b436-9f50000f5b0c",
-        "name": "Execute a SQL query1",
-        "type": "n8n-nodes-base.postgres",
-        "disabled": true,
-        "position": [
-          -544,
-          208
-        ],
-        "parameters": {
-          "query": "SELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = '{{ $json.messageId }}'\n) AS exists;\n",
-          "options": {},
-          "operation": "executeQuery"
-        },
-        "typeVersion": 2.6
-      },
-      {
-        "id": "c092af6c-aa61-432f-9212-7723fdecef1c",
-        "name": "If1",
-        "type": "n8n-nodes-base.if",
-        "disabled": true,
-        "position": [
-          -544,
-          368
-        ],
-        "parameters": {
-          "options": {},
-          "conditions": {
-            "options": {
-              "version": 2,
-              "leftValue": "",
-              "caseSensitive": true,
-              "typeValidation": "strict"
-            },
-            "combinator": "and",
-            "conditions": [
-              {
-                "id": "086a03b2-23c7-4a90-904e-420bbd480a0a",
-                "operator": {
-                  "type": "boolean",
-                  "operation": "false",
-                  "singleValue": true
-                },
-                "leftValue": "={{ $json.exists }}",
-                "rightValue": ""
-              }
-            ]
-          }
-        },
-        "typeVersion": 2.2
-      },
-      {
-        "id": "3de38f0e-371a-4e52-b6e4-2fa4aafa0306",
-        "name": "Create a database page1",
-        "type": "n8n-nodes-base.notion",
-        "disabled": true,
-        "position": [
-          144,
-          -16
-        ],
-        "parameters": {
-          "title": "={{ $('Code').item.json.title }}",
-          "options": {},
-          "resource": "databasePage",
-          "databaseId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "",
-            "cachedResultUrl": "",
-            "cachedResultName": "Email Knowledge Base"
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
           },
-          "propertiesUi": {
-            "propertyValues": [
-              {
-                "key": "date|date",
-                "date": "={{ $('Code').item.json.sentAt }}"
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "086a03b2-23c7-4a90-904e-420bbd480a0a",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
               },
-              {
-                "key": "summary|rich_text",
-                "textContent": "={{ $('Code').item.json.snippet }}"
-              },
-              {
-                "key": "sourceUrl|url",
-                "urlValue": "={{ $('Code').item.json.sourceUrl }}",
-                "ignoreIfEmpty": true
-              },
-              {
-                "key": "From|rich_text",
-                "textContent": "={{ $('Code').item.json.fromAddress }}"
-              },
-              {
-                "key": "Slug|rich_text",
-                "textContent": "={{ $('Code').item.json.slug }}"
-              }
-            ]
-          }
-        },
-        "typeVersion": 2.2
+              "leftValue": "={{ $json.exists }}",
+              "rightValue": ""
+            }
+          ]
+        }
       },
-      {
-        "id": "055677f0-bea4-4a65-b603-b918068e3fb2",
-        "name": "Send a text message1",
-        "type": "n8n-nodes-base.telegram",
-        "disabled": true,
-        "position": [
-          128,
-          224
-        ],
-        "webhookId": "e529cba8-37ec-4427-8404-b1d20e4924c7",
-        "parameters": {
-          "additionalFields": {}
+      "typeVersion": 2.2
+    },
+    {
+      "id": "3de38f0e-371a-4e52-b6e4-2fa4aafa0306",
+      "name": "Create a database page1",
+      "type": "n8n-nodes-base.notion",
+      "disabled": true,
+      "position": [
+        144,
+        -16
+      ],
+      "parameters": {
+        "title": "={{ $('Code').item.json.title }}",
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": "Email Knowledge Base"
         },
-        "typeVersion": 1.2
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "date|date",
+              "date": "={{ $('Code').item.json.sentAt }}"
+            },
+            {
+              "key": "summary|rich_text",
+              "textContent": "={{ $('Code').item.json.snippet }}"
+            },
+            {
+              "key": "sourceUrl|url",
+              "urlValue": "={{ $('Code').item.json.sourceUrl }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "From|rich_text",
+              "textContent": "={{ $('Code').item.json.fromAddress }}"
+            },
+            {
+              "key": "Slug|rich_text",
+              "textContent": "={{ $('Code').item.json.slug }}"
+            }
+          ]
+        }
       },
-      {
-        "id": "8071d1b9-8da3-4720-b1ee-0537f2c05262",
-        "name": "Email Trigger (IMAP)2",
-        "type": "n8n-nodes-base.emailReadImap",
-        "position": [
-          -6096,
-          2512
-        ],
-        "parameters": {
+      "typeVersion": 2.2
+    },
+    {
+      "id": "055677f0-bea4-4a65-b603-b918068e3fb2",
+      "name": "Send a text message1",
+      "type": "n8n-nodes-base.telegram",
+      "disabled": true,
+      "position": [
+        128,
+        224
+      ],
+      "webhookId": "e529cba8-37ec-4427-8404-b1d20e4924c7",
+      "parameters": {
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8071d1b9-8da3-4720-b1ee-0537f2c05262",
+      "name": "Email Trigger (IMAP)2",
+      "type": "n8n-nodes-base.emailReadImap",
+      "position": [
+        -6096,
+        2512
+      ],
+      "parameters": {
+        "options": {
+          "forceReconnect": 60,
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5339fdb6-b7aa-4da0-82f5-1f6e07d96246",
+      "name": "Code2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -5872,
+        2512
+      ],
+      "parameters": {
+        "jsCode": "/**\n * Function Node — Normalize & Dedupe (multi-item, no require)\n * Memproses SEMUA items dari IMAP/HTML node dan mengeluarkan jumlah item yang sama.\n * Output per item:\n * { title, snippet, bodyText, slug, messageId, sentAt, fromAddress, sourceUrl, debugFields }\n */\n\n/* ---------- Helpers (dipakai di tiap item) ---------- */\nfunction toISO(d) {\n  const dt = d ? new Date(d) : new Date();\n  return isNaN(dt) ? new Date().toISOString() : dt.toISOString();\n}\nfunction slugify(s) {\n  return String(s || '')\n    .trim().toLowerCase()\n    .replace(/\\s+/g, '-')        // spasi -> -\n    .replace(/[^a-z0-9-]/g, '')  // buang non URL-safe\n    .replace(/-+/g, '-')         // rapikan multiple -\n    .replace(/^-+|-+$/g, '');    // trim - di awal/akhir\n}\nfunction limit(str, max) {\n  const s = String(str || '').replace(/\\s+/g, ' ').trim();\n  return s.length <= max ? s : s.slice(0, max - 1).trim() + '…';\n}\nfunction firstUrlFrom(text) {\n  const s = String(text || '');\n  const m = s.match(/https?:\\/\\/[^\\s<>\"'`]+/i);\n  return m ? m[0] : '';\n}\nfunction extractFromAddress(from) {\n  if (!from) return '';\n  if (typeof from === 'string') {\n    const m = from.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : from.trim();\n  }\n  if (from.value && Array.isArray(from.value) && from.value[0]?.address) {\n    return from.value[0].address;\n  }\n  if (from.text) {\n    const m = String(from.text).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : String(from.text).trim();\n  }\n  if (from.address) return String(from.address);\n  return '';\n}\nfunction stripHtmlToText(html, fallbackText = '') {\n  let h = String(html || '');\n  if (!h) return String(fallbackText || '');\n  h = h.replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n       .replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  let t = h.replace(/<\\/?[^>]+>/g, ' ');\n  return t.replace(/\\s+/g, ' ').trim();\n}\nfunction simpleHash(str) {\n  let hash = 0;\n  const s = String(str || '');\n  for (let i = 0; i < s.length; i++) {\n    hash = (hash << 5) - hash + s.charCodeAt(i);\n    hash |= 0; // 32-bit\n  }\n  return Math.abs(hash).toString(16);\n}\n\n/* ---------- PROSES SEMUA ITEM ---------- */\nconst titleMax = 140;\nconst snippetMax = 260;\n\nreturn items.map((item) => {\n  const j = item.json || {};\n\n  // 1) SUBJECT (multi-jalur)\n  const subject =\n    j.subject ??\n    j.headers?.subject ??\n    j.message?.subject ??\n    '(no subject)';\n\n  // 2) BODY (multi-jalur) — dukung hasil HTML node juga (mis. bodyText)\n  const htmlCandidates = [\n    j.bodyTextHtml,   // beberapa node\n    j.textHtml,\n    j.html,\n    j.body?.html,\n    j.message?.html,\n  ];\n  const textCandidates = [\n    j.bodyText,       // kalau HTML node menaruh hasil disini\n    j.textPlain,\n    j.text,\n    j.body?.text,\n    j.message?.text,\n  ];\n\n  const htmlSrc = htmlCandidates.find(v => v && String(v).trim().length > 0);\n  let text = textCandidates.find(v => v && String(v).trim().length > 0) || '';\n\n  if (htmlSrc) {\n    text = stripHtmlToText(htmlSrc, text);\n  } else {\n    text = String(text).replace(/\\s+/g, ' ').trim();\n  }\n\n  // 3) DATE (multi-jalur)\n  const rawDate =\n    j.date ??\n    j.internalDate ??\n    j.headers?.date ??\n    j.message?.date ??\n    new Date().toISOString();\n  const sentAt = toISO(rawDate);\n\n  // 4) FROM (multi-jalur)\n  const fromCandidate =\n    j.from ??\n    j.headers?.from ??\n    j.message?.from ??\n    '';\n  const fromAddress = extractFromAddress(fromCandidate);\n\n  // 5) Title/Slug/Snippet\n  const title = limit(String(subject || '(no subject)').trim(), titleMax);\n  const slug = slugify(title);\n  const snippet = limit(text, snippetMax);\n\n  // 6) URL pertama (opsional)\n  const sourceUrl = firstUrlFrom(text) || '';\n\n  // 7) messageId (fallback hash)\n  let messageId =\n    (j.messageId ?? j.headers?.['message-id'] ?? j.message?.messageId ?? '').toString().trim();\n  if (!messageId) {\n    messageId = simpleHash(`${title}__${sentAt}`);\n  }\n\n  // 8) Debug asal field (opsional, boleh dihapus nanti)\n  const debugFields = {\n    subjectPickedFrom: subject === j.subject ? 'subject'\n      : subject === j.headers?.subject ? 'headers.subject'\n      : subject === j.message?.subject ? 'message.subject'\n      : '(default)',\n    bodyPickedFrom: htmlSrc ? 'HTML→text'\n      : (textCandidates.find(v => v && String(v).trim().length > 0) ? 'plain text' : '(none)'),\n    datePickedFrom: rawDate === j.date ? 'date'\n      : rawDate === j.internalDate ? 'internalDate'\n      : rawDate === j.headers?.date ? 'headers.date'\n      : rawDate === j.message?.date ? 'message.date'\n      : '(default now)',\n    fromPickedFrom: typeof fromCandidate === 'string' ? '(string)'\n      : fromCandidate?.value ? 'from.value[0]'\n      : fromCandidate?.text ? 'from.text'\n      : '(unknown)',\n  };\n\n  return {\n    json: {\n      title,\n      snippet,\n      bodyText: text,\n      slug,\n      messageId,\n      sentAt,\n      fromAddress,\n      sourceUrl,\n      debugFields, // hapus kalau sudah yakin\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6aaf8200-35c7-419a-9480-a54f49b43493",
+      "name": "Execute a SQL query2",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -5648,
+        2512
+      ],
+      "parameters": {
+        "query": "SELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = '{{ $json.messageId }}'\n) AS exists;\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "481d4a86-c36a-4ced-abfa-b9aa1313f2a7",
+      "name": "If2",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -5424,
+        2512
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
           "options": {
-            "forceReconnect": 60,
-            "customEmailConfig": "[\"UNSEEN\"]"
-          }
-        },
-        "typeVersion": 2.1
-      },
-      {
-        "id": "5339fdb6-b7aa-4da0-82f5-1f6e07d96246",
-        "name": "Code2",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          -5872,
-          2512
-        ],
-        "parameters": {
-          "jsCode": "/**\n * Function Node — Normalize & Dedupe (multi-item, no require)\n * Memproses SEMUA items dari IMAP/HTML node dan mengeluarkan jumlah item yang sama.\n * Output per item:\n * { title, snippet, bodyText, slug, messageId, sentAt, fromAddress, sourceUrl, debugFields }\n */\n\n/* ---------- Helpers (dipakai di tiap item) ---------- */\nfunction toISO(d) {\n  const dt = d ? new Date(d) : new Date();\n  return isNaN(dt) ? new Date().toISOString() : dt.toISOString();\n}\nfunction slugify(s) {\n  return String(s || '')\n    .trim().toLowerCase()\n    .replace(/\\s+/g, '-')        // spasi -> -\n    .replace(/[^a-z0-9-]/g, '')  // buang non URL-safe\n    .replace(/-+/g, '-')         // rapikan multiple -\n    .replace(/^-+|-+$/g, '');    // trim - di awal/akhir\n}\nfunction limit(str, max) {\n  const s = String(str || '').replace(/\\s+/g, ' ').trim();\n  return s.length <= max ? s : s.slice(0, max - 1).trim() + '…';\n}\nfunction firstUrlFrom(text) {\n  const s = String(text || '');\n  const m = s.match(/https?:\\/\\/[^\\s<>\"'`]+/i);\n  return m ? m[0] : '';\n}\nfunction extractFromAddress(from) {\n  if (!from) return '';\n  if (typeof from === 'string') {\n    const m = from.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : from.trim();\n  }\n  if (from.value && Array.isArray(from.value) && from.value[0]?.address) {\n    return from.value[0].address;\n  }\n  if (from.text) {\n    const m = String(from.text).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : String(from.text).trim();\n  }\n  if (from.address) return String(from.address);\n  return '';\n}\nfunction stripHtmlToText(html, fallbackText = '') {\n  let h = String(html || '');\n  if (!h) return String(fallbackText || '');\n  h = h.replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n       .replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  let t = h.replace(/<\\/?[^>]+>/g, ' ');\n  return t.replace(/\\s+/g, ' ').trim();\n}\nfunction simpleHash(str) {\n  let hash = 0;\n  const s = String(str || '');\n  for (let i = 0; i < s.length; i++) {\n    hash = (hash << 5) - hash + s.charCodeAt(i);\n    hash |= 0; // 32-bit\n  }\n  return Math.abs(hash).toString(16);\n}\n\n/* ---------- PROSES SEMUA ITEM ---------- */\nconst titleMax = 140;\nconst snippetMax = 260;\n\nreturn items.map((item) => {\n  const j = item.json || {};\n\n  // 1) SUBJECT (multi-jalur)\n  const subject =\n    j.subject ??\n    j.headers?.subject ??\n    j.message?.subject ??\n    '(no subject)';\n\n  // 2) BODY (multi-jalur) — dukung hasil HTML node juga (mis. bodyText)\n  const htmlCandidates = [\n    j.bodyTextHtml,   // beberapa node\n    j.textHtml,\n    j.html,\n    j.body?.html,\n    j.message?.html,\n  ];\n  const textCandidates = [\n    j.bodyText,       // kalau HTML node menaruh hasil disini\n    j.textPlain,\n    j.text,\n    j.body?.text,\n    j.message?.text,\n  ];\n\n  const htmlSrc = htmlCandidates.find(v => v && String(v).trim().length > 0);\n  let text = textCandidates.find(v => v && String(v).trim().length > 0) || '';\n\n  if (htmlSrc) {\n    text = stripHtmlToText(htmlSrc, text);\n  } else {\n    text = String(text).replace(/\\s+/g, ' ').trim();\n  }\n\n  // 3) DATE (multi-jalur)\n  const rawDate =\n    j.date ??\n    j.internalDate ??\n    j.headers?.date ??\n    j.message?.date ??\n    new Date().toISOString();\n  const sentAt = toISO(rawDate);\n\n  // 4) FROM (multi-jalur)\n  const fromCandidate =\n    j.from ??\n    j.headers?.from ??\n    j.message?.from ??\n    '';\n  const fromAddress = extractFromAddress(fromCandidate);\n\n  // 5) Title/Slug/Snippet\n  const title = limit(String(subject || '(no subject)').trim(), titleMax);\n  const slug = slugify(title);\n  const snippet = limit(text, snippetMax);\n\n  // 6) URL pertama (opsional)\n  const sourceUrl = firstUrlFrom(text) || '';\n\n  // 7) messageId (fallback hash)\n  let messageId =\n    (j.messageId ?? j.headers?.['message-id'] ?? j.message?.messageId ?? '').toString().trim();\n  if (!messageId) {\n    messageId = simpleHash(`${title}__${sentAt}`);\n  }\n\n  // 8) Debug asal field (opsional, boleh dihapus nanti)\n  const debugFields = {\n    subjectPickedFrom: subject === j.subject ? 'subject'\n      : subject === j.headers?.subject ? 'headers.subject'\n      : subject === j.message?.subject ? 'message.subject'\n      : '(default)',\n    bodyPickedFrom: htmlSrc ? 'HTML→text'\n      : (textCandidates.find(v => v && String(v).trim().length > 0) ? 'plain text' : '(none)'),\n    datePickedFrom: rawDate === j.date ? 'date'\n      : rawDate === j.internalDate ? 'internalDate'\n      : rawDate === j.headers?.date ? 'headers.date'\n      : rawDate === j.message?.date ? 'message.date'\n      : '(default now)',\n    fromPickedFrom: typeof fromCandidate === 'string' ? '(string)'\n      : fromCandidate?.value ? 'from.value[0]'\n      : fromCandidate?.text ? 'from.text'\n      : '(unknown)',\n  };\n\n  return {\n    json: {\n      title,\n      snippet,\n      bodyText: text,\n      slug,\n      messageId,\n      sentAt,\n      fromAddress,\n      sourceUrl,\n      debugFields, // hapus kalau sudah yakin\n    }\n  };\n});\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "6aaf8200-35c7-419a-9480-a54f49b43493",
-        "name": "Execute a SQL query2",
-        "type": "n8n-nodes-base.postgres",
-        "position": [
-          -5648,
-          2512
-        ],
-        "parameters": {
-          "query": "SELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = '{{ $json.messageId }}'\n) AS exists;\n",
-          "options": {},
-          "operation": "executeQuery"
-        },
-        "typeVersion": 2.6
-      },
-      {
-        "id": "481d4a86-c36a-4ced-abfa-b9aa1313f2a7",
-        "name": "If2",
-        "type": "n8n-nodes-base.if",
-        "position": [
-          -5424,
-          2512
-        ],
-        "parameters": {
-          "options": {},
-          "conditions": {
-            "options": {
-              "version": 2,
-              "leftValue": "",
-              "caseSensitive": true,
-              "typeValidation": "strict"
-            },
-            "combinator": "and",
-            "conditions": [
-              {
-                "id": "086a03b2-23c7-4a90-904e-420bbd480a0a",
-                "operator": {
-                  "type": "boolean",
-                  "operation": "false",
-                  "singleValue": true
-                },
-                "leftValue": "={{ $json.exists }}",
-                "rightValue": ""
-              }
-            ]
-          }
-        },
-        "typeVersion": 2.2
-      },
-      {
-        "id": "0db94227-30d5-4cd5-8e00-1c538ebee9d7",
-        "name": "Create a database page2",
-        "type": "n8n-nodes-base.notion",
-        "position": [
-          -5200,
-          2512
-        ],
-        "parameters": {
-          "title": "={{ $('Code2').item.json.title }}",
-          "options": {},
-          "resource": "databasePage",
-          "databaseId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "",
-            "cachedResultUrl": "",
-            "cachedResultName": "Email Knowledge Base"
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
           },
-          "propertiesUi": {
-            "propertyValues": [
-              {
-                "key": "date|date",
-                "date": "={{ $('Code2').item.json.sentAt }}"
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "086a03b2-23c7-4a90-904e-420bbd480a0a",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
               },
-              {
-                "key": "summary|rich_text",
-                "textContent": "={{ $('Code2').item.json.snippet }}"
-              },
-              {
-                "key": "sourceUrl|url",
-                "urlValue": "={{ $('Code2').item.json.sourceUrl }}",
-                "ignoreIfEmpty": true
-              },
-              {
-                "key": "From|rich_text",
-                "textContent": "={{ $('Code2').item.json.fromAddress }}"
-              },
-              {
-                "key": "Slug|rich_text",
-                "textContent": "={{ $('Code2').item.json.slug }}"
-              }
-            ]
-          }
-        },
-        "typeVersion": 2.2
+              "leftValue": "={{ $json.exists }}",
+              "rightValue": ""
+            }
+          ]
+        }
       },
-      {
-        "id": "069bafd2-b669-4890-9dd5-417310aecfa5",
-        "name": "Send a text message2",
-        "type": "n8n-nodes-base.telegram",
-        "position": [
-          -4976,
-          2512
-        ],
-        "webhookId": "118a1948-3e67-4a62-85b4-c876ff8d69f2",
-        "parameters": {
-          "additionalFields": {}
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0db94227-30d5-4cd5-8e00-1c538ebee9d7",
+      "name": "Create a database page2",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        -5200,
+        2512
+      ],
+      "parameters": {
+        "title": "={{ $('Code2').item.json.title }}",
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": "Email Knowledge Base"
         },
-        "typeVersion": 1.2
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "date|date",
+              "date": "={{ $('Code2').item.json.sentAt }}"
+            },
+            {
+              "key": "summary|rich_text",
+              "textContent": "={{ $('Code2').item.json.snippet }}"
+            },
+            {
+              "key": "sourceUrl|url",
+              "urlValue": "={{ $('Code2').item.json.sourceUrl }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "From|rich_text",
+              "textContent": "={{ $('Code2').item.json.fromAddress }}"
+            },
+            {
+              "key": "Slug|rich_text",
+              "textContent": "={{ $('Code2').item.json.slug }}"
+            }
+          ]
+        }
       },
-      {
-        "id": "0f04de27-a5cf-4a83-ba16-e9530ccbb091",
-        "name": "Sticky Note2",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -6160,
-          1712
-        ],
-        "parameters": {
-          "width": 640,
-          "height": 688,
-          "content": "0) Create Postgres Table (run once)\nCREATE TABLE IF NOT EXISTS email_kb_index (\n  message_id     TEXT PRIMARY KEY,\n  slug           TEXT,\n  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),\n  notion_page_id TEXT\n);\n\n1) IMAP Email (Trigger)\n\nOptions → customEmailConfig: [\"UNSEEN\"]\n\n(Gmail) Host: imap.gmail.com, Port: 993, SSL/TLS.\n\nKey output fields: subject, textHtml/textPlain/html, date, messageId, from.\n\n2) Function (Normalize)\n\nConvert HTML → plain text (fallback to textPlain).\n\nOutput fields:\n\ntitle, snippet(≤260), bodyText, slug (lowercase, spaces→-, remove non [a-z0-9-])\n\nmessageId (use header, fallback hash title+sentAt)\n\nsentAt (ISO), fromAddress, sourceUrl (first URL in body)\n\n3) Postgres (Execute Query) — Check Duplicate\n\nSafe query that always returns output:\n\nSELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = $1\n) AS exists;\n\n\nQuery Parameters: $1 = ={{ $json.messageId }}\n\n 5. IF — Only Continue if New\n\nCondition: Left ={{ $json.exists }} equals false\n\nTrue → continue\n\nFalse → stop/log (duplicate)"
-        },
-        "typeVersion": 1
+      "typeVersion": 2.2
+    },
+    {
+      "id": "069bafd2-b669-4890-9dd5-417310aecfa5",
+      "name": "Send a text message2",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        -4976,
+        2512
+      ],
+      "webhookId": "118a1948-3e67-4a62-85b4-c876ff8d69f2",
+      "parameters": {
+        "additionalFields": {}
       },
-      {
-        "id": "40bf69bc-7e99-44a4-ba3d-cb58274b0be1",
-        "name": "Sticky Note3",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          -5520,
-          1760
-        ],
-        "parameters": {
-          "color": 3,
-          "width": 672,
-          "height": 528,
-          "content": "6. Notion — Create Page (Parent: Database)\nDatabase ID: paste the 32-character ID → ensure the database is shared with the integration.\nProperty mapping (adjust to your Notion column names):\nTitle (Title) ← ={{ $json.title }}\nSummary (Rich text) ← ={{ $json.snippet }}\nTags (Multi-select) ← (optional, array of strings)\nSource (URL) ← ={{ $json.sourceUrl }}\nFrom (Text/Email) ← ={{ $json.fromAddress }}\nDate (Date) ← ={{ $json.sentAt }}\nSlug (Text) ← ={{ $json.slug }}\nNotes (Rich text/Long text, optional) ← ={{ $json.bodyText }}\n\n(Recommended) Postgres — Mark as Processed\nAfter Notion succeeds:\nINSERT INTO email_kb_index (message_id, slug, created_at, notion_page_id)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (message_id) DO NOTHING;\n\nParams:\n$1 = ={{ $json.messageId }}\n$2 = ={{ $json.slug }}\n$3 = ={{ $json.sentAt }}\n$4 = ={{ $node[\"Create a database page\"].json.id }}\nReplace with your actual Notion node name.\n\nTelegram — Notification\nChat ID: ={{ $env.TELEGRAM_CHAT_ID }}\nText (Markdown):\n\n✅ Saved to Notion\n*{{ $json.title }}*\nFrom: {{ $json.fromAddress }}\nDate: {{ $json.sentAt }}\nLink: {{ $json.sourceUrl || '-' }}\n\nparseMode: Markdown"
-        },
-        "typeVersion": 1
+      "typeVersion": 1.2
+    },
+    {
+      "id": "0f04de27-a5cf-4a83-ba16-e9530ccbb091",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -6160,
+        1712
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 688,
+        "content": "0) Create Postgres Table (run once)\nCREATE TABLE IF NOT EXISTS email_kb_index (\n  message_id     TEXT PRIMARY KEY,\n  slug           TEXT,\n  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),\n  notion_page_id TEXT\n);\n\n1) IMAP Email (Trigger)\n\nOptions → customEmailConfig: [\"UNSEEN\"]\n\n(Gmail) Host: imap.gmail.com, Port: 993, SSL/TLS.\n\nKey output fields: subject, textHtml/textPlain/html, date, messageId, from.\n\n2) Function (Normalize)\n\nConvert HTML → plain text (fallback to textPlain).\n\nOutput fields:\n\ntitle, snippet(≤260), bodyText, slug (lowercase, spaces→-, remove non [a-z0-9-])\n\nmessageId (use header, fallback hash title+sentAt)\n\nsentAt (ISO), fromAddress, sourceUrl (first URL in body)\n\n3) Postgres (Execute Query) — Check Duplicate\n\nSafe query that always returns output:\n\nSELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = $1\n) AS exists;\n\n\nQuery Parameters: $1 = ={{ $json.messageId }}\n\n 5. IF — Only Continue if New\n\nCondition: Left ={{ $json.exists }} equals false\n\nTrue → continue\n\nFalse → stop/log (duplicate)"
       },
-      {
-        "id": "ba8081b0-40af-45cd-b748-1fbc2fb69f66",
-        "name": "Email Trigger (IMAP)3",
-        "type": "n8n-nodes-base.emailReadImap",
-        "disabled": true,
-        "position": [
-          -5712,
-          1760
-        ],
-        "parameters": {
+      "typeVersion": 1
+    },
+    {
+      "id": "40bf69bc-7e99-44a4-ba3d-cb58274b0be1",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5520,
+        1760
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 672,
+        "height": 528,
+        "content": "6. Notion — Create Page (Parent: Database)\nDatabase ID: paste the 32-character ID → ensure the database is shared with the integration.\nProperty mapping (adjust to your Notion column names):\nTitle (Title) ← ={{ $json.title }}\nSummary (Rich text) ← ={{ $json.snippet }}\nTags (Multi-select) ← (optional, array of strings)\nSource (URL) ← ={{ $json.sourceUrl }}\nFrom (Text/Email) ← ={{ $json.fromAddress }}\nDate (Date) ← ={{ $json.sentAt }}\nSlug (Text) ← ={{ $json.slug }}\nNotes (Rich text/Long text, optional) ← ={{ $json.bodyText }}\n\n(Recommended) Postgres — Mark as Processed\nAfter Notion succeeds:\nINSERT INTO email_kb_index (message_id, slug, created_at, notion_page_id)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (message_id) DO NOTHING;\n\nParams:\n$1 = ={{ $json.messageId }}\n$2 = ={{ $json.slug }}\n$3 = ={{ $json.sentAt }}\n$4 = ={{ $node[\"Create a database page\"].json.id }}\nReplace with your actual Notion node name.\n\nTelegram — Notification\nChat ID: ={{ $env.TELEGRAM_CHAT_ID }}\nText (Markdown):\n\n✅ Saved to Notion\n*{{ $json.title }}*\nFrom: {{ $json.fromAddress }}\nDate: {{ $json.sentAt }}\nLink: {{ $json.sourceUrl || '-' }}\n\nparseMode: Markdown"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ba8081b0-40af-45cd-b748-1fbc2fb69f66",
+      "name": "Email Trigger (IMAP)3",
+      "type": "n8n-nodes-base.emailReadImap",
+      "disabled": true,
+      "position": [
+        -5712,
+        1760
+      ],
+      "parameters": {
+        "options": {
+          "forceReconnect": 60,
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "6a16fe30-03a2-4ad9-a918-07f10cfe7086",
+      "name": "Code3",
+      "type": "n8n-nodes-base.code",
+      "disabled": true,
+      "position": [
+        -5712,
+        1904
+      ],
+      "parameters": {
+        "jsCode": "/**\n * Function Node — Normalize & Dedupe (multi-item, no require)\n * Memproses SEMUA items dari IMAP/HTML node dan mengeluarkan jumlah item yang sama.\n * Output per item:\n * { title, snippet, bodyText, slug, messageId, sentAt, fromAddress, sourceUrl, debugFields }\n */\n\n/* ---------- Helpers (dipakai di tiap item) ---------- */\nfunction toISO(d) {\n  const dt = d ? new Date(d) : new Date();\n  return isNaN(dt) ? new Date().toISOString() : dt.toISOString();\n}\nfunction slugify(s) {\n  return String(s || '')\n    .trim().toLowerCase()\n    .replace(/\\s+/g, '-')        // spasi -> -\n    .replace(/[^a-z0-9-]/g, '')  // buang non URL-safe\n    .replace(/-+/g, '-')         // rapikan multiple -\n    .replace(/^-+|-+$/g, '');    // trim - di awal/akhir\n}\nfunction limit(str, max) {\n  const s = String(str || '').replace(/\\s+/g, ' ').trim();\n  return s.length <= max ? s : s.slice(0, max - 1).trim() + '…';\n}\nfunction firstUrlFrom(text) {\n  const s = String(text || '');\n  const m = s.match(/https?:\\/\\/[^\\s<>\"'`]+/i);\n  return m ? m[0] : '';\n}\nfunction extractFromAddress(from) {\n  if (!from) return '';\n  if (typeof from === 'string') {\n    const m = from.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : from.trim();\n  }\n  if (from.value && Array.isArray(from.value) && from.value[0]?.address) {\n    return from.value[0].address;\n  }\n  if (from.text) {\n    const m = String(from.text).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : String(from.text).trim();\n  }\n  if (from.address) return String(from.address);\n  return '';\n}\nfunction stripHtmlToText(html, fallbackText = '') {\n  let h = String(html || '');\n  if (!h) return String(fallbackText || '');\n  h = h.replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n       .replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  let t = h.replace(/<\\/?[^>]+>/g, ' ');\n  return t.replace(/\\s+/g, ' ').trim();\n}\nfunction simpleHash(str) {\n  let hash = 0;\n  const s = String(str || '');\n  for (let i = 0; i < s.length; i++) {\n    hash = (hash << 5) - hash + s.charCodeAt(i);\n    hash |= 0; // 32-bit\n  }\n  return Math.abs(hash).toString(16);\n}\n\n/* ---------- PROSES SEMUA ITEM ---------- */\nconst titleMax = 140;\nconst snippetMax = 260;\n\nreturn items.map((item) => {\n  const j = item.json || {};\n\n  // 1) SUBJECT (multi-jalur)\n  const subject =\n    j.subject ??\n    j.headers?.subject ??\n    j.message?.subject ??\n    '(no subject)';\n\n  // 2) BODY (multi-jalur) — dukung hasil HTML node juga (mis. bodyText)\n  const htmlCandidates = [\n    j.bodyTextHtml,   // beberapa node\n    j.textHtml,\n    j.html,\n    j.body?.html,\n    j.message?.html,\n  ];\n  const textCandidates = [\n    j.bodyText,       // kalau HTML node menaruh hasil disini\n    j.textPlain,\n    j.text,\n    j.body?.text,\n    j.message?.text,\n  ];\n\n  const htmlSrc = htmlCandidates.find(v => v && String(v).trim().length > 0);\n  let text = textCandidates.find(v => v && String(v).trim().length > 0) || '';\n\n  if (htmlSrc) {\n    text = stripHtmlToText(htmlSrc, text);\n  } else {\n    text = String(text).replace(/\\s+/g, ' ').trim();\n  }\n\n  // 3) DATE (multi-jalur)\n  const rawDate =\n    j.date ??\n    j.internalDate ??\n    j.headers?.date ??\n    j.message?.date ??\n    new Date().toISOString();\n  const sentAt = toISO(rawDate);\n\n  // 4) FROM (multi-jalur)\n  const fromCandidate =\n    j.from ??\n    j.headers?.from ??\n    j.message?.from ??\n    '';\n  const fromAddress = extractFromAddress(fromCandidate);\n\n  // 5) Title/Slug/Snippet\n  const title = limit(String(subject || '(no subject)').trim(), titleMax);\n  const slug = slugify(title);\n  const snippet = limit(text, snippetMax);\n\n  // 6) URL pertama (opsional)\n  const sourceUrl = firstUrlFrom(text) || '';\n\n  // 7) messageId (fallback hash)\n  let messageId =\n    (j.messageId ?? j.headers?.['message-id'] ?? j.message?.messageId ?? '').toString().trim();\n  if (!messageId) {\n    messageId = simpleHash(`${title}__${sentAt}`);\n  }\n\n  // 8) Debug asal field (opsional, boleh dihapus nanti)\n  const debugFields = {\n    subjectPickedFrom: subject === j.subject ? 'subject'\n      : subject === j.headers?.subject ? 'headers.subject'\n      : subject === j.message?.subject ? 'message.subject'\n      : '(default)',\n    bodyPickedFrom: htmlSrc ? 'HTML→text'\n      : (textCandidates.find(v => v && String(v).trim().length > 0) ? 'plain text' : '(none)'),\n    datePickedFrom: rawDate === j.date ? 'date'\n      : rawDate === j.internalDate ? 'internalDate'\n      : rawDate === j.headers?.date ? 'headers.date'\n      : rawDate === j.message?.date ? 'message.date'\n      : '(default now)',\n    fromPickedFrom: typeof fromCandidate === 'string' ? '(string)'\n      : fromCandidate?.value ? 'from.value[0]'\n      : fromCandidate?.text ? 'from.text'\n      : '(unknown)',\n  };\n\n  return {\n    json: {\n      title,\n      snippet,\n      bodyText: text,\n      slug,\n      messageId,\n      sentAt,\n      fromAddress,\n      sourceUrl,\n      debugFields, // hapus kalau sudah yakin\n    }\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0878f213-7ea0-4c16-98fd-2f680aa72254",
+      "name": "Execute a SQL query3",
+      "type": "n8n-nodes-base.postgres",
+      "disabled": true,
+      "position": [
+        -5712,
+        2064
+      ],
+      "parameters": {
+        "query": "SELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = '{{ $json.messageId }}'\n) AS exists;\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "e0b2d5c4-c3bf-4025-a56f-bd8123eaf6c2",
+      "name": "If3",
+      "type": "n8n-nodes-base.if",
+      "disabled": true,
+      "position": [
+        -5712,
+        2224
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
           "options": {
-            "forceReconnect": 60,
-            "customEmailConfig": "[\"UNSEEN\"]"
-          }
-        },
-        "typeVersion": 2.1
-      },
-      {
-        "id": "6a16fe30-03a2-4ad9-a918-07f10cfe7086",
-        "name": "Code3",
-        "type": "n8n-nodes-base.code",
-        "disabled": true,
-        "position": [
-          -5712,
-          1904
-        ],
-        "parameters": {
-          "jsCode": "/**\n * Function Node — Normalize & Dedupe (multi-item, no require)\n * Memproses SEMUA items dari IMAP/HTML node dan mengeluarkan jumlah item yang sama.\n * Output per item:\n * { title, snippet, bodyText, slug, messageId, sentAt, fromAddress, sourceUrl, debugFields }\n */\n\n/* ---------- Helpers (dipakai di tiap item) ---------- */\nfunction toISO(d) {\n  const dt = d ? new Date(d) : new Date();\n  return isNaN(dt) ? new Date().toISOString() : dt.toISOString();\n}\nfunction slugify(s) {\n  return String(s || '')\n    .trim().toLowerCase()\n    .replace(/\\s+/g, '-')        // spasi -> -\n    .replace(/[^a-z0-9-]/g, '')  // buang non URL-safe\n    .replace(/-+/g, '-')         // rapikan multiple -\n    .replace(/^-+|-+$/g, '');    // trim - di awal/akhir\n}\nfunction limit(str, max) {\n  const s = String(str || '').replace(/\\s+/g, ' ').trim();\n  return s.length <= max ? s : s.slice(0, max - 1).trim() + '…';\n}\nfunction firstUrlFrom(text) {\n  const s = String(text || '');\n  const m = s.match(/https?:\\/\\/[^\\s<>\"'`]+/i);\n  return m ? m[0] : '';\n}\nfunction extractFromAddress(from) {\n  if (!from) return '';\n  if (typeof from === 'string') {\n    const m = from.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : from.trim();\n  }\n  if (from.value && Array.isArray(from.value) && from.value[0]?.address) {\n    return from.value[0].address;\n  }\n  if (from.text) {\n    const m = String(from.text).match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);\n    return m ? m[0] : String(from.text).trim();\n  }\n  if (from.address) return String(from.address);\n  return '';\n}\nfunction stripHtmlToText(html, fallbackText = '') {\n  let h = String(html || '');\n  if (!h) return String(fallbackText || '');\n  h = h.replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n       .replace(/<style[\\s\\S]*?<\\/style>/gi, '');\n  let t = h.replace(/<\\/?[^>]+>/g, ' ');\n  return t.replace(/\\s+/g, ' ').trim();\n}\nfunction simpleHash(str) {\n  let hash = 0;\n  const s = String(str || '');\n  for (let i = 0; i < s.length; i++) {\n    hash = (hash << 5) - hash + s.charCodeAt(i);\n    hash |= 0; // 32-bit\n  }\n  return Math.abs(hash).toString(16);\n}\n\n/* ---------- PROSES SEMUA ITEM ---------- */\nconst titleMax = 140;\nconst snippetMax = 260;\n\nreturn items.map((item) => {\n  const j = item.json || {};\n\n  // 1) SUBJECT (multi-jalur)\n  const subject =\n    j.subject ??\n    j.headers?.subject ??\n    j.message?.subject ??\n    '(no subject)';\n\n  // 2) BODY (multi-jalur) — dukung hasil HTML node juga (mis. bodyText)\n  const htmlCandidates = [\n    j.bodyTextHtml,   // beberapa node\n    j.textHtml,\n    j.html,\n    j.body?.html,\n    j.message?.html,\n  ];\n  const textCandidates = [\n    j.bodyText,       // kalau HTML node menaruh hasil disini\n    j.textPlain,\n    j.text,\n    j.body?.text,\n    j.message?.text,\n  ];\n\n  const htmlSrc = htmlCandidates.find(v => v && String(v).trim().length > 0);\n  let text = textCandidates.find(v => v && String(v).trim().length > 0) || '';\n\n  if (htmlSrc) {\n    text = stripHtmlToText(htmlSrc, text);\n  } else {\n    text = String(text).replace(/\\s+/g, ' ').trim();\n  }\n\n  // 3) DATE (multi-jalur)\n  const rawDate =\n    j.date ??\n    j.internalDate ??\n    j.headers?.date ??\n    j.message?.date ??\n    new Date().toISOString();\n  const sentAt = toISO(rawDate);\n\n  // 4) FROM (multi-jalur)\n  const fromCandidate =\n    j.from ??\n    j.headers?.from ??\n    j.message?.from ??\n    '';\n  const fromAddress = extractFromAddress(fromCandidate);\n\n  // 5) Title/Slug/Snippet\n  const title = limit(String(subject || '(no subject)').trim(), titleMax);\n  const slug = slugify(title);\n  const snippet = limit(text, snippetMax);\n\n  // 6) URL pertama (opsional)\n  const sourceUrl = firstUrlFrom(text) || '';\n\n  // 7) messageId (fallback hash)\n  let messageId =\n    (j.messageId ?? j.headers?.['message-id'] ?? j.message?.messageId ?? '').toString().trim();\n  if (!messageId) {\n    messageId = simpleHash(`${title}__${sentAt}`);\n  }\n\n  // 8) Debug asal field (opsional, boleh dihapus nanti)\n  const debugFields = {\n    subjectPickedFrom: subject === j.subject ? 'subject'\n      : subject === j.headers?.subject ? 'headers.subject'\n      : subject === j.message?.subject ? 'message.subject'\n      : '(default)',\n    bodyPickedFrom: htmlSrc ? 'HTML→text'\n      : (textCandidates.find(v => v && String(v).trim().length > 0) ? 'plain text' : '(none)'),\n    datePickedFrom: rawDate === j.date ? 'date'\n      : rawDate === j.internalDate ? 'internalDate'\n      : rawDate === j.headers?.date ? 'headers.date'\n      : rawDate === j.message?.date ? 'message.date'\n      : '(default now)',\n    fromPickedFrom: typeof fromCandidate === 'string' ? '(string)'\n      : fromCandidate?.value ? 'from.value[0]'\n      : fromCandidate?.text ? 'from.text'\n      : '(unknown)',\n  };\n\n  return {\n    json: {\n      title,\n      snippet,\n      bodyText: text,\n      slug,\n      messageId,\n      sentAt,\n      fromAddress,\n      sourceUrl,\n      debugFields, // hapus kalau sudah yakin\n    }\n  };\n});\n"
-        },
-        "typeVersion": 2
-      },
-      {
-        "id": "0878f213-7ea0-4c16-98fd-2f680aa72254",
-        "name": "Execute a SQL query3",
-        "type": "n8n-nodes-base.postgres",
-        "disabled": true,
-        "position": [
-          -5712,
-          2064
-        ],
-        "parameters": {
-          "query": "SELECT EXISTS(\n  SELECT 1\n  FROM email_kb_index\n  WHERE message_id = '{{ $json.messageId }}'\n) AS exists;\n",
-          "options": {},
-          "operation": "executeQuery"
-        },
-        "typeVersion": 2.6
-      },
-      {
-        "id": "e0b2d5c4-c3bf-4025-a56f-bd8123eaf6c2",
-        "name": "If3",
-        "type": "n8n-nodes-base.if",
-        "disabled": true,
-        "position": [
-          -5712,
-          2224
-        ],
-        "parameters": {
-          "options": {},
-          "conditions": {
-            "options": {
-              "version": 2,
-              "leftValue": "",
-              "caseSensitive": true,
-              "typeValidation": "strict"
-            },
-            "combinator": "and",
-            "conditions": [
-              {
-                "id": "086a03b2-23c7-4a90-904e-420bbd480a0a",
-                "operator": {
-                  "type": "boolean",
-                  "operation": "false",
-                  "singleValue": true
-                },
-                "leftValue": "={{ $json.exists }}",
-                "rightValue": ""
-              }
-            ]
-          }
-        },
-        "typeVersion": 2.2
-      },
-      {
-        "id": "56809d81-55f3-45b5-baaa-116378c4bd25",
-        "name": "Create a database page3",
-        "type": "n8n-nodes-base.notion",
-        "disabled": true,
-        "position": [
-          -5024,
-          1840
-        ],
-        "parameters": {
-          "title": "={{ $('Code2').item.json.title }}",
-          "options": {},
-          "resource": "databasePage",
-          "databaseId": {
-            "__rl": true,
-            "mode": "list",
-            "value": "",
-            "cachedResultUrl": "",
-            "cachedResultName": "Email Knowledge Base"
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
           },
-          "propertiesUi": {
-            "propertyValues": [
-              {
-                "key": "date|date",
-                "date": "={{ $('Code2').item.json.sentAt }}"
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "086a03b2-23c7-4a90-904e-420bbd480a0a",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
               },
-              {
-                "key": "summary|rich_text",
-                "textContent": "={{ $('Code2').item.json.snippet }}"
-              },
-              {
-                "key": "sourceUrl|url",
-                "urlValue": "={{ $('Code2').item.json.sourceUrl }}",
-                "ignoreIfEmpty": true
-              },
-              {
-                "key": "From|rich_text",
-                "textContent": "={{ $('Code2').item.json.fromAddress }}"
-              },
-              {
-                "key": "Slug|rich_text",
-                "textContent": "={{ $('Code2').item.json.slug }}"
-              }
-            ]
+              "leftValue": "={{ $json.exists }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "56809d81-55f3-45b5-baaa-116378c4bd25",
+      "name": "Create a database page3",
+      "type": "n8n-nodes-base.notion",
+      "disabled": true,
+      "position": [
+        -5024,
+        1840
+      ],
+      "parameters": {
+        "title": "={{ $('Code2').item.json.title }}",
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": "Email Knowledge Base"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "date|date",
+              "date": "={{ $('Code2').item.json.sentAt }}"
+            },
+            {
+              "key": "summary|rich_text",
+              "textContent": "={{ $('Code2').item.json.snippet }}"
+            },
+            {
+              "key": "sourceUrl|url",
+              "urlValue": "={{ $('Code2').item.json.sourceUrl }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "From|rich_text",
+              "textContent": "={{ $('Code2').item.json.fromAddress }}"
+            },
+            {
+              "key": "Slug|rich_text",
+              "textContent": "={{ $('Code2').item.json.slug }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "48463d2d-bba3-4d85-99a5-4ca217c91a3a",
+      "name": "Send a text message3",
+      "type": "n8n-nodes-base.telegram",
+      "disabled": true,
+      "position": [
+        -5040,
+        2080
+      ],
+      "webhookId": "",
+      "parameters": {
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
           }
-        },
-        "typeVersion": 2.2
-      },
-      {
-        "id": "48463d2d-bba3-4d85-99a5-4ca217c91a3a",
-        "name": "Send a text message3",
-        "type": "n8n-nodes-base.telegram",
-        "disabled": true,
-        "position": [
-          -5040,
-          2080
-        ],
-        "webhookId": "",
-        "parameters": {
-          "additionalFields": {}
-        },
-        "typeVersion": 1.2
-      }
-    ],
-    "pinData": {},
-    "connections": {
-      "If": {
-        "main": [
-          [
-            {
-              "node": "Create a database page",
-              "type": "main",
-              "index": 0
-            }
-          ]
         ]
-      },
-      "If2": {
-        "main": [
-          [
-            {
-              "node": "Create a database page2",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Create a database page2",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Code": {
-        "main": [
-          [
-            {
-              "node": "Execute a SQL query",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Code1": {
-        "main": [
-          []
+      ]
+    },
+    "Code1": {
+      "main": [
+        []
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Code2": {
-        "main": [
-          [
-            {
-              "node": "Execute a SQL query2",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Execute a SQL query": {
-        "main": [
-          [
-            {
-              "node": "If",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      ]
+    },
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Email Trigger (IMAP)": {
-        "main": [
-          [
-            {
-              "node": "Code",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        []
+      ]
+    },
+    "Execute a SQL query2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Execute a SQL query1": {
-        "main": [
-          []
+      ]
+    },
+    "Email Trigger (IMAP)1": {
+      "main": [
+        []
+      ]
+    },
+    "Email Trigger (IMAP)2": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Execute a SQL query2": {
-        "main": [
-          [
-            {
-              "node": "If2",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Email Trigger (IMAP)1": {
-        "main": [
-          []
+      ]
+    },
+    "Create a database page1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Email Trigger (IMAP)2": {
-        "main": [
-          [
-            {
-              "node": "Code2",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      ]
+    },
+    "Create a database page2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Create a database page": {
-        "main": [
-          [
-            {
-              "node": "Send a text message",
-              "type": "main",
-              "index": 0
-            }
-          ]
+      ]
+    },
+    "Create a database page3": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
         ]
-      },
-      "Create a database page1": {
-        "main": [
-          [
-            {
-              "node": "Send a text message1",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Create a database page2": {
-        "main": [
-          [
-            {
-              "node": "Send a text message2",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Create a database page3": {
-        "main": [
-          [
-            {
-              "node": "Send a text message3",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      }
+      ]
     }
   }
 }

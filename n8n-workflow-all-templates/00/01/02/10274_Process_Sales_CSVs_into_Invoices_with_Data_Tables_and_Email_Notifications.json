@@ -1,0 +1,685 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Process Sales CSVs into Invoices with Data Tables and Email Notifications",
+    "wechat": "youandme10086",
+    "id": 10274,
+    "update_time": "2025-11-10"
+  },
+  "nodes": [
+    {
+      "id": "c53cbd78-7962-40b5-a5c6-5e8bf7605d68",
+      "name": "Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        896,
+        -1088
+      ],
+      "parameters": {
+        "width": 680,
+        "height": 1016,
+        "content": "## 🧾 Smart Sales Invoice Processor (Data tables Edition)\n\nTransform uploaded sales CSV files into validated, enriched invoices — stored natively in **n8n Data tables** with automatic calculations, duplicate detection, validation error handling, and email notifications.\n\n### ✨ Features\n- ✅ Multi-format CSV input (file upload or raw text)\n- ✅ Validation for email, quantity, date, and required fields\n- ✅ Automatic error handling with **400 Bad Request** JSON response for invalid CSVs\n- ✅ Product enrichment from `Products` Datatable\n- ✅ Invoice storage in `Invoices` Datatable\n- ✅ Automated total and tax calculation\n- ✅ Duplicate order detection and 409 response\n- ✅ Ready-to-send email confirmations\n- ✅ Fully native — no external integrations required\n\n---\n\n### 🧩 Use Cases\n- E-commerce order automation  \n- Internal invoice generation for CSV uploads  \n- Accounting or ERP data imports  \n- API endpoint for sales systems  \n\n---\n\n### ⚙️ Setup\n1. **Create two n8n Data tables:**\n   - **Products:** `sku, name, price, tax_rate`\n   - **Invoices:** `invoice_id, customer_email, order_date, subtotal, total_tax, grand_total`\n2. Import this workflow and update the Datatable node references if needed.\n3. Send a test CSV to `/webhook/process-sales` using cURL (see below).\n4. Check your invoice results in the `Invoices` Datatable.\n\n---\n\n### 📦 Expected Output\n\nWhen you send a valid CSV file, the workflow will:\n- Validate and enrich each order row  \n- Store processed invoices in your **Invoices Datatable**  \n- Generate personalized email confirmations  \n- Return a structured JSON API response"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a05c65e8-d535-4db0-b93a-1b0e48f1c8df",
+      "name": "Receive Sales CSV",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        944,
+        208
+      ],
+      "webhookId": "sales-processor-webhook",
+      "parameters": {
+        "path": "/process-sales",
+        "options": {
+          "binaryPropertyName": "file"
+        },
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "66920233-1f19-44a2-912b-3a91d927c43a",
+      "name": "Check Upload Type",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1168,
+        208
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-file-upload",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Receive Sales CSV').item.binary.file0 }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "dd70bd76-3c1c-4e86-937c-be5412fb153c",
+      "name": "Extract CSV Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1392,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "text",
+        "binaryPropertyName": "file"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67ce54b9-cdc0-4a0a-8042-3b0d706ee6d1",
+      "name": "Parse & Validate CSV",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueErrorOutput",
+      "position": [
+        1616,
+        208
+      ],
+      "parameters": {
+        "jsCode": "// Parse CSV and validate data structure\nlet csv = $json.data;\n\n// Clean up bash-style input\ncsv = csv.replace(/^\\$'/, '').replace(/'$/, '').replace(/\\\\n/g, '\\n').trim();\n\nconst delimiter = csv.includes(';') && !csv.includes(',') ? ';' : ',';\nconst lines = csv.split('\\n').filter(line => line.trim());\n\nif (lines.length < 2) {\n  throw new Error('CSV must contain at least a header and one data row');\n}\n\nconst headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());\nconst requiredColumns = ['sku', 'quantity', 'customer_email', 'order_date'];\n\n// Validate required columns\nconst missingColumns = requiredColumns.filter(col => !headers.includes(col));\nif (missingColumns.length > 0) {\n  throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);\n}\n\n// Parse rows\nconst output = [];\nconst errors = [];\n\nfor (let i = 1; i < lines.length; i++) {\n  const values = lines[i].split(delimiter).map(v => v.trim());\n  const row = {};\n  \n  headers.forEach((header, idx) => {\n    row[header] = values[idx] || null;\n  });\n  \n  // Validate row\n  const rowErrors = [];\n  \n  if (!row.sku) rowErrors.push('SKU is required');\n  if (!row.quantity || isNaN(row.quantity) || parseInt(row.quantity) <= 0) {\n    rowErrors.push('Quantity must be a positive number');\n  }\n  if (!row.customer_email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(row.customer_email)) {\n    rowErrors.push('Valid email is required');\n  }\n  if (!row.order_date || !/^\\d{4}-\\d{2}-\\d{2}$/.test(row.order_date)) {\n    rowErrors.push('Date must be in YYYY-MM-DD format');\n  }\n  \n  if (rowErrors.length > 0) {\n    errors.push({\n      row: i,\n      data: row,\n      errors: rowErrors\n    });\n  } else {\n    output.push({\n      json: {\n        sku: row.sku.toUpperCase(),\n        quantity: parseInt(row.quantity),\n        customer_email: row.customer_email.toLowerCase(),\n        order_date: row.order_date,\n        row_number: i\n      }\n    });\n  }\n}\n\nif (errors.length > 0) {\n  throw new Error(`Validation failed:\\n${JSON.stringify(errors, null, 2)}`);\n}\n\nreturn output;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5b8569d9-1bf2-45da-825b-6b4a83495381",
+      "name": "Enrich with Product Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2064,
+        208
+      ],
+      "parameters": {
+        "jsCode": "// Load product data from Datatable\nconst products = $('Load Product Catalog').all().map(p => p.json);\n\n// Create fast SKU lookup map\nconst productMap = Object.fromEntries(\n  products.map(p => [p.sku.toUpperCase(), p])\n);\n\n// Load parsed CSV rows explicitly from the \"Parse & Validate CSV\" node\nconst orders = $('Parse & Validate CSV').all().map(o => o.json);\n\nconst enrichedItems = [];\nconst missingProducts = [];\n\nfor (const order of orders) {\n  const { sku, quantity, customer_email, order_date, row_number } = order;\n  const product = productMap[sku.toUpperCase()];\n\n  if (!product) {\n    missingProducts.push({ sku, row: row_number });\n    continue;\n  }\n\n  // Calculate totals\n  const qty = Number(quantity);\n  const line_total = product.price * qty;\n  const tax_amount = line_total * product.tax_rate;\n  const total_with_tax = line_total + tax_amount;\n\n  enrichedItems.push({\n    json: {\n      sku,\n      product_name: product.name,\n      unit_price: product.price,\n      quantity: qty,\n      line_total: +line_total.toFixed(2),\n      tax_rate: product.tax_rate,\n      tax_amount: +tax_amount.toFixed(2),\n      total_with_tax: +total_with_tax.toFixed(2),\n      customer_email,\n      order_date,\n      row_number\n    }\n  });\n}\n\n// Throw if missing SKUs\nif (missingProducts.length > 0) {\n  throw new Error(`Missing SKUs: ${JSON.stringify(missingProducts)}`);\n}\n\nreturn enrichedItems;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "52a5ad1f-acb9-4024-a468-eb308e0cfe35",
+      "name": "Calculate Invoice Totals",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2288,
+        208
+      ],
+      "parameters": {
+        "jsCode": "// Group by customer and calculate invoice totals\nconst items = $input.all().map(item => item.json);\n\n// Group by customer email\nconst invoicesByCustomer = {};\n\nitems.forEach(item => {\n  const email = item.customer_email;\n  \n  if (!invoicesByCustomer[email]) {\n    invoicesByCustomer[email] = {\n      customer_email: email,\n      order_date: item.order_date,\n      line_items: [],\n      subtotal: 0,\n      total_tax: 0,\n      grand_total: 0\n    };\n  }\n  \n  invoicesByCustomer[email].line_items.push({\n    sku: item.sku,\n    product_name: item.product_name,\n    unit_price: item.unit_price,\n    quantity: item.quantity,\n    line_total: item.line_total,\n    tax_amount: item.tax_amount\n  });\n  \n  invoicesByCustomer[email].subtotal += item.line_total;\n  invoicesByCustomer[email].total_tax += item.tax_amount;\n  invoicesByCustomer[email].grand_total += item.total_with_tax;\n});\n\n// Generate invoice IDs and format\nconst invoices = Object.values(invoicesByCustomer).map((invoice, idx) => {\n  const timestamp = Date.now();\n  const invoiceId = `INV-${timestamp}-${idx + 1}`;\n  \n  return {\n    json: {\n      invoice_id: invoiceId,\n      customer_email: invoice.customer_email,\n      order_date: invoice.order_date,\n      created_at: new Date().toISOString(),\n      line_items: invoice.line_items,\n      subtotal: Math.round(invoice.subtotal * 100) / 100,\n      total_tax: Math.round(invoice.total_tax * 100) / 100,\n      grand_total: Math.round(invoice.grand_total * 100) / 100,\n      status: 'pending'\n    }\n  };\n});\n\nreturn invoices;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "29349274-23bc-4824-9b7d-24feeecc2d97",
+      "name": "Check for Duplicates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2512,
+        208
+      ],
+      "parameters": {
+        "jsCode": "// Check for duplicate orders based on customer email and order date\n// In production, query actual database\n\nconst invoices = $input.all().map(item => item.json);\n\n// Simulate existing orders database\nconst existingOrders = [\n  // Example: { customer_email: 'test@example.com', order_date: '2025-01-15' }\n];\n\nconst duplicates = [];\nconst validInvoices = [];\n\nfor (const invoice of invoices) {\n  const isDuplicate = existingOrders.some(\n    order => order.customer_email === invoice.customer_email && \n             order.order_date === invoice.order_date\n  );\n  \n  if (isDuplicate) {\n    duplicates.push({\n      invoice_id: invoice.invoice_id,\n      customer_email: invoice.customer_email,\n      order_date: invoice.order_date,\n      reason: 'Duplicate order for this customer and date'\n    });\n  } else {\n    validInvoices.push({ json: invoice });\n  }\n}\n\nif (duplicates.length > 0) {\n  // Store duplicates in global variable for error reporting\n  $('Globals').item.json.duplicates = duplicates;\n}\n\nreturn validInvoices.length > 0 ? validInvoices : [{ json: { no_valid_invoices: true, duplicates } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3c77bba1-c7b9-4be0-a3c1-8c8ec78694b3",
+      "name": "Has Valid Invoices?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2736,
+        208
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-valid",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.no_valid_invoices }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6b1a5618-7915-4313-8024-0698983938d5",
+      "name": "Prepare Email Notifications",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3408,
+        112
+      ],
+      "parameters": {
+        "jsCode": "// Each input item has a structure like { data: [ {...}, {...} ] }\n// We need to flatten all data arrays into a single list of invoice objects\nconst allData = $input.all()\n  .flatMap(item => item.json.data || [])\n  .filter(Boolean);\n\nif (allData.length === 0) {\n  throw new Error('No invoice data found.');\n}\n\nconst emailData = allData.map(invoice => {\n  // No line_items in Datatable version → create a simple item summary\n  const body = `Dear Customer,\n\nThank you for your order!\n\nInvoice ID: ${invoice.invoice_id}\nOrder Date: ${new Date(invoice.order_date).toLocaleDateString()}\n\nSubtotal: $${invoice.subtotal.toFixed(2)}\nTax: $${invoice.total_tax.toFixed(2)}\nGrand Total: $${invoice.grand_total.toFixed(2)}\n\nThank you for your business!\n\nBest regards,\nSales Team`;\n\n  return {\n    json: {\n      to: invoice.customer_email,\n      subject: `Invoice ${invoice.invoice_id} - Order Confirmation`,\n      body,\n      invoice_id: invoice.invoice_id,\n      metadata: invoice\n    }\n  };\n});\n\nreturn emailData;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "026040a1-9dcc-455f-a964-3197f72856fe",
+      "name": "Email Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3536,
+        -48
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 280,
+        "height": 352,
+        "content": "## 📧 Email Node\n\nIn production, connect:\n- Gmail\n\nFor now, emails are simulated."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1a76f11-0b4f-446c-bada-17d1b261057e",
+      "name": "Merge Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3856,
+        112
+      ],
+      "parameters": {
+        "jsCode": "// Merge invoice data with email results\nconst invoices = $input.first().json;\nconst emailResults = $input.all().slice(1).map(item => item.json);\n\nreturn {\n  success: true,\n  processed_at: new Date().toISOString(),\n  invoice_count: Array.isArray(invoices) ? invoices.length : 1,\n  invoices: invoices,\n  email_notifications: emailResults,\n  message: 'All invoices processed and customers notified'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "81e161e3-9ab2-472a-a36c-7d315cc729ee",
+      "name": "Return Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        4080,
+        112
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "2e7de734-053c-48ae-94b8-1bf19bdb09ac",
+      "name": "Return Duplicate Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2960,
+        304
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 409,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { success: false, error: 'All orders are duplicates', duplicates: $json.duplicates, message: 'No new invoices were created' } }}"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "b128cc46-f310-4d59-8986-980798871bcd",
+      "name": "Load Product Catalog",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1840,
+        208
+      ],
+      "parameters": {
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "RfoX7jI35h91cisU",
+          "cachedResultUrl": "/projects/2tZRoNG4OYajFCJ0/datatables/RfoX7jI35h91cisU",
+          "cachedResultName": "Products"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "7d70deb1-2874-48b4-b9bc-77d1f11efa54",
+      "name": "Insert row",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2960,
+        112
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "subtotal": "={{ $json.subtotal }}",
+            "total_tax": "={{ $json.total_tax }}",
+            "invoice_id": "={{ $json.invoice_id }}",
+            "order_date": "={{ $json.order_date }}",
+            "grand_total": "={{ $json.grand_total }}",
+            "customer_email": "={{ $json.customer_email }}"
+          },
+          "schema": [
+            {
+              "id": "invoice_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "invoice_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "customer_email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "customer_email",
+              "defaultMatch": false
+            },
+            {
+              "id": "order_date",
+              "type": "dateTime",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "order_date",
+              "defaultMatch": false
+            },
+            {
+              "id": "subtotal",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "subtotal",
+              "defaultMatch": false
+            },
+            {
+              "id": "total_tax",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "total_tax",
+              "defaultMatch": false
+            },
+            {
+              "id": "grand_total",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "grand_total",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "nISVSIDEZK9qg3ko",
+          "cachedResultUrl": "/projects/2tZRoNG4OYajFCJ0/datatables/nISVSIDEZK9qg3ko",
+          "cachedResultName": "Invoices"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5863af7a-9e7b-4bd9-a27a-1695c0a03a75",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        3184,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7a1f9da9-98de-46cf-a7b0-3ee88c63f1ff",
+      "name": "Email Output Preview",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3632,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "54c3d010-ee4b-4335-9e1d-760ffc779abd",
+              "name": "to",
+              "type": "string",
+              "value": "={{ $json.to }}"
+            },
+            {
+              "id": "08b1c806-7fcb-4b06-87b0-ab80101f2084",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "id": "a1d3dd03-36dd-4382-aba2-b0ba3052c44c",
+              "name": "body",
+              "type": "string",
+              "value": "={{ $json.body }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "764e6fd1-4872-4af9-90c4-d869d0bfc121",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1392,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "text",
+        "binaryPropertyName": "=file0"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "584e8427-28c2-4793-a022-a054fbcc006d",
+      "name": "Return Validation Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1840,
+        416
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { success: false, message: 'CSV validation failed',\n  error: $json.message || $json.error || 'Invalid CSV data' } }}"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "1f47fe85-e27a-48ec-a06c-70f2aeb2e1e7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        -1104
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 2192,
+        "height": 1024,
+        "content": "### 🧪 Test with cURL\n\n#### ✅ Valid Example\n```bash\ncurl -X POST \\\n  -H \"Content-Type: text/csv\" \\\n  --data-binary $'sku,quantity,customer_email,order_date\\nPROD-001,2,john@example.com,2025-01-15\\nPROD-002,1,jane@example.com,2025-01-15' \\\n  https://<your-n8n-url>/webhook/process-sales\n``` \n\n**Example Successful Response (HTTP 200):**\n\n```json\n{\n  \"success\": true,\n  \"processed_at\": \"2025-11-04T15:36:52.899Z\",\n  \"invoice_count\": 1,\n  \"invoices\": {\n    \"to\": \"john@example.com\",\n    \"subject\": \"Invoice INV-1762270612772-1 - Order Confirmation\",\n    \"body\": \"Dear Customer,\\n\\nThank you for your order!\\n\\nInvoice ID: INV-1762270612772-1\\nOrder Date: 1/14/2025\\n\\nSubtotal: $99.98\\nTax: $10.00\\nGrand Total: $109.98\\n\\nThank you for your business!\\n\\nBest regards,\\nSales Team\"\n  },\n  \"email_notifications\": [\n    {\n      \"to\": \"jane@example.com\",\n      \"subject\": \"Invoice INV-1762270612772-2 - Order Confirmation\",\n      \"body\": \"Dear Customer,\\n\\nThank you for your order!\\n\\nInvoice ID: INV-1762270612772-2\\nOrder Date: 1/14/2025\\n\\nSubtotal: $89.99\\nTax: $9.00\\nGrand Total: $98.99\\n\\nThank you for your business!\\n\\nBest regards,\\nSales Team\"\n    }\n  ],\n  \"message\": \"All invoices processed and customers notified\"\n}\n```\n\n❌ Invalid Example (Missing Email)\n\n```bash\ncurl -X POST \\\n  -H \"Content-Type: text/csv\" \\\n  --data-binary $'sku,quantity,customer_email,order_date\\nPROD-001,2,john@example.com,2025-01-15\\nPROD-002,1,2025-01-15' \\\n  https://<your-n8n-url>/webhook/process-sales\n```\n\nResponse (HTTP 400):\n``` json\n{\n  \"success\": false,\n  \"message\": \"CSV validation failed\",\n  \"error\": \"Validation failed: [ { \\\"row\\\": 2, \\\"errors\\\": [\\\"Valid email is required\\\"] } ]\"\n}\n```\n\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Results": {
+      "main": [
+        [
+          {
+            "node": "Return Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract CSV Text": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Upload Type": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract CSV Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Sales CSV": {
+      "main": [
+        [
+          {
+            "node": "Check Upload Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Valid Invoices?": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Duplicate Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Has Valid Invoices?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Output Preview": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Product Catalog": {
+      "main": [
+        [
+          {
+            "node": "Enrich with Product Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Validate CSV": {
+      "main": [
+        [
+          {
+            "node": "Load Product Catalog",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Validation Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Invoice Totals": {
+      "main": [
+        [
+          {
+            "node": "Check for Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich with Product Data": {
+      "main": [
+        [
+          {
+            "node": "Calculate Invoice Totals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Notifications": {
+      "main": [
+        [
+          {
+            "node": "Email Output Preview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
