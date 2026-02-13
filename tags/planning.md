@@ -1,4 +1,4 @@
-# planning : 11
+# planning : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |9686|[9686_Monitoring_Team_Capacity_in_Jira_and_Sending_Alerts_for_Over-Allocation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9686_Monitoring_Team_Capacity_in_Jira_and_Sending_Alerts_for_Over-Allocation.json)|
 |10035|[10035_Automate_UX_Research_Planning_with_Gemini_AI__Google_Docs__and_Human_Feedback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10035_Automate_UX_Research_Planning_with_Gemini_AI__Google_Docs__and_Human_Feedback.json)|
 |10219|[10219_Automate_Event_Planning___Budget_Optimization_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10219_Automate_Event_Planning___Budget_Optimization_with_Claude_AI_and_Google_Sheets.json)|
+|12371|[12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json)|

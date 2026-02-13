@@ -1,4 +1,4 @@
-# evaluate : 14
+# evaluate : 20
 
 |id|file|
 |----|----|
@@ -16,3 +16,9 @@
 |8526|[8526_Evaluate_Interview___Update_Scores_with_Azure_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8526_Evaluate_Interview___Update_Scores_with_Azure_GPT-4o-mini_and_Google_Sheets.json)|
 |8775|[8775_Parse___Evaluate_HR_Candidates_with_GPT-4.1_and_LinkedIn_Data_in_CSV_XLSX.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8775_Parse___Evaluate_HR_Candidates_with_GPT-4.1_and_LinkedIn_Data_in_CSV_XLSX.json)|
 |10621|[10621_Flight_Deal_Analyzer_with_Weather_Data_using_GPT__Google_Flights___WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10621_Flight_Deal_Analyzer_with_Weather_Data_using_GPT__Google_Flights___WordPress.json)|
+|12527|[12527_Extract_meeting_details_with_GPT-4.1-mini_and_evaluate_accuracy_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12527_Extract_meeting_details_with_GPT-4.1-mini_and_evaluate_accuracy_in_Google_Sheets.json)|
+|12549|[12549_Evaluate_OMR_answer_sheets_with_Gemini_vision_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12549_Evaluate_OMR_answer_sheets_with_Gemini_vision_AI_and_Google_Sheets.json)|
+|12644|[12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json)|
+|12963|[12963_Evaluate_organizational_data_maturity_and_email_HTML_reports_with_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12963_Evaluate_organizational_data_maturity_and_email_HTML_reports_with_Postgres.json)|
+|12990|[12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json)|
+|13316|[13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json)|

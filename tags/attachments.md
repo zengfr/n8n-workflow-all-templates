@@ -1,4 +1,4 @@
-# attachments : 17
+# attachments : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |7585|[7585_Automatically_Rename_Gmail_Attachments_with_GPT-4o_and_Save_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7585_Automatically_Rename_Gmail_Attachments_with_GPT-4o_and_Save_to_Google_Drive.json)|
 |8813|[8813_Automated_Slack-to-Jira_Issue_Creation_with_Attachments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8813_Automated_Slack-to-Jira_Issue_Creation_with_Attachments.json)|
 |10602|[10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json)|
+|13004|[13004_Extract_structured_data_from_Gmail_attachments_to_Google_Sheets__GPT_vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13004_Extract_structured_data_from_Gmail_attachments_to_Google_Sheets__GPT_vision.json)|

@@ -1,4 +1,4 @@
-# visual : 19
+# visual : 23
 
 |id|file|
 |----|----|
@@ -21,3 +21,7 @@
 |10285|[10285_Send_Severe_Weather_Alerts_from_Visual_Crossing_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10285_Send_Severe_Weather_Alerts_from_Visual_Crossing_to_Telegram.json)|
 |11573|[11573_Analyze_competitor_visual_content_across_Instagram_and_TikTok_with_GPT-4o_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11573_Analyze_competitor_visual_content_across_Instagram_and_TikTok_with_GPT-4o_Vision.json)|
 |11589|[11589_Automated_POV_Video_Creation_with_AI_Scripts__Visual_Generation___YouTube_Publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11589_Automated_POV_Video_Creation_with_AI_Scripts__Visual_Generation___YouTube_Publishing.json)|
+|12289|[12289_Send_sales_forecast_charts_and_answer_Q_A_on_WhatsApp_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12289_Send_sales_forecast_charts_and_answer_Q_A_on_WhatsApp_with_OpenAI.json)|
+|12337|[12337_Create_a_daily_visual_journal_from_Discord_chats_with_GPT-4__DALL-E_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12337_Create_a_daily_visual_journal_from_Discord_chats_with_GPT-4__DALL-E_and_Notion.json)|
+|12346|[12346_Generate_visual_resumes_from_Telegram_using_Google_Gemini_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12346_Generate_visual_resumes_from_Telegram_using_Google_Gemini_and_BrowserAct.json)|
+|12357|[12357_Compare_products_and_generate_visual_scorecards_in_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12357_Compare_products_and_generate_visual_scorecards_in_Telegram_with_BrowserAct_and_Gemini.json)|

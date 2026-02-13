@@ -1,4 +1,4 @@
-# blogs : 10
+# blogs : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |8356|[8356_Generate_SEO-Optimized_WordPress_Blogs_with_Gemini__Tavily___Human_Review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8356_Generate_SEO-Optimized_WordPress_Blogs_with_Gemini__Tavily___Human_Review.json)|
 |8394|[8394_Creating_SEO-Optimized_Blogs_for_WordPress_Using_Specific_Tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8394_Creating_SEO-Optimized_Blogs_for_WordPress_Using_Specific_Tools.json)|
 |10293|[10293_Multi-Agent_AI_Content_Creator_for_SEO_Blogs___Newsletters_with_OpenRouter__DALL-E__Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10293_Multi-Agent_AI_Content_Creator_for_SEO_Blogs___Newsletters_with_OpenRouter__DALL-E__Gemini.json)|
+|12264|[12264_Repurpose_YouTube_videos_into_blogs_and_social_posts_with_GPT-4o__WordPress__LinkedIn__X_and_Instagram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12264_Repurpose_YouTube_videos_into_blogs_and_social_posts_with_GPT-4o__WordPress__LinkedIn__X_and_Instagram.json)|
+|12286|[12286_Turn_new_Shopify_products_into_SEO_blogs_with_Perplexity__Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12286_Turn_new_Shopify_products_into_SEO_blogs_with_Perplexity__Gemini_and_Sheets.json)|
+|13113|[13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json)|

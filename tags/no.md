@@ -1,4 +1,4 @@
-# no : 29
+# no : 31
 
 |id|file|
 |----|----|
@@ -31,3 +31,5 @@
 |10730|[10730_Automated_Weekly_Product_Promotion_Emails_for_E-commerce_with_Algolia_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10730_Automated_Weekly_Product_Promotion_Emails_for_E-commerce_with_Algolia_and_Gmail.json)|
 |11212|[11212_Monitor_YouTube_Channels_and_Send_Daily_Updates_to_Discord_via_RSS__No_API_Key.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11212_Monitor_YouTube_Channels_and_Send_Daily_Updates_to_Discord_via_RSS__No_API_Key.json)|
 |11526|[11526_Analyze_high-priority_tenders_from_Airtable_to_Slack_for_Go_No-Go_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11526_Analyze_high-priority_tenders_from_Airtable_to_Slack_for_Go_No-Go_approval.json)|
+|12125|[12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json)|
+|12333|[12333_Generate_AI_stock_buy_no-buy_signals_using_GPT_4.1__Google_Sheets_and_EODHD.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12333_Generate_AI_stock_buy_no-buy_signals_using_GPT_4.1__Google_Sheets_and_EODHD.json)|

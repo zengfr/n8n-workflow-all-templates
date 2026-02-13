@@ -1,4 +1,4 @@
-# details : 15
+# details : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |6302|[6302_Store_Gmail_Email_Details_in_MySQL_Database.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6302_Store_Gmail_Email_Details_in_MySQL_Database.json)|
 |6655|[6655_View_Fantasy_Football_Roster_Details_with_Sleeper_API_and_Telegram_Chatbot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/66/6655_View_Fantasy_Football_Roster_Details_with_Sleeper_API_and_Telegram_Chatbot.json)|
 |8440|[8440_Extract_and_Organize_Contract_Details_from_PDFs_with_Slack__GPT-4o__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8440_Extract_and_Organize_Contract_Details_from_PDFs_with_Slack__GPT-4o__and_Google_Sheets.json)|
+|12527|[12527_Extract_meeting_details_with_GPT-4.1-mini_and_evaluate_accuracy_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12527_Extract_meeting_details_with_GPT-4.1-mini_and_evaluate_accuracy_in_Google_Sheets.json)|
+|12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|

@@ -1,4 +1,4 @@
-# bug : 13
+# bug : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |9655|[9655_Automate_Bug_Reports_with_Gemini_AI__Jotform_to_GitHub_with_Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9655_Automate_Bug_Reports_with_Gemini_AI__Jotform_to_GitHub_with_Telegram_Alerts.json)|
 |10054|[10054_Automated_CVE_Scanning_of_Bug_Bounty_Programs_with_Nuclei_and_Project_Discovery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10054_Automated_CVE_Scanning_of_Bug_Bounty_Programs_with_Nuclei_and_Project_Discovery.json)|
 |11697|[11697_AI-Powered_Bug_Triage_System_with_OpenAI__Jira_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11697_AI-Powered_Bug_Triage_System_with_OpenAI__Jira_and_Slack_Alerts.json)|
+|12205|[12205_Escalate_product_UAT_critical_bugs_with_OpenAI__Jira_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12205_Escalate_product_UAT_critical_bugs_with_OpenAI__Jira_and_Slack.json)|

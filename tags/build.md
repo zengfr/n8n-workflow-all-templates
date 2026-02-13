@@ -1,4 +1,4 @@
-# build : 137
+# build : 149
 
 |id|file|
 |----|----|
@@ -139,3 +139,15 @@
 |11468|[11468_Build_a_RAG_Agent_with_n8n__Qdrant___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11468_Build_a_RAG_Agent_with_n8n__Qdrant___OpenAI.json)|
 |11525|[11525_Build_a_Multi-Agent_system_with_n8n__Qdrant__Gmail___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11525_Build_a_Multi-Agent_system_with_n8n__Qdrant__Gmail___OpenAI.json)|
 |11754|[11754_Build_a_WhatsApp_Assistant_for_Text__Audio___Images_using_GPT-4o___Evolution_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11754_Build_a_WhatsApp_Assistant_for_Text__Audio___Images_using_GPT-4o___Evolution_API.json)|
+|12003|[12003_Build_a_voice___text_Telegram_Bot_with_GPT-4.1-Mini_and_Gemini_transcription.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12003_Build_a_voice___text_Telegram_Bot_with_GPT-4.1-Mini_and_Gemini_transcription.json)|
+|12146|[12146_Build_a_website-powered_customer_support_chatbot_with_Decodo__Pinecone_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12146_Build_a_website-powered_customer_support_chatbot_with_Decodo__Pinecone_and_Gemini.json)|
+|12368|[12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json)|
+|12507|[12507_Build_person_OSINT_profiles_using_Humantic_AI__Hunter__CourtListener_and_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12507_Build_person_OSINT_profiles_using_Humantic_AI__Hunter__CourtListener_and_GPT-5.json)|
+|12521|[12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json)|
+|12531|[12531_Build_a_RAG_chat_system_using_Aryn_DocParse__AWS_S3__Pinecone_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12531_Build_a_RAG_chat_system_using_Aryn_DocParse__AWS_S3__Pinecone_and_GPT-4o.json)|
+|12562|[12562_Build_a_prospecting_list_with_LeadIQ_and_save_it_to_Airtable_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12562_Build_a_prospecting_list_with_LeadIQ_and_save_it_to_Airtable_CRM.json)|
+|12568|[12568_Build_a_Telegram_AI_assistant_with_MemMachine__OpenAI__and_voice_support.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12568_Build_a_Telegram_AI_assistant_with_MemMachine__OpenAI__and_voice_support.json)|
+|12690|[12690_Build_a_Shopify_store_chat_agent_with_Shopify_MCP_and_C1_by_Thesys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12690_Build_a_Shopify_store_chat_agent_with_Shopify_MCP_and_C1_by_Thesys.json)|
+|12789|[12789_Build_a_full_REST-API_with_n8n_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12789_Build_a_full_REST-API_with_n8n_webhooks.json)|
+|12838|[12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json)|
+|13080|[13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json)|

@@ -1,4 +1,4 @@
-# open : 31
+# open : 33
 
 |id|file|
 |----|----|
@@ -33,3 +33,5 @@
 |9963|[9963_Extract_Structured_Invoice_Data_from_JotForm_PDFs_with_GPT-4.1-mini___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9963_Extract_Structured_Invoice_Data_from_JotForm_PDFs_with_GPT-4.1-mini___Sheets.json)|
 |10289|[10289_Unstructured_Resume_Parser_with_Thordata_Universal_API___OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10289_Unstructured_Resume_Parser_with_Thordata_Universal_API___OpenAI_GPT-4.1-mini.json)|
 |10681|[10681_Automate_Weather_Reports_with_GPT-4_Mini_and_Open-Meteo_API_to_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10681_Automate_Weather_Reports_with_GPT-4_Mini_and_Open-Meteo_API_to_Gmail_and_Slack.json)|
+|12539|[12539_Fetch_reliable_FX_exchange_rates_with_Frankfurter_and_open.er-api.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12539_Fetch_reliable_FX_exchange_rates_with_Frankfurter_and_open.er-api.json)|
+|12725|[12725_Verify_AI_draft_answers_with_Pearl_Hybrid_Intelligence_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12725_Verify_AI_draft_answers_with_Pearl_Hybrid_Intelligence_and_OpenAI.json)|

@@ -1,4 +1,4 @@
-# or : 48
+# or : 54
 
 |id|file|
 |----|----|
@@ -50,3 +50,9 @@
 |10180|[10180_AI_Blog_Post_Generator_with_Scheduled_or_Prompt-based_Content_for_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10180_AI_Blog_Post_Generator_with_Scheduled_or_Prompt-based_Content_for_WordPress.json)|
 |10249|[10249_Extract_TikTok_Usernames_from_Any_Video_or_Creator_Link_Format.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10249_Extract_TikTok_Usernames_from_Any_Video_or_Creator_Link_Format.json)|
 |10599|[10599_Fetch_Odoo_Customer_Data_and_Export_to_JSON_or_Excel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10599_Fetch_Odoo_Customer_Data_and_Export_to_JSON_or_Excel.json)|
+|11923|[11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json)|
+|11928|[11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json)|
+|12374|[12374_Capture_website_leads_to_HubSpot_or_Google_Sheets_with_Slack_follow-up.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12374_Capture_website_leads_to_HubSpot_or_Google_Sheets_with_Slack_follow-up.json)|
+|12502|[12502_Analyze_failed_workflows_with_Claude_via_OpenRouter_and_log_to_Sheets_with_Slack__Email__Discord_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12502_Analyze_failed_workflows_with_Claude_via_OpenRouter_and_log_to_Sheets_with_Slack__Email__Discord_alerts.json)|
+|12727|[12727_Generate_VEED_AI_talking_head_videos_from_sheet_rows_with_OpenAI_or_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12727_Generate_VEED_AI_talking_head_videos_from_sheet_rows_with_OpenAI_or_ElevenLabs.json)|
+|12837|[12837_Generate_personalized_cold_email_icebreakers_from_LinkedIn_or_website_data_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12837_Generate_personalized_cold_email_icebreakers_from_LinkedIn_or_website_data_with_GPT-4.json)|

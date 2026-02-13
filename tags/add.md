@@ -1,4 +1,4 @@
-# add : 64
+# add : 67
 
 |id|file|
 |----|----|
@@ -66,3 +66,6 @@
 |9203|[9203_Add_User_Authorization_Layer_to_Your_Telegram_Bot_with_Admin_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9203_Add_User_Authorization_Layer_to_Your_Telegram_Bot_with_Admin_Alerts.json)|
 |10230|[10230_Add_Project_Tasks_to_Google_Sheets_with_GPT-4.1-mini_Chat_Assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10230_Add_Project_Tasks_to_Google_Sheets_with_GPT-4.1-mini_Chat_Assistant.json)|
 |11229|[11229_Automatically_Add_Watermarks_to_Images_with_Telegram_Bot_and_ImageKit.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11229_Automatically_Add_Watermarks_to_Images_with_Telegram_Bot_and_ImageKit.io.json)|
+|12005|[12005_Movie_release_calendar__Add_TMDB_films_to_Google_Calendar_via_Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12005_Movie_release_calendar__Add_TMDB_films_to_Google_Calendar_via_Telegram_Bot.json)|
+|12310|[12310_Add_LinkedIn_post_commenters_to_HubSpot_CRM_with_Apify_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12310_Add_LinkedIn_post_commenters_to_HubSpot_CRM_with_Apify_enrichment.json)|
+|12422|[12422_Add_MailPoet_subscribers_from_WordPress_forms_via_TWZ_plugin_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12422_Add_MailPoet_subscribers_from_WordPress_forms_via_TWZ_plugin_and_log_to_Google_Sheets.json)|

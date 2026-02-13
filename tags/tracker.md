@@ -1,4 +1,4 @@
-# tracker : 92
+# tracker : 103
 
 |id|file|
 |----|----|
@@ -94,3 +94,14 @@
 |11700|[11700_Track_and_Score_Contact_Engagement_with_Zoho_CRM__PDL__News___Reddit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11700_Track_and_Score_Contact_Engagement_with_Zoho_CRM__PDL__News___Reddit.json)|
 |11722|[11722_Healthcare_Policy_Monitoring_with_ScrapeGraphAI__Pipedrive_and_Matrix_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11722_Healthcare_Policy_Monitoring_with_ScrapeGraphAI__Pipedrive_and_Matrix_Alerts.json)|
 |11812|[11812_Discord_Server_Anti-Impersonation___Scammer_Tracker_with_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11812_Discord_Server_Anti-Impersonation___Scammer_Tracker_with_Data_Tables.json)|
+|12006|[12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json)|
+|12010|[12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json)|
+|12072|[12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json)|
+|12105|[12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json)|
+|12154|[12154_Automatically_track_certification_changes_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12154_Automatically_track_certification_changes_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json)|
+|12198|[12198_Monitor_IoT_sustainability_compliance_and_ESG_reports_with_OpenAI__Airtable__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12198_Monitor_IoT_sustainability_compliance_and_ESG_reports_with_OpenAI__Airtable__Slack_and_Gmail.json)|
+|12234|[12234_Track_certification_requirements_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12234_Track_certification_requirements_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json)|
+|12368|[12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json)|
+|12375|[12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json)|
+|12380|[12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json)|
+|13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|

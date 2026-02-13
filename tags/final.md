@@ -1,4 +1,4 @@
-# final : 9
+# final : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |10977|[10977_Daily_News_Digest___Weekly_Trends_with_AI_Filtering__Slack___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10977_Daily_News_Digest___Weekly_Trends_with_AI_Filtering__Slack___Google_Sheets.json)|
 |11065|[11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json)|
 |11117|[11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json)|
+|12006|[12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json)|

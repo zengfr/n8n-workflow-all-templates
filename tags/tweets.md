@@ -1,4 +1,4 @@
-# tweets : 12
+# tweets : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |9355|[9355_Daily_Competitor_Tweet_Summarizer_with_X_API__GPT-5-Nano__and_Gmail_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9355_Daily_Competitor_Tweet_Summarizer_with_X_API__GPT-5-Nano__and_Gmail_Delivery.json)|
 |9395|[9395_Repurpose_Reddit_Posts_into_AI_Tweets_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9395_Repurpose_Reddit_Posts_into_AI_Tweets_with_Gemini_and_Google_Sheets.json)|
 |10781|[10781_Scheduled_Auto-replies_to_Targeted_Tweets_Using_X__Twitter__API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10781_Scheduled_Auto-replies_to_Targeted_Tweets_Using_X__Twitter__API.json)|
+|11960|[11960_Draft_daily_crypto_news_tweets_with_CryptoPanic__Google__GPT_4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11960_Draft_daily_crypto_news_tweets_with_CryptoPanic__Google__GPT_4o_and_Gmail.json)|
+|12847|[12847_Repurpose_LinkedIn_posts_into_X_tweets_with_Apify__Claude_AI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12847_Repurpose_LinkedIn_posts_into_X_tweets_with_Apify__Claude_AI_and_Airtable.json)|
+|12881|[12881_Post_daily_motivational_tweets_to_Twitter_X_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12881_Post_daily_motivational_tweets_to_Twitter_X_with_Google_Gemini_AI.json)|
+|13160|[13160_Manage_finances__tasks__tweets_and_Gmail_with_GPT_4.1_on_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13160_Manage_finances__tasks__tweets_and_Gmail_with_GPT_4.1_on_WhatsApp.json)|

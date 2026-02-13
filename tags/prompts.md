@@ -1,4 +1,4 @@
-# prompts : 43
+# prompts : 46
 
 |id|file|
 |----|----|
@@ -45,3 +45,6 @@
 |10005|[10005_Generate_Song_Lyrics_and_Music_from_Text_Prompts_using_OpenAI_and_Fal.ai_Minimax.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10005_Generate_Song_Lyrics_and_Music_from_Text_Prompts_using_OpenAI_and_Fal.ai_Minimax.json)|
 |11495|[11495_Automatically_Optimize_AI_Prompts_with_OpenAI_Using_OPRO___DSPy_Methodology.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11495_Automatically_Optimize_AI_Prompts_with_OpenAI_Using_OPRO___DSPy_Methodology.json)|
 |11537|[11537_Convert_CDP_Network_Topology_to_Lucidchart_Prompts_with_AWX_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11537_Convert_CDP_Network_Topology_to_Lucidchart_Prompts_with_AWX_and_Gemini_AI.json)|
+|12168|[12168_Automate_video_creation_with_Gemini_Prompts_and_Vertex_AI_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12168_Automate_video_creation_with_Gemini_Prompts_and_Vertex_AI_to_Google_Drive.json)|
+|12510|[12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json)|
+|13169|[13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json)|

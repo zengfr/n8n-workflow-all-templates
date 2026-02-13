@@ -1,4 +1,4 @@
-# my : 135
+# my : 140
 
 |id|file|
 |----|----|
@@ -137,3 +137,8 @@
 |11404|[11404_Track_Software_Vulnerability_Patents_with_ScrapeGraphAI__Matrix__and_Intercom.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11404_Track_Software_Vulnerability_Patents_with_ScrapeGraphAI__Matrix__and_Intercom.json)|
 |11503|[11503_Automate_Google_My_Business_Responses_with_Gemini_AI_and_Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11503_Automate_Google_My_Business_Responses_with_Gemini_AI_and_Google_Sheets_Tracking.json)|
 |11613|[11613_Xano_Support_Ticket_Router__AI___Xano_Node_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11613_Xano_Support_Ticket_Router__AI___Xano_Node_Integration.json)|
+|12632|[12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json)|
+|12664|[12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json)|
+|12676|[12676_Monitor_.my_domains_with_MYNIC_RDAP_and_send_alerts_via_Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12676_Monitor_.my_domains_with_MYNIC_RDAP_and_send_alerts_via_Gmail_and_Discord.json)|
+|12746|[12746_Send_AI_pet_grooming_reminders_and_follow-ups_with_GPT-4o_mini__Twilio__email__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12746_Send_AI_pet_grooming_reminders_and_follow-ups_with_GPT-4o_mini__Twilio__email__Google_Sheets_and_Slack.json)|
+|12751|[12751_Score_and_route_leads_with_Clearbit__Mattermost_and_Trello.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12751_Score_and_route_leads_with_Clearbit__Mattermost_and_Trello.json)|

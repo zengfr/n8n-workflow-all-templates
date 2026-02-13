@@ -1,4 +1,4 @@
-# design : 9
+# design : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |10025|[10025_Automate_Interior_Design_Lead_Qualification_with_AI___Human_Approval_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10025_Automate_Interior_Design_Lead_Qualification_with_AI___Human_Approval_to_Notion.json)|
 |11181|[11181_Automate_Print-on-Demand__Design_to_Shopify_with_AI__Mockups___Social_Promotion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11181_Automate_Print-on-Demand__Design_to_Shopify_with_AI__Mockups___Social_Promotion.json)|
 |11620|[11620_Design_and_Post_LinkedIn_Content_with_AI_Captions_and_Custom_Templates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11620_Design_and_Post_LinkedIn_Content_with_AI_Captions_and_Custom_Templates.json)|
+|12354|[12354_Create_an_AI_image_remix_and_design_bot_for_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12354_Create_an_AI_image_remix_and_design_bot_for_Telegram_with_BrowserAct_and_Gemini.json)|
+|13030|[13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json)|
+|13269|[13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json)|

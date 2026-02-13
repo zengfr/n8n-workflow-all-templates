@@ -1,4 +1,4 @@
-# their : 6
+# their : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |2695|[2695_Generating_New_Keywords_and_their_Search_Volumes_using_the_Google_Ads_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/26/2695_Generating_New_Keywords_and_their_Search_Volumes_using_the_Google_Ads_API.json)|
 |3480|[3480_Get_notified_when_your_competitors_change_their_pricing_with_Airtop_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/34/3480_Get_notified_when_your_competitors_change_their_pricing_with_Airtop_and_Slack.json)|
 |11746|[11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json)|
+|11941|[11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json)|

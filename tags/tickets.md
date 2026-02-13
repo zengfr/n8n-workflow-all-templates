@@ -1,4 +1,4 @@
-# tickets : 48
+# tickets : 54
 
 |id|file|
 |----|----|
@@ -50,3 +50,9 @@
 |11601|[11601_Handle_Failed_Payment_Renewals_with_AI_Analysis__Jira_Tickets_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11601_Handle_Failed_Payment_Renewals_with_AI_Analysis__Jira_Tickets_and_Slack_Alerts.json)|
 |11608|[11608_Automated_Product_Price_Tracking_with_ScrapeGraphAI__Slack_Alerts_and_Jira_Tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11608_Automated_Product_Price_Tracking_with_ScrapeGraphAI__Slack_Alerts_and_Jira_Tickets.json)|
 |11728|[11728_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11728_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json)|
+|12876|[12876_Score_Zoho_support_tickets_with_OpenAI_and_sync_upsell_alerts_to_Zoho_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12876_Score_Zoho_support_tickets_with_OpenAI_and_sync_upsell_alerts_to_Zoho_CRM.json)|
+|12906|[12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json)|
+|12940|[12940_Triage_and_escalate_HubSpot_tickets_to_Jira_with_Slack_SLA_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12940_Triage_and_escalate_HubSpot_tickets_to_Jira_with_Slack_SLA_alerts.json)|
+|13163|[13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json)|
+|13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|
+|13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|

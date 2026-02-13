@@ -1,4 +1,4 @@
-# b2b : 29
+# b2b : 37
 
 |id|file|
 |----|----|
@@ -31,3 +31,11 @@
 |11448|[11448_Automated_B2B_Lead_Management_and_AI_Outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11448_Automated_B2B_Lead_Management_and_AI_Outreach.json)|
 |11469|[11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json)|
 |11707|[11707_Generate_B2B_Leads_by_Industry___Location_with_Google_Places_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11707_Generate_B2B_Leads_by_Industry___Location_with_Google_Places_API_and_Google_Sheets.json)|
+|11924|[11924_Generate_scored_B2B_leads_from_Google_Maps_websites_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11924_Generate_scored_B2B_leads_from_Google_Maps_websites_to_Google_Sheets.json)|
+|11952|[11952_Automate_B2B_lead_generation_using_Google_Places_API___SendGrid_with_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11952_Automate_B2B_lead_generation_using_Google_Places_API___SendGrid_with_dashboard.json)|
+|12189|[12189_Automate_B2B_sales_research___email_personalization_with_Sona_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12189_Automate_B2B_sales_research___email_personalization_with_Sona_and_GPT-4.json)|
+|12300|[12300_Find_similar_B2B_companies_to_your_best_customers_with_Google_Sheets_and_CompanyEnrich.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12300_Find_similar_B2B_companies_to_your_best_customers_with_Google_Sheets_and_CompanyEnrich.json)|
+|12710|[12710_Enrich_B2B_leads_for_Attio_CRM_with_Apollo__LinkedIn__news_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12710_Enrich_B2B_leads_for_Attio_CRM_with_Apollo__LinkedIn__news_and_GPT-4o.json)|
+|12920|[12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json)|
+|13007|[13007_Scrape_LinkedIn_B2B_leads_with_Apify_and_GPT-4_and_approve_emails_in_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13007_Scrape_LinkedIn_B2B_leads_with_Apify_and_GPT-4_and_approve_emails_in_Sheets.json)|
+|13119|[13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json)|

@@ -1,0 +1,403 @@
+{
+  "id": "rEadPrI6dAWqSa8E",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Send AI-generated stale lead nudges from Notion CRM to Telegram with OpenAI",
+    "wechat": "youandme10086",
+    "id": 12841,
+    "update_time": "2026-02-13"
+  },
+  "name": "Auto-nudge sales agents about stale leads via Telegram using AI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "647ced92-ba98-4691-bda4-1efcfc88ba67",
+      "name": "Run Every Morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1632,
+        64
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "044451d8-bc2d-49a7-933e-8e6bd5a35fdf",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1632,
+        256
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0889c47b-4081-49c4-a028-bda2604c4712",
+      "name": "📝 CONFIGURATION",
+      "type": "n8n-nodes-base.set",
+      "notes": "👇 SETTINGS",
+      "position": [
+        -1408,
+        160
+      ],
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "DAYS_INACTIVE_LIMIT",
+              "value": 7
+            },
+            {
+              "name": "MAX_ALERTS_PER_RUN",
+              "value": 5
+            }
+          ],
+          "string": [
+            {
+              "name": "TELEGRAM_CHAT_ID",
+              "value": "-1+1234567890"
+            },
+            {
+              "name": "COACH_PERSONA",
+              "value": "You are a tough but fair Sales Manager."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "8a762007-75b0-4d91-8720-3d2dad3bad07",
+      "name": "📂 Get Agents",
+      "type": "n8n-nodes-base.notion",
+      "notes": "⚠️ Connect 'Agents' DB",
+      "position": [
+        -1056,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "50b33a1c-f038-4403-acbf-52f597f278de",
+      "name": "📂 Get Active Leads",
+      "type": "n8n-nodes-base.notion",
+      "notes": "⚠️ Connect 'Deals' DB",
+      "position": [
+        -1056,
+        224
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "key": "Pipeline Stage|status",
+              "condition": "does_not_equal",
+              "statusValue": "Active User"
+            },
+            {
+              "key": "Pipeline Stage|status",
+              "condition": "does_not_equal",
+              "statusValue": "Closed Won"
+            },
+            {
+              "key": "Pipeline Stage|status",
+              "condition": "does_not_equal",
+              "statusValue": "Lost/Archived"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "databasePage",
+        "matchType": "allFilters",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "filterType": "manual"
+      },
+      "executeOnce": true,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1ba0f77d-5dd5-44aa-a1f3-cfb5aebd4901",
+      "name": "🗓️ Filter & Map Agents",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -752,
+        112
+      ],
+      "parameters": {
+        "jsCode": "// 1. CREATE AGENT MAP (Key = EMAIL)\nconst agents = $('📂 Get Agents').all();\nconst agentMap = {};\n\nagents.forEach(a => {\n  const props = a.json.properties || a.json;\n  \n  // Find Email\n  let email = props['property_email'] || props['Email'] || props['email'];\n  \n  if (email && typeof email === 'object') email = email.email; \n  if (email && typeof email === 'string') email = email.toLowerCase().trim();\n\n  // Find Telegram ID\n  let telegramId = props['property_telegram_id'] || props['Telegram ID'] || props['Telegram Id'];\n  if (telegramId && typeof telegramId === 'object') {\n     telegramId = telegramId.number || telegramId.rich_text?.[0]?.plain_text || telegramId.plain_text;\n  }\n  \n  // Find Username\n  let handle = props['property_telegram_name'] || props['Telegram name'];\n  if (handle && typeof handle === 'object') {\n      handle = handle.rich_text?.[0]?.plain_text || handle.plain_text;\n  }\n\n  // Find Name\n  let name = props['property_notion_user'] || props['Notion User'];\n  if (name && typeof name === 'object') {\n      name = name.title?.[0]?.plain_text || name.rich_text?.[0]?.plain_text || name.plain_text;\n  }\n\n  // Add to map\n  if (email && telegramId) {\n    agentMap[email] = { id: telegramId, handle: handle, name: name };\n  }\n});\n\n// 2. PROCESS LEADS\nconst config = $('📝 CONFIGURATION').first().json;\nconst limitDays = config.DAYS_INACTIVE_LIMIT;\nconst maxAlerts = config.MAX_ALERTS_PER_RUN || 5;\nconst results = [];\nconst today = new Date();\n\nitems.forEach(item => {\n  const lastEditedStr = item.json.property_timestamp || item.json.last_edited_time;\n  \n  if (lastEditedStr) {\n    const lastEdited = new Date(lastEditedStr);\n    const diffTime = Math.abs(today - lastEdited);\n    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); \n\n    if (diffDays >= limitDays) {\n      item.json.days_inactive = diffDays;\n      \n      // Find Manager Email in Deal\n      let managerEmail = null;\n      const assigned = item.json.property_assigned_manager || item.json['Assigned Manager'];\n      \n      if (Array.isArray(assigned) && assigned.length > 0) {\n          managerEmail = assigned[0].email || assigned[0];\n      } else if (typeof assigned === 'string') {\n          managerEmail = assigned;\n      } else if (typeof assigned === 'object' && assigned) {\n          managerEmail = assigned.email;\n      }\n\n      // Match with Agent Map\n      let agentData = null;\n      if (managerEmail) {\n          agentData = agentMap[managerEmail.toLowerCase().trim()];\n      }\n      \n      if (agentData) {\n        // SUCCESS: Found Manager\n        item.json.agent_tag = agentData.handle ? `@${agentData.handle}` : agentData.name;\n        item.json.target_chat_id = agentData.id; \n      } else {\n        // NOT FOUND -> General Chat\n        item.json.agent_tag = 'Unassigned';\n        item.json.target_chat_id = null;\n      }\n      \n      results.push({json: item.json});\n    }\n  }\n});\n\n// Sort by inactivity and limit\nresults.sort((a, b) => b.json.days_inactive - a.json.days_inactive);\nreturn results.slice(0, maxAlerts);"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "69b68f1b-f3bb-4a79-89db-91a3514d9384",
+      "name": "🔄 Loop Stale Leads",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -544,
+        112
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "3d54d8cf-3f49-4bc3-9333-9b9c3066ec15",
+      "name": "🤖 AI Coach",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -256,
+        112
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $('📝 CONFIGURATION').first().json.COACH_PERSONA }}\n\nDEAL CONTEXT:\n1. Client: {{ $json.property_company_name || $json.properties?.Name?.title?.[0]?.plain_text || 'Unknown' }}\n2. Silence: {{ $json.days_inactive }} days\n3. Budget: {{ $json.property_estimated_value || $json.properties?.['Estimated Value']?.number || 'Unknown' }}\n4. Stage: {{ $json.property_pipeline_stage || $json.properties?.['Pipeline Stage']?.status?.name || 'Unknown' }}\n5. Agent Tag: {{ $json.agent_tag || 'Unassigned' }}\n\nYOUR TASK:\nWrite a punchy nudge message for Telegram.\n\nRULES:\n1. START the message with the Agent Tag (e.g., \"@mihuly ...\"). If Unassigned, say \"@team\".\n2. IF Stage is \"Cold Outreach\" -> Say \"Free lead for the hungry ones! Grab it!\".\n3. IF Stage is \"Potential\" -> Say \"We verified this one. Don't waste it.\".\n4. IF Budget > 1000 -> Be greedy 💰.\n5. IF Silence > 7 days -> Be sarcastic 💀.\n\nKeep it short. No \"Hello\". Straight to business."
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1a11c9e-3e88-4c80-a1f7-06ded615cabc",
+      "name": "📢 Send Nudge",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        64,
+        112
+      ],
+      "webhookId": "1fb2914e-39dc-4c53-88ad-d3f4c2e70eb6",
+      "parameters": {
+        "text": "=🚨 <b>Stale Lead Alert!</b>\n\n{{ $json.text || $json.message?.content || $json.output }}\n\n👉 <a href=\"{{ $('🔄 Loop Stale Leads').first().json.url }}\">Open Deal in Notion</a>",
+        "chatId": "={{ $json.target_chat_id ? $json.target_chat_id : $('📝 CONFIGURATION').first().json.TELEGRAM_CHAT_ID }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "daf80295-b9fe-449a-90a4-bcc3a0652c26",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1472,
+        -112
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 588,
+        "content": "## 1. Setup\nDuplicate the Notion Template first:\n[👉 Get the Template](https://probable-banana-3c9.notion.site/AI-Sales-Coach-System-n8n-Companion-v-1-2ee6bbcb3d0b811694b6d5ab51652670?pvs=143)\n\nThen set your **Telegram Chat ID** and the **Persona** in the configuration node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "402398e3-dad1-4ef2-ac1d-c5f85c385f28",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1168,
+        -112
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 313,
+        "height": 588,
+        "content": "## 2. Data Sources\nFetches your **Agents list** (to find Telegram IDs) and **Active Deals** (to find stale leads)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ca51877e-ae29-487d-9302-8c68240d72aa",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -816,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 428,
+        "height": 356,
+        "content": "## 3. Logic Core\nThis code maps Leads to Agents by Email, calculates \"Days Inactive\", and sorts the worst offenders."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a121e657-1b58-4193-95fb-cde2acda87b3",
+      "name": "Sticky Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 540,
+        "height": 352,
+        "content": "## 4. AI & Action\nOpenAI writes a custom message based on the deal size and stage. Then sends it via Telegram."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64638a0f-c17a-46a0-8e70-2375169cc972",
+      "name": "Main Sticky",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2208,
+        -112
+      ],
+      "parameters": {
+        "width": 450,
+        "height": 450,
+        "content": "# 🤖 AI Sales Coach\nThis workflow acts as a relentless but helpful sales manager. It wakes up every morning, scans your Notion CRM for leads that haven't been touched in X days, and uses AI to generate personalized \"nudges\" to the specific sales agent in charge via Telegram.\n\n### Key Features\n* **Smart Mapping:** Links Notion Users to Telegram IDs automatically.\n* **Context Aware:** The AI knows if the deal is High Value or Cold, and adjusts the tone.\n* **Direct Nudging:** Tags the specific agent responsible (@alex) instead of spamming everyone."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bd0b7233-3559-4a63-ad7c-c06aec76c774",
+  "connections": {
+    "🤖 AI Coach": {
+      "main": [
+        [
+          {
+            "node": "📢 Send Nudge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "📝 CONFIGURATION",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📂 Get Agents": {
+      "main": [
+        [
+          {
+            "node": "📂 Get Active Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📢 Send Nudge": {
+      "main": [
+        [
+          {
+            "node": "🔄 Loop Stale Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Every Morning": {
+      "main": [
+        [
+          {
+            "node": "📝 CONFIGURATION",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 CONFIGURATION": {
+      "main": [
+        [
+          {
+            "node": "📂 Get Agents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📂 Get Active Leads": {
+      "main": [
+        [
+          {
+            "node": "🗓️ Filter & Map Agents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔄 Loop Stale Leads": {
+      "main": [
+        [],
+        [
+          {
+            "node": "🤖 AI Coach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🗓️ Filter & Map Agents": {
+      "main": [
+        [
+          {
+            "node": "🔄 Loop Stale Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

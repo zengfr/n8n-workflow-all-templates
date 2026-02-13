@@ -1,4 +1,4 @@
-# newsletter : 44
+# newsletter : 46
 
 |id|file|
 |----|----|
@@ -46,3 +46,5 @@
 |10952|[10952_Automated_Daily_AI_News_Digest__Scrape__Categorize___Save_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10952_Automated_Daily_AI_News_Digest__Scrape__Categorize___Save_to_Google_Sheets.json)|
 |11549|[11549_Curate_Contributor-Friendly_Issues_with_AI_and_Send_GitHub_Newsletter_via_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11549_Curate_Contributor-Friendly_Issues_with_AI_and_Send_GitHub_Newsletter_via_Email.json)|
 |11759|[11759_Email_Newsletter_System_with_SendGrid__Google_Sheets___Freemium_Rate_Limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11759_Email_Newsletter_System_with_SendGrid__Google_Sheets___Freemium_Rate_Limiting.json)|
+|12533|[12533_Curate_and_generate_an_AI_newsletter_from_RSS_feeds_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12533_Curate_and_generate_an_AI_newsletter_from_RSS_feeds_with_OpenAI_and_Slack.json)|
+|13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|

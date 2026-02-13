@@ -1,4 +1,4 @@
-# reminder : 32
+# reminder : 38
 
 |id|file|
 |----|----|
@@ -34,3 +34,9 @@
 |10345|[10345_Multi-Channel_Task_Reminder_System_with_Telegram__Email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10345_Multi-Channel_Task_Reminder_System_with_Telegram__Email_and_Slack.json)|
 |10825|[10825_Automate_Task_Deadline_Reminders_with_Google_Sheets_and_Gmail__Today_3-Day_7-Day.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10825_Automate_Task_Deadline_Reminders_with_Google_Sheets_and_Gmail__Today_3-Day_7-Day.json)|
 |11143|[11143_Send_Personalized_Occasion_Wishes_with_AI__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11143_Send_Personalized_Occasion_Wishes_with_AI__Google_Sheets_and_Gmail.json)|
+|11944|[11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json)|
+|12387|[12387_Get_domain_expiry_reminders_with_Google_Sheets__WHOIS__Telegram__and_Ollama_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12387_Get_domain_expiry_reminders_with_Google_Sheets__WHOIS__Telegram__and_Ollama_AI.json)|
+|12688|[12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json)|
+|12741|[12741_Send_Stripe_invoice_reminders_with_GPT-4.1-mini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12741_Send_Stripe_invoice_reminders_with_GPT-4.1-mini__Google_Sheets_and_Slack.json)|
+|13193|[13193_Send_subscription_renewal_reminders_via_Telegram_with_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13193_Send_subscription_renewal_reminders_via_Telegram_with_Supabase.json)|
+|13259|[13259_Send_subscription_renewal_reminders_with_Email_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13259_Send_subscription_renewal_reminders_with_Email_and_ClickUp.json)|

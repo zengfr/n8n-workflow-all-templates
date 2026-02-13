@@ -1,4 +1,4 @@
-# com : 55
+# com : 58
 
 |id|file|
 |----|----|
@@ -57,3 +57,6 @@
 |10795|[10795_Pre-Meeting_Email_Nurturing_Sequence_with_Cal.com_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10795_Pre-Meeting_Email_Nurturing_Sequence_with_Cal.com_and_Gmail.json)|
 |11188|[11188_Automate_Multi-Modal_Appointment_Booking_via_WhatsApp_using_GPT-4_and_Cal.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11188_Automate_Multi-Modal_Appointment_Booking_via_WhatsApp_using_GPT-4_and_Cal.com.json)|
 |11666|[11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json)|
+|12267|[12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json)|
+|12269|[12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json)|
+|13005|[13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json)|

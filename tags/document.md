@@ -1,4 +1,4 @@
-# document : 79
+# document : 83
 
 |id|file|
 |----|----|
@@ -81,3 +81,7 @@
 |11619|[11619_Automate_Document_Q_A_with_Multi-Agent_RAG_Orchestration_using_Contextual_AI___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11619_Automate_Document_Q_A_with_Multi-Agent_RAG_Orchestration_using_Contextual_AI___Gemini.json)|
 |11736|[11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json)|
 |11861|[11861_Intelligent_Legal_Document_Review_and_Compliance_Automation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11861_Intelligent_Legal_Document_Review_and_Compliance_Automation.json)|
+|12276|[12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json)|
+|12540|[12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json)|
+|12554|[12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json)|
+|12688|[12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json)|

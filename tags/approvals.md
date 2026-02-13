@@ -1,4 +1,4 @@
-# approvals : 11
+# approvals : 15
 
 |id|file|
 |----|----|
@@ -13,3 +13,7 @@
 |9925|[9925_Automate_Full_Agreement_Lifecycle_with_JotForm__Approvals__Signwell_E-Signatures___Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9925_Automate_Full_Agreement_Lifecycle_with_JotForm__Approvals__Signwell_E-Signatures___Tracking.json)|
 |10072|[10072_Streamline_Content_Creation_with_GPT-4o_and_One-Click_Human_Review_Approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10072_Streamline_Content_Creation_with_GPT-4o_and_One-Click_Human_Review_Approvals.json)|
 |10522|[10522_Automate_Conference_Travel_Approvals_with_Deepseek_AI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10522_Automate_Conference_Travel_Approvals_with_Deepseek_AI__Gmail_and_Google_Sheets.json)|
+|12070|[12070_Automate_employee_leave_approvals_with_GPT__Gmail___Calendar_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12070_Automate_employee_leave_approvals_with_GPT__Gmail___Calendar_integration.json)|
+|12659|[12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json)|
+|12866|[12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json)|
+|13157|[13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json)|

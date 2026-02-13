@@ -1,4 +1,4 @@
-# investment : 6
+# investment : 9
 
 |id|file|
 |----|----|
@@ -8,3 +8,6 @@
 |6317|[6317_Track_Multi-Broker_Investment_Portfolio_with_Google_Sheets_and_Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6317_Track_Multi-Broker_Investment_Portfolio_with_Google_Sheets_and_Telegram_Alerts.json)|
 |6571|[6571_Generate_Property_Investment_Reports_with_GPT-4__SerpAPI__Google_Docs___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/65/6571_Generate_Property_Investment_Reports_with_GPT-4__SerpAPI__Google_Docs___Airtable.json)|
 |9335|[9335_Analyze_Real_Estate_Investment_Potential__Zillow_Properties_to_Google_Sheets_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9335_Analyze_Real_Estate_Investment_Potential__Zillow_Properties_to_Google_Sheets_with_GPT-4o.json)|
+|12039|[12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json)|
+|12092|[12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json)|
+|12273|[12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json)|

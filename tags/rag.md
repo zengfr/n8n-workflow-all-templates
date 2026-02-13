@@ -1,4 +1,4 @@
-# rag : 175
+# rag : 184
 
 |id|file|
 |----|----|
@@ -177,3 +177,12 @@
 |11653|[11653_Process_OCR_Documents_from_Google_Drive_into_Searchable_Knowledge_Base_with_OpenAI___Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11653_Process_OCR_Documents_from_Google_Drive_into_Searchable_Knowledge_Base_with_OpenAI___Pinecone.json)|
 |11807|[11807_Enhance_Customer_Support_with_RAG-Powered_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11807_Enhance_Customer_Support_with_RAG-Powered_AI.json)|
 |11888|[11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json)|
+|11990|[11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json)|
+|12400|[12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json)|
+|12521|[12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json)|
+|12531|[12531_Build_a_RAG_chat_system_using_Aryn_DocParse__AWS_S3__Pinecone_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12531_Build_a_RAG_chat_system_using_Aryn_DocParse__AWS_S3__Pinecone_and_GPT-4o.json)|
+|12839|[12839_Draft_personalized_Outlook_support_email_replies_with_Supabase_RAG_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12839_Draft_personalized_Outlook_support_email_replies_with_Supabase_RAG_and_OpenAI.json)|
+|12848|[12848_Facebook_Messenger_Chatbot_That_Learns_From_Your_Documents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12848_Facebook_Messenger_Chatbot_That_Learns_From_Your_Documents.json)|
+|13147|[13147_Chat_with_Google_Drive_documents_using_Pinecone_and_OpenAI_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13147_Chat_with_Google_Drive_documents_using_Pinecone_and_OpenAI_RAG.json)|
+|13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|
+|13248|[13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json)|

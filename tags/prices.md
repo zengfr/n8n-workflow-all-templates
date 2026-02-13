@@ -1,4 +1,4 @@
-# prices : 25
+# prices : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |10886|[10886_Monitor_Japan_Flight_Prices___Generate_Booking_Alerts_with_GPT-4o___Multi-Source_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10886_Monitor_Japan_Flight_Prices___Generate_Booking_Alerts_with_GPT-4o___Multi-Source_Analysis.json)|
 |10891|[10891_Predict_and_Forecast_HDB_Flat_Prices_with_GPT-4o_and_Google_Sheets_Analytics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10891_Predict_and_Forecast_HDB_Flat_Prices_with_GPT-4o_and_Google_Sheets_Analytics.json)|
 |11062|[11062_Track_Amazon_Prices___Monitor_Competitors_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11062_Track_Amazon_Prices___Monitor_Competitors_with_Apify_and_Google_Sheets.json)|
+|12075|[12075_Compare_product_prices_on_Amazon_and_Jumia_with_Decodo__OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12075_Compare_product_prices_on_Amazon_and_Jumia_with_Decodo__OpenAI_and_Telegram.json)|
+|12902|[12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json)|

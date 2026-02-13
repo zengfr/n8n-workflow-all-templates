@@ -1,4 +1,4 @@
-# health : 24
+# health : 30
 
 |id|file|
 |----|----|
@@ -26,3 +26,9 @@
 |10525|[10525_Health_Monitoring_System_with_Grok-3_AI_Analysis_and_Family_Doctor_Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10525_Health_Monitoring_System_with_Grok-3_AI_Analysis_and_Family_Doctor_Email_Alerts.json)|
 |10771|[10771_Patient_Pre-registration_System_with_Email_Verification___QR_Health_Cards_using_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10771_Patient_Pre-registration_System_with_Email_Verification___QR_Health_Cards_using_Google_Drive.json)|
 |11117|[11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json)|
+|12025|[12025_Monitor_and_alert_stalled_deals_in_Zoho_CRM_with_Gemini_AI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12025_Monitor_and_alert_stalled_deals_in_Zoho_CRM_with_Gemini_AI_and_Gmail.json)|
+|12142|[12142_Generate_natural_health_remedies_guides_with_Claude_AI___auto_quality_assurance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12142_Generate_natural_health_remedies_guides_with_Claude_AI___auto_quality_assurance.json)|
+|12254|[12254_Monitor_customer_risk_and_AI_feedback_using_PostgreSQL__Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12254_Monitor_customer_risk_and_AI_feedback_using_PostgreSQL__Gmail_and_Discord.json)|
+|12991|[12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json)|
+|13089|[13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json)|
+|13290|[13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json)|

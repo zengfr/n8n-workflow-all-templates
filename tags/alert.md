@@ -1,4 +1,4 @@
-# alert : 84
+# alert : 92
 
 |id|file|
 |----|----|
@@ -86,3 +86,11 @@
 |11488|[11488_Monitor_Zoho_CRM_Changes___Alert_on_Suspicious_Activity_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11488_Monitor_Zoho_CRM_Changes___Alert_on_Suspicious_Activity_with_Google_Sheets.json)|
 |11514|[11514_Monitor_Commodity_Markets_with_Apify__DeepL_Translation___Sector_Impact_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11514_Monitor_Commodity_Markets_with_Apify__DeepL_Translation___Sector_Impact_Analysis.json)|
 |11786|[11786_Daily_Google_Analytics_Report_with_GPT-4_Mini_Summaries__WhatsApp_Alerts___ClickUp_Tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11786_Daily_Google_Analytics_Report_with_GPT-4_Mini_Summaries__WhatsApp_Alerts___ClickUp_Tasks.json)|
+|12010|[12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json)|
+|12025|[12025_Monitor_and_alert_stalled_deals_in_Zoho_CRM_with_Gemini_AI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12025_Monitor_and_alert_stalled_deals_in_Zoho_CRM_with_Gemini_AI_and_Gmail.json)|
+|12059|[12059_Monitor_WooCommerce_daily_revenue_spikes_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12059_Monitor_WooCommerce_daily_revenue_spikes_and_send_Slack_alerts.json)|
+|12086|[12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json)|
+|12223|[12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json)|
+|12249|[12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json)|
+|12758|[12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json)|
+|12989|[12989_Aggregate_error_alerts_and_send_consolidated_reports_via_Email_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12989_Aggregate_error_alerts_and_send_consolidated_reports_via_Email_and_Jira.json)|

@@ -1,4 +1,4 @@
-# templates : 14
+# templates : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |10450|[10450_Generate_LinkedIn_Posts_with_Mistral_AI_Using_7_Dynamic_Content_Templates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10450_Generate_LinkedIn_Posts_with_Mistral_AI_Using_7_Dynamic_Content_Templates.json)|
 |10800|[10800_AI_sticky_generator_for_n8n_templates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10800_AI_sticky_generator_for_n8n_templates.json)|
 |11620|[11620_Design_and_Post_LinkedIn_Content_with_AI_Captions_and_Custom_Templates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11620_Design_and_Post_LinkedIn_Content_with_AI_Captions_and_Custom_Templates.json)|
+|13195|[13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json)|

@@ -1,4 +1,4 @@
-# questions : 25
+# questions : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |10331|[10331_Auto-Answer_GitHub_PR_Questions_with_GPT-4o__Notion___Slack_for_Dev_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10331_Auto-Answer_GitHub_PR_Questions_with_GPT-4o__Notion___Slack_for_Dev_Teams.json)|
 |10339|[10339_Classify_Developer_Questions_with_GPT-4o_from_Slack_to_Notion___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10339_Classify_Developer_Questions_with_GPT-4o_from_Slack_to_Notion___Airtable.json)|
 |11361|[11361_Interactive_Structured_Prompt_Builder_with_GPT-4.1-mini_and_Guided_Questions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11361_Interactive_Structured_Prompt_Builder_with_GPT-4.1-mini_and_Guided_Questions.json)|
+|12757|[12757_Ask_questions_about_past_meetings_using_voice_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12757_Ask_questions_about_past_meetings_using_voice_with_OpenAI_and_Pinecone.json)|
+|12938|[12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json)|

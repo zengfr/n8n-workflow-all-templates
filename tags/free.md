@@ -1,4 +1,4 @@
-# free : 27
+# free : 29
 
 |id|file|
 |----|----|
@@ -29,3 +29,5 @@
 |10391|[10391_Generate_Comprehensive_Business_Analysis_Reports_with_Gemini_AI___Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10391_Generate_Comprehensive_Business_Analysis_Reports_with_Gemini_AI___Firecrawl.json)|
 |10642|[10642_Generate_AI_Video_Avatars_from_URLs_with_HeyGen__Gemini___Upload_to_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10642_Generate_AI_Video_Avatars_from_URLs_with_HeyGen__Gemini___Upload_to_Social_Media.json)|
 |11772|[11772_Generate_AI_Stock_Reports_w__Fundamental__Technical____News_Analysis__Free_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11772_Generate_AI_Stock_Reports_w__Fundamental__Technical____News_Analysis__Free_APIs.json)|
+|12125|[12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json)|
+|12524|[12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json)|

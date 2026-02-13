@@ -1,4 +1,4 @@
-# space : 12
+# space : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |10731|[10731_Daily_Space_Image_Gallery_with_AI_Captions_from_NASA_to_Slack___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10731_Daily_Space_Image_Gallery_with_AI_Captions_from_NASA_to_Slack___Google_Drive.json)|
 |10911|[10911_Create_Weekly_Space_Newsletter_with_NASA_APIs__GPT-4___Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10911_Create_Weekly_Space_Newsletter_with_NASA_APIs__GPT-4___Google_Workspace.json)|
 |10994|[10994_Daily_Space_Quiz_Bot__NASA_APOD_to_Slack_with_GPT-4_Turbo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10994_Daily_Space_Quiz_Bot__NASA_APOD_to_Slack_with_GPT-4_Turbo.json)|
+|12239|[12239_Audit_Confluence_space_permissions_and_public_links_for_compliance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12239_Audit_Confluence_space_permissions_and_public_links_for_compliance.json)|

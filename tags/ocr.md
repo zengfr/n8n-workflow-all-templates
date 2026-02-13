@@ -1,4 +1,4 @@
-# ocr : 63
+# ocr : 67
 
 |id|file|
 |----|----|
@@ -65,3 +65,7 @@
 |11413|[11413_OCR_Document_Processing_from_LINE_Gmail_using_GPT-4o_to_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11413_OCR_Document_Processing_from_LINE_Gmail_using_GPT-4o_to_Google_Workspace.json)|
 |11653|[11653_Process_OCR_Documents_from_Google_Drive_into_Searchable_Knowledge_Base_with_OpenAI___Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11653_Process_OCR_Documents_from_Google_Drive_into_Searchable_Knowledge_Base_with_OpenAI___Pinecone.json)|
 |11755|[11755_Mistral_OCR__GPT-4o-mini__and_Google_Sheets_Integration_for_Enhanced_Data_Processing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11755_Mistral_OCR__GPT-4o-mini__and_Google_Sheets_Integration_for_Enhanced_Data_Processing.json)|
+|12013|[12013_Automate_purchase_bill_processing_with_AI_OCR___QuickBooks_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12013_Automate_purchase_bill_processing_with_AI_OCR___QuickBooks_integration.json)|
+|12868|[12868_Extract_passport_data_with_OpenAI_OCR_and_generate_QR_codes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12868_Extract_passport_data_with_OpenAI_OCR_and_generate_QR_codes.json)|
+|12961|[12961_Extract_data_from_PDF_reports_with_Gmail__OCR__Google_Sheets_and_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12961_Extract_data_from_PDF_reports_with_Gmail__OCR__Google_Sheets_and_OpenAI_GPT-4.1-mini.json)|
+|13092|[13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json)|

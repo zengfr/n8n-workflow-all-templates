@@ -1,4 +1,4 @@
-# incident : 18
+# incident : 21
 
 |id|file|
 |----|----|
@@ -20,3 +20,6 @@
 |8886|[8886_AI-Powered_ServiceNow_Chat_Triage_with_GPT-4___Incident___Request_Manager.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8886_AI-Powered_ServiceNow_Chat_Triage_with_GPT-4___Incident___Request_Manager.json)|
 |9826|[9826_Automate_Incident_Response_with_Jira__Slack__Google_Sheets___Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9826_Automate_Incident_Response_with_Jira__Slack__Google_Sheets___Drive.json)|
 |11117|[11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json)|
+|11946|[11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json)|
+|12086|[12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json)|
+|12686|[12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json)|

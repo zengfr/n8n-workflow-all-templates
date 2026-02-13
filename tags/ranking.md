@@ -1,4 +1,4 @@
-# ranking : 8
+# ranking : 18
 
 |id|file|
 |----|----|
@@ -10,3 +10,13 @@
 |9345|[9345_Automate_Lead_Ranking___Task_Creation_with_Google_Sheets___ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9345_Automate_Lead_Ranking___Task_Creation_with_Google_Sheets___ClickUp.json)|
 |9427|[9427_Automate_Candidate_Analysis___Ranking_with_Jotform_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9427_Automate_Candidate_Analysis___Ranking_with_Jotform_and_Gemini_AI.json)|
 |9461|[9461_OpenAI__Jotform_Powered_Admissions_Review__Analysis__Scoring___Candidate_Ranking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9461_OpenAI__Jotform_Powered_Admissions_Review__Analysis__Scoring___Candidate_Ranking.json)|
+|11929|[11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json)|
+|12084|[12084_Research_content_keywords_with_SE_Ranking_and_export_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12084_Research_content_keywords_with_SE_Ranking_and_export_to_Google_Sheets.json)|
+|12085|[12085_Monitor_backlink_profile_with_SE_Ranking_and_export_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12085_Monitor_backlink_profile_with_SE_Ranking_and_export_to_Google_Sheets.json)|
+|12291|[12291_Summarize_SE_Ranking_AI_search_visibility_using_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12291_Summarize_SE_Ranking_AI_search_visibility_using_OpenAI_GPT-4.1-mini.json)|
+|12441|[12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json)|
+|12442|[12442_Analyze_brand_visibility_in_AI_SERPs_with_SE_Ranking_and_OpenAI_GPT-4.1_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12442_Analyze_brand_visibility_in_AI_SERPs_with_SE_Ranking_and_OpenAI_GPT-4.1_mini.json)|
+|12529|[12529_Monitor_backlinks_and_generate_SEO_insights_with_SE_Ranking_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12529_Monitor_backlinks_and_generate_SEO_insights_with_SE_Ranking_and_GPT-4.1-mini.json)|
+|12631|[12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json)|
+|12809|[12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json)|
+|12811|[12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json)|

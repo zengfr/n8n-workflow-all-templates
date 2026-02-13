@@ -1,4 +1,4 @@
-# accounting : 6
+# accounting : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |10110|[10110_Monitor_Bank_Transactions_with_Multi-Channel_Alerts_for_Accounting_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10110_Monitor_Bank_Transactions_with_Multi-Channel_Alerts_for_Accounting_Teams.json)|
 |10111|[10111_AI-Powered_Invoice_Reminder___Payment_Tracker_for_Finance___Accounting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10111_AI-Powered_Invoice_Reminder___Payment_Tracker_for_Finance___Accounting.json)|
 |10707|[10707_Track_Companies_House_Filing_Deadlines_with_Google_Sheets__Gmail___Interactive_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10707_Track_Companies_House_Filing_Deadlines_with_Google_Sheets__Gmail___Interactive_Alerts.json)|
+|11901|[11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json)|
+|11911|[11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json)|

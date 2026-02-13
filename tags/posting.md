@@ -1,4 +1,4 @@
-# posting : 35
+# posting : 38
 
 |id|file|
 |----|----|
@@ -37,3 +37,6 @@
 |10817|[10817_Automate_Shopify_Product_Posting_to_Social_Media_with_GPT-4.1-Mini___Data_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10817_Automate_Shopify_Product_Posting_to_Social_Media_with_GPT-4.1-Mini___Data_Tracking.json)|
 |11505|[11505_Transform_Podcasts_into_Viral_Social_Media_Clips_with_Gemini_AI_and_Multi-Platform_Posting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11505_Transform_Podcasts_into_Viral_Social_Media_Clips_with_Gemini_AI_and_Multi-Platform_Posting.json)|
 |11835|[11835_Track_Certification_Requirement_Changes_with_ScrapeGraphAI__GitHub_and_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11835_Track_Certification_Requirement_Changes_with_ScrapeGraphAI__GitHub_and_Email.json)|
+|11996|[11996_Social_media_auto-posting_to_Instagram__Facebook___LinkedIn_from_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11996_Social_media_auto-posting_to_Instagram__Facebook___LinkedIn_from_Google_Sheets.json)|
+|12447|[12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json)|
+|12834|[12834_AI_Agents_Generate_Content___Automate_Posting_for_Beauty_Salon_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12834_AI_Agents_Generate_Content___Automate_Posting_for_Beauty_Salon_Social_Media.json)|

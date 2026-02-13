@@ -1,4 +1,4 @@
-# forecasting : 6
+# forecasting : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |9964|[9964_CoinGecko_Crypto_Price_Forecasting_Pipeline_with_Gemini_AI__Decodo__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9964_CoinGecko_Crypto_Price_Forecasting_Pipeline_with_Gemini_AI__Decodo__and_Gmail.json)|
 |10531|[10531_AI-Driven_Inventory_Management_with_OpenAI_Forecasting___ERP_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10531_AI-Driven_Inventory_Management_with_OpenAI_Forecasting___ERP_Integration.json)|
 |10891|[10891_Predict_and_Forecast_HDB_Flat_Prices_with_GPT-4o_and_Google_Sheets_Analytics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10891_Predict_and_Forecast_HDB_Flat_Prices_with_GPT-4o_and_Google_Sheets_Analytics.json)|
+|11903|[11903_Multi-source_tax___cash_flow_forecasting_with_GPT-4__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11903_Multi-source_tax___cash_flow_forecasting_with_GPT-4__Gmail_and_Google_Sheets.json)|
+|12027|[12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json)|
+|12158|[12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json)|
+|12735|[12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json)|

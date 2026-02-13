@@ -1,4 +1,4 @@
-# natural : 41
+# natural : 46
 
 |id|file|
 |----|----|
@@ -43,3 +43,8 @@
 |9187|[9187_Manage_Odoo_CRM_with_Natural_Language_using_OpenAI_and_MCP_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9187_Manage_Odoo_CRM_with_Natural_Language_using_OpenAI_and_MCP_Server.json)|
 |10268|[10268_Magento_Maintenance_via_Natural_Language_with_GPT_and_Telegram_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10268_Magento_Maintenance_via_Natural_Language_with_GPT_and_Telegram_WhatsApp.json)|
 |10468|[10468_Schedule_Meetings_via_WhatsApp_Using_Natural_Language_with_Gemini_AI___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10468_Schedule_Meetings_via_WhatsApp_Using_Natural_Language_with_Gemini_AI___Google_Suite.json)|
+|12064|[12064_Generate_workflows_from_natural_language_using_GPT-4o_Mini_and_n8nBuilder_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12064_Generate_workflows_from_natural_language_using_GPT-4o_Mini_and_n8nBuilder_API.json)|
+|12142|[12142_Generate_natural_health_remedies_guides_with_Claude_AI___auto_quality_assurance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12142_Generate_natural_health_remedies_guides_with_Claude_AI___auto_quality_assurance.json)|
+|13038|[13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json)|
+|13169|[13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json)|
+|13182|[13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json)|

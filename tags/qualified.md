@@ -1,4 +1,4 @@
-# qualified : 7
+# qualified : 14
 
 |id|file|
 |----|----|
@@ -9,3 +9,10 @@
 |7373|[7373_Generate_Qualified_Instagram_Leads_from_Hashtags_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/73/7373_Generate_Qualified_Instagram_Leads_from_Hashtags_with_Apify_and_Google_Sheets.json)|
 |9643|[9643_Extract_Business_Card_Data___Generate_Follow-ups_with_Google_Vision_OCR___GPT-4_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9643_Extract_Business_Card_Data___Generate_Follow-ups_with_Google_Vision_OCR___GPT-4_Mini.json)|
 |10010|[10010_Score_Product-Qualified_Leads_with_Amplitude__Claude___PDL_for_Sales_Routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10010_Score_Product-Qualified_Leads_with_Amplitude__Claude___PDL_for_Sales_Routing.json)|
+|12480|[12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json)|
+|12601|[12601_Vet_new_Shopify_leads_with_ZeroBounce_and_sync_qualified_contacts_to_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12601_Vet_new_Shopify_leads_with_ZeroBounce_and_sync_qualified_contacts_to_HubSpot.json)|
+|12882|[12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json)|
+|13008|[13008_Vet_new_Form.io_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13008_Vet_new_Form.io_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Pipedrive.json)|
+|13018|[13018_Vet_Jotform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_ActiveCampaign.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13018_Vet_Jotform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_ActiveCampaign.json)|
+|13095|[13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json)|
+|13116|[13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json)|

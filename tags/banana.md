@@ -1,4 +1,4 @@
-# banana : 34
+# banana : 38
 
 |id|file|
 |----|----|
@@ -36,3 +36,7 @@
 |11446|[11446_Generate_Professional_Product_Advertisements_with_Nano_Banana_Pro_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11446_Generate_Professional_Product_Advertisements_with_Nano_Banana_Pro_via_Telegram.json)|
 |11458|[11458_Transform_Selfies_into_Professional_LinkedIn_Headshots_with_Nano_Banana_Pro___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11458_Transform_Selfies_into_Professional_LinkedIn_Headshots_with_Nano_Banana_Pro___Telegram.json)|
 |11694|[11694_Create___Publish_Instagram_Carousels_with_AI_Research__Nano_Banana_Pro___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11694_Create___Publish_Instagram_Carousels_with_AI_Research__Nano_Banana_Pro___Slack.json)|
+|11985|[11985_Automatic_Instagram_content_creation_with_OpenAI__Nano_Banana_and_Telegram_check.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11985_Automatic_Instagram_content_creation_with_OpenAI__Nano_Banana_and_Telegram_check.json)|
+|12357|[12357_Compare_products_and_generate_visual_scorecards_in_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12357_Compare_products_and_generate_visual_scorecards_in_Telegram_with_BrowserAct_and_Gemini.json)|
+|12363|[12363_Generate_YouTube_thumbnails_via_Telegram_using_BrowserAct_and_Gemini__Nano_Banana_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12363_Generate_YouTube_thumbnails_via_Telegram_using_BrowserAct_and_Gemini__Nano_Banana_Pro.json)|
+|12542|[12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json)|

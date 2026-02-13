@@ -1,4 +1,4 @@
-# sql : 23
+# sql : 24
 
 |id|file|
 |----|----|
@@ -25,3 +25,4 @@
 |8890|[8890_Consolidate_Data_from_5_Sources_for_Automated_Reporting_with_SQL__MongoDB___Google_Tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8890_Consolidate_Data_from_5_Sources_for_Automated_Reporting_with_SQL__MongoDB___Google_Tools.json)|
 |9544|[9544_Generate_Complete_Database_Schemas_with_Claude_for_SQL_Databases.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9544_Generate_Complete_Database_Schemas_with_Claude_for_SQL_Databases.json)|
 |11256|[11256_Monitor_Data_Quality_with_Notion_Rules__SQL_Checks___AI-Powered_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11256_Monitor_Data_Quality_with_Notion_Rules__SQL_Checks___AI-Powered_Alerts.json)|
+|13074|[13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json)|

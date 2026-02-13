@@ -1,4 +1,4 @@
-# prompt : 29
+# prompt : 31
 
 |id|file|
 |----|----|
@@ -31,3 +31,5 @@
 |11361|[11361_Interactive_Structured_Prompt_Builder_with_GPT-4.1-mini_and_Guided_Questions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11361_Interactive_Structured_Prompt_Builder_with_GPT-4.1-mini_and_Guided_Questions.json)|
 |11537|[11537_Convert_CDP_Network_Topology_to_Lucidchart_Prompts_with_AWX_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11537_Convert_CDP_Network_Topology_to_Lucidchart_Prompts_with_AWX_and_Gemini_AI.json)|
 |11748|[11748_Generate_AI_Search_Visibility_Datasets_with_Claude_and_GPT_for_Tracking_Platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11748_Generate_AI_Search_Visibility_Datasets_with_Claude_and_GPT_for_Tracking_Platforms.json)|
+|12441|[12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json)|
+|13169|[13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json)|

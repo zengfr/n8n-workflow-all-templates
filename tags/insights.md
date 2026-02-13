@@ -1,4 +1,4 @@
-# insights : 73
+# insights : 81
 
 |id|file|
 |----|----|
@@ -75,3 +75,11 @@
 |11182|[11182_Reddit_Monitoring_with_AI_Sentiment_Analysis_and_Growth_Insights_Dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11182_Reddit_Monitoring_with_AI_Sentiment_Analysis_and_Growth_Insights_Dashboard.json)|
 |11698|[11698_Generate_Content_Strategy_Insights_from_Reddit___X_Using_Gemini_AI_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11698_Generate_Content_Strategy_Insights_from_Reddit___X_Using_Gemini_AI_Analysis.json)|
 |11855|[11855_MCP_Employee_Performance___Productivity_Insights_Engine_with_Automated_Manager.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11855_MCP_Employee_Performance___Productivity_Insights_Engine_with_Automated_Manager.json)|
+|12008|[12008_Automated_business_KPI_insights_with_GPT-4__MSSQL__analytics___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12008_Automated_business_KPI_insights_with_GPT-4__MSSQL__analytics___multi-channel_alerts.json)|
+|12441|[12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json)|
+|12529|[12529_Monitor_backlinks_and_generate_SEO_insights_with_SE_Ranking_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12529_Monitor_backlinks_and_generate_SEO_insights_with_SE_Ranking_and_GPT-4.1-mini.json)|
+|12737|[12737_Extract_sales_insights_from_Scoot_call_transcripts_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12737_Extract_sales_insights_from_Scoot_call_transcripts_using_Gemini.json)|
+|12758|[12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json)|
+|12803|[12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json)|
+|12857|[12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json)|
+|13064|[13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json)|

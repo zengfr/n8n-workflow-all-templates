@@ -1,4 +1,4 @@
-# contact : 63
+# contact : 67
 
 |id|file|
 |----|----|
@@ -65,3 +65,7 @@
 |10778|[10778_Build_Gmail_Contact_Database_with_GPT-5_Nano__Brave_Search___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10778_Build_Gmail_Contact_Database_with_GPT-5_Nano__Brave_Search___Google_Sheets.json)|
 |11643|[11643_Manage_Contact_Form_Submissions_with_Google_Sheets__Slack_Alerts___Gmail_Replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11643_Manage_Contact_Form_Submissions_with_Google_Sheets__Slack_Alerts___Gmail_Replies.json)|
 |11700|[11700_Track_and_Score_Contact_Engagement_with_Zoho_CRM__PDL__News___Reddit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11700_Track_and_Score_Contact_Engagement_with_Zoho_CRM__PDL__News___Reddit.json)|
+|12343|[12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json)|
+|12744|[12744_Sync_Beex_WhatsApp_ticket_messages_with_HubSpot_contact_activities.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12744_Sync_Beex_WhatsApp_ticket_messages_with_HubSpot_contact_activities.json)|
+|13225|[13225_Sync_CRM_contacts_with_Mailchimp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13225_Sync_CRM_contacts_with_Mailchimp_and_Pipedrive.json)|
+|13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|

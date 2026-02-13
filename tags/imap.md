@@ -1,4 +1,4 @@
-# imap : 9
+# imap : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |7385|[7385_Email_to_Notion_Knowledge_Base_with_IMAP__Postgres_Dedup_and_Telegram_Alert.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/73/7385_Email_to_Notion_Knowledge_Base_with_IMAP__Postgres_Dedup_and_Telegram_Alert.json)|
 |9439|[9439_Automated_Invoice_Processing___Filing_with_IMAP__AI__Google_Drive___DateV.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9439_Automated_Invoice_Processing___Filing_with_IMAP__AI__Google_Drive___DateV.json)|
 |10084|[10084_Monitor_Emails___Send_AI-Generated_Auto-Replies_with_Ollama___Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10084_Monitor_Emails___Send_AI-Generated_Auto-Replies_with_Ollama___Telegram_Alerts.json)|
+|12846|[12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json)|

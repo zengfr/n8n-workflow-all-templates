@@ -1,4 +1,4 @@
-# replies : 35
+# replies : 45
 
 |id|file|
 |----|----|
@@ -37,3 +37,13 @@
 |11077|[11077_Generate_GEO-optimized_support_replies_from_Gmail_to_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11077_Generate_GEO-optimized_support_replies_from_Gmail_to_Gmail_and_Slack.json)|
 |11643|[11643_Manage_Contact_Form_Submissions_with_Google_Sheets__Slack_Alerts___Gmail_Replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11643_Manage_Contact_Form_Submissions_with_Google_Sheets__Slack_Alerts___Gmail_Replies.json)|
 |11889|[11889_AI-Powered_Webinar_Feedback_Replies_with_GPT-4__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11889_AI-Powered_Webinar_Feedback_Replies_with_GPT-4__Google_Sheets__and_Gmail.json)|
+|12541|[12541_Analyze_customer_feedback_and_send_AI-written_replies_with_GPT-4_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12541_Analyze_customer_feedback_and_send_AI-written_replies_with_GPT-4_and_Gmail.json)|
+|12591|[12591_Generate_and_post_Google_Play_review_replies_with_Anthropic_Claude_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12591_Generate_and_post_Google_Play_review_replies_with_Anthropic_Claude_and_Google_Drive.json)|
+|12652|[12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json)|
+|12839|[12839_Draft_personalized_Outlook_support_email_replies_with_Supabase_RAG_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12839_Draft_personalized_Outlook_support_email_replies_with_Supabase_RAG_and_OpenAI.json)|
+|12883|[12883_Send_instant_replies_to_new_Yelp_leads_with_LeadResponder.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12883_Send_instant_replies_to_new_Yelp_leads_with_LeadResponder.ai.json)|
+|12927|[12927_Generate_and_post_Apple_App_Store_review_replies_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12927_Generate_and_post_Apple_App_Store_review_replies_with_Anthropic_Claude.json)|
+|12946|[12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json)|
+|13070|[13070_Debounce_Telegram_support_messages_and_aggregate_replies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13070_Debounce_Telegram_support_messages_and_aggregate_replies_with_OpenAI.json)|
+|13203|[13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json)|
+|13231|[13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json)|

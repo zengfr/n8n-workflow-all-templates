@@ -1,4 +1,4 @@
-# typeform : 28
+# typeform : 31
 
 |id|file|
 |----|----|
@@ -30,3 +30,6 @@
 |10117|[10117_Automated_Event_Management_with_Typeform__Stripe__Google_Tools___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10117_Automated_Event_Management_with_Typeform__Stripe__Google_Tools___Slack_Notifications.json)|
 |10203|[10203_Smart_Lead_Qualification___Routing_from_Typeform_to_HubSpot_with_Data_Enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10203_Smart_Lead_Qualification___Routing_from_Typeform_to_HubSpot_with_Data_Enrichment.json)|
 |10745|[10745_Typeform_Lead_Qualification_with_Vero__Gmail__Google_Sheets___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10745_Typeform_Lead_Qualification_with_Vero__Gmail__Google_Sheets___Slack_Notifications.json)|
+|12032|[12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json)|
+|12820|[12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json)|
+|13095|[13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json)|

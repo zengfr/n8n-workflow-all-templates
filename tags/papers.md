@@ -1,4 +1,4 @@
-# papers : 8
+# papers : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |9248|[9248_Generate_Exam_Question_Papers_with_GPT-4_and_Email_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9248_Generate_Exam_Question_Papers_with_GPT-4_and_Email_Delivery.json)|
 |9859|[9859_Monitor_AI_Research_Papers_with_Gemini-powered_Filtering_and_Email_Summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9859_Monitor_AI_Research_Papers_with_Gemini-powered_Filtering_and_Email_Summaries.json)|
 |9966|[9966_Telegram_Research_Assistant_for_Academic_Papers_Using_Gemini_AI_and_Decodo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9966_Telegram_Research_Assistant_for_Academic_Papers_Using_Gemini_AI_and_Decodo.json)|
+|12730|[12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json)|
+|12938|[12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json)|

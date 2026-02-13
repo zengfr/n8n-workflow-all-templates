@@ -1,4 +1,4 @@
-# creation : 128
+# creation : 136
 
 |id|file|
 |----|----|
@@ -130,3 +130,11 @@
 |11631|[11631_AI-Driven_Instagram_Reels_Creation_and_Publishing_with_GPT__Creatomate_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11631_AI-Driven_Instagram_Reels_Creation_and_Publishing_with_GPT__Creatomate_and_Slack.json)|
 |11652|[11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json)|
 |11694|[11694_Create___Publish_Instagram_Carousels_with_AI_Research__Nano_Banana_Pro___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11694_Create___Publish_Instagram_Carousels_with_AI_Research__Nano_Banana_Pro___Slack.json)|
+|11985|[11985_Automatic_Instagram_content_creation_with_OpenAI__Nano_Banana_and_Telegram_check.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11985_Automatic_Instagram_content_creation_with_OpenAI__Nano_Banana_and_Telegram_check.json)|
+|12056|[12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json)|
+|12168|[12168_Automate_video_creation_with_Gemini_Prompts_and_Vertex_AI_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12168_Automate_video_creation_with_Gemini_Prompts_and_Vertex_AI_to_Google_Drive.json)|
+|12184|[12184_Multi-agent_LinkedIn_content_creation_with_GPT-4o__Google_Sheets__and_human_review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12184_Multi-agent_LinkedIn_content_creation_with_GPT-4o__Google_Sheets__and_human_review.json)|
+|12191|[12191_Repurpose_YouTube_videos_and_publish_via_Blotato_with_Telegram__Sheets_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12191_Repurpose_YouTube_videos_and_publish_via_Blotato_with_Telegram__Sheets_and_GPT-4.1-mini.json)|
+|12360|[12360_Create_WooCommerce_products_and_WordPress_posts_from_product_links_via_Telegram_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12360_Create_WooCommerce_products_and_WordPress_posts_from_product_links_via_Telegram_and_BrowserAct.json)|
+|12554|[12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json)|
+|13145|[13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json)|

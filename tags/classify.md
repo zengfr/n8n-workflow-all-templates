@@ -1,4 +1,4 @@
-# classify : 27
+# classify : 31
 
 |id|file|
 |----|----|
@@ -29,3 +29,7 @@
 |10339|[10339_Classify_Developer_Questions_with_GPT-4o_from_Slack_to_Notion___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10339_Classify_Developer_Questions_with_GPT-4o_from_Slack_to_Notion___Airtable.json)|
 |10557|[10557_Classify_and_Respond_to_Facebook_Messenger_Inquiries_with_GPT-4__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10557_Classify_and_Respond_to_Facebook_Messenger_Inquiries_with_GPT-4__Slack_and_Sheets.json)|
 |10583|[10583_Classify_and_Auto-Reply_to_Emails_with_Outlook_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10583_Classify_and_Auto-Reply_to_Emails_with_Outlook_and_GPT-4.json)|
+|12132|[12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json)|
+|12661|[12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json)|
+|12779|[12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json)|
+|12946|[12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json)|

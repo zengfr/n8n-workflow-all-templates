@@ -1,4 +1,4 @@
-# dm : 9
+# dm : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |7844|[7844_LinkedIn_Lead_Generation__Auto_DM_System_with_Comment_Triggers_using_Unipile___NocoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/78/7844_LinkedIn_Lead_Generation__Auto_DM_System_with_Comment_Triggers_using_Unipile___NocoDB.json)|
 |8066|[8066_Gemini-Powered_Facebook_Comment___DM_Assistant_with_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8066_Gemini-Powered_Facebook_Comment___DM_Assistant_with_Notion.json)|
 |11321|[11321_Automated_Facebook_Message_Response_with_GPT-4o_and_Airtable_Inventory_Matching.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11321_Automated_Facebook_Message_Response_with_GPT-4o_and_Airtable_Inventory_Matching.json)|
+|12159|[12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json)|

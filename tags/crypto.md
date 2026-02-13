@@ -1,4 +1,4 @@
-# crypto : 38
+# crypto : 45
 
 |id|file|
 |----|----|
@@ -40,3 +40,10 @@
 |11103|[11103_Aggregate_Crypto_and_Stock_Market_News_Feed_from_Multiple_Sources.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11103_Aggregate_Crypto_and_Stock_Market_News_Feed_from_Multiple_Sources.json)|
 |11366|[11366_Generate_Crypto_Trading_Signals_with_Multi-Timeframe_Data__News_Sentiment___Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11366_Generate_Crypto_Trading_Signals_with_Multi-Timeframe_Data__News_Sentiment___Gemini_AI.json)|
 |11426|[11426_Daily_Crypto_Yield_Monitor__Track_Top_Binance_Earn_APY_Rates_with_Earnings_Calculator.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11426_Daily_Crypto_Yield_Monitor__Track_Top_Binance_Earn_APY_Rates_with_Earnings_Calculator.json)|
+|11960|[11960_Draft_daily_crypto_news_tweets_with_CryptoPanic__Google__GPT_4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11960_Draft_daily_crypto_news_tweets_with_CryptoPanic__Google__GPT_4o_and_Gmail.json)|
+|11966|[11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json)|
+|12249|[12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json)|
+|12548|[12548_Analyze_crypto_markets_with_CoinGecko_MCP_and_C1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12548_Analyze_crypto_markets_with_CoinGecko_MCP_and_C1.json)|
+|12552|[12552_Get_AI_crypto_price_analysis_via_Telegram_using_GPT-4o-mini_and_TwelveData.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12552_Get_AI_crypto_price_analysis_via_Telegram_using_GPT-4o-mini_and_TwelveData.json)|
+|12795|[12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json)|
+|12796|[12796_Track_CoinMarketCap_crypto_sector_pumps_with_Gemini_AI_and_send_digests_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12796_Track_CoinMarketCap_crypto_sector_pumps_with_Gemini_AI_and_send_digests_to_Discord.json)|

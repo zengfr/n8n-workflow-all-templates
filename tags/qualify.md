@@ -1,4 +1,4 @@
-# qualify : 26
+# qualify : 33
 
 |id|file|
 |----|----|
@@ -28,3 +28,10 @@
 |11258|[11258_Enrich___Qualify_Leads_with_Azure_OpenAI__Bright_Data_MCP___HubSpot_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11258_Enrich___Qualify_Leads_with_Azure_OpenAI__Bright_Data_MCP___HubSpot_CRM.json)|
 |11493|[11493_Qualify___Enrich_Leads_with_GPT-4_and_LinkedIn_Data_for_Intelligent_Routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11493_Qualify___Enrich_Leads_with_GPT-4_and_LinkedIn_Data_for_Intelligent_Routing.json)|
 |11794|[11794_Qualify_Insurance_Leads_using_Vapi__GPT-4_Proposals_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11794_Qualify_Insurance_Leads_using_Vapi__GPT-4_Proposals_and_Airtable.json)|
+|12480|[12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json)|
+|12651|[12651_Qualify_and_email_literary_agents_with_GPT_4.1__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12651_Qualify_and_email_literary_agents_with_GPT_4.1__Gmail_and_Google_Sheets.json)|
+|12761|[12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json)|
+|12820|[12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json)|
+|12855|[12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json)|
+|12907|[12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json)|
+|12996|[12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json)|

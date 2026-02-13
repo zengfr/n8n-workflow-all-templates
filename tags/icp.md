@@ -1,4 +1,4 @@
-# icp : 12
+# icp : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |6063|[6063_Automate_Company_ICP_Scoring_with_Explorium_Data_and_Claude_AI_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/60/6063_Automate_Company_ICP_Scoring_with_Explorium_Data_and_Claude_AI_Analysis.json)|
 |8461|[8461_Create_Ideal_Customer_Profile_from_Websites_Content_to_Google_Doc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8461_Create_Ideal_Customer_Profile_from_Websites_Content_to_Google_Doc.json)|
 |11709|[11709_Generate_Ideal_Customer_Profiles___Find_Lookalike_Companies_in_Germany.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11709_Generate_Ideal_Customer_Profiles___Find_Lookalike_Companies_in_Germany.json)|
+|12642|[12642_Extract_ICP-targeted_LinkedIn_leads_from_post_comments_using_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12642_Extract_ICP-targeted_LinkedIn_leads_from_post_comments_using_Apify.json)|
+|13026|[13026_Score_LinkedIn_leads_against_your_ICP_with_Google_Sheets__SourceGeek_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13026_Score_LinkedIn_leads_against_your_ICP_with_Google_Sheets__SourceGeek_and_Gemini.json)|

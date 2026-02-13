@@ -1,4 +1,4 @@
-# script : 8
+# script : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |8290|[8290_Automate_Faceless_Shorts_with_OpenAI__RunwayML___ElevenLabs__Script_to_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8290_Automate_Faceless_Shorts_with_OpenAI__RunwayML___ElevenLabs__Script_to_Social_Media.json)|
 |8918|[8918_Create___Auto-Post_Instagram_Reels_with_AI_Clones__Script-to-Post__Heygen___Submagic___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8918_Create___Auto-Post_Instagram_Reels_with_AI_Clones__Script-to-Post__Heygen___Submagic___Blotato.json)|
 |11663|[11663_Template-Based_Google_Drive_Folder_Generation_with_Forms_and_Apps_Script.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11663_Template-Based_Google_Drive_Folder_Generation_with_Forms_and_Apps_Script.json)|
+|12384|[12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json)|
+|13093|[13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json)|

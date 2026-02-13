@@ -1,4 +1,4 @@
-# notifications : 170
+# notifications : 182
 
 |id|file|
 |----|----|
@@ -172,3 +172,15 @@
 |11621|[11621_Automated_Stock_Technical_Analysis_with_xAI_Grok___Multi-channel_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11621_Automated_Stock_Technical_Analysis_with_xAI_Grok___Multi-channel_Notifications.json)|
 |11721|[11721_Poll_Multiple_Gmail_Accounts_with_Unified_Data_Table_Storage___Discord_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11721_Poll_Multiple_Gmail_Accounts_with_Unified_Data_Table_Storage___Discord_Notifications.json)|
 |11749|[11749_Monitor_German_Company_Register___Financial_Events_with_Implisense_API___Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11749_Monitor_German_Company_Register___Financial_Events_with_Implisense_API___Notifications.json)|
+|11916|[11916_Automate_offer_letters___notifications_with_Google_Sheets__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11916_Automate_offer_letters___notifications_with_Google_Sheets__Gmail___Slack.json)|
+|12056|[12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json)|
+|12078|[12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json)|
+|12081|[12081_Sync_Google_Calendar_events_to_Google_Sheets_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12081_Sync_Google_Calendar_events_to_Google_Sheets_with_Slack_notifications.json)|
+|12083|[12083_Google_Calendar_automated_notifications_with_email__SMS___analytics_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12083_Google_Calendar_automated_notifications_with_email__SMS___analytics_dashboard.json)|
+|12152|[12152_Send_Telegram_notifications_for_new_Feedspace_testimonials.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12152_Send_Telegram_notifications_for_new_Feedspace_testimonials.json)|
+|12872|[12872_Send_new_WooCommerce_product_notifications_to_Slack__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12872_Send_new_WooCommerce_product_notifications_to_Slack__Gmail_and_Google_Sheets.json)|
+|12960|[12960_Send_AI-prioritized_follow-up_reminders_with_GPT-4.1-mini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12960_Send_AI-prioritized_follow-up_reminders_with_GPT-4.1-mini__Gmail_and_Slack.json)|
+|13111|[13111_Send_customer_visit_notifications_from_Google_Calendar_to_Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13111_Send_customer_visit_notifications_from_Google_Calendar_to_Slack_and_Sheets.json)|
+|13121|[13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json)|
+|13164|[13164_Send_notifications_across_email__Slack__and_webhook_channels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13164_Send_notifications_across_email__Slack__and_webhook_channels.json)|
+|13260|[13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json)|

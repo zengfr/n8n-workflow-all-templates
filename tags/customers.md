@@ -1,4 +1,4 @@
-# customers : 35
+# customers : 41
 
 |id|file|
 |----|----|
@@ -37,3 +37,9 @@
 |10140|[10140_Send_WooCommerce_Discount_Coupons_to_Customers_via_WhatsApp_Using_Rapiwa_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10140_Send_WooCommerce_Discount_Coupons_to_Customers_via_WhatsApp_Using_Rapiwa_API.json)|
 |10141|[10141_Send_WooCommerce_Cross-Sell_Offers_to_Customers_via_WhatsApp_Using_Rapiwa_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10141_Send_WooCommerce_Cross-Sell_Offers_to_Customers_via_WhatsApp_Using_Rapiwa_API.json)|
 |10145|[10145_Automated_Template_Delivery_System_with_Stripe__GPT-4o___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10145_Automated_Template_Delivery_System_with_Stripe__GPT-4o___Gmail.json)|
+|12300|[12300_Find_similar_B2B_companies_to_your_best_customers_with_Google_Sheets_and_CompanyEnrich.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12300_Find_similar_B2B_companies_to_your_best_customers_with_Google_Sheets_and_CompanyEnrich.json)|
+|12366|[12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json)|
+|12370|[12370_Identify_and_notify_WooCommerce_VIP_customers_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12370_Identify_and_notify_WooCommerce_VIP_customers_with_Airtable_and_Slack.json)|
+|12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|
+|12870|[12870_Segment_retail_customers_by_purchase_behavior_with_CRM_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12870_Segment_retail_customers_by_purchase_behavior_with_CRM_and_Google_Sheets.json)|
+|13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|

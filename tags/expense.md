@@ -1,4 +1,4 @@
-# expense : 33
+# expense : 34
 
 |id|file|
 |----|----|
@@ -35,3 +35,4 @@
 |10901|[10901_Automate_Travel_Expense_Extraction_with_OCR__Mistral_AI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10901_Automate_Travel_Expense_Extraction_with_OCR__Mistral_AI_and_Supabase.json)|
 |10993|[10993_Expense_Logging_with_Telegram_to_Google_Sheets_using_AI_Voice___Text_Parsing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10993_Expense_Logging_with_Telegram_to_Google_Sheets_using_AI_Voice___Text_Parsing.json)|
 |11368|[11368_Track_Expenses_Automatically_with_Telegram_Bot_using_GPT-4o__OCR_and_Voice_Recognition.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11368_Track_Expenses_Automatically_with_Telegram_Bot_using_GPT-4o__OCR_and_Voice_Recognition.json)|
+|12006|[12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json)|

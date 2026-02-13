@@ -1,4 +1,4 @@
-# feeds : 30
+# feeds : 34
 
 |id|file|
 |----|----|
@@ -32,3 +32,7 @@
 |10311|[10311_Transform_RSS_Feeds_into_Blog_Articles_with_GPT-4__Human_Review___Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10311_Transform_RSS_Feeds_into_Blog_Articles_with_GPT-4__Human_Review___Google_Docs.json)|
 |10424|[10424_Track_Government_Grants_with_OpenRouter_AI__RSS_Feeds__Google_Sheets___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10424_Track_Government_Grants_with_OpenRouter_AI__RSS_Feeds__Google_Sheets___Gmail.json)|
 |11813|[11813_Daily_RSS_Feed_Summarizer_with_Gemini_AI_to_Slack_with_X_Sharing_Option.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11813_Daily_RSS_Feed_Summarizer_with_Gemini_AI_to_Slack_with_X_Sharing_Option.json)|
+|12533|[12533_Curate_and_generate_an_AI_newsletter_from_RSS_feeds_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12533_Curate_and_generate_an_AI_newsletter_from_RSS_feeds_with_OpenAI_and_Slack.json)|
+|12587|[12587_Generate_Instagram_news_carousels_from_RSS_feeds_using_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12587_Generate_Instagram_news_carousels_from_RSS_feeds_using_GPT-4o.json)|
+|12780|[12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json)|
+|13103|[13103_Generate_a_weekly_content_calendar_with_OpenAI_GPT-5-mini__RSS_feeds__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13103_Generate_a_weekly_content_calendar_with_OpenAI_GPT-5-mini__RSS_feeds__and_Notion.json)|

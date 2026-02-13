@@ -1,0 +1,1416 @@
+{
+  "id": "hU0DKuPvJBrcbY6W",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Analyze customer feedback and send AI-written replies with GPT-4 and Gmail",
+    "wechat": "youandme10086",
+    "id": 12541,
+    "update_time": "2026-02-13"
+  },
+  "name": "AI-Powered Customer Feedback Analysis & Response System",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "2c6ee587-863e-4b52-881a-1703d0e92781",
+      "name": "Event Ingestion Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1264,
+        368
+      ],
+      "webhookId": "37247740-483d-4778-997b-5630aa4d0d7e",
+      "parameters": {
+        "path": "omnichannel-events",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "lastNode"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "e4555d99-a196-49cc-8785-336c28d6d744",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1088,
+        368
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "redisHost",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Redis host URL__>"
+            },
+            {
+              "id": "id-2",
+              "name": "redisTTL",
+              "type": "number",
+              "value": 3600
+            },
+            {
+              "id": "id-3",
+              "name": "postgresHost",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__PostgreSQL host URL__>"
+            },
+            {
+              "id": "id-4",
+              "name": "rateLimitThreshold",
+              "type": "number",
+              "value": 100
+            },
+            {
+              "id": "id-5",
+              "name": "rateLimitWindow",
+              "type": "number",
+              "value": 60
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "66c08b6c-e81f-4abf-8545-a179d9ce210d",
+      "name": "Event Normalization",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -896,
+        368
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Normalize incoming events from different channels into unified schema\nconst item = $input.item.json;\n\n// Generate unique event ID if not present\nconst eventId = item.eventId || item.id || `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\n\n// Extract timestamp (try multiple common fields)\nconst timestamp = item.timestamp || item.createdAt || item.created_at || item.time || new Date().toISOString();\n\n// Detect and normalize channel\nlet channel = item.channel || item.source || 'unknown';\nif (item.from && item.from.includes('@')) channel = 'email';\nif (item.phoneNumber || item.callSid) channel = 'voice';\nif (item.chatId || item.conversationId) channel = 'chat';\nif (item.crmSource || item.salesforceId || item.hubspotId) channel = 'crm';\nif (item.deviceId || item.telemetryType) channel = 'telemetry';\n\n// Extract user and customer identifiers\nconst userId = item.userId || item.user_id || item.agentId || item.from || null;\nconst customerId = item.customerId || item.customer_id || item.contactId || item.contact_id || item.leadId || item.email || item.phoneNumber || null;\n\n// Determine event type\nconst eventType = item.eventType || item.event_type || item.type || item.action || 'interaction';\n\n// Extract payload (main event data)\nconst payload = item.payload || item.data || item.body || item.content || {\n  message: item.message || item.text || item.description,\n  subject: item.subject,\n  priority: item.priority,\n  tags: item.tags || [],\n  ...item\n};\n\n// Extract metadata\nconst metadata = item.metadata || {\n  originalSource: item.source,\n  ipAddress: item.ipAddress || item.ip,\n  userAgent: item.userAgent || item.user_agent,\n  sessionId: item.sessionId || item.session_id,\n  referrer: item.referrer,\n  campaign: item.campaign || item.utm_campaign,\n  medium: item.medium || item.utm_medium,\n  rawData: item\n};\n\n// Return normalized event\nreturn {\n  json: {\n    eventId,\n    timestamp,\n    channel,\n    userId,\n    customerId,\n    eventType,\n    payload,\n    metadata\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3c85abc9-3a50-422e-ad34-9fbd88b8c4ec",
+      "name": "Check Deduplication Cache",
+      "type": "n8n-nodes-base.redis",
+      "position": [
+        -672,
+        368
+      ],
+      "parameters": {
+        "key": "={{ \"dedup:\" + $json.eventId }}",
+        "options": {},
+        "operation": "get"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0845f236-cb60-4e52-abcd-96b3d7c07469",
+      "name": "Is Duplicate Event?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -448,
+        368
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "id-1",
+              "operator": {
+                "type": "object",
+                "operation": "notExists"
+              },
+              "leftValue": "={{ $('Check Deduplication Cache').item.json }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "866988d6-95b3-4ff8-839b-77065b7f89df",
+      "name": "Store Event in Cache",
+      "type": "n8n-nodes-base.redis",
+      "position": [
+        -224,
+        368
+      ],
+      "parameters": {
+        "key": "={{ \"dedup:\" + $json.eventId }}",
+        "ttl": "={{ $('Workflow Configuration').first().json.redisTTL }}",
+        "value": "={{ $json.timestamp }}",
+        "expire": true,
+        "operation": "set"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cbc5fb5c-4cae-44ad-8be0-db8646832454",
+      "name": "Fetch Historical Interactions",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        16,
+        224
+      ],
+      "parameters": {
+        "query": "SELECT * FROM customer_interactions WHERE customer_id = $1 ORDER BY timestamp DESC LIMIT 10",
+        "options": {
+          "queryReplacement": "={{ [$json.customerId] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "00d90391-0b48-4bfc-a5ca-09c761267d25",
+      "name": "Fetch Feature Store Data",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        16,
+        512
+      ],
+      "parameters": {
+        "query": "SELECT * FROM feature_store WHERE customer_id = $1",
+        "options": {
+          "queryReplacement": "={{ [$json.customerId] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "148e99ff-3b6e-4ea2-a0d6-13df10c58098",
+      "name": "Fetch Segmentation Rules",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        16,
+        704
+      ],
+      "parameters": {
+        "query": "SELECT * FROM segmentation_rules WHERE active = true",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "56d38ece-fe18-41c4-8ec0-90219548b7bf",
+      "name": "Merge Enrichment Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        240,
+        288
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineAll"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "92566206-09f8-459a-b0c6-6760fc2bf155",
+      "name": "Intent & Sentiment Analysis Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        464,
+        288
+      ],
+      "parameters": {
+        "text": "=Event Data: {{ $json.payload }}\nChannel: {{ $json.channel }}\nCustomer History: {{ $json.historicalInteractions }}\nFeature Data: {{ $json.featureData }}",
+        "options": {
+          "systemMessage": "You are an advanced intent and sentiment analysis AI specialized in omnichannel customer intelligence.\n\nYour task is to analyze customer events and interactions to determine:\n1. Primary Intent (purchase, support, inquiry, complaint, feedback, churn_signal)\n2. Sentiment Score (-1.0 to 1.0, where -1 is very negative, 0 is neutral, 1 is very positive)\n3. Emotional State (frustrated, satisfied, confused, excited, angry, neutral)\n4. Churn Risk Score (0.0 to 1.0, where 1.0 is highest risk)\n5. Purchase Readiness Score (0.0 to 1.0, where 1.0 is ready to purchase)\n\nConsider:\n- Current event context and content\n- Historical interaction patterns\n- Customer feature data (engagement, lifetime value, etc.)\n- Cross-channel behavior signals\n\nReturn your analysis in the structured JSON format defined by the output parser."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "a862a15b-572f-4ef1-9ad0-82b8b1bc16dc",
+      "name": "OpenAI GPT-4 Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        480,
+        512
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "mv2ECvRtbAK63G2g",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "d5c4c02c-3c81-47f9-8ef4-b7de5e6be7b9",
+      "name": "Analysis Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        608,
+        512
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"intent\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"sentimentScore\": {\n\t\t\t\"type\": \"number\"\n\t\t},\n\t\t\"emotionalState\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"churnRiskScore\": {\n\t\t\t\"type\": \"number\"\n\t\t},\n\t\t\"purchaseReadinessScore\": {\n\t\t\t\"type\": \"number\"\n\t\t},\n\t\t\"confidence\": {\n\t\t\t\"type\": \"number\"\n\t\t},\n\t\t\"reasoning\": {\n\t\t\t\"type\": \"string\"\n\t\t}\n\t}\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c763e1ec-afb3-4e04-bbe2-d673ba45493e",
+      "name": "Calculate Priority Score",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        816,
+        288
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Calculate Priority Score based on multiple factors\nconst item = $input.item.json;\n\n// Extract scores from the enriched data\nconst churnRiskScore = item.churnRiskScore || 0;\nconst purchaseReadinessScore = item.purchaseReadinessScore || 0;\nconst sentimentScore = item.sentimentScore || 0;\nconst intentUrgency = item.intentUrgency || 'low';\n\n// Map intent urgency to numeric value\nconst urgencyMap = {\n  'critical': 100,\n  'high': 75,\n  'medium': 50,\n  'low': 25\n};\nconst urgencyValue = urgencyMap[intentUrgency.toLowerCase()] || 25;\n\n// Calculate weighted priority score (0-100)\nconst priorityScore = (\n  (churnRiskScore * 0.3) +\n  (purchaseReadinessScore * 0.3) +\n  (sentimentScore * 0.2) +\n  (urgencyValue * 0.2)\n);\n\n// Determine priority level\nlet priorityLevel;\nif (priorityScore >= 80) {\n  priorityLevel = 'critical';\n} else if (priorityScore >= 60) {\n  priorityLevel = 'high';\n} else if (priorityScore >= 40) {\n  priorityLevel = 'medium';\n} else {\n  priorityLevel = 'low';\n}\n\n// Return enriched item with priority data\nreturn {\n  ...item,\n  priorityScore: Math.round(priorityScore * 100) / 100,\n  priorityLevel: priorityLevel,\n  priorityCalculatedAt: new Date().toISOString()\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2f7e9bad-ad72-4afc-aacf-e21bc975536b",
+      "name": "Route by Priority & Intent",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1040,
+        240
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Critical Priority",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.priorityLevel }}",
+                    "rightValue": "critical"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "High Priority",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.priorityLevel }}",
+                    "rightValue": "high"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Medium Priority",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.priorityLevel }}",
+                    "rightValue": "medium"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Low Priority",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.priorityLevel }}",
+                    "rightValue": "low"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f8ebc0aa-486d-4fbd-8af5-82e9c2f979c2",
+      "name": "Check Rate Limit",
+      "type": "n8n-nodes-base.redis",
+      "position": [
+        1264,
+        288
+      ],
+      "parameters": {
+        "key": "={{ \"ratelimit:\" + $json.customerId + \":\" + Math.floor(Date.now() / 60000) }}",
+        "ttl": "={{ $('Workflow Configuration').first().json.rateLimitWindow }}",
+        "expire": true,
+        "operation": "incr"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a7728ed0-fb0a-4ba9-86f1-6e8b3977b801",
+      "name": "Rate Limit Exceeded?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1488,
+        288
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "id-1",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $('Check Rate Limit').item.json.count }}",
+              "rightValue": "={{ $('Workflow Configuration').first().json.rateLimitThreshold }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "1021d7e9-d34b-4368-90b8-c7866c025702",
+      "name": "Check Cross-Channel Suppression",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1712,
+        288
+      ],
+      "parameters": {
+        "query": "SELECT * FROM channel_suppression WHERE customer_id = $1 AND channel = $2 AND suppressed_until > NOW()",
+        "options": {
+          "queryReplacement": "={{ [$json.customerId, $json.channel] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "e707a13f-f0e1-4439-884f-62656d42d166",
+      "name": "Is Suppressed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1936,
+        288
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "id-1",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $('Check Cross-Channel Suppression').all().length }}",
+              "rightValue": "0"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "87e222ac-2e4a-4b3f-9f10-c903d9deb319",
+      "name": "Decision Policy Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2160,
+        288
+      ],
+      "parameters": {
+        "text": "=Customer Analysis: {{ $json.analysis }}\nPriority: {{ $json.priorityLevel }}\nIntent: {{ $json.intent }}\nChurn Risk: {{ $json.churnRiskScore }}\nPurchase Readiness: {{ $json.purchaseReadinessScore }}\nSegmentation: {{ $json.segmentationRules }}",
+        "options": {
+          "systemMessage": "You are a decision policy AI that determines optimal actions for customer engagement based on complex decision trees and reinforcement-learning-inspired policies.\n\nYour task is to:\n1. Evaluate the customer analysis, intent, and risk scores\n2. Apply decision tree logic based on segmentation rules and business policies\n3. Determine the best action type (marketing, sales, support, no_action)\n4. Specify the action details (channel, message type, urgency, personalization parameters)\n5. Calculate expected outcome probability\n\nDecision Framework:\n- High churn risk + low engagement → Support intervention\n- High purchase readiness + positive sentiment → Sales outreach\n- Negative sentiment + recent interaction → Support escalation\n- Neutral engagement + marketing segment → Marketing nurture\n\nReturn structured decision with: actionType, actionChannel, actionDetails, expectedOutcome, confidence, reasoning"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "5dfb979d-19bf-42e5-a564-4e6450960a7f",
+      "name": "OpenAI GPT-4 Decision Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2176,
+        512
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "mv2ECvRtbAK63G2g",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "ad687107-02dc-456f-ac53-428ead7914ce",
+      "name": "Decision Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        2304,
+        512
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"actionType\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"actionChannel\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"actionDetails\": {\n\t\t\t\"type\": \"object\"\n\t\t},\n\t\t\"expectedOutcome\": {\n\t\t\t\"type\": \"string\"\n\t\t},\n\t\t\"confidence\": {\n\t\t\t\"type\": \"number\"\n\t\t},\n\t\t\"reasoning\": {\n\t\t\t\"type\": \"string\"\n\t\t}\n\t}\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "df1f3a30-5875-4b0b-8cb4-1402c042f283",
+      "name": "Route by Action Type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2512,
+        256
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Marketing",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.actionType }}",
+                    "rightValue": "marketing"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Sales",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.actionType }}",
+                    "rightValue": "sales"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Support",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.actionType }}",
+                    "rightValue": "support"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "No Action"
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "61b317ce-8c42-4ec6-90b8-568c701c3cde",
+      "name": "Send Marketing Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        2736,
+        0
+      ],
+      "webhookId": "f0679d42-4992-4b54-a9ab-e8f295222112",
+      "parameters": {
+        "html": "={{ $json.actionDetails.messageBody }}",
+        "options": {},
+        "subject": "={{ $json.actionDetails.subject }}",
+        "toEmail": "={{ $json.customerEmail }}",
+        "fromEmail": "<__PLACEHOLDER_VALUE__Sender email address__>"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5ed62f6c-5103-4dbe-a131-6e777332febe",
+      "name": "Create Salesforce Lead",
+      "type": "n8n-nodes-base.salesforce",
+      "position": [
+        2736,
+        192
+      ],
+      "parameters": {
+        "company": "={{ $json.customerCompany }}",
+        "lastname": "={{ $json.customerName }}",
+        "additionalFields": {
+          "email": "={{ $json.customerEmail }}",
+          "leadSource": "Omnichannel Intelligence",
+          "description": "={{ $json.actionDetails.notes }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d6374482-0ae6-4f69-b3da-4ee252a3994a",
+      "name": "Update HubSpot Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        2736,
+        384
+      ],
+      "parameters": {
+        "operation": "update"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "094a7e1e-dbae-4df3-8986-24cd8bda4bbc",
+      "name": "Send Support Alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2736,
+        576
+      ],
+      "webhookId": "952c7034-b3a6-419d-9a14-888ba4220f2e",
+      "parameters": {
+        "text": "=🚨 Support Alert\nCustomer: {{ $json.customerName }}\nIssue: {{ $json.actionDetails.issueType }}\nUrgency: {{ $json.actionDetails.urgency }}\nDetails: {{ $json.actionDetails.notes }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "<__PLACEHOLDER_VALUE__Slack channel ID for support alerts__>"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "d34b1ayEBbvZm2lT",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "2a6cc13d-dba7-401d-8066-6b9367b400f9",
+      "name": "Aggregate Action Results",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        2960,
+        192
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "actionResult"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "08cad6d0-577a-4dd4-aa73-66bb4d7c3de8",
+      "name": "Log Decision Provenance",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3184,
+        192
+      ],
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "decision_provenance"
+        },
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "columns": {
+          "value": {
+            "event_id": "={{ $json.event_id }}",
+            "timestamp": "={{ $json.timestamp }}",
+            "action_type": "={{ $json.action_type }}",
+            "customer_id": "={{ $json.customer_id }}",
+            "model_version": "={{ $json.model_version }}",
+            "action_details": "={{ $json.action_details }}",
+            "priority_score": "={{ $json.priority_score }}",
+            "intent_analysis": "={{ $json.intent_analysis }}",
+            "confidence_score": "={{ $json.confidence_score }}",
+            "decision_reasoning": "={{ $json.decision_reasoning }}"
+          },
+          "schema": [
+            {
+              "id": "event_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "event_id",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "customer_id",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "timestamp",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent_analysis",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "intent_analysis",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "decision_reasoning",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "decision_reasoning",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "action_type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "action_type",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "action_details",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "action_details",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority_score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "priority_score",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence_score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "confidence_score",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model_version",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "model_version",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "event_id",
+            "customer_id",
+            "timestamp",
+            "intent_analysis",
+            "decision_reasoning",
+            "action_type",
+            "action_details",
+            "priority_score",
+            "confidence_score",
+            "model_version"
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "17a8790b-b773-4efe-adb1-5cc58f0c193e",
+      "name": "Store Outcome for Feedback Loop",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3408,
+        192
+      ],
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "outcome_feedback"
+        },
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "columns": {
+          "value": {
+            "event_id": "={{ $json.event_id }}",
+            "timestamp": "={{ $json.timestamp }}",
+            "created_at": "={{ $now }}",
+            "customer_id": "={{ $json.customer_id }}",
+            "action_taken": "={{ $json.action_taken }}",
+            "actual_outcome": null,
+            "feedback_status": "pending",
+            "expected_outcome": "={{ $json.expected_outcome }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {}
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "0556b703-ae3b-42dc-9a32-78a23677bd62",
+      "name": "Update Analytics Dashboard",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3632,
+        192
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "intent": "={{ $json.intent }}",
+            "timestamp": "={{ $json.timestamp }}",
+            "churn_risk": "={{ $json.churn_risk }}",
+            "event_type": "={{ $json.event_type }}",
+            "customer_id": "={{ $json.customer_id }}",
+            "action_taken": "={{ $json.action_taken }}",
+            "priority_level": "={{ $json.priority_level }}",
+            "sentiment_score": "={{ $json.sentiment_score }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Real-Time Events"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "<__PLACEHOLDER_VALUE__Google Sheets analytics dashboard ID__>"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hQFe8XTqJEiHL03Z",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "4a26850d-5231-4767-b2bd-b52d8d3415d6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        -272
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 496,
+        "height": 336,
+        "content": "## Prerequisites\nOpenAI API key, Anthropic Claude API key (optional), Google Workspace account (Sheets, Gmail)\n## Use Cases\nProduct feedback management, customer support automation\n## Customization\nAdjust sentiment scoring thresholds per industry standards, modify response templates\n## Benefits\nResponds to feedback 95% faster, maintains consistent response quality across all interactions"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "201501f0-c974-4f14-9ed1-de784fd2b819",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        -224
+      ],
+      "parameters": {
+        "width": 486,
+        "height": 304,
+        "content": "## Setup Steps\n1. Configure webhook trigger URL for feedback form integration or email parsing\n2. Add OpenAI API key for sentiment analysis and response generation\n3. Connect Anthropic Claude API for alternative response generation and validation\n4. Set up Google Sheets integration for feedback logging and analytics tracking\n5. Configure Gmail OAuth2 credentials for automated customer response delivery\n6. Integrate support ticket system (Zendesk, Freshdesk) for escalation routing"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a61d913-edfd-4ed0-ae75-a8f3ef2e218f",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1184,
+        -144
+      ],
+      "parameters": {
+        "width": 800,
+        "height": 208,
+        "content": "## How It Works\nThis workflow automates customer feedback processing by analyzing sentiment, identifying key issues, generating personalized responses, and escalating critical cases to support teams when required. Designed for customer success managers, support teams, and product managers, it enables scalable feedback handling without compromising response quality or urgency. The workflow eliminates manual triage and response drafting by normalizing incoming feedback, performing sentiment and topic analysis, generating context-aware AI responses, validating tone and intent, escalating high-risk or negative feedback, logging all interactions for traceability, and delivering automated replies via email."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8c88245a-0ea5-4e06-8947-ad801f0e1e5c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2112,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 368,
+        "height": 768,
+        "content": "## Contextual AI Response Generation\n**Why:** Creates personalized, empathetic responses using customer history and feedback context, maintaining brand voice while addressing specific concerns raised in the feedback.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a83c1f53-1b6a-40d4-aa56-79e8a0c85f27",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        432,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1664,
+        "height": 784,
+        "content": "## Parallel Sentiment & Topic Analysis\n**Why:** Simultaneously evaluates emotional tone, identifies key themes, and assesses urgency using AI models, enabling intelligent routing and response prioritization without sequential processing delays.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d687871-574a-41ae-91e6-7348a4a5f7a4",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1328,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1744,
+        "height": 832,
+        "content": "## Feedback Ingestion & Data Normalization\n**Why:** Captures feedback from multiple sources (forms, emails, surveys), standardizes data structure, and enriches with metadata for consistent downstream processing across all channels."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e7b964fb-bb89-49e6-bf1b-e7669e13c851",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2496,
+        -128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1376,
+        "height": 1040,
+        "content": "\n## Smart Escalation & Automated Distribution\n**Why:** Routes negative sentiment or complex issues to human agents via support tickets while sending standard responses automatically, optimizing resource allocation and ensuring critical cases receive immediate attention."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "2fd06830-cc0a-47a8-8b75-b7f03408837f",
+  "connections": {
+    "Is Suppressed?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Decision Policy Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "Rate Limit Exceeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4 Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intent & Sentiment Analysis Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Support Alert": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Action Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Normalization": {
+      "main": [
+        [
+          {
+            "node": "Check Deduplication Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Duplicate Event?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Store Event in Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate Limit Exceeded?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Check Cross-Channel Suppression",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Action Type": {
+      "main": [
+        [
+          {
+            "node": "Send Marketing Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Salesforce Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update HubSpot Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Support Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Marketing Email": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Action Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Event in Cache": {
+      "main": [
+        [
+          {
+            "node": "Merge Enrichment Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Historical Interactions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Feature Store Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Segmentation Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Policy Agent": {
+      "main": [
+        [
+          {
+            "node": "Route by Action Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Enrichment Data": {
+      "main": [
+        [
+          {
+            "node": "Intent & Sentiment Analysis Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analysis Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Intent & Sentiment Analysis Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Salesforce Lead": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Action Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Decision Policy Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update HubSpot Contact": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Action Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Event Normalization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Ingestion Webhook": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Decision Provenance": {
+      "main": [
+        [
+          {
+            "node": "Store Outcome for Feedback Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Action Results": {
+      "main": [
+        [
+          {
+            "node": "Log Decision Provenance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Priority Score": {
+      "main": [
+        [
+          {
+            "node": "Route by Priority & Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Deduplication Cache": {
+      "main": [
+        [
+          {
+            "node": "Is Duplicate Event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Priority & Intent": {
+      "main": [
+        [
+          {
+            "node": "Check Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4 Decision Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Decision Policy Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Historical Interactions": {
+      "main": [
+        [
+          {
+            "node": "Merge Enrichment Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check Cross-Channel Suppression": {
+      "main": [
+        [
+          {
+            "node": "Is Suppressed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Outcome for Feedback Loop": {
+      "main": [
+        [
+          {
+            "node": "Update Analytics Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent & Sentiment Analysis Agent": {
+      "main": [
+        [
+          {
+            "node": "Calculate Priority Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

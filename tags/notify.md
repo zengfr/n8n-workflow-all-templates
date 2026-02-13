@@ -1,4 +1,4 @@
-# notify : 37
+# notify : 44
 
 |id|file|
 |----|----|
@@ -39,3 +39,10 @@
 |10586|[10586_Score_Website_Leads_with_GPT-4o__Respond_via_Gmail__and_Notify_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10586_Score_Website_Leads_with_GPT-4o__Respond_via_Gmail__and_Notify_via_Telegram.json)|
 |11129|[11129_Automated_Shopify_Abandoned_Cart_Recovery_with_WhatsApp_Messages___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11129_Automated_Shopify_Abandoned_Cart_Recovery_with_WhatsApp_Messages___Google_Sheets.json)|
 |11369|[11369_Notify_Users_When_Features_Ship_with_Semantic_Search_from_Tally_to_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11369_Notify_Users_When_Features_Ship_with_Semantic_Search_from_Tally_to_Gmail.json)|
+|12298|[12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json)|
+|12345|[12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json)|
+|12370|[12370_Identify_and_notify_WooCommerce_VIP_customers_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12370_Identify_and_notify_WooCommerce_VIP_customers_with_Airtable_and_Slack.json)|
+|12399|[12399_Email_reports_on_expiring_Microsoft_Entra_ID_app_secrets_and_certificates_with_Microsoft_Graph.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12399_Email_reports_on_expiring_Microsoft_Entra_ID_app_secrets_and_certificates_with_Microsoft_Graph.json)|
+|12589|[12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json)|
+|13062|[13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json)|
+|13192|[13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json)|

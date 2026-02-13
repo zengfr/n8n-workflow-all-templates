@@ -1,4 +1,4 @@
-# scheduler : 23
+# scheduler : 25
 
 |id|file|
 |----|----|
@@ -25,3 +25,5 @@
 |10292|[10292_Automate_Recruitment_with_GPT-4o-mini__CV_Screening_to_Interview_Scheduling_in_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10292_Automate_Recruitment_with_GPT-4o-mini__CV_Screening_to_Interview_Scheduling_in_Airtable.json)|
 |11166|[11166_Autonomous_Meeting_Scheduler_with_GPT-4o-mini__Telegram__and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11166_Autonomous_Meeting_Scheduler_with_GPT-4o-mini__Telegram__and_Google_Calendar.json)|
 |11600|[11600_Automate_Lead_Meeting_Scheduling_with_Zoho_CRM__Google_Calendar___Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11600_Automate_Lead_Meeting_Scheduling_with_Zoho_CRM__Google_Calendar___Gemini_AI.json)|
+|11939|[11939_Smart_irrigation_scheduler_with_weather_forecast_and_soil_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11939_Smart_irrigation_scheduler_with_weather_forecast_and_soil_analysis.json)|
+|12043|[12043_Schedule_interviews_and_send_GPT-4_reminders_with_Google_Calendar__Gmail__Slack_and_Recrutei.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12043_Schedule_interviews_and_send_GPT-4_reminders_with_Google_Calendar__Gmail__Slack_and_Recrutei.json)|

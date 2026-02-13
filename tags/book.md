@@ -1,4 +1,4 @@
-# book : 14
+# book : 18
 
 |id|file|
 |----|----|
@@ -16,3 +16,7 @@
 |9026|[9026_AI_Sales_Assistant_with_GPT___Claude__Qualify_Leads__Book_Meetings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9026_AI_Sales_Assistant_with_GPT___Claude__Qualify_Leads__Book_Meetings.json)|
 |10211|[10211_Food_Photo_Analysis_to_Restaurant___Book_Recommendations_with_GPT_Vision_and_Google_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10211_Food_Photo_Analysis_to_Restaurant___Book_Recommendations_with_GPT_Vision_and_Google_APIs.json)|
 |11407|[11407_Book_Club_Manager___Recommendation_Engine_with_Mistral_AI_and_Gemini_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11407_Book_Club_Manager___Recommendation_Engine_with_Mistral_AI_and_Gemini_Vision.json)|
+|12270|[12270_Create_AI_sci_fi_book_review_videos_with_ChatGPT__Fal.ai_and_Nexrender.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12270_Create_AI_sci_fi_book_review_videos_with_ChatGPT__Fal.ai_and_Nexrender.json)|
+|12745|[12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json)|
+|12763|[12763_Book_WhatsApp_consultations_and_sync_contacts_with_Airtable_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12763_Book_WhatsApp_consultations_and_sync_contacts_with_Airtable_and_Google_Calendar.json)|
+|12831|[12831_Book__manage__and_check_appointments_using_Vapi_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12831_Book__manage__and_check_appointments_using_Vapi_and_Google_Calendar.json)|

@@ -1,4 +1,4 @@
-# enhancement : 6
+# enhancement : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |7067|[7067_AI-Powered_Prompt_Enhancement_Assistant_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7067_AI-Powered_Prompt_Enhancement_Assistant_using_Google_Sheets.json)|
 |9441|[9441_Web_Content_to_Telegram_Publisher_with_AI_Enhancement___Image_Watermarking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9441_Web_Content_to_Telegram_Publisher_with_AI_Enhancement___Image_Watermarking.json)|
 |10139|[10139_Generate_AI_Videos_from_Text_or_Images_with_Sora_2_Pro___GPT-5_Enhancement.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10139_Generate_AI_Videos_from_Text_or_Images_with_Sora_2_Pro___GPT-5_Enhancement.json)|
+|11982|[11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json)|

@@ -1,4 +1,4 @@
-# cleanup : 21
+# cleanup : 22
 
 |id|file|
 |----|----|
@@ -23,3 +23,4 @@
 |9779|[9779_Automated_Daily_Workflow_Backups_to_Google_Drive_with_Cleanup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9779_Automated_Daily_Workflow_Backups_to_Google_Drive_with_Cleanup.json)|
 |10325|[10325_Automate_Inactive_Deal_Cleanup_from_GoHighLevel_to_Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10325_Automate_Inactive_Deal_Cleanup_from_GoHighLevel_to_Slack_and_Sheets.json)|
 |11017|[11017_Email_List_Validation_and_Cleanup_with_Google_Sheets_and_VerifiEmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11017_Email_List_Validation_and_Cleanup_with_Google_Sheets_and_VerifiEmail.json)|
+|12366|[12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json)|

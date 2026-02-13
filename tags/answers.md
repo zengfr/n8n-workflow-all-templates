@@ -1,4 +1,4 @@
-# answers : 10
+# answers : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |7851|[7851_Cheaper__Faster__Accurate_Answers_with_Memory_Summarization___Dynamic_Routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/78/7851_Cheaper__Faster__Accurate_Answers_with_Memory_Summarization___Dynamic_Routing.json)|
 |11570|[11570_Retrieve_Answers_from_Knowledge_Base_with_InfraNodus_GraphRAG_Chatbot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11570_Retrieve_Answers_from_Knowledge_Base_with_InfraNodus_GraphRAG_Chatbot.json)|
 |11660|[11660_Generate_Consensus_Answers_with_Multiple_AI_Models___Peer_Review_System.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11660_Generate_Consensus_Answers_with_Multiple_AI_Models___Peer_Review_System.json)|
+|12471|[12471_Generate_consensus-based_answers_using_Claude__GPT__Grok_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12471_Generate_consensus-based_answers_using_Claude__GPT__Grok_and_Gemini.json)|
+|12725|[12725_Verify_AI_draft_answers_with_Pearl_Hybrid_Intelligence_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12725_Verify_AI_draft_answers_with_Pearl_Hybrid_Intelligence_and_OpenAI.json)|

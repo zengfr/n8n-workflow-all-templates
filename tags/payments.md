@@ -1,4 +1,4 @@
-# payments : 10
+# payments : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |9110|[9110_Automate_Paid_Zoom_Meetings_with_Stripe__Gmail___Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9110_Automate_Paid_Zoom_Meetings_with_Stripe__Gmail___Google_Sheets_Tracking.json)|
 |9275|[9275_Stripe___Pipedrive__Auto_Create_Contacts_and_Deals_from_Payments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9275_Stripe___Pipedrive__Auto_Create_Contacts_and_Deals_from_Payments.json)|
 |10145|[10145_Automated_Template_Delivery_System_with_Stripe__GPT-4o___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10145_Automated_Template_Delivery_System_with_Stripe__GPT-4o___Gmail.json)|
+|12015|[12015_Monitor_cryptocurrency_payments_across_multiple_blockchains_with_AgentGatePay.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12015_Monitor_cryptocurrency_payments_across_multiple_blockchains_with_AgentGatePay.json)|
+|12695|[12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json)|
+|13213|[13213_Track_MPESA_and_Airtel_mobile_payments_in_a_fundraising_WhatsApp_group.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13213_Track_MPESA_and_Airtel_mobile_payments_in_a_fundraising_WhatsApp_group.json)|

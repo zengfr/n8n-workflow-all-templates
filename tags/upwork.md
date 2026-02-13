@@ -1,4 +1,4 @@
-# upwork : 19
+# upwork : 22
 
 |id|file|
 |----|----|
@@ -21,3 +21,6 @@
 |9020|[9020_Track_Upwork_Jobs_from_Vollna_RSS_with_Google_Sheets_Logging_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9020_Track_Upwork_Jobs_from_Vollna_RSS_with_Google_Sheets_Logging_and_Slack_Alerts.json)|
 |9713|[9713_Track_and_Receive_Upwork_Job_Alerts_via_WhatsApp_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9713_Track_and_Receive_Upwork_Job_Alerts_via_WhatsApp_and_Google_Sheets.json)|
 |9941|[9941_Track_freelance_jobs_from_Apify_and_get_instant_WhatsApp_alerts_for_new_leads.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9941_Track_freelance_jobs_from_Apify_and_get_instant_WhatsApp_alerts_for_new_leads.json)|
+|11965|[11965_Create_personalized_Loom_video_scripts_from_Upwork_jobs_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11965_Create_personalized_Loom_video_scripts_from_Upwork_jobs_with_Claude_AI.json)|
+|12179|[12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json)|
+|12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|

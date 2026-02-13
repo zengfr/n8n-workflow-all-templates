@@ -1,4 +1,4 @@
-# routing : 39
+# routing : 48
 
 |id|file|
 |----|----|
@@ -41,3 +41,12 @@
 |11493|[11493_Qualify___Enrich_Leads_with_GPT-4_and_LinkedIn_Data_for_Intelligent_Routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11493_Qualify___Enrich_Leads_with_GPT-4_and_LinkedIn_Data_for_Intelligent_Routing.json)|
 |11628|[11628_AI-Powered_Customer_Feedback_Routing_with_Gmail__Slack__Pipedrive__Zendesk___Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11628_AI-Powered_Customer_Feedback_Routing_with_Gmail__Slack__Pipedrive__Zendesk___Notion.json)|
 |11711|[11711_AI-Powered_Multi-Channel_Customer_Journey_with_Email__SMS___Retargeting_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11711_AI-Powered_Multi-Channel_Customer_Journey_with_Email__SMS___Retargeting_using_OpenAI.json)|
+|12060|[12060_Real-time_uptime_alerts_to_Jira_with_smart_Slack_on-call_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12060_Real-time_uptime_alerts_to_Jira_with_smart_Slack_on-call_routing.json)|
+|12135|[12135_Triage_product_UAT_feedback_with_OpenAI__Jira__Slack__Notion_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12135_Triage_product_UAT_feedback_with_OpenAI__Jira__Slack__Notion_and_Google_Sheets.json)|
+|12702|[12702_Route_and_reassign_leads_with_SLA_using_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12702_Route_and_reassign_leads_with_SLA_using_Google_Sheets_and_Slack.json)|
+|12742|[12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json)|
+|12820|[12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json)|
+|12992|[12992_Orchestrate_AI_risk_analysis_and_severity-based_routing_with_Anthropic_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12992_Orchestrate_AI_risk_analysis_and_severity-based_routing_with_Anthropic_and_OpenAI.json)|
+|12995|[12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json)|
+|12996|[12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json)|
+|13231|[13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json)|

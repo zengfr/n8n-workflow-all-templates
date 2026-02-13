@@ -1,4 +1,4 @@
-# stock : 63
+# stock : 70
 
 |id|file|
 |----|----|
@@ -65,3 +65,10 @@
 |11674|[11674_Automate_Fundamental_Stock_Analysis_with_FinnHub_Data_and_Google_Sheets_DCF_Calculator.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11674_Automate_Fundamental_Stock_Analysis_with_FinnHub_Data_and_Google_Sheets_DCF_Calculator.json)|
 |11678|[11678_Automate_Invoice_Processing___Stock_Management_with_AI__Gmail__Sheets___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11678_Automate_Invoice_Processing___Stock_Management_with_AI__Gmail__Sheets___Slack.json)|
 |11772|[11772_Generate_AI_Stock_Reports_w__Fundamental__Technical____News_Analysis__Free_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11772_Generate_AI_Stock_Reports_w__Fundamental__Technical____News_Analysis__Free_APIs.json)|
+|12333|[12333_Generate_AI_stock_buy_no-buy_signals_using_GPT_4.1__Google_Sheets_and_EODHD.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12333_Generate_AI_stock_buy_no-buy_signals_using_GPT_4.1__Google_Sheets_and_EODHD.json)|
+|12478|[12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json)|
+|12485|[12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json)|
+|12498|[12498_Analyze_stock_sentiment_with_GPT-4o_and_create_Asana_tasks_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12498_Analyze_stock_sentiment_with_GPT-4o_and_create_Asana_tasks_with_Slack_alerts.json)|
+|12553|[12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json)|
+|12944|[12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json)|
+|13276|[13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json)|

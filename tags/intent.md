@@ -1,4 +1,4 @@
-# intent : 9
+# intent : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |9346|[9346_Automate_Lead_Intent_Classification_from_Google_Sheets_to_ClickUp_with_Azure_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9346_Automate_Lead_Intent_Classification_from_Google_Sheets_to_ClickUp_with_Azure_GPT-4.json)|
 |10240|[10240_Handle_WhatsApp_Customer_Inquiries_with_AI_and_Intent_Routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10240_Handle_WhatsApp_Customer_Inquiries_with_AI_and_Intent_Routing.json)|
 |11200|[11200_Auto-Schedule_Demos_for_High-Intent_Leads_with_Clearbit__Slack__and_Calendly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11200_Auto-Schedule_Demos_for_High-Intent_Leads_with_Clearbit__Slack__and_Calendly.json)|
+|12110|[12110_Discover_buying-intent_leads_on_Twitter_and_Instagram_with_GPT-4o-mini_and_send_summaries_to_Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12110_Discover_buying-intent_leads_on_Twitter_and_Instagram_with_GPT-4o-mini_and_send_summaries_to_Slack_and_Notion.json)|
+|12600|[12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json)|
+|13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|

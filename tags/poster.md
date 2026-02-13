@@ -1,4 +1,4 @@
-# poster : 13
+# poster : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |9455|[9455_Create_branded_LinkedIn_carousels_with_GPT-4o-mini__Figma_templates___Templated.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9455_Create_branded_LinkedIn_carousels_with_GPT-4o-mini__Figma_templates___Templated.json)|
 |9694|[9694_Lightroom_Cloud_to_Instagram_Auto_Poster__AI_Captions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9694_Lightroom_Cloud_to_Instagram_Auto_Poster__AI_Captions.json)|
 |9769|[9769_Auto-Curate___Post_LinkedIn_Company_Page_using_RSS___Gemini_AI___Templated.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9769_Auto-Curate___Post_LinkedIn_Company_Page_using_RSS___Gemini_AI___Templated.io.json)|
+|12736|[12736_Create_lyric_posters_from_Spotify_tracks_with_Musixmatch_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12736_Create_lyric_posters_from_Spotify_tracks_with_Musixmatch_and_OpenAI.json)|

@@ -1,4 +1,4 @@
-# collection : 30
+# collection : 33
 
 |id|file|
 |----|----|
@@ -32,3 +32,6 @@
 |10384|[10384_Automate_Cancellation_Feedback_Collection_with_Stripe_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10384_Automate_Cancellation_Feedback_Collection_with_Stripe_and_Google_Sheets.json)|
 |10791|[10791_AI-Powered_Product_Hunt_Data_Collection___Translation_with_GPT-4_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10791_AI-Powered_Product_Hunt_Data_Collection___Translation_with_GPT-4_and_Google_Sheets.json)|
 |11652|[11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json)|
+|11899|[11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json)|
+|12197|[12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json)|
+|12694|[12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json)|

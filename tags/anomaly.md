@@ -1,4 +1,4 @@
-# anomaly : 10
+# anomaly : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |10486|[10486_Automated_QuickBooks_Sales_Anomaly_Detector_with_Professional_Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10486_Automated_QuickBooks_Sales_Anomaly_Detector_with_Professional_Email_Alerts.json)|
 |10759|[10759_Real-time_IoT_Anomaly_Detection_with_MQTT__GPT-4o-mini_AI__and_Multi-channel_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10759_Real-time_IoT_Anomaly_Detection_with_MQTT__GPT-4o-mini_AI__and_Multi-channel_Alerts.json)|
 |11117|[11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json)|
+|11901|[11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json)|
+|11909|[11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json)|
+|12385|[12385_Detect_financial_anomalies_and_reconcile_revenue_with_GPT-4o_and_API_integrations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12385_Detect_financial_anomalies_and_reconcile_revenue_with_GPT-4o_and_API_integrations.json)|
+|12792|[12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json)|

@@ -1,4 +1,4 @@
-# setup : 12
+# setup : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |6327|[6327_Real-time_Error_Monitoring_with_WhatsApp_Alerts___Multi-language_Setup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6327_Real-time_Error_Monitoring_with_WhatsApp_Alerts___Multi-language_Setup.json)|
 |8101|[8101_Automate_Agile_Project_Setup_with_GPT-5_Mini__Jira___Form_Interface.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8101_Automate_Agile_Project_Setup_with_GPT-5_Mini__Jira___Form_Interface.json)|
 |9810|[9810_Generate_Videos_from_Text_or_Images_with_Sora_2_AI_-_No_Watermark.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9810_Generate_Videos_from_Text_or_Images_with_Sora_2_AI_-_No_Watermark.json)|
+|12682|[12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json)|
+|12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|

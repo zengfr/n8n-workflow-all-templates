@@ -1,4 +1,4 @@
-# database : 103
+# database : 106
 
 |id|file|
 |----|----|
@@ -105,3 +105,6 @@
 |11087|[11087_Create_Film_Location_Database_with_Google_Maps__AI_Analysis___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11087_Create_Film_Location_Database_with_Google_Maps__AI_Analysis___Google_Sheets.json)|
 |11572|[11572_Aggregate_News_Articles_from_NewsAPI__Mediastack___CurrentsAPI_into_Database.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11572_Aggregate_News_Articles_from_NewsAPI__Mediastack___CurrentsAPI_into_Database.json)|
 |11684|[11684_Automate_Payment_Gateway___Database_Transaction_Reconciliation_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11684_Automate_Payment_Gateway___Database_Transaction_Reconciliation_with_Google_Sheets.json)|
+|11971|[11971_Synchronize_MySQL_database_schemas_to_Pinecone_with_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11971_Synchronize_MySQL_database_schemas_to_Pinecone_with_OpenAI_embeddings.json)|
+|13091|[13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json)|
+|13166|[13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json)|

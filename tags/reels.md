@@ -1,4 +1,4 @@
-# reels : 25
+# reels : 29
 
 |id|file|
 |----|----|
@@ -27,3 +27,7 @@
 |10786|[10786_Create_Comedic_Marketing_Reels_with_Sora2__OpenAI___Auto-Post_to_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10786_Create_Comedic_Marketing_Reels_with_Sora2__OpenAI___Auto-Post_to_Social_Media.json)|
 |11367|[11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json)|
 |11631|[11631_AI-Driven_Instagram_Reels_Creation_and_Publishing_with_GPT__Creatomate_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11631_AI-Driven_Instagram_Reels_Creation_and_Publishing_with_GPT__Creatomate_and_Slack.json)|
+|12045|[12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json)|
+|12773|[12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json)|
+|13110|[13110_Generate_daily_AI_reels_from_Google_Drive_images_with_GPT_5.1__Wavespeed_and_Submagic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13110_Generate_daily_AI_reels_from_Google_Drive_images_with_GPT_5.1__Wavespeed_and_Submagic.json)|
+|13149|[13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json)|

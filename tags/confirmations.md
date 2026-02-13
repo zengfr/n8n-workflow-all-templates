@@ -1,4 +1,4 @@
-# confirmations : 7
+# confirmations : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |8881|[8881_Create_Travel_Itineraries___Send_Email_Confirmations_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8881_Create_Travel_Itineraries___Send_Email_Confirmations_with_Gemini_AI.json)|
 |9262|[9262_Send_Automatic_WhatsApp_Order_Confirmations_from_Shopify_with_Rapiwa_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9262_Send_Automatic_WhatsApp_Order_Confirmations_from_Shopify_with_Rapiwa_API.json)|
 |9448|[9448_Automate_Shopify_Orders_from_Airtable_with_Gmail_Confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9448_Automate_Shopify_Orders_from_Airtable_with_Gmail_Confirmations.json)|
+|13163|[13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json)|

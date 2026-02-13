@@ -1,4 +1,4 @@
-# apis : 20
+# apis : 27
 
 |id|file|
 |----|----|
@@ -22,3 +22,10 @@
 |10911|[10911_Create_Weekly_Space_Newsletter_with_NASA_APIs__GPT-4___Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10911_Create_Weekly_Space_Newsletter_with_NASA_APIs__GPT-4___Google_Workspace.json)|
 |11652|[11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json)|
 |11772|[11772_Generate_AI_Stock_Reports_w__Fundamental__Technical____News_Analysis__Free_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11772_Generate_AI_Stock_Reports_w__Fundamental__Technical____News_Analysis__Free_APIs.json)|
+|12125|[12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json)|
+|12197|[12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json)|
+|12333|[12333_Generate_AI_stock_buy_no-buy_signals_using_GPT_4.1__Google_Sheets_and_EODHD.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12333_Generate_AI_stock_buy_no-buy_signals_using_GPT_4.1__Google_Sheets_and_EODHD.json)|
+|12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|
+|12990|[12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json)|
+|13154|[13154_Moderate_user_content_and_route_governance_decisions_with_Claude_and_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13154_Moderate_user_content_and_route_governance_decisions_with_Claude_and_APIs.json)|
+|13272|[13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json)|

@@ -1,4 +1,4 @@
-# threads : 18
+# threads : 22
 
 |id|file|
 |----|----|
@@ -20,3 +20,7 @@
 |9004|[9004_Find_Hiring_Posts_on_Threads_with_Apify__AI_Filtering__and_Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9004_Find_Hiring_Posts_on_Threads_with_Apify__AI_Filtering__and_Telegram_Alerts.json)|
 |10153|[10153_Download_Threads_Videos___Log_Results_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10153_Download_Threads_Videos___Log_Results_in_Google_Sheets.json)|
 |11121|[11121_Auto_Create___Publish_X-Threads__Twitter__with_GPT_via_Telegram___Approval_Loop.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11121_Auto_Create___Publish_X-Threads__Twitter__with_GPT_via_Telegram___Approval_Loop.json)|
+|12019|[12019_Create_AI_FAQ_articles_from_Slack_threads_into_Notion_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12019_Create_AI_FAQ_articles_from_Slack_threads_into_Notion_and_Zendesk.json)|
+|12153|[12153_Schedule_BlueSky_posts_and_threads_using_Google_Sheets_as_content_calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12153_Schedule_BlueSky_posts_and_threads_using_Google_Sheets_as_content_calendar.json)|
+|12634|[12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json)|
+|13013|[13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json)|

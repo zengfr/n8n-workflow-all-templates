@@ -1,4 +1,4 @@
-# memory : 40
+# memory : 42
 
 |id|file|
 |----|----|
@@ -42,3 +42,5 @@
 |9981|[9981_Voice___Text_Telegram_Assistant_with_GPT-4.1-mini_and_Conversation_Memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9981_Voice___Text_Telegram_Assistant_with_GPT-4.1-mini_and_Conversation_Memory.json)|
 |10828|[10828_Smart_Chat_Assistant_with_GPT-5__Google_Sheets__and_Pinecone_RAG_Memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10828_Smart_Chat_Assistant_with_GPT-5__Google_Sheets__and_Pinecone_RAG_Memory.json)|
 |10840|[10840_Sales_CRM_Chatbot_with_GPT-4o-mini__Google_Sheets_Lookup___Memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10840_Sales_CRM_Chatbot_with_GPT-4o-mini__Google_Sheets_Lookup___Memory.json)|
+|11993|[11993_Create_an_intelligent_Facebook_Messenger_chatbot_with_GPT-4o-mini___message_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11993_Create_an_intelligent_Facebook_Messenger_chatbot_with_GPT-4o-mini___message_memory.json)|
+|12885|[12885_Transform_chatbots_into_AI_advisors_with_memory_and_real-time_context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12885_Transform_chatbots_into_AI_advisors_with_memory_and_real-time_context.json)|

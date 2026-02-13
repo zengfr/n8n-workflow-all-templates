@@ -1,4 +1,4 @@
-# baserow : 26
+# baserow : 29
 
 |id|file|
 |----|----|
@@ -28,3 +28,6 @@
 |8677|[8677_Automate_Process_Improvement_with_Employee_Feedback_using_AI_and_Baserow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8677_Automate_Process_Improvement_with_Employee_Feedback_using_AI_and_Baserow.json)|
 |11609|[11609_E-commerce_Product_Price_Tracker_with_ScrapeGraphAI__Baserow_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11609_E-commerce_Product_Price_Tracker_with_ScrapeGraphAI__Baserow_and_Slack_Alerts.json)|
 |11803|[11803_Track_E-commerce_Price_Changes_with_ScrapeGraphAI__Baserow___Pushover_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11803_Track_E-commerce_Price_Changes_with_ScrapeGraphAI__Baserow___Pushover_Alerts.json)|
+|12233|[12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json)|
+|12778|[12778_Generate_personalized_cold_email_icebreakers_with_Apify__Baserow_and_OpenRouter_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12778_Generate_personalized_cold_email_icebreakers_with_Apify__Baserow_and_OpenRouter_GPT-4.1.json)|
+|12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|

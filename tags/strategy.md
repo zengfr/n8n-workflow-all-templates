@@ -1,4 +1,4 @@
-# strategy : 16
+# strategy : 22
 
 |id|file|
 |----|----|
@@ -18,3 +18,9 @@
 |11109|[11109_Generate_Complete_SEO_Strategy_Reports_with_SerpAPI_Data_and_GPT-4_Agent_Team.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11109_Generate_Complete_SEO_Strategy_Reports_with_SerpAPI_Data_and_GPT-4_Agent_Team.json)|
 |11698|[11698_Generate_Content_Strategy_Insights_from_Reddit___X_Using_Gemini_AI_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11698_Generate_Content_Strategy_Insights_from_Reddit___X_Using_Gemini_AI_Analysis.json)|
 |11708|[11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json)|
+|12161|[12161_Analyze_competitor_strategy_from_YouTube___RSS_with_Gemini_AI_to_Notion___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12161_Analyze_competitor_strategy_from_YouTube___RSS_with_Gemini_AI_to_Notion___Telegram.json)|
+|12197|[12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json)|
+|12246|[12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json)|
+|12328|[12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json)|
+|12441|[12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json)|
+|12885|[12885_Transform_chatbots_into_AI_advisors_with_memory_and_real-time_context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12885_Transform_chatbots_into_AI_advisors_with_memory_and_real-time_context.json)|

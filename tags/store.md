@@ -1,4 +1,4 @@
-# store : 86
+# store : 94
 
 |id|file|
 |----|----|
@@ -88,3 +88,11 @@
 |11546|[11546_Telegram_Bot__Extract___Store_TikTok_and_LinkedIn_Data_to_Google_Sheets_with_Dumpling_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11546_Telegram_Bot__Extract___Store_TikTok_and_LinkedIn_Data_to_Google_Sheets_with_Dumpling_AI.json)|
 |11653|[11653_Process_OCR_Documents_from_Google_Drive_into_Searchable_Knowledge_Base_with_OpenAI___Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11653_Process_OCR_Documents_from_Google_Drive_into_Searchable_Knowledge_Base_with_OpenAI___Pinecone.json)|
 |11820|[11820_Answer_Product_Queries_via_WhatsApp_using_OpenAI_GPT-4o_and_PDF_Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11820_Answer_Product_Queries_via_WhatsApp_using_OpenAI_GPT-4o_and_PDF_Knowledge_Base.json)|
+|12296|[12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json)|
+|12366|[12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json)|
+|12516|[12516_Manage_your_WooCommerce_store_with_OpenAI_and_MCP-powered_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12516_Manage_your_WooCommerce_store_with_OpenAI_and_MCP-powered_AI_assistant.json)|
+|12690|[12690_Build_a_Shopify_store_chat_agent_with_Shopify_MCP_and_C1_by_Thesys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12690_Build_a_Shopify_store_chat_agent_with_Shopify_MCP_and_C1_by_Thesys.json)|
+|12826|[12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json)|
+|12927|[12927_Generate_and_post_Apple_App_Store_review_replies_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12927_Generate_and_post_Apple_App_Store_review_replies_with_Anthropic_Claude.json)|
+|13091|[13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json)|
+|13353|[13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json)|

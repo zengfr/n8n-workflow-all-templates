@@ -1,4 +1,4 @@
-# messenger : 8
+# messenger : 14
 
 |id|file|
 |----|----|
@@ -10,3 +10,9 @@
 |10321|[10321_Facebook_Messenger_Chatbot_with_GPT-4.1___Human_Escalation_Support.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10321_Facebook_Messenger_Chatbot_with_GPT-4.1___Human_Escalation_Support.json)|
 |10557|[10557_Classify_and_Respond_to_Facebook_Messenger_Inquiries_with_GPT-4__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10557_Classify_and_Respond_to_Facebook_Messenger_Inquiries_with_GPT-4__Slack_and_Sheets.json)|
 |10661|[10661_Create_a_Secure_Personal_AI_Assistant_with_OpenAI_and_Signal_Messenger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10661_Create_a_Secure_Personal_AI_Assistant_with_OpenAI_and_Signal_Messenger.json)|
+|11920|[11920_Smart_human_takeover___auto_pause_AI-powered_Facebook_Messenger_chatbot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11920_Smart_human_takeover___auto_pause_AI-powered_Facebook_Messenger_chatbot.json)|
+|11921|[11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json)|
+|11993|[11993_Create_an_intelligent_Facebook_Messenger_chatbot_with_GPT-4o-mini___message_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11993_Create_an_intelligent_Facebook_Messenger_chatbot_with_GPT-4o-mini___message_memory.json)|
+|12022|[12022_AI_chatbot_for_Max_Messenger_with_voice_recognition__GigaChat__SaluteSpeech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12022_AI_chatbot_for_Max_Messenger_with_voice_recognition__GigaChat__SaluteSpeech.json)|
+|12848|[12848_Facebook_Messenger_Chatbot_That_Learns_From_Your_Documents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12848_Facebook_Messenger_Chatbot_That_Learns_From_Your_Documents.json)|
+|13080|[13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json)|

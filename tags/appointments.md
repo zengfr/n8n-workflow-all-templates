@@ -1,4 +1,4 @@
-# appointments : 8
+# appointments : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |8043|[8043_Automate_Dental_Appointments_with_Google_Calendar__AI_Assistant___Email_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8043_Automate_Dental_Appointments_with_Google_Calendar__AI_Assistant___Email_Notifications.json)|
 |9366|[9366_Automate_Medical_Appointments_with_ElevenLabs_Voice_Agent___Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9366_Automate_Medical_Appointments_with_ElevenLabs_Voice_Agent___Google_Calendar.json)|
 |10146|[10146_Recover_No-Show_Appointments_with_Calendly__Telegram___Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10146_Recover_No-Show_Appointments_with_Calendly__Telegram___Email_Alerts.json)|
+|12419|[12419_Schedule_appointments_with_manual_approval_using_Google_Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12419_Schedule_appointments_with_manual_approval_using_Google_Calendar_and_Gmail.json)|
+|12831|[12831_Book__manage__and_check_appointments_using_Vapi_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12831_Book__manage__and_check_appointments_using_Vapi_and_Google_Calendar.json)|
+|12985|[12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json)|

@@ -1,4 +1,4 @@
-# time : 103
+# time : 113
 
 |id|file|
 |----|----|
@@ -105,3 +105,13 @@
 |11634|[11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json)|
 |11711|[11711_AI-Powered_Multi-Channel_Customer_Journey_with_Email__SMS___Retargeting_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11711_AI-Powered_Multi-Channel_Customer_Journey_with_Email__SMS___Retargeting_using_OpenAI.json)|
 |11862|[11862_Intelligent_Real-Time_Financial_Fraud_Detection_and_Risk_Scoring_Engine.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11862_Intelligent_Real-Time_Financial_Fraud_Detection_and_Risk_Scoring_Engine.json)|
+|11901|[11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json)|
+|11945|[11945_Detect_WooCommerce_return_surges_in_real-time_with_Slack_alerts___Airtable_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11945_Detect_WooCommerce_return_surges_in_real-time_with_Slack_alerts___Airtable_logging.json)|
+|11946|[11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json)|
+|12060|[12060_Real-time_uptime_alerts_to_Jira_with_smart_Slack_on-call_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12060_Real-time_uptime_alerts_to_Jira_with_smart_Slack_on-call_routing.json)|
+|12094|[12094_Real-time_lead_response_across_social_channels_with_Llama_AI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12094_Real-time_lead_response_across_social_channels_with_Llama_AI___Google_Sheets.json)|
+|12368|[12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json)|
+|12494|[12494_Automate_actuarial_premium_adjustments_and_claims_reporting_with_GPT-4.1__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12494_Automate_actuarial_premium_adjustments_and_claims_reporting_with_GPT-4.1__Gmail_and_Slack.json)|
+|12792|[12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json)|
+|12885|[12885_Transform_chatbots_into_AI_advisors_with_memory_and_real-time_context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12885_Transform_chatbots_into_AI_advisors_with_memory_and_real-time_context.json)|
+|12904|[12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json)|

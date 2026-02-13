@@ -1,4 +1,4 @@
-# errors : 12
+# errors : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |5939|[5939_Monitor_n8n_Workflow_Errors_with_Telegram_Alerts__Multi-language_Setup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/59/5939_Monitor_n8n_Workflow_Errors_with_Telegram_Alerts__Multi-language_Setup.json)|
 |7675|[7675_Analyze_Workflow_Errors_with_OpenAI__FreshDesk_Tickets___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7675_Analyze_Workflow_Errors_with_OpenAI__FreshDesk_Tickets___Slack_Alerts.json)|
 |10335|[10335_Automatically_Detect___Classify_GitHub_API_Errors_with_GPT-4o_to_Airtable__Notion___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10335_Automatically_Detect___Classify_GitHub_API_Errors_with_GPT-4o_to_Airtable__Notion___Slack.json)|
+|13198|[13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json)|

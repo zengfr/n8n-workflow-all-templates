@@ -1,4 +1,4 @@
-# day : 18
+# day : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |9771|[9771_Predict_Next_5-Day_Stock_Trends_with_Twelve_Data_API___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9771_Predict_Next_5-Day_Stock_Trends_with_Twelve_Data_API___Google_Sheets.json)|
 |10825|[10825_Automate_Task_Deadline_Reminders_with_Google_Sheets_and_Gmail__Today_3-Day_7-Day.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10825_Automate_Task_Deadline_Reminders_with_Google_Sheets_and_Gmail__Today_3-Day_7-Day.json)|
 |11300|[11300_Turn_NASA_Astronomy_Pictures_into_Matching_Spotify_Tracks_using_GPT-4o_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11300_Turn_NASA_Astronomy_Pictures_into_Matching_Spotify_Tracks_using_GPT-4o_Vision.json)|
+|11944|[11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json)|

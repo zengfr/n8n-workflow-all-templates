@@ -1,4 +1,4 @@
-# llm : 55
+# llm : 58
 
 |id|file|
 |----|----|
@@ -57,3 +57,6 @@
 |10734|[10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json)|
 |10887|[10887_Reduce_LLM_Costs_with_Semantic_Caching_using_Redis_Vector_Store_and_HuggingFace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10887_Reduce_LLM_Costs_with_Semantic_Caching_using_Redis_Vector_Store_and_HuggingFace.json)|
 |11141|[11141_Complete_AI_Safety_Suite__Test_9_Guardrail_Layers_with_Groq_LLM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11141_Complete_AI_Safety_Suite__Test_9_Guardrail_Layers_with_Groq_LLM.json)|
+|12100|[12100_Compare_LLM_token_costs_across_350__models_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12100_Compare_LLM_token_costs_across_350__models_with_OpenRouter.json)|
+|12316|[12316_Synthesize_and_compare_multiple_LLM_responses_with_OpenRouter_council.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12316_Synthesize_and_compare_multiple_LLM_responses_with_OpenRouter_council.json)|
+|12471|[12471_Generate_consensus-based_answers_using_Claude__GPT__Grok_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12471_Generate_consensus-based_answers_using_Claude__GPT__Grok_and_Gemini.json)|

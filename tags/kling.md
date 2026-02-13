@@ -1,4 +1,4 @@
-# kling : 13
+# kling : 18
 
 |id|file|
 |----|----|
@@ -15,3 +15,8 @@
 |8318|[8318_Transform_Product_Photos_into_Social_Media_Videos_with_Gemini_AI__Kling___LATE.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8318_Transform_Product_Photos_into_Social_Media_Videos_with_Gemini_AI__Kling___LATE.json)|
 |9099|[9099_Create___Upload_AI_Videos_to_YouTube_with_Kling_2.5___Auto-SEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9099_Create___Upload_AI_Videos_to_YouTube_with_Kling_2.5___Auto-SEO.json)|
 |11710|[11710_Extend_and_Merge_UGC_Viral_Videos_Using_Kling_2.1__Then_Publish_on_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11710_Extend_and_Merge_UGC_Viral_Videos_Using_Kling_2.1__Then_Publish_on_Social_Media.json)|
+|12119|[12119_Create_celebrity_selfie_images_and_transition_videos_with_GPT-4__SeedDream__and_Kling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12119_Create_celebrity_selfie_images_and_transition_videos_with_GPT-4__SeedDream__and_Kling.json)|
+|12202|[12202_Generate_text-to-video_and_image-to-video_clips_with_Kling_2.6_via_KIE.AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12202_Generate_text-to-video_and_image-to-video_clips_with_Kling_2.6_via_KIE.AI.json)|
+|12769|[12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json)|
+|12854|[12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json)|
+|13015|[13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json)|

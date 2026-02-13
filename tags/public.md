@@ -1,4 +1,4 @@
-# public : 21
+# public : 26
 
 |id|file|
 |----|----|
@@ -23,3 +23,8 @@
 |10200|[10200_Perform_Multi-type_DNS_Lookups_with_Google_s_Free_Public_DNS_Service.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10200_Perform_Multi-type_DNS_Lookups_with_Google_s_Free_Public_DNS_Service.json)|
 |11089|[11089_Send_Server-Side_Conversions_to_the_Meta_Ads_API__CAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11089_Send_Server-Side_Conversions_to_the_Meta_Ads_API__CAPI.json)|
 |11634|[11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json)|
+|12010|[12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json)|
+|12125|[12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json)|
+|12239|[12239_Audit_Confluence_space_permissions_and_public_links_for_compliance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12239_Audit_Confluence_space_permissions_and_public_links_for_compliance.json)|
+|12506|[12506_Research_organizations_with_GPT_5__Gemini__CourtListener__LegiScan_and_OSINT_web_sources.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12506_Research_organizations_with_GPT_5__Gemini__CourtListener__LegiScan_and_OSINT_web_sources.json)|
+|12882|[12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json)|

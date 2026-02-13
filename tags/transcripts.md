@@ -1,4 +1,4 @@
-# transcripts : 37
+# transcripts : 41
 
 |id|file|
 |----|----|
@@ -39,3 +39,7 @@
 |11795|[11795_Extract_Clean_Transcripts_from_Your_YouTube_Channel_Videos_using_Data_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11795_Extract_Clean_Transcripts_from_Your_YouTube_Channel_Videos_using_Data_API.json)|
 |11867|[11867_Extract_transcripts_from_external_YouTube_Videos_using_YouTube_Transcript_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11867_Extract_transcripts_from_external_YouTube_Videos_using_YouTube_Transcript_API.json)|
 |11883|[11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json)|
+|12009|[12009_Transform_meeting_transcripts_to_content_with_Fathom__GPT-4___DALL-E.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12009_Transform_meeting_transcripts_to_content_with_Fathom__GPT-4___DALL-E.json)|
+|12285|[12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json)|
+|12737|[12737_Extract_sales_insights_from_Scoot_call_transcripts_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12737_Extract_sales_insights_from_Scoot_call_transcripts_using_Gemini.json)|
+|12935|[12935_Send_YouTube_transcripts_to_Slack_using_AssemblyAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12935_Send_YouTube_transcripts_to_Slack_using_AssemblyAI.json)|

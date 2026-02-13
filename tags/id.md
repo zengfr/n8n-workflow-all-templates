@@ -1,4 +1,4 @@
-# id : 8
+# id : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |9193|[9193_AI-Powered_Gmail_Assistant__send_replies_by_analyzing_Thread_ID_with_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9193_AI-Powered_Gmail_Assistant__send_replies_by_analyzing_Thread_ID_with_Sonnet_4.5.json)|
 |9245|[9245_Batch_ID_Photo_Converter___Enhancer_With_Google_Drive___Nano_Banana_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9245_Batch_ID_Photo_Converter___Enhancer_With_Google_Drive___Nano_Banana_API.json)|
 |10768|[10768_Generate_Verified_Gym_Trial_Passes_with_QR_Code__Email___PDF_Export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10768_Generate_Verified_Gym_Trial_Passes_with_QR_Code__Email___PDF_Export.json)|
+|12399|[12399_Email_reports_on_expiring_Microsoft_Entra_ID_app_secrets_and_certificates_with_Microsoft_Graph.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12399_Email_reports_on_expiring_Microsoft_Entra_ID_app_secrets_and_certificates_with_Microsoft_Graph.json)|

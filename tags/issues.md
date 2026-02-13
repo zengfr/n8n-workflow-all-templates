@@ -1,4 +1,4 @@
-# issues : 29
+# issues : 31
 
 |id|file|
 |----|----|
@@ -31,3 +31,5 @@
 |10329|[10329_Validate_GitHub_Configurations_with_GPT-4o-mini_and_Log_Issues_to_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10329_Validate_GitHub_Configurations_with_GPT-4o-mini_and_Log_Issues_to_Sheets_and_Slack.json)|
 |10837|[10837_Chat_with_GitHub_Issues_using_OpenAI_and_Redis_Vector_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10837_Chat_with_GitHub_Issues_using_OpenAI_and_Redis_Vector_Search.json)|
 |11549|[11549_Curate_Contributor-Friendly_Issues_with_AI_and_Send_GitHub_Newsletter_via_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11549_Curate_Contributor-Friendly_Issues_with_AI_and_Send_GitHub_Newsletter_via_Email.json)|
+|13118|[13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json)|
+|13178|[13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json)|

@@ -1,4 +1,4 @@
-# them : 24
+# them : 29
 
 |id|file|
 |----|----|
@@ -26,3 +26,8 @@
 |3717|[3717_Search_LinkedIn_companies_and_add_them_to_Airtable_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/37/3717_Search_LinkedIn_companies_and_add_them_to_Airtable_CRM.json)|
 |3761|[3761_Email_Assistant__Convert_Natural_Language_to_SQL_Queries_with_Phi4-mini_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/37/3761_Email_Assistant__Convert_Natural_Language_to_SQL_Queries_with_Phi4-mini_and_PostgreSQL.json)|
 |3904|[3904_Search_LinkedIn_companies__Score_with_AI_and_add_them_to_Google_Sheet_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/39/3904_Search_LinkedIn_companies__Score_with_AI_and_add_them_to_Google_Sheet_CRM.json)|
+|11967|[11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json)|
+|12632|[12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json)|
+|12826|[12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json)|
+|12854|[12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json)|
+|13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|

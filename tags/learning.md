@@ -1,4 +1,4 @@
-# learning : 11
+# learning : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |9595|[9595_Create_a_Factual_Learning_Assistant_with_RAG__Gemini__Telegram___MongoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9595_Create_a_Factual_Learning_Assistant_with_RAG__Gemini__Telegram___MongoDB.json)|
 |10007|[10007_Curate_Learning_Content_from_Reddit___RSS_with_GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10007_Curate_Learning_Content_from_Reddit___RSS_with_GPT-4.1-mini_and_Google_Sheets.json)|
 |11864|[11864_GPT-4.1_mini-Powered_Learning_Management_Automation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11864_GPT-4.1_mini-Powered_Learning_Management_Automation.json)|
+|12372|[12372_Create_active_learning_notes_from_YouTube_videos_with_Gemini_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12372_Create_active_learning_notes_from_YouTube_videos_with_Gemini_and_Notion.json)|

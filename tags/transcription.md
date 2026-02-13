@@ -1,4 +1,4 @@
-# transcription : 25
+# transcription : 28
 
 |id|file|
 |----|----|
@@ -27,3 +27,6 @@
 |10037|[10037_Audio_Transcription_with_Telegram_and_Groq_Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10037_Audio_Transcription_with_Telegram_and_Groq_Whisper.json)|
 |10820|[10820_Automate_Meeting_Transcription___Minutes_Distribution_with_OpenAI_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10820_Automate_Meeting_Transcription___Minutes_Distribution_with_OpenAI_and_Google_Drive.json)|
 |11888|[11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json)|
+|12003|[12003_Build_a_voice___text_Telegram_Bot_with_GPT-4.1-Mini_and_Gemini_transcription.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12003_Build_a_voice___text_Telegram_Bot_with_GPT-4.1-Mini_and_Gemini_transcription.json)|
+|12934|[12934_Summarize_YouTube_videos_in_Slack_using_AssemblyAI_transcription_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12934_Summarize_YouTube_videos_in_Slack_using_AssemblyAI_transcription_and_OpenAI.json)|
+|13073|[13073_Create_an_auto-journal_from_WhatsApp_with_AI_transcription.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13073_Create_an_auto-journal_from_WhatsApp_with_AI_transcription.json)|

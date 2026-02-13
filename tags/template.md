@@ -1,4 +1,4 @@
-# template : 168
+# template : 175
 
 |id|file|
 |----|----|
@@ -170,3 +170,10 @@
 |11663|[11663_Template-Based_Google_Drive_Folder_Generation_with_Forms_and_Apps_Script.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11663_Template-Based_Google_Drive_Folder_Generation_with_Forms_and_Apps_Script.json)|
 |11665|[11665_Automate_SEO_Reporting_with_Google_Search_Console__GA4__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11665_Automate_SEO_Reporting_with_Google_Search_Console__GA4__and_Google_Sheets.json)|
 |11758|[11758_Automated_Post-Purchase_Emails_for_Gumroad_with_Notion_CRM_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11758_Automated_Post-Purchase_Emails_for_Gumroad_with_Notion_CRM_and_Gemini_AI.json)|
+|11971|[11971_Synchronize_MySQL_database_schemas_to_Pinecone_with_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11971_Synchronize_MySQL_database_schemas_to_Pinecone_with_OpenAI_embeddings.json)|
+|12075|[12075_Compare_product_prices_on_Amazon_and_Jumia_with_Decodo__OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12075_Compare_product_prices_on_Amazon_and_Jumia_with_Decodo__OpenAI_and_Telegram.json)|
+|12679|[12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json)|
+|12696|[12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json)|
+|12772|[12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json)|
+|12831|[12831_Book__manage__and_check_appointments_using_Vapi_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12831_Book__manage__and_check_appointments_using_Vapi_and_Google_Calendar.json)|
+|12880|[12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json)|

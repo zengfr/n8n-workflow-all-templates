@@ -1,4 +1,4 @@
-# postgresql : 38
+# postgresql : 48
 
 |id|file|
 |----|----|
@@ -40,3 +40,13 @@
 |9885|[9885_Automate_Instagram_Influencer_Lead_Collection_with_Apify__GPT_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9885_Automate_Instagram_Influencer_Lead_Collection_with_Apify__GPT_and_PostgreSQL.json)|
 |10040|[10040_Create_a_Complete_User_Authentication_System_with_PostgreSQL___Webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10040_Create_a_Complete_User_Authentication_System_with_PostgreSQL___Webhooks.json)|
 |11669|[11669_Breaking_News_Aggregator_with_SendGrid_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11669_Breaking_News_Aggregator_with_SendGrid_and_PostgreSQL.json)|
+|11904|[11904_Automate_cross-border_tax_compliance_with_Google_Sheets__PostgreSQL_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11904_Automate_cross-border_tax_compliance_with_Google_Sheets__PostgreSQL_and_Slack_alerts.json)|
+|12073|[12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json)|
+|12254|[12254_Monitor_customer_risk_and_AI_feedback_using_PostgreSQL__Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12254_Monitor_customer_risk_and_AI_feedback_using_PostgreSQL__Gmail_and_Discord.json)|
+|12524|[12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json)|
+|12673|[12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json)|
+|12695|[12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json)|
+|12891|[12891_Route_AI-powered_customer_support_via_email_and_Slack_with_PostgreSQL_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12891_Route_AI-powered_customer_support_via_email_and_Slack_with_PostgreSQL_and_Google_Sheets.json)|
+|13032|[13032_Decrypt_legacy_PDF_archives_with_HTML_to_PDF__PostgreSQL_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13032_Decrypt_legacy_PDF_archives_with_HTML_to_PDF__PostgreSQL_and_Google_Drive.json)|
+|13034|[13034_Screen_and_score_resumes_from_Gmail_with_PDF_parsing__HubSpot__Slack_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13034_Screen_and_score_resumes_from_Gmail_with_PDF_parsing__HubSpot__Slack_and_PostgreSQL.json)|
+|13314|[13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json)|

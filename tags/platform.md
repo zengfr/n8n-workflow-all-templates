@@ -1,4 +1,4 @@
-# platform : 59
+# platform : 67
 
 |id|file|
 |----|----|
@@ -61,3 +61,11 @@
 |11713|[11713_Automate_Vendor_Analysis___Contract_Management_with_GPT-4o__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11713_Automate_Vendor_Analysis___Contract_Management_with_GPT-4o__Gmail__and_Google_Sheets.json)|
 |11780|[11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json)|
 |11797|[11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json)|
+|11996|[11996_Social_media_auto-posting_to_Instagram__Facebook___LinkedIn_from_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11996_Social_media_auto-posting_to_Instagram__Facebook___LinkedIn_from_Google_Sheets.json)|
+|12029|[12029_Automated_tax_filing_with_multi-platform_revenue_analysis_using_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12029_Automated_tax_filing_with_multi-platform_revenue_analysis_using_GPT-4.json)|
+|12033|[12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json)|
+|12057|[12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json)|
+|12727|[12727_Generate_VEED_AI_talking_head_videos_from_sheet_rows_with_OpenAI_or_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12727_Generate_VEED_AI_talking_head_videos_from_sheet_rows_with_OpenAI_or_ElevenLabs.json)|
+|12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|
+|13227|[13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json)|
+|13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|

@@ -1,4 +1,4 @@
-# channels : 12
+# channels : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |9818|[9818_Generate_Text___Image_Responses_in_Telegram_Channels_with_GPT-4_and_TGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9818_Generate_Text___Image_Responses_in_Telegram_Channels_with_GPT-4_and_TGPT.json)|
 |10643|[10643_Monitor_Multiple_YouTube_Channels_with_Real-Time_RocketChat_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10643_Monitor_Multiple_YouTube_Channels_with_Real-Time_RocketChat_Alerts.json)|
 |11212|[11212_Monitor_YouTube_Channels_and_Send_Daily_Updates_to_Discord_via_RSS__No_API_Key.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11212_Monitor_YouTube_Channels_and_Send_Daily_Updates_to_Discord_via_RSS__No_API_Key.json)|
+|12094|[12094_Real-time_lead_response_across_social_channels_with_Llama_AI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12094_Real-time_lead_response_across_social_channels_with_Llama_AI___Google_Sheets.json)|
+|12479|[12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json)|
+|13013|[13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json)|
+|13164|[13164_Send_notifications_across_email__Slack__and_webhook_channels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13164_Send_notifications_across_email__Slack__and_webhook_channels.json)|

@@ -1,4 +1,4 @@
-# canvas : 6
+# canvas : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |3627|[3627_Generate_Graphic_Wallpaper_with_Midjourney__GPT-4o-mini_and_Canvas_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/36/3627_Generate_Graphic_Wallpaper_with_Midjourney__GPT-4o-mini_and_Canvas_APIs.json)|
 |3663|[3663_Business_Model_Canvas_AI-Powered_Generator__LLM_Flexible.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/36/3663_Business_Model_Canvas_AI-Powered_Generator__LLM_Flexible.json)|
 |11746|[11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json)|
+|12833|[12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json)|

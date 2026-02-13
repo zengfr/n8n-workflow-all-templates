@@ -1,4 +1,4 @@
-# client : 55
+# client : 63
 
 |id|file|
 |----|----|
@@ -57,3 +57,11 @@
 |11586|[11586_Automate_Client_Lifecycle__Lead_Intake_to_Onboarding_with_Airtable__Notion___Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11586_Automate_Client_Lifecycle__Lead_Intake_to_Onboarding_with_Airtable__Notion___Google_Calendar.json)|
 |11638|[11638_Bulk_Auto-Publish_Videos_to_Social_Networks_with_AI_Copy_and_Client_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11638_Bulk_Auto-Publish_Videos_to_Social_Networks_with_AI_Copy_and_Client_Approval.json)|
 |11666|[11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json)|
+|12211|[12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json)|
+|12285|[12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json)|
+|12478|[12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json)|
+|12479|[12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json)|
+|12567|[12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json)|
+|12739|[12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json)|
+|12761|[12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json)|
+|13186|[13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json)|

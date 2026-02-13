@@ -1,4 +1,4 @@
-# sensor : 5
+# sensor : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |7239|[7239_Parse_Invoices___Documents_with_Gemini_AI__OCR__and_Google_Sheets_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/72/7239_Parse_Invoices___Documents_with_Gemini_AI__OCR__and_Google_Sheets_Integration.json)|
 |7248|[7248_Clean_and_Log_IoT_Sensor_Data_to_InfluxDB__Webhook___Function___HTTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/72/7248_Clean_and_Log_IoT_Sensor_Data_to_InfluxDB__Webhook___Function___HTTP.json)|
 |10759|[10759_Real-time_IoT_Anomaly_Detection_with_MQTT__GPT-4o-mini_AI__and_Multi-channel_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10759_Real-time_IoT_Anomaly_Detection_with_MQTT__GPT-4o-mini_AI__and_Multi-channel_Alerts.json)|
+|11909|[11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json)|

@@ -1,4 +1,4 @@
-# summary : 89
+# summary : 92
 
 |id|file|
 |----|----|
@@ -91,3 +91,6 @@
 |11389|[11389_Web_Research_Summarizer_with_Decodo_Scraper__Google_Gemini_AI___Sheets_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11389_Web_Research_Summarizer_with_Decodo_Scraper__Google_Gemini_AI___Sheets_Integration.json)|
 |11736|[11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json)|
 |11883|[11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json)|
+|12066|[12066_Analyze_WooCommerce_product_reviews_with_GPT-4__Airtable___Slack_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12066_Analyze_WooCommerce_product_reviews_with_GPT-4__Airtable___Slack_summaries.json)|
+|12781|[12781_Send_daily_CRM_summary_reports_to_Mattermost_from_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12781_Send_daily_CRM_summary_reports_to_Mattermost_from_HubSpot.json)|
+|13148|[13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json)|

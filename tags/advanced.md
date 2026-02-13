@@ -1,4 +1,4 @@
-# advanced : 30
+# advanced : 31
 
 |id|file|
 |----|----|
@@ -32,3 +32,4 @@
 |10349|[10349_Advanced_Multi-Source_AI_Research_with_Bright_Data__OpenAI__Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10349_Advanced_Multi-Source_AI_Research_with_Bright_Data__OpenAI__Redis.json)|
 |11276|[11276_Generate___Publish_AI_Videos_with_Sora_2__Veo_3.1__Gemini___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11276_Generate___Publish_AI_Videos_with_Sora_2__Veo_3.1__Gemini___Blotato.json)|
 |11783|[11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json)|
+|11989|[11989_Publish_Google_Docs_to_WordPress_with_advance_RankMath_SEO___Gemini_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11989_Publish_Google_Docs_to_WordPress_with_advance_RankMath_SEO___Gemini_analysis.json)|

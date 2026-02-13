@@ -1,4 +1,4 @@
-# engine : 37
+# engine : 44
 
 |id|file|
 |----|----|
@@ -39,3 +39,10 @@
 |11407|[11407_Book_Club_Manager___Recommendation_Engine_with_Mistral_AI_and_Gemini_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11407_Book_Club_Manager___Recommendation_Engine_with_Mistral_AI_and_Gemini_Vision.json)|
 |11855|[11855_MCP_Employee_Performance___Productivity_Insights_Engine_with_Automated_Manager.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11855_MCP_Employee_Performance___Productivity_Insights_Engine_with_Automated_Manager.json)|
 |11862|[11862_Intelligent_Real-Time_Financial_Fraud_Detection_and_Risk_Scoring_Engine.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11862_Intelligent_Real-Time_Financial_Fraud_Detection_and_Risk_Scoring_Engine.json)|
+|11903|[11903_Multi-source_tax___cash_flow_forecasting_with_GPT-4__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11903_Multi-source_tax___cash_flow_forecasting_with_GPT-4__Gmail_and_Google_Sheets.json)|
+|12211|[12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json)|
+|12279|[12279_Score_telematics_driving_risk_with_Claude_and_adjust_insurance_premiums_via_HTTP__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12279_Score_telematics_driving_risk_with_Claude_and_adjust_insurance_premiums_via_HTTP__Gmail__and_Slack.json)|
+|12328|[12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json)|
+|12540|[12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json)|
+|12684|[12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json)|
+|12702|[12702_Route_and_reassign_leads_with_SLA_using_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12702_Route_and_reassign_leads_with_SLA_using_Google_Sheets_and_Slack.json)|

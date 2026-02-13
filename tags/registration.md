@@ -1,4 +1,4 @@
-# registration : 12
+# registration : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |9563|[9563_Event_Registration___AI_Networking_with_GPT-4o__Jotform___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9563_Event_Registration___AI_Networking_with_GPT-4o__Jotform___Google_Sheets.json)|
 |9580|[9580_Real-time_Registration_Form_Tracking_with_Google_Sheets_and_Gmail_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9580_Real-time_Registration_Form_Tracking_with_Google_Sheets_and_Gmail_Notifications.json)|
 |10771|[10771_Patient_Pre-registration_System_with_Email_Verification___QR_Health_Cards_using_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10771_Patient_Pre-registration_System_with_Email_Verification___QR_Health_Cards_using_Google_Drive.json)|
+|11944|[11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json)|
+|12268|[12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json)|

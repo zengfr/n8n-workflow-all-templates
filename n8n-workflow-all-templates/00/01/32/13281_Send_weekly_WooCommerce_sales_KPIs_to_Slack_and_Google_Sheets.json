@@ -1,0 +1,693 @@
+{
+  "id": "bj8saxTbWc9vX6n1",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Send weekly WooCommerce sales KPIs to Slack and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 13281,
+    "update_time": "2026-02-13"
+  },
+  "name": "WooCommerce Weekly Sales KPI Reporting to Slack & Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "1df3f4e4-65ae-429d-9715-2be475ab7b89",
+      "name": "Configure WooCommerce Store",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1136,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3430ea5f-30bf-46ee-9c2f-3ce12af176ca",
+              "name": "wc_domain",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "db720a54-3a7a-4b0a-bf0f-6df9a78f785b",
+      "name": "Weekly Sales KPI Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1712,
+        112
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b9ff054d-eb89-4692-882d-33435e919e9d",
+      "name": "Calculate Last Week Date Range",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1424,
+        112
+      ],
+      "parameters": {
+        "jsCode": "const runDate = new Date($json.timestamp);\n\n// Go back to last Monday\nconst day = runDate.getDay(); // Sun=0, Mon=1\nconst diffToLastMonday = day === 0 ? 6 : day - 1;\n\nconst lastMonday = new Date(runDate);\nlastMonday.setDate(runDate.getDate() - diffToLastMonday - 7);\nlastMonday.setHours(0, 0, 0, 0);\n\n// Last Sunday\nconst lastSunday = new Date(lastMonday);\nlastSunday.setDate(lastMonday.getDate() + 6);\nlastSunday.setHours(23, 59, 59, 999);\n\nreturn [{\n  json: {\n    lastWeekStart: lastMonday.toISOString(),\n    lastWeekEnd: lastSunday.toISOString()\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ae5186e8-6b3e-417b-b6f8-957639c2367b",
+      "name": "Get Weekly Orders (Sales Data)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -688,
+        -80
+      ],
+      "parameters": {
+        "url": "=https://{{$json.wc_domain}}/wp-json/wc/v3/orders",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "after",
+              "value": "={{ $('Calculate Last Week Date Range').item.json.lastWeekStart }}"
+            },
+            {
+              "name": "before",
+              "value": "={{ $('Calculate Last Week Date Range').item.json.lastWeekEnd }}"
+            },
+            {
+              "name": "status",
+              "value": "completed,processing"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "8655c59e-5b04-45f2-8253-75c3a2abf3c2",
+      "name": "Calculate Order & Revenue KPIs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -480,
+        -80
+      ],
+      "parameters": {
+        "jsCode": "let totalRevenue = 0;\nlet validOrders = 0;\n\nitems.forEach(item => {\n  const o = item.json;\n\n  if (!['completed', 'processing'].includes(o.status)) return;\n  if (!o.line_items || o.line_items.length === 0) return;\n  if (parseFloat(o.total) <= 0) return;\n\n  validOrders++;\n  totalRevenue += parseFloat(o.total);\n});\n\nreturn [{\n  json: {\n    total_orders: validOrders,\n    total_revenue: totalRevenue,\n    average_order_value: validOrders > 0 ? totalRevenue / validOrders : 0\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f602936b-dc44-47a8-9458-42343ac24212",
+      "name": "Calculate Refund KPIs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -464,
+        176
+      ],
+      "parameters": {
+        "jsCode": "let refundCount = 0;\nlet refundAmount = 0;\n\nitems.forEach(item => {\n  refundCount++;\n\n  const amount = parseFloat(item.json.amount);\n  if (amount > 0) {\n    refundAmount += amount;\n  }\n\n  // If line_items exist, sum negatives\n  if (item.json.line_items?.length) {\n    item.json.line_items.forEach(li => {\n      refundAmount += Math.abs(parseFloat(li.total));\n    });\n  }\n});\n\nreturn [{\n  json: {\n    refund_count: refundCount,\n    refund_amount: refundAmount\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d1dc6a51-0b14-4c3d-b683-69077ffd03f1",
+      "name": "Calculate Top  Products by Revenue",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -464,
+        400
+      ],
+      "parameters": {
+        "jsCode": "const productMap = {};\n\n// Loop through all orders\nitems.forEach(order => {\n  const o = order.json;\n\n  // Skip invalid orders\n  if (!o.line_items || o.line_items.length === 0) return;\n  if (!['completed', 'processing'].includes(o.status)) return;\n\n  o.line_items.forEach(item => {\n    const productId = item.product_id;\n\n    if (!productMap[productId]) {\n      productMap[productId] = {\n        product_name: item.name,\n        total_quantity: 0,\n        total_revenue: 0\n      };\n    }\n\n    productMap[productId].total_quantity += item.quantity;\n    productMap[productId].total_revenue += parseFloat(item.total);\n  });\n});\n\n// Sort by revenue (more useful for leadership)\nconst topProducts = Object.values(productMap)\n  .sort((a, b) => b.total_revenue - a.total_revenue)\n  .slice(0, 5);\n\n// Format into report-ready text\nconst topProductsText = topProducts\n  .map((p, i) => `${i + 1}. ${p.product_name} (₹${p.total_revenue})`)\n  .join(', ');\n\n// ✅ Single KPI output\nreturn [{\n  json: {\n    top_products: topProductsText\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "71841e06-9b6e-4403-a625-0e14717d4165",
+      "name": "Merge Weekly KPI Results",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        112,
+        64
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition",
+        "numberInputs": 4
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "59b51c31-ae96-4f6a-8570-1d05cd73903f",
+      "name": "Send Weekly KPI Report to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1024,
+        96
+      ],
+      "webhookId": "e4fe8b9c-3d87-48de-9281-9a3ad9da4b10",
+      "parameters": {
+        "text": "=Weekly Store Performance Report\nPeriod :  {{ $json[\"lastWeekStart \"] }} to {{ $json.lastWeekEnd }}\nTotal Orders : {{ $json.total_orders }}\nTotal Revenue : {{ $json.total_revenue }}\nAverage Order Value: {{ $json.average_order_value }}\nRefund Count : {{ $json.refund_count }}\nRefund Amount : {{ $json.refund_amount }}\nTop Products Sold :\n{{ $json.top_products }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C09S57E2JQ2",
+          "cachedResultName": "n8n"
+        },
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "c4806fca-61be-4a36-ae8f-dd330d3f8b79",
+      "name": "Prepare Final KPI Report Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        304,
+        96
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7de915c4-e6ef-4cc9-841c-cff5edd501a9",
+              "name": "total_orders",
+              "type": "number",
+              "value": "={{ $json.total_orders }}"
+            },
+            {
+              "id": "c516852d-465b-4d5e-a50d-74adf16eb28c",
+              "name": "total_revenue",
+              "type": "number",
+              "value": "={{ $json.total_revenue }}"
+            },
+            {
+              "id": "5b1b7b90-3ebb-434e-b377-9d9f71c049c6",
+              "name": "average_order_value",
+              "type": "number",
+              "value": "={{ $json.average_order_value }}"
+            },
+            {
+              "id": "71462b94-998c-45eb-816e-ecfcbfe47fe4",
+              "name": "refund_count",
+              "type": "number",
+              "value": "={{ $json.refund_count }}"
+            },
+            {
+              "id": "91d2a617-24ea-47c4-bbf1-4984e7af4c3e",
+              "name": "refund_amount",
+              "type": "number",
+              "value": "={{ $json.refund_amount }}"
+            },
+            {
+              "id": "dd9f4121-fa05-4be2-8d44-f1eec48f38ab",
+              "name": "top_products",
+              "type": "string",
+              "value": "={{ $json.top_products }}"
+            },
+            {
+              "id": "c10fc460-3274-4df6-a1bf-712048a65dc3",
+              "name": "lastWeekStart",
+              "type": "string",
+              "value": "={{ $json.lastWeekStart }}"
+            },
+            {
+              "id": "babcb6ef-a9d7-4c49-8b9b-a1f1ad568543",
+              "name": "lastWeekEnd",
+              "type": "string",
+              "value": "={{ $json.lastWeekEnd }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6d9de6e2-347e-45a5-b100-56e879815e80",
+      "name": "Store Weekly KPIs in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        768,
+        96
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "lastWeekEnd": "={{ $json.lastWeekEnd }}",
+            "refund_count": "={{ $json.refund_count }}",
+            "top_products": "={{ $json.top_products }}",
+            "total_orders": "={{ $json.total_orders }}",
+            "refund_amount": "={{ $json.refund_amount }}",
+            "total_revenue": "={{ $json.total_revenue }}",
+            "lastWeekStart ": "={{ $json.lastWeekStart }}",
+            "average_order_value": "={{ $json.average_order_value }}"
+          },
+          "schema": [
+            {
+              "id": "lastWeekStart ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "lastWeekStart ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lastWeekEnd",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "lastWeekEnd",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_orders",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "total_orders",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_revenue",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "total_revenue",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "average_order_value",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "average_order_value",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "refund_count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "refund_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "refund_amount",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "refund_amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "top_products",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "top_products",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1kvsw3FIZP9y446Yvl9Nijrxv-y3DNhwdISZWLnrshWA",
+          "cachedResultUrl": "",
+          "cachedResultName": "Sales weekely Spike Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "3b4ad615-1a1f-42c0-b031-cc36dfbc9f18",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1808,
+        -64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 864,
+        "height": 384,
+        "content": "## Workflow Trigger & Store Setup\nThis section starts the workflow on a weekly schedule and calculates the previous week’s date range. It also defines the WooCommerce store domain in one place, ensuring all API requests use consistent dates and store configuration for accurate weekly reporting."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb6b0abd-0774-44d2-9502-ed9ea62c11cd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -832,
+        -272
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 624,
+        "height": 864,
+        "content": "## Weekly Data Collection & KPI Calculation\nThis section fetches weekly sales orders and refunds from WooCommerce, then calculates key performance metrics such as total orders, revenue, average order value, refunds and top products by revenue. These KPIs form the core insights of the weekly store performance report."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4fb2bfaa-8ad1-40d9-a2f9-7666c2e6bcdb",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 624,
+        "height": 384,
+        "content": "## KPI Consolidation & Report Preparation\nThis section combines all calculated KPIs into a single dataset and formats the data into a clean, report-ready structure. Only essential fields are retained, ensuring the final output is consistent and suitable for storage and stakeholder communication."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7dec1769-3471-4a01-8502-2292e98b71fd",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        -64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 384,
+        "content": "## Reporting & Notifications\nThis section saves the finalized weekly KPI data to Google Sheets for historical tracking and analysis, then sends a summarized performance report to Slack. This ensures stakeholders receive timely updates while maintaining a long-term record of weekly performance."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4e4eb146-171d-45cc-be8a-254d3aa222bd",
+      "name": "Get Weekly Top Products",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -672,
+        400
+      ],
+      "parameters": {
+        "url": "=https://{{$json.wc_domain}}/wp-json/wc/v3/orders",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "after",
+              "value": "={{ $('Calculate Last Week Date Range').item.json.lastWeekStart }}"
+            },
+            {
+              "name": "before",
+              "value": "={{ $('Calculate Last Week Date Range').item.json.lastWeekEnd }}"
+            },
+            {
+              "name": "status",
+              "value": "completed,processing"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "774f08d0-7067-4fa3-9175-022cbea1c4c2",
+      "name": "Get Weekly Refunds",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -672,
+        176
+      ],
+      "parameters": {
+        "url": "=https://{{ $('Configure WooCommerce Store').item.json.wc_domain }}/wp-json/wc/v3/refunds",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "after",
+              "value": "={{ $('Calculate Last Week Date Range').item.json.lastWeekStart }}"
+            },
+            {
+              "name": "before",
+              "value": "={{ $('Calculate Last Week Date Range').item.json.lastWeekEnd }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.3,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "391a258b-3536-44f0-97f1-a6636afecf8f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2544,
+        -1008
+      ],
+      "parameters": {
+        "width": 592,
+        "height": 1040,
+        "content": "## How Workflow works\n### This workflow automatically creates a weekly performance report for your WooCommerce store. It runs on a fixed schedule, calculates the previous week’s date range and fetches completed and processing orders along with refund data.\n\n### It computes key metrics such as total orders, total revenue, average order value, refund counts, refund amounts and top-performing products by revenue. All metrics are merged into a single, report-ready dataset.\n\n### The final report is stored in Google Sheets for historical tracking and sent to a Slack channel, ensuring stakeholders receive timely updates without any manual effort.\n\n## Workflow Setup Steps\n### Import the workflow JSON file into your n8n instance and verify that all nodes are connected correctly.\n\n### Configure WooCommerce credentials using HTTP Basic Authentication with a consumer key and secret that have access to orders and refunds.\n\n### Update the WooCommerce store domain in the configuration node to match your store URL.\n\n### Connect your Google Sheets account and select the spreadsheet and sheet where weekly KPI data will be stored.\n\n### Connect your Slack account and choose the channel where the weekly report should be sent.\n\n### Review the schedule trigger to confirm the correct weekly run time, then activate the workflow.\n\n### Once activated, the workflow will automatically run every week and send updated KPI reports without manual effort."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fc57a6d5-360f-490a-b93b-173110143abc",
+  "connections": {
+    "Get Weekly Refunds": {
+      "main": [
+        [
+          {
+            "node": "Calculate Refund KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Refund KPIs": {
+      "main": [
+        [
+          {
+            "node": "Merge Weekly KPI Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get Weekly Top Products": {
+      "main": [
+        [
+          {
+            "node": "Calculate Top  Products by Revenue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Weekly KPI Results": {
+      "main": [
+        [
+          {
+            "node": "Prepare Final KPI Report Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Sales KPI Trigger": {
+      "main": [
+        [
+          {
+            "node": "Calculate Last Week Date Range",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure WooCommerce Store": {
+      "main": [
+        [
+          {
+            "node": "Get Weekly Orders (Sales Data)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Weekly Refunds",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Weekly Top Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Last Week Date Range": {
+      "main": [
+        [
+          {
+            "node": "Configure WooCommerce Store",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Weekly KPI Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Calculate Order & Revenue KPIs": {
+      "main": [
+        [
+          {
+            "node": "Merge Weekly KPI Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Weekly Orders (Sales Data)": {
+      "main": [
+        [
+          {
+            "node": "Calculate Order & Revenue KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Final KPI Report Fields": {
+      "main": [
+        [
+          {
+            "node": "Store Weekly KPIs in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Top  Products by Revenue": {
+      "main": [
+        [
+          {
+            "node": "Merge Weekly KPI Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Store Weekly KPIs in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly KPI Report to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

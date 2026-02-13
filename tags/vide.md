@@ -1,4 +1,4 @@
-# vide : 23
+# vide : 25
 
 |id|file|
 |----|----|
@@ -25,3 +25,5 @@
 |10358|[10358_Automate_AI_Video_Creation___Multi-Platform_Publishing_with_GPT-4__Veo_3.1___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10358_Automate_AI_Video_Creation___Multi-Platform_Publishing_with_GPT-4__Veo_3.1___Blotato.json)|
 |10640|[10640_Scrape_Google_Maps_Business_Leads_with_Apify___GPT-4_Email_Extraction.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10640_Scrape_Google_Maps_Business_Leads_with_Apify___GPT-4_Email_Extraction.json)|
 |11204|[11204_Create_AI_Viral_Videos_using_NanoBanana_2_PRO___VEO3.1_and_Publish_via_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11204_Create_AI_Viral_Videos_using_NanoBanana_2_PRO___VEO3.1_and_Publish_via_Blotato.json)|
+|12191|[12191_Repurpose_YouTube_videos_and_publish_via_Blotato_with_Telegram__Sheets_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12191_Repurpose_YouTube_videos_and_publish_via_Blotato_with_Telegram__Sheets_and_GPT-4.1-mini.json)|
+|12462|[12462_Create_AI_product_images_and_marketing_videos_with_NanoBanana_Pro__Veo_3.1_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12462_Create_AI_product_images_and_marketing_videos_with_NanoBanana_Pro__Veo_3.1_and_Blotato.json)|

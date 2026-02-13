@@ -1,4 +1,4 @@
-# run : 32
+# run : 38
 
 |id|file|
 |----|----|
@@ -34,3 +34,9 @@
 |9408|[9408_Automated_Workflow_Test_Runner_with_Google_Drive__Sheets___ClickUp_Result_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9408_Automated_Workflow_Test_Runner_with_Google_Drive__Sheets___ClickUp_Result_Logging.json)|
 |9908|[9908_Run_bulk_RAG_queries_from_CSV_with_Lookio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9908_Run_bulk_RAG_queries_from_CSV_with_Lookio.json)|
 |11246|[11246_Process_Images_with_VLM_Run__Auto_Segmentation___Detection_with_Drive-Telegram_Sharing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11246_Process_Images_with_VLM_Run__Auto_Segmentation___Detection_with_Drive-Telegram_Sharing.json)|
+|12080|[12080_Run_A_B-tested_email_campaigns_using_Gmail__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12080_Run_A_B-tested_email_campaigns_using_Gmail__Google_Sheets__and_Slack.json)|
+|12236|[12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json)|
+|12537|[12537_Run_multi-model_research_analysis_and_email_reports_with_GPT-4__Claude_and_NVIDIA_NIM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12537_Run_multi-model_research_analysis_and_email_reports_with_GPT-4__Claude_and_NVIDIA_NIM.json)|
+|12686|[12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json)|
+|12811|[12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json)|
+|12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|

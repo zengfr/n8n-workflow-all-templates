@@ -1,4 +1,4 @@
-# mattermost : 21
+# mattermost : 23
 
 |id|file|
 |----|----|
@@ -23,3 +23,5 @@
 |1059|[1059_Send_a_message_on_Mattermost_when_a_workflow_is_updated.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/10/1059_Send_a_message_on_Mattermost_when_a_workflow_is_updated.json)|
 |1089|[1089_Receive_a_Mattermost_message_when_new_record_gets_added_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/10/1089_Receive_a_Mattermost_message_when_new_record_gets_added_to_Notion.json)|
 |5186|[5186_Mattermost_Tool_MCP_Server___all_19_operations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/51/5186_Mattermost_Tool_MCP_Server___all_19_operations.json)|
+|12751|[12751_Score_and_route_leads_with_Clearbit__Mattermost_and_Trello.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12751_Score_and_route_leads_with_Clearbit__Mattermost_and_Trello.json)|
+|12781|[12781_Send_daily_CRM_summary_reports_to_Mattermost_from_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12781_Send_daily_CRM_summary_reports_to_Mattermost_from_HubSpot.json)|

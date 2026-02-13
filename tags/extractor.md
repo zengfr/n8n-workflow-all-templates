@@ -1,4 +1,4 @@
-# extractor : 26
+# extractor : 27
 
 |id|file|
 |----|----|
@@ -28,3 +28,4 @@
 |8629|[8629_Automated_Instagram_Commenting_on_Selected_Profiles_with_GPT-4o_and_Phantombuster.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8629_Automated_Instagram_Commenting_on_Selected_Profiles_with_GPT-4o_and_Phantombuster.json)|
 |8630|[8630_Auto-like_Tweets_from_Selected_Profiles_with_Phantombuster___SharePoint_AI_Rotation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8630_Auto-like_Tweets_from_Selected_Profiles_with_Phantombuster___SharePoint_AI_Rotation.json)|
 |11795|[11795_Extract_Clean_Transcripts_from_Your_YouTube_Channel_Videos_using_Data_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11795_Extract_Clean_Transcripts_from_Your_YouTube_Channel_Videos_using_Data_API.json)|
+|12447|[12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json)|

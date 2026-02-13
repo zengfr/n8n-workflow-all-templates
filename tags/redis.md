@@ -1,4 +1,4 @@
-# redis : 25
+# redis : 26
 
 |id|file|
 |----|----|
@@ -27,3 +27,4 @@
 |10349|[10349_Advanced_Multi-Source_AI_Research_with_Bright_Data__OpenAI__Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10349_Advanced_Multi-Source_AI_Research_with_Bright_Data__OpenAI__Redis.json)|
 |10837|[10837_Chat_with_GitHub_Issues_using_OpenAI_and_Redis_Vector_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10837_Chat_with_GitHub_Issues_using_OpenAI_and_Redis_Vector_Search.json)|
 |10887|[10887_Reduce_LLM_Costs_with_Semantic_Caching_using_Redis_Vector_Store_and_HuggingFace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10887_Reduce_LLM_Costs_with_Semantic_Caching_using_Redis_Vector_Store_and_HuggingFace.json)|
+|12400|[12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json)|

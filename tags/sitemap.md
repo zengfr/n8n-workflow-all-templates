@@ -1,4 +1,4 @@
-# sitemap : 8
+# sitemap : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |8691|[8691_Sitemap.xml_Metadata_Export_to_Google_Sheets__Title__Meta_Description__and_URLs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8691_Sitemap.xml_Metadata_Export_to_Google_Sheets__Title__Meta_Description__and_URLs.json)|
 |8707|[8707_From_Sitemap_Crawling_to_Vector_Storage__Creating_an_Efficient_Workflow_for_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8707_From_Sitemap_Crawling_to_Vector_Storage__Creating_an_Efficient_Workflow_for_RAG.json)|
 |8778|[8778_Workflow_for_Submitting_Changed_Sitemap_URLs_using_Google_Indexing_API_and_Bing_IndexNow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8778_Workflow_for_Submitting_Changed_Sitemap_URLs_using_Google_Indexing_API_and_Bing_IndexNow.json)|
+|11948|[11948_Submit_sitemap_URLs_from_Oncrawl_to_Google_Indexing_API_and_IndexNow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11948_Submit_sitemap_URLs_from_Oncrawl_to_Google_Indexing_API_and_IndexNow.json)|
+|11979|[11979_Automated_SEO_indexing__sitemap_to_GSC___indexing_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11979_Automated_SEO_indexing__sitemap_to_GSC___indexing_API.json)|

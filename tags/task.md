@@ -1,4 +1,4 @@
-# task : 73
+# task : 77
 
 |id|file|
 |----|----|
@@ -75,3 +75,7 @@
 |11650|[11650_Automate_Lead_Processing_from_Landing_Pages_with_Zoho_CRM__Jira___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11650_Automate_Lead_Processing_from_Landing_Pages_with_Zoho_CRM__Jira___Slack.json)|
 |11708|[11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json)|
 |11863|[11863_Intelligent_Project_Delivery_and_Task_Management_System.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11863_Intelligent_Project_Delivery_and_Task_Management_System.json)|
+|12105|[12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json)|
+|12429|[12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json)|
+|12739|[12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json)|
+|12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|

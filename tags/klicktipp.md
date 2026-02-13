@@ -1,4 +1,4 @@
-# klicktipp : 21
+# klicktipp : 24
 
 |id|file|
 |----|----|
@@ -23,3 +23,6 @@
 |10024|[10024_Sync_Eventbrite_Orders___Refunds_to_KlickTipp_for_Automated_Event_Marketing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10024_Sync_Eventbrite_Orders___Refunds_to_KlickTipp_for_Automated_Event_Marketing.json)|
 |10028|[10028_Automatic_Eventbrite_Attendance_Tagging_in_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10028_Automatic_Eventbrite_Attendance_Tagging_in_KlickTipp.json)|
 |10295|[10295_Synchronize_Events___Attendees_Between_KlickTipp_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10295_Synchronize_Events___Attendees_Between_KlickTipp_and_Google_Calendar.json)|
+|11923|[11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json)|
+|12679|[12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json)|
+|13233|[13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json)|

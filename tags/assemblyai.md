@@ -1,4 +1,4 @@
-# assemblyai : 8
+# assemblyai : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |9284|[9284_Automate_Meeting_Summaries___Action_Items_with_Google_Meet__AssemblyAI___Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9284_Automate_Meeting_Summaries___Action_Items_with_Google_Meet__AssemblyAI___Claude_AI.json)|
 |11409|[11409_Convert_Meeting_Recordings_to_Notes___Action_Items_with_AssemblyAI__GPT-4___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11409_Convert_Meeting_Recordings_to_Notes___Action_Items_with_AssemblyAI__GPT-4___Sheets.json)|
 |11888|[11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json)|
+|12934|[12934_Summarize_YouTube_videos_in_Slack_using_AssemblyAI_transcription_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12934_Summarize_YouTube_videos_in_Slack_using_AssemblyAI_transcription_and_OpenAI.json)|
+|12935|[12935_Send_YouTube_transcripts_to_Slack_using_AssemblyAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12935_Send_YouTube_transcripts_to_Slack_using_AssemblyAI.json)|

@@ -1,4 +1,4 @@
-# prep : 9
+# prep : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |8935|[8935_Meeting_Prep_with_Google_Calendar__Tavily_AI_Research___Gmail_Briefings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8935_Meeting_Prep_with_Google_Calendar__Tavily_AI_Research___Gmail_Briefings.json)|
 |10562|[10562_Automate_Sales_Meeting_Prep_with_Claude_AI___Explorium_Intelligence.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10562_Automate_Sales_Meeting_Prep_with_Claude_AI___Explorium_Intelligence.json)|
 |11430|[11430_Personalize_Client_Meeting_Prep_with_GPT-4__Google_Calendar__Notion___Places_API_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11430_Personalize_Client_Meeting_Prep_with_GPT-4__Google_Calendar__Notion___Places_API_to_Slack.json)|
+|13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|

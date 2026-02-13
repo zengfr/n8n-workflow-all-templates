@@ -1,4 +1,4 @@
-# purchase : 15
+# purchase : 19
 
 |id|file|
 |----|----|
@@ -17,3 +17,7 @@
 |10624|[10624_Automate_Singapore_COE_Price_Analysis___Purchase_Timing_with_GLM-4.5_AI_Predictions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10624_Automate_Singapore_COE_Price_Analysis___Purchase_Timing_with_GLM-4.5_AI_Predictions.json)|
 |11184|[11184_Automate_Airtable_inventory_tracking_and_purchase_order_creation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11184_Automate_Airtable_inventory_tracking_and_purchase_order_creation.json)|
 |11758|[11758_Automated_Post-Purchase_Emails_for_Gumroad_with_Notion_CRM_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11758_Automated_Post-Purchase_Emails_for_Gumroad_with_Notion_CRM_and_Gemini_AI.json)|
+|12013|[12013_Automate_purchase_bill_processing_with_AI_OCR___QuickBooks_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12013_Automate_purchase_bill_processing_with_AI_OCR___QuickBooks_integration.json)|
+|12673|[12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json)|
+|12870|[12870_Segment_retail_customers_by_purchase_behavior_with_CRM_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12870_Segment_retail_customers_by_purchase_behavior_with_CRM_and_Google_Sheets.json)|
+|13274|[13274_Send_post-purchase_email_sequences_with_Postgres__Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13274_Send_post-purchase_email_sequences_with_Postgres__Gmail_and_OpenAI.json)|

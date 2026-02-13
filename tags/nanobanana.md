@@ -1,4 +1,4 @@
-# nanobanana : 12
+# nanobanana : 18
 
 |id|file|
 |----|----|
@@ -14,3 +14,9 @@
 |9922|[9922_Generate_UGC_Images_from_Form_Submissions_with_Google_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9922_Generate_UGC_Images_from_Form_Submissions_with_Google_Gemini_and_Telegram.json)|
 |11204|[11204_Create_AI_Viral_Videos_using_NanoBanana_2_PRO___VEO3.1_and_Publish_via_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11204_Create_AI_Viral_Videos_using_NanoBanana_2_PRO___VEO3.1_and_Publish_via_Blotato.json)|
 |11594|[11594_Creating_Consistent_Character_Videos_with_Veo_3.1__GPT-4o__and_Google_NanoBanana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11594_Creating_Consistent_Character_Videos_with_Veo_3.1__GPT-4o__and_Google_NanoBanana.json)|
+|12462|[12462_Create_AI_product_images_and_marketing_videos_with_NanoBanana_Pro__Veo_3.1_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12462_Create_AI_product_images_and_marketing_videos_with_NanoBanana_Pro__Veo_3.1_and_Blotato.json)|
+|12645|[12645_Generate_scalable_e-commerce_product_images_with_GPT-4_and_NanoBanana_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12645_Generate_scalable_e-commerce_product_images_with_GPT-4_and_NanoBanana_Pro.json)|
+|12752|[12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json)|
+|12769|[12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json)|
+|13015|[13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json)|
+|13168|[13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json)|

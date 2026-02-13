@@ -1,4 +1,4 @@
-# brief : 11
+# brief : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |8639|[8639_Audio_to_Executive_Brief__Transcribe___Analyze_with_AssemblyAI_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8639_Audio_to_Executive_Brief__Transcribe___Analyze_with_AssemblyAI_and_GPT-4.json)|
 |9019|[9019_Job_Brief_Analysis_with_OpenAI_to_Find_Relevant_Templates_and_Log_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9019_Job_Brief_Analysis_with_OpenAI_to_Find_Relevant_Templates_and_Log_in_Google_Sheets.json)|
 |9410|[9410_Generate_AI-Powered_Morning_Briefs_from_ClickUp_to_Slack_and_Gmail_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9410_Generate_AI-Powered_Morning_Briefs_from_ClickUp_to_Slack_and_Gmail_with_GPT-4o.json)|
+|12944|[12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json)|

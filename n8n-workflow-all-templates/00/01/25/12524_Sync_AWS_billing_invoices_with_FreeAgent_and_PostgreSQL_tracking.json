@@ -1,0 +1,532 @@
+{
+  "name": "Sync AWS Billing with Free Agent Invoice",
+  "tags": [
+    {
+      "name": "Pernille-AI.com"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "generate-signature",
+      "name": "Generate AWS Signature",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        352,
+        -464
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\n// AWS Credentials\nconst accessKeyId = '[YOUR_AWS_ACCESS_KEY]';\nconst secretAccessKey = '[YOUR_AWS_SECRET_KEY]';\n\nconst region = 'us-east-1';\nconst service = 'invoicing';\n\n// Get input data\nconst input = $input.all()[0].json;\nconst accountId = input.account_id;\nconst billingMonth = input.billing_month;\nconst billingYear = input.billing_year;\n\n// Request details\nconst host = 'invoicing.us-east-1.api.aws';\nconst method = 'POST';\nconst canonicalUri = '/';\nconst canonicalQuerystring = '';\nconst amzTarget = 'Invoicing.ListInvoiceSummaries';\nconst contentType = 'application/x-amz-json-1.0';\n\n// Request body\nconst requestBody = JSON.stringify({\n  Selector: {\n    ResourceType: 'ACCOUNT_ID',\n    Value: accountId\n  },\n  Filter: {\n    BillingPeriod: {\n      Month: billingMonth,\n      Year: billingYear\n    }\n  },\n  MaxResults: 10\n});\n\n// Create date strings\nconst now = new Date();\nconst amzDate = now.toISOString().replace(/[:-]|\\.\\d{3}/g, '').slice(0, 15) + 'Z';\nconst dateStamp = amzDate.slice(0, 8);\n\n// Create canonical headers (must be sorted alphabetically)\nconst canonicalHeaders = \n  'content-type:' + contentType + '\\n' +\n  'host:' + host + '\\n' +\n  'x-amz-date:' + amzDate + '\\n' +\n  'x-amz-target:' + amzTarget + '\\n';\n\nconst signedHeaders = 'content-type;host;x-amz-date;x-amz-target';\n\n// Hash the payload\nconst payloadHash = crypto.createHash('sha256').update(requestBody).digest('hex');\n\n// Create canonical request\nconst canonicalRequest = \n  method + '\\n' +\n  canonicalUri + '\\n' +\n  canonicalQuerystring + '\\n' +\n  canonicalHeaders + '\\n' +\n  signedHeaders + '\\n' +\n  payloadHash;\n\n// Create string to sign\nconst algorithm = 'AWS4-HMAC-SHA256';\nconst credentialScope = dateStamp + '/' + region + '/' + service + '/aws4_request';\nconst stringToSign = \n  algorithm + '\\n' +\n  amzDate + '\\n' +\n  credentialScope + '\\n' +\n  crypto.createHash('sha256').update(canonicalRequest).digest('hex');\n\n// Create signing key\nfunction getSignatureKey(key, dateStamp, regionName, serviceName) {\n  const kDate = crypto.createHmac('sha256', 'AWS4' + key).update(dateStamp).digest();\n  const kRegion = crypto.createHmac('sha256', kDate).update(regionName).digest();\n  const kService = crypto.createHmac('sha256', kRegion).update(serviceName).digest();\n  const kSigning = crypto.createHmac('sha256', kService).update('aws4_request').digest();\n  return kSigning;\n}\n\nconst signingKey = getSignatureKey(secretAccessKey, dateStamp, region, service);\nconst signature = crypto.createHmac('sha256', signingKey).update(stringToSign).digest('hex');\n\n// Create authorization header\nconst authorizationHeader = \n  algorithm + ' ' +\n  'Credential=' + accessKeyId + '/' + credentialScope + ', ' +\n  'SignedHeaders=' + signedHeaders + ', ' +\n  'Signature=' + signature;\n\nreturn [{\n  json: {\n    url: 'https://' + host + '/',\n    method: 'POST',\n    headers: {\n      'Content-Type': contentType,\n      'X-Amz-Date': amzDate,\n      'X-Amz-Target': amzTarget,\n      'Authorization': authorizationHeader\n    },\n    body: requestBody\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "parse-aws-response",
+      "name": "Parse AWS Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        752,
+        -464
+      ],
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst data = JSON.parse(response.data);\nconst invoices = data.InvoiceSummaries || [];\n\nreturn invoices.map(invoice => ({\n  json: invoice\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "filter-by-date-code",
+      "name": "Filter By Date",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        944,
+        -464
+      ],
+      "parameters": {
+        "jsCode": "// Get cutoff date from Set Test Data node\nconst cutoffDate = new Date($node['Calculate Last Month Date Range'].json.cutoff_date + 'T00:00:00.000Z');\n\n// Get all invoice items\nconst items = $input.all();\n\n// Filter invoices by issued date\nconst filtered = items.filter(item => {\n  const issuedDate = new Date(item.json.IssuedDate * 1000);\n  return issuedDate >= cutoffDate;\n});\n\n// Return filtered items or empty message\nif (filtered.length === 0) {\n  return [{ json: { message: 'No invoices after cutoff date' } }];\n}\n\nreturn filtered;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "loop-invoices",
+      "name": "Loop Over Invoices",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -192,
+        -112
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "check-exists-pg",
+      "name": "Check If Already Processed",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        144,
+        -48
+      ],
+      "parameters": {
+        "query": "=SELECT COUNT(*) as count FROM aws_invoices_processed WHERE aws_invoice_id = '{{ $json.InvoiceId }}';",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "record-pg",
+      "name": "Record In PostgreSQL",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1616,
+        -64
+      ],
+      "parameters": {
+        "query": "=INSERT INTO aws_invoices_processed (aws_invoice_id, freeagent_invoice_url, billing_period, amount, currency)\nVALUES (\n  '{{ $('Loop Over Invoices').item.json.InvoiceId }}',\n  '{{ $json.bill.url }}',\n  '{{ $('Loop Over Invoices').item.json.BillingPeriod.Year }}-{{ String($('Loop Over Invoices').item.json.BillingPeriod.Month).padStart(2, \"0\") }}',\n  {{ $('Loop Over Invoices').item.json.PaymentCurrencyAmount.TotalAmount }},\n  '{{ $('Loop Over Invoices').item.json.PaymentCurrencyAmount.CurrencyCode }}'\n);",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "create-fa-bill",
+      "name": "Create FreeAgent Bill",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        976,
+        -64
+      ],
+      "parameters": {
+        "url": "https://api.freeagent.com/v2/bills",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "FreeAgent OAuth2"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "if-new-invoice",
+      "name": "If New Invoice",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        352,
+        -48
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "count-check",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.count.toNumber() }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "prepare-fa-bill",
+      "name": "Prepare FreeAgent Bill",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        768,
+        -64
+      ],
+      "parameters": {
+        "jsCode": "const invoice = $('Loop Over Invoices').item.json;\n\n// Helper function to convert Unix timestamp to YYYY-MM-DD\nfunction formatDate(timestamp) {\n  if (!timestamp || isNaN(timestamp)) {\n    throw new Error(`Invalid timestamp: ${timestamp}`);\n  }\n  const date = new Date(timestamp * 1000);\n  if (isNaN(date.getTime())) {\n    throw new Error(`Could not create valid date from timestamp: ${timestamp}`);\n  }\n  return date.toISOString().split('T')[0];\n}\n\n// AWS has the dates backwards - DueDate is earlier than IssuedDate\n// So we use DueDate as dated_on and IssuedDate as due_on\nconst bill = {\n  contact: 'https://api.freeagent.com/v2/contacts/[YOUR_FREEAGENT_CONTACT_ID]',\n  reference: invoice.InvoiceId,\n  dated_on: formatDate(invoice.DueDate),\n  due_on: formatDate(invoice.IssuedDate),\n  total_value: invoice.PaymentCurrencyAmount.TotalAmount,\n  bill_items: [\n    {\n      category: 'https://api.freeagent.com/v2/categories/[YOUR_FREEAGENT_CATEGORY_ID]',\n      description: `AWS Services - ${invoice.BillingPeriod.Year}-${String(invoice.BillingPeriod.Month).padStart(2, '0')}`,\n      total_value: invoice.PaymentCurrencyAmount.TotalAmount,\n      sales_tax_rate: '20.0'\n    }\n  ]\n};\n\nreturn { json: { bill } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "mark-bill-paid",
+      "name": "Mark Bill as Paid",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1392,
+        -64
+      ],
+      "parameters": {
+        "url": "https://api.freeagent.com/v2/bank_transaction_explanations",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "FreeAgent OAuth2"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "prepare-payment",
+      "name": "Prepare Payment",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1184,
+        -64
+      ],
+      "parameters": {
+        "jsCode": "const billUrl = $json.bill.url;\nconst billAmount = $json.bill.total_value;\nconst billDate = $json.bill.dated_on;\n\nconst payment = {\n  bank_transaction_explanation: {\n    bank_account: 'https://api.freeagent.com/v2/bank_accounts/[YOUR_FREEAGENT_BANK_ACCOUNT_ID]',\n    paid_bill: billUrl,\n    dated_on: billDate,\n    gross_value: `-${billAmount}`\n  }\n};\n\nreturn { json: payment };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sticky-fetch",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -560
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1072,
+        "height": 328,
+        "content": "**1. Fetch AWS Invoices**\nRetrieves last month's invoices via AWS Invoicing API"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-dedup",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 544,
+        "height": 320,
+        "content": "**2. Deduplicate**\nSkips invoices already in PostgreSQL"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-create",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        -176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1192,
+        "height": 320,
+        "content": "**3. Create & Pay Bill**\nCreates FreeAgent bill, marks paid, logs to database"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "main-overview-sticky",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -560
+      ],
+      "parameters": {
+        "width": 580,
+        "height": 720,
+        "content": "## How it works\nThis workflow automatically imports AWS invoices into FreeAgent accounting software. Running on the 3rd and 4th of each month, it:\n\n1. **Fetches invoices** from AWS using Signature V4 authentication\n2. **Checks for duplicates** against a PostgreSQL tracking table\n3. **Creates bills** in FreeAgent for new invoices\n4. **Marks bills as paid** against your bank account\n5. **Records processed invoices** to prevent future duplicates\n\n## Setup steps\n1. **AWS Credentials**: Open the `Generate AWS Signature` code node and replace `accessKeyId` and `secretAccessKey` with your IAM credentials (requires `invoicing:ListInvoiceSummaries` permission)\n2. **AWS Account ID**: In `Calculate Last Month Date Range`, update the `account_id` value\n3. **FreeAgent OAuth**: Create OAuth2 credentials in n8n for FreeAgent\n4. **FreeAgent Contact**: In `Prepare FreeAgent Bill`, update the `contact` URL with your supplier contact ID\n5. **FreeAgent Category**: Update the `category` URL with your expense category ID\n6. **Bank Account**: In `Prepare Payment`, update the `bank_account` URL\n7. **PostgreSQL**: Create credentials and run this SQL:\n```sql\nCREATE TABLE aws_invoices_processed (\n  id SERIAL PRIMARY KEY,\n  aws_invoice_id VARCHAR(255) UNIQUE,\n  freeagent_invoice_url VARCHAR(500),\n  billing_period VARCHAR(7),\n  amount DECIMAL(10,2),\n  currency VARCHAR(3),\n  created_at TIMESTAMP DEFAULT NOW()\n);\n```"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "calculate-last-month",
+      "name": "Calculate Last Month Date Range",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        144,
+        -464
+      ],
+      "parameters": {
+        "jsCode": "// Get last month's billing period\nconst now = new Date();\nconst lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);\n\nconst billingYear = lastMonth.getFullYear();\nconst billingMonth = lastMonth.getMonth() + 1; // JavaScript months are 0-indexed\n\n// Cutoff date is the first day of the billing period\nconst cutoffDate = `${billingYear}-${String(billingMonth).padStart(2, '0')}-01`;\n\nreturn [{\n  json: {\n    billing_year: billingYear,\n    billing_month: billingMonth,\n    account_id: '[YOUR_AWS_ACCOUNT_ID]',\n    cutoff_date: cutoffDate\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "http-request",
+      "name": "Call AWS For Bills",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        544,
+        -464
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        },
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "={{ $json.headers['Content-Type'] }}"
+            },
+            {
+              "name": "X-Amz-Date",
+              "value": "={{ $json.headers['X-Amz-Date'] }}"
+            },
+            {
+              "name": "X-Amz-Target",
+              "value": "={{ $json.headers['X-Amz-Target'] }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $json.headers['Authorization'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "trigger-monthly",
+      "name": "Trigger Monthly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -208,
+        -464
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 0 3,4 * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "Europe/London",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "connections": {
+    "Filter By Date": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If New Invoice": {
+      "main": [
+        [
+          {
+            "node": "Prepare FreeAgent Bill",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Payment": {
+      "main": [
+        [
+          {
+            "node": "Mark Bill as Paid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Monthly": {
+      "main": [
+        [
+          {
+            "node": "Calculate Last Month Date Range",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Bill as Paid": {
+      "main": [
+        [
+          {
+            "node": "Record In PostgreSQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call AWS For Bills": {
+      "main": [
+        [
+          {
+            "node": "Parse AWS Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Invoices": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Check If Already Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AWS Response": {
+      "main": [
+        [
+          {
+            "node": "Filter By Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record In PostgreSQL": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create FreeAgent Bill": {
+      "main": [
+        [
+          {
+            "node": "Prepare Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate AWS Signature": {
+      "main": [
+        [
+          {
+            "node": "Call AWS For Bills",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare FreeAgent Bill": {
+      "main": [
+        [
+          {
+            "node": "Create FreeAgent Bill",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Already Processed": {
+      "main": [
+        [
+          {
+            "node": "If New Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Last Month Date Range": {
+      "main": [
+        [
+          {
+            "node": "Generate AWS Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "Automatically imports AWS invoices into FreeAgent accounting software. Runs monthly to fetch invoices via AWS Signature V4 authentication, checks for duplicates against PostgreSQL, creates bills in FreeAgent, marks them as paid, and tracks processed invoices to prevent duplicates.",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Sync AWS billing invoices with FreeAgent and PostgreSQL tracking",
+    "wechat": "youandme10086",
+    "id": 12524,
+    "update_time": "2026-02-13"
+  }
+}

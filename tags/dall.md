@@ -1,4 +1,4 @@
-# dall : 24
+# dall : 33
 
 |id|file|
 |----|----|
@@ -26,3 +26,12 @@
 |11652|[11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json)|
 |11734|[11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json)|
 |11856|[11856_Automate_Professional_LinkedIn_Posts_with_OpenAI_GPT__DALL-E_and_Trending_Topics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11856_Automate_Professional_LinkedIn_Posts_with_OpenAI_GPT__DALL-E_and_Trending_Topics.json)|
+|12009|[12009_Transform_meeting_transcripts_to_content_with_Fathom__GPT-4___DALL-E.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12009_Transform_meeting_transcripts_to_content_with_Fathom__GPT-4___DALL-E.json)|
+|12048|[12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json)|
+|12193|[12193_E-commerce_product_mockups_from_images_with_OpenAI_DALL-E__remove.bg_and_G-Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12193_E-commerce_product_mockups_from_images_with_OpenAI_DALL-E__remove.bg_and_G-Drive.json)|
+|12263|[12263_Generate_illustrated_stories_with_GPT-4__DALL-E_3_and_Firebase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12263_Generate_illustrated_stories_with_GPT-4__DALL-E_3_and_Firebase.json)|
+|12265|[12265_Create_Anki_language_flashcards_with_GPT-4__DALL-E_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12265_Create_Anki_language_flashcards_with_GPT-4__DALL-E_and_ElevenLabs.json)|
+|12337|[12337_Create_a_daily_visual_journal_from_Discord_chats_with_GPT-4__DALL-E_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12337_Create_a_daily_visual_journal_from_Discord_chats_with_GPT-4__DALL-E_and_Notion.json)|
+|12447|[12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json)|
+|12663|[12663_Create_and_schedule_LinkedIn_posts_from_Google_Sheets_with_Gemini_and_DALL_E.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12663_Create_and_schedule_LinkedIn_posts_from_Google_Sheets_with_Gemini_and_DALL_E.json)|
+|13113|[13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json)|

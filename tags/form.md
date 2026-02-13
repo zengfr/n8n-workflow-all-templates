@@ -1,4 +1,4 @@
-# form : 110
+# form : 116
 
 |id|file|
 |----|----|
@@ -112,3 +112,9 @@
 |11643|[11643_Manage_Contact_Form_Submissions_with_Google_Sheets__Slack_Alerts___Gmail_Replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11643_Manage_Contact_Form_Submissions_with_Google_Sheets__Slack_Alerts___Gmail_Replies.json)|
 |11645|[11645_Generate_Short-form_Clips_from_YouTube_Videos_with_GPT-4o__Grok___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11645_Generate_Short-form_Clips_from_YouTube_Videos_with_GPT-4o__Grok___Airtable.json)|
 |11666|[11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json)|
+|11990|[11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json)|
+|12479|[12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json)|
+|12851|[12851_Track_SEC_Form_D_filings_and_send_issuer_and_investor_data_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12851_Track_SEC_Form_D_filings_and_send_issuer_and_investor_data_to_Google_Sheets.json)|
+|12866|[12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json)|
+|13008|[13008_Vet_new_Form.io_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13008_Vet_new_Form.io_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Pipedrive.json)|
+|13089|[13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json)|

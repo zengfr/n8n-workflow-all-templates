@@ -1,4 +1,4 @@
-# enrich : 65
+# enrich : 78
 
 |id|file|
 |----|----|
@@ -67,3 +67,16 @@
 |10760|[10760_Scrape___Enrich_Google_Maps_Leads_with_Decodo_API_and_Gemini_2.5_Flash.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10760_Scrape___Enrich_Google_Maps_Leads_with_Decodo_API_and_Gemini_2.5_Flash.json)|
 |11258|[11258_Enrich___Qualify_Leads_with_Azure_OpenAI__Bright_Data_MCP___HubSpot_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11258_Enrich___Qualify_Leads_with_Azure_OpenAI__Bright_Data_MCP___HubSpot_CRM.json)|
 |11493|[11493_Qualify___Enrich_Leads_with_GPT-4_and_LinkedIn_Data_for_Intelligent_Routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11493_Qualify___Enrich_Leads_with_GPT-4_and_LinkedIn_Data_for_Intelligent_Routing.json)|
+|11928|[11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json)|
+|11937|[11937_Automate_company_data_enrichment_with_HubSpot__Sona__OpenAI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11937_Automate_company_data_enrichment_with_HubSpot__Sona__OpenAI___Google_Sheets.json)|
+|12067|[12067_Enrich_company_data_in_Google_Sheets_with_CompanyEnrich.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12067_Enrich_company_data_in_Google_Sheets_with_CompanyEnrich.json)|
+|12343|[12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json)|
+|12672|[12672_Generate_and_enrich_Google_Maps_leads_with_Apify__Hunter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12672_Generate_and_enrich_Google_Maps_leads_with_Apify__Hunter_and_Google_Sheets.json)|
+|12699|[12699_Enrich_Google_Sheets_data_with_the_Tavily_Research_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12699_Enrich_Google_Sheets_data_with_the_Tavily_Research_API.json)|
+|12708|[12708_Sync_and_enrich_HubSpot_leads_from_Google_Sheets_and_Telegram_with_Gemini_and_Lusha.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12708_Sync_and_enrich_HubSpot_leads_from_Google_Sheets_and_Telegram_with_Gemini_and_Lusha.json)|
+|12710|[12710_Enrich_B2B_leads_for_Attio_CRM_with_Apollo__LinkedIn__news_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12710_Enrich_B2B_leads_for_Attio_CRM_with_Apollo__LinkedIn__news_and_GPT-4o.json)|
+|13090|[13090_Enrich_lead_profiles_from_LinkedIn_URLs_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13090_Enrich_lead_profiles_from_LinkedIn_URLs_with_Apify_and_Google_Sheets.json)|
+|13227|[13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json)|
+|13239|[13239_Enrich_IP_addresses_with_country_attribution_using_IPinfo_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13239_Enrich_IP_addresses_with_country_attribution_using_IPinfo_and_Slack_alerts.json)|
+|13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|
+|13353|[13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json)|

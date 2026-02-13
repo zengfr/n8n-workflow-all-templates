@@ -1,4 +1,4 @@
-# topics : 9
+# topics : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |9277|[9277_Automate_Google_Classroom_with_Gemini_AI__Topics__Assignments___Student_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9277_Automate_Google_Classroom_with_Gemini_AI__Topics__Assignments___Student_Tracking.json)|
 |11075|[11075_Cluster_webpage_topics_from_Google_Sheets_to_Google_Sheets_for_AI_discovery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11075_Cluster_webpage_topics_from_Google_Sheets_to_Google_Sheets_for_AI_discovery.json)|
 |11856|[11856_Automate_Professional_LinkedIn_Posts_with_OpenAI_GPT__DALL-E_and_Trending_Topics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11856_Automate_Professional_LinkedIn_Posts_with_OpenAI_GPT__DALL-E_and_Trending_Topics.json)|
+|12386|[12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json)|
+|12504|[12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json)|

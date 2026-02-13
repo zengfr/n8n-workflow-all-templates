@@ -1,4 +1,4 @@
-# scrape : 92
+# scrape : 101
 
 |id|file|
 |----|----|
@@ -94,3 +94,12 @@
 |11454|[11454_Scrape_Yelp_Business_Data_with_Scrape.do_API___Google_Sheets_Storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11454_Scrape_Yelp_Business_Data_with_Scrape.do_API___Google_Sheets_Storage.json)|
 |11456|[11456_Scrape___Track_Dentist_Leads_from_Google_Maps_with_ScrapeOps__Sheets___Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11456_Scrape___Track_Dentist_Leads_from_Google_Maps_with_ScrapeOps__Sheets___Notifications.json)|
 |11693|[11693_Scrape_LinkedIn_profiles_into_Google_Sheets_using_Google_Custom_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11693_Scrape_LinkedIn_profiles_into_Google_Sheets_using_Google_Custom_Search.json)|
+|12345|[12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json)|
+|12632|[12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json)|
+|12654|[12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json)|
+|12865|[12865_Scrape_high-engagement_LinkedIn_posts_and_auto-post_with_Gemini_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12865_Scrape_high-engagement_LinkedIn_posts_and_auto-post_with_Gemini_images.json)|
+|12877|[12877_Scrape_verified_decision-maker_emails_from_Google_with_GPT-4.1_and_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12877_Scrape_verified_decision-maker_emails_from_Google_with_GPT-4.1_and_Apify.json)|
+|12937|[12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json)|
+|13007|[13007_Scrape_LinkedIn_B2B_leads_with_Apify_and_GPT-4_and_approve_emails_in_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13007_Scrape_LinkedIn_B2B_leads_with_Apify_and_GPT-4_and_approve_emails_in_Sheets.json)|
+|13170|[13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json)|
+|13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|

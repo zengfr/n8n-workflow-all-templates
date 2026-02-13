@@ -1,4 +1,4 @@
-# quality : 17
+# quality : 25
 
 |id|file|
 |----|----|
@@ -19,3 +19,11 @@
 |10330|[10330_Automate_API_FAQ_Quality_Testing_with_GPT-4o-mini__Google_Sheets___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10330_Automate_API_FAQ_Quality_Testing_with_GPT-4o-mini__Google_Sheets___Slack_Alerts.json)|
 |10734|[10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json)|
 |11256|[11256_Monitor_Data_Quality_with_Notion_Rules__SQL_Checks___AI-Powered_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11256_Monitor_Data_Quality_with_Notion_Rules__SQL_Checks___AI-Powered_Alerts.json)|
+|11910|[11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json)|
+|12142|[12142_Generate_natural_health_remedies_guides_with_Claude_AI___auto_quality_assurance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12142_Generate_natural_health_remedies_guides_with_Claude_AI___auto_quality_assurance.json)|
+|12304|[12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json)|
+|12378|[12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json)|
+|12765|[12765_Score_call_quality_and_send_coaching_emails_with_Gemini__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12765_Score_call_quality_and_send_coaching_emails_with_Gemini__OpenAI__and_Gmail.json)|
+|12766|[12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json)|
+|12965|[12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json)|
+|13003|[13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json)|

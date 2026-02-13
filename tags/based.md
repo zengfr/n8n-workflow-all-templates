@@ -1,4 +1,4 @@
-# based : 104
+# based : 114
 
 |id|file|
 |----|----|
@@ -106,3 +106,13 @@
 |11298|[11298_AI-Powered_Content_Factory__RSS_to_Blog__Instagram___TikTok_with_Slack_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11298_AI-Powered_Content_Factory__RSS_to_Blog__Instagram___TikTok_with_Slack_Approval.json)|
 |11622|[11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json)|
 |11663|[11663_Template-Based_Google_Drive_Folder_Generation_with_Forms_and_Apps_Script.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11663_Template-Based_Google_Drive_Folder_Generation_with_Forms_and_Apps_Script.json)|
+|12167|[12167_Handle_Gmail_reply-based_scheduling_with_Google_Calendar_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12167_Handle_Gmail_reply-based_scheduling_with_Google_Calendar_and_GPT-4o-mini.json)|
+|12175|[12175_Generate_photo-based_construction_cost_estimates_with_GPT-4_Vision_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12175_Generate_photo-based_construction_cost_estimates_with_GPT-4_Vision_and_DDC_CWICR.json)|
+|12326|[12326_Create_WooCommerce_products_via_Telegram_bot_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12326_Create_WooCommerce_products_via_Telegram_bot_with_Google_Gemini_AI.json)|
+|12471|[12471_Generate_consensus-based_answers_using_Claude__GPT__Grok_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12471_Generate_consensus-based_answers_using_Claude__GPT__Grok_and_Gemini.json)|
+|12554|[12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json)|
+|12890|[12890_Send_severity-based_error_alerts_using_Telegram__email_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12890_Send_severity-based_error_alerts_using_Telegram__email_and_Google_Sheets.json)|
+|12992|[12992_Orchestrate_AI_risk_analysis_and_severity-based_routing_with_Anthropic_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12992_Orchestrate_AI_risk_analysis_and_severity-based_routing_with_Anthropic_and_OpenAI.json)|
+|13139|[13139_Monitor_data_integrity_and_route_severity-based_alerts_with_GPT-4o__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13139_Monitor_data_integrity_and_route_severity-based_alerts_with_GPT-4o__email_and_Slack.json)|
+|13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|
+|13306|[13306_Enhance_images_with_Riverflow_2.0_reference-based_super-resolution_via_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13306_Enhance_images_with_Riverflow_2.0_reference-based_super-resolution_via_Replicate.json)|

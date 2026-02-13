@@ -1,4 +1,4 @@
-# pipedrive : 38
+# pipedrive : 44
 
 |id|file|
 |----|----|
@@ -40,3 +40,9 @@
 |10243|[10243_Generate___Send_Quotation_PDFs_from_Pipedrive_to_DottedSign_for_E-Signature.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10243_Generate___Send_Quotation_PDFs_from_Pipedrive_to_DottedSign_for_E-Signature.json)|
 |11628|[11628_AI-Powered_Customer_Feedback_Routing_with_Gmail__Slack__Pipedrive__Zendesk___Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11628_AI-Powered_Customer_Feedback_Routing_with_Gmail__Slack__Pipedrive__Zendesk___Notion.json)|
 |11722|[11722_Healthcare_Policy_Monitoring_with_ScrapeGraphAI__Pipedrive_and_Matrix_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11722_Healthcare_Policy_Monitoring_with_ScrapeGraphAI__Pipedrive_and_Matrix_Alerts.json)|
+|12072|[12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json)|
+|12073|[12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json)|
+|12970|[12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json)|
+|13008|[13008_Vet_new_Form.io_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13008_Vet_new_Form.io_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Pipedrive.json)|
+|13225|[13225_Sync_CRM_contacts_with_Mailchimp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13225_Sync_CRM_contacts_with_Mailchimp_and_Pipedrive.json)|
+|13233|[13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json)|

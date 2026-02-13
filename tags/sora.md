@@ -1,4 +1,4 @@
-# sora : 20
+# sora : 23
 
 |id|file|
 |----|----|
@@ -22,3 +22,6 @@
 |10867|[10867_Auto-Generate_AI_Videos_with_Gemini__KIE_AI_Sora-2___Blotato__Multi-Platform.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10867_Auto-Generate_AI_Videos_with_Gemini__KIE_AI_Sora-2___Blotato__Multi-Platform.json)|
 |11268|[11268_Generate_Hollywood-Style_Video_Ads_from_Images_with_GPT-5_Mini_and_Fal.ai_Sora-2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11268_Generate_Hollywood-Style_Video_Ads_from_Images_with_GPT-5_Mini_and_Fal.ai_Sora-2.json)|
 |11276|[11276_Generate___Publish_AI_Videos_with_Sora_2__Veo_3.1__Gemini___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11276_Generate___Publish_AI_Videos_with_Sora_2__Veo_3.1__Gemini___Blotato.json)|
+|12287|[12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json)|
+|12590|[12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json)|
+|13085|[13085_Create_and_publish_AI_videos_with_Sora_2_Cameos__Gemini__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13085_Create_and_publish_AI_videos_with_Sora_2_Cameos__Gemini__and_Blotato.json)|

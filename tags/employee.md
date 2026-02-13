@@ -1,4 +1,4 @@
-# employee : 21
+# employee : 31
 
 |id|file|
 |----|----|
@@ -23,3 +23,13 @@
 |10430|[10430_Automate_Employee_Birthdays___Work_Anniversaries_with_Google_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10430_Automate_Employee_Birthdays___Work_Anniversaries_with_Google_Gemini_and_Slack.json)|
 |11625|[11625_Automated_Employee_Attendance___Salary_Deduction_with_Google_Sheets_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11625_Automated_Employee_Attendance___Salary_Deduction_with_Google_Sheets_and_GPT-4.json)|
 |11855|[11855_MCP_Employee_Performance___Productivity_Insights_Engine_with_Automated_Manager.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11855_MCP_Employee_Performance___Productivity_Insights_Engine_with_Automated_Manager.json)|
+|11941|[11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json)|
+|12017|[12017_Prevent_employee_burnout_with_AI_analysis_of_Slack_and_tasks_data_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12017_Prevent_employee_burnout_with_AI_analysis_of_Slack_and_tasks_data_to_Google_Sheets.json)|
+|12070|[12070_Automate_employee_leave_approvals_with_GPT__Gmail___Calendar_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12070_Automate_employee_leave_approvals_with_GPT__Gmail___Calendar_integration.json)|
+|12090|[12090_Provision_new_employee_accounts_to_Google_Workspace__Slack__Jira__and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12090_Provision_new_employee_accounts_to_Google_Workspace__Slack__Jira__and_Salesforce.json)|
+|12256|[12256_Review_and_approve_employee_expenses_with_forms__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12256_Review_and_approve_employee_expenses_with_forms__OpenAI_and_Google_Workspace.json)|
+|12362|[12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json)|
+|12579|[12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json)|
+|12586|[12586_Sync_your_HRIS_employee_directory_with_Microsoft_Teams__Coda__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12586_Sync_your_HRIS_employee_directory_with_Microsoft_Teams__Coda__and_Slack.json)|
+|13145|[13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json)|
+|13318|[13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json)|

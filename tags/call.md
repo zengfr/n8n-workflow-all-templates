@@ -1,4 +1,4 @@
-# call : 53
+# call : 58
 
 |id|file|
 |----|----|
@@ -55,3 +55,8 @@
 |10751|[10751_Analyze_Sales_Call_Objections_with_Fireflies_Transcripts__GPT-4o__and_Slack_Feedback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10751_Analyze_Sales_Call_Objections_with_Fireflies_Transcripts__GPT-4o__and_Slack_Feedback.json)|
 |10913|[10913_Analyze_Call_Recordings_with_OpenAI_and_Update_Zoho_CRM_Leads_Automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10913_Analyze_Call_Recordings_with_OpenAI_and_Update_Zoho_CRM_Leads_Automatically.json)|
 |11655|[11655_Monitor_Website_Uptime_with_Google_Sheets__Slack__Email___Phone_Call_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11655_Monitor_Website_Uptime_with_Google_Sheets__Slack__Email___Phone_Call_Alerts.json)|
+|12060|[12060_Real-time_uptime_alerts_to_Jira_with_smart_Slack_on-call_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12060_Real-time_uptime_alerts_to_Jira_with_smart_Slack_on-call_routing.json)|
+|12285|[12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json)|
+|12737|[12737_Extract_sales_insights_from_Scoot_call_transcripts_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12737_Extract_sales_insights_from_Scoot_call_transcripts_using_Gemini.json)|
+|12765|[12765_Score_call_quality_and_send_coaching_emails_with_Gemini__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12765_Score_call_quality_and_send_coaching_emails_with_Gemini__OpenAI__and_Gmail.json)|
+|12766|[12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json)|

@@ -1,4 +1,4 @@
-# share : 18
+# share : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |10143|[10143_Create_Personalized_Email_Outreach_with_AI__Telegram_Bot___Website_Scraping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10143_Create_Personalized_Email_Outreach_with_AI__Telegram_Bot___Website_Scraping.json)|
 |10850|[10850_Create___Share_AI_Videos_with_Telegram__Gemini___Post_to_TikTok__Instagram__Facebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10850_Create___Share_AI_Videos_with_Telegram__Gemini___Post_to_TikTok__Instagram__Facebook.json)|
 |11138|[11138_Generate_AI_Photos_with_Gemini___Auto-Post_to_Facebook__Instagram___X_with_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11138_Generate_AI_Photos_with_Gemini___Auto-Post_to_Facebook__Instagram___X_with_Approval.json)|
+|12437|[12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json)|

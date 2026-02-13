@@ -1,4 +1,4 @@
-# optimization : 22
+# optimization : 26
 
 |id|file|
 |----|----|
@@ -24,3 +24,7 @@
 |10832|[10832_AI-Powered_SEO_Content_Optimization_with_SERP_Analysis___Slack_Approval_Workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10832_AI-Powered_SEO_Content_Optimization_with_SERP_Analysis___Slack_Approval_Workflow.json)|
 |11708|[11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json)|
 |11797|[11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json)|
+|12037|[12037_Automate_contract_analysis___negotiation_with_GPT-4___financial_impact_assessment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12037_Automate_contract_analysis___negotiation_with_GPT-4___financial_impact_assessment.json)|
+|12496|[12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json)|
+|12907|[12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json)|
+|13313|[13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json)|

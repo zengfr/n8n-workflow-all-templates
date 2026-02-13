@@ -1,4 +1,4 @@
-# chain : 9
+# chain : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |7836|[7836_Generate_Daily_Bitcoin_On-Chain_Metrics_PDF_Report_with_NASDAQ_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/78/7836_Generate_Daily_Bitcoin_On-Chain_Metrics_PDF_Report_with_NASDAQ_Data.json)|
 |8547|[8547_Generate_Ethereum___Solana_Blockchain_Audit_Reports_with_PDF_Export_to_Drive___Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8547_Generate_Ethereum___Solana_Blockchain_Audit_Reports_with_PDF_Export_to_Drive___Notion.json)|
 |8618|[8618_Inventory_ABC___Pareto_Analysis_with_Google_Sheets_for_Supply_Chain_Optimization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8618_Inventory_ABC___Pareto_Analysis_with_Google_Sheets_for_Supply_Chain_Optimization.json)|
+|12988|[12988_Analyze_global_supply_chain_sustainability_and_risk_with_GPT-4o_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12988_Analyze_global_supply_chain_sustainability_and_risk_with_GPT-4o_and_email_alerts.json)|
+|13316|[13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json)|

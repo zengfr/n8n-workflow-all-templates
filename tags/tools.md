@@ -1,4 +1,4 @@
-# tools : 28
+# tools : 30
 
 |id|file|
 |----|----|
@@ -30,3 +30,5 @@
 |8890|[8890_Consolidate_Data_from_5_Sources_for_Automated_Reporting_with_SQL__MongoDB___Google_Tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8890_Consolidate_Data_from_5_Sources_for_Automated_Reporting_with_SQL__MongoDB___Google_Tools.json)|
 |10117|[10117_Automated_Event_Management_with_Typeform__Stripe__Google_Tools___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10117_Automated_Event_Management_with_Typeform__Stripe__Google_Tools___Slack_Notifications.json)|
 |11706|[11706_Track_GitHub_Trending_Repositories_with_ScrapeOps___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11706_Track_GitHub_Trending_Repositories_with_ScrapeOps___Google_Sheets.json)|
+|12032|[12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json)|
+|12583|[12583_Generate_HIPAA-safe_patient-friendly_EMR_summaries_with_GPT-4__PDF_tools_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12583_Generate_HIPAA-safe_patient-friendly_EMR_summaries_with_GPT-4__PDF_tools_and_Google_Drive.json)|

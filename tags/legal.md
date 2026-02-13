@@ -1,4 +1,4 @@
-# legal : 15
+# legal : 18
 
 |id|file|
 |----|----|
@@ -17,3 +17,6 @@
 |8504|[8504_Extract___Validate_Legal_Citations_from_Documents_with_PDF_Vector_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8504_Extract___Validate_Legal_Citations_from_Documents_with_PDF_Vector_AI.json)|
 |9328|[9328_Extract_Legal_Contract_Data___Send_Alerts_with_VLM_Run__Google_Workspace___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9328_Extract_Legal_Contract_Data___Send_Alerts_with_VLM_Run__Google_Workspace___Slack.json)|
 |11861|[11861_Intelligent_Legal_Document_Review_and_Compliance_Automation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11861_Intelligent_Legal_Document_Review_and_Compliance_Automation.json)|
+|12508|[12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json)|
+|12661|[12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json)|
+|12740|[12740_Analyze_legal_contracts_with_GPT-4.1_and_manage_cases_in_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12740_Analyze_legal_contracts_with_GPT-4.1_and_manage_cases_in_Google_Sheets_and_Slack.json)|

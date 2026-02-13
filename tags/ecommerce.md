@@ -1,4 +1,4 @@
-# ecommerce : 9
+# ecommerce : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |10063|[10063_AI_Video_Generator_for_eCommerce_Product_Catalogs_with_Veo_3.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10063_AI_Video_Generator_for_eCommerce_Product_Catalogs_with_Veo_3.1.json)|
 |10514|[10514_Generate_UGC_Promo_Videos_with_OpenAI__Sora_2_and_Blotato_for_eCommerce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10514_Generate_UGC_Promo_Videos_with_OpenAI__Sora_2_and_Blotato_for_eCommerce.json)|
 |11082|[11082_Generate_eCommerce_Product_Descriptions_with_GPT-4o-mini_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11082_Generate_eCommerce_Product_Descriptions_with_GPT-4o-mini_and_Airtable.json)|
+|12132|[12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json)|
+|12193|[12193_E-commerce_product_mockups_from_images_with_OpenAI_DALL-E__remove.bg_and_G-Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12193_E-commerce_product_mockups_from_images_with_OpenAI_DALL-E__remove.bg_and_G-Drive.json)|

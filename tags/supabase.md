@@ -1,4 +1,4 @@
-# supabase : 106
+# supabase : 117
 
 |id|file|
 |----|----|
@@ -108,3 +108,14 @@
 |11462|[11462_Complete_Appointment_System_with_Supabase_and_AI_Assistants_for_Scheduling___Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11462_Complete_Appointment_System_with_Supabase_and_AI_Assistants_for_Scheduling___Management.json)|
 |11463|[11463_Dental_Clinic_Appointment___Admin_System_with_Supabase__Phone_Integration___AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11463_Dental_Clinic_Appointment___Admin_System_with_Supabase__Phone_Integration___AI.json)|
 |11648|[11648_AI_WhatsApp_Support_with_Human_Handoff_using_Gemini__Twilio__and_Supabase_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11648_AI_WhatsApp_Support_with_Human_Handoff_using_Gemini__Twilio__and_Supabase_RAG.json)|
+|12366|[12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json)|
+|12554|[12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json)|
+|12823|[12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json)|
+|12839|[12839_Draft_personalized_Outlook_support_email_replies_with_Supabase_RAG_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12839_Draft_personalized_Outlook_support_email_replies_with_Supabase_RAG_and_OpenAI.json)|
+|12994|[12994_Generate_and_send_AI-powered_sales_quotes_with_Gmail__OpenAI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12994_Generate_and_send_AI-powered_sales_quotes_with_Gmail__OpenAI_and_Supabase.json)|
+|13166|[13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json)|
+|13193|[13193_Send_subscription_renewal_reminders_via_Telegram_with_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13193_Send_subscription_renewal_reminders_via_Telegram_with_Supabase.json)|
+|13220|[13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json)|
+|13231|[13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json)|
+|13238|[13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json)|
+|13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|

@@ -1,4 +1,4 @@
-# scoring : 49
+# scoring : 60
 
 |id|file|
 |----|----|
@@ -51,3 +51,14 @@
 |11408|[11408_Lead_Scoring___Auto-Assignment_with_GPT-4_and_GoHighLevel___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11408_Lead_Scoring___Auto-Assignment_with_GPT-4_and_GoHighLevel___Slack_Alerts.json)|
 |11538|[11538_Bulk_Email_Validation_and_AI_Scoring_with_ZeroBounce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11538_Bulk_Email_Validation_and_AI_Scoring_with_ZeroBounce.json)|
 |11862|[11862_Intelligent_Real-Time_Financial_Fraud_Detection_and_Risk_Scoring_Engine.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11862_Intelligent_Real-Time_Financial_Fraud_Detection_and_Risk_Scoring_Engine.json)|
+|12179|[12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json)|
+|12279|[12279_Score_telematics_driving_risk_with_Claude_and_adjust_insurance_premiums_via_HTTP__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12279_Score_telematics_driving_risk_with_Claude_and_adjust_insurance_premiums_via_HTTP__Gmail__and_Slack.json)|
+|12474|[12474_Score_HubSpot_deal_conversion_risk_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12474_Score_HubSpot_deal_conversion_risk_with_OpenAI_and_Slack_alerts.json)|
+|12478|[12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json)|
+|12577|[12577_Monitor_HubSpot_deal_risk_with_OpenAI_scoring_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12577_Monitor_HubSpot_deal_risk_with_OpenAI_scoring_and_Slack_alerts.json)|
+|12618|[12618_RSVP_s_lead_scoring_for_Events__GPT-4o-mini___HubSpot_Sync___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12618_RSVP_s_lead_scoring_for_Events__GPT-4o-mini___HubSpot_Sync___Slack_Alerts.json)|
+|12696|[12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json)|
+|12765|[12765_Score_call_quality_and_send_coaching_emails_with_Gemini__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12765_Score_call_quality_and_send_coaching_emails_with_Gemini__OpenAI__and_Gmail.json)|
+|13065|[13065_Score_and_route_leads_with_Telegram_alerts_and_Box_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13065_Score_and_route_leads_with_Telegram_alerts_and_Box_storage.json)|
+|13116|[13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json)|
+|13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|

@@ -1,4 +1,4 @@
-# signals : 8
+# signals : 13
 
 |id|file|
 |----|----|
@@ -10,3 +10,8 @@
 |9219|[9219_Generate_Personalized_Sales_Outreach_from_LinkedIn_Job_Signals_with_Apify___Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9219_Generate_Personalized_Sales_Outreach_from_LinkedIn_Job_Signals_with_Apify___Google_Gemini.json)|
 |10886|[10886_Monitor_Japan_Flight_Prices___Generate_Booking_Alerts_with_GPT-4o___Multi-Source_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10886_Monitor_Japan_Flight_Prices___Generate_Booking_Alerts_with_GPT-4o___Multi-Source_Analysis.json)|
 |11366|[11366_Generate_Crypto_Trading_Signals_with_Multi-Timeframe_Data__News_Sentiment___Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11366_Generate_Crypto_Trading_Signals_with_Multi-Timeframe_Data__News_Sentiment___Gemini_AI.json)|
+|12333|[12333_Generate_AI_stock_buy_no-buy_signals_using_GPT_4.1__Google_Sheets_and_EODHD.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12333_Generate_AI_stock_buy_no-buy_signals_using_GPT_4.1__Google_Sheets_and_EODHD.json)|
+|12485|[12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json)|
+|12497|[12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json)|
+|12553|[12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json)|
+|13153|[13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json)|

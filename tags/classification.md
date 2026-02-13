@@ -1,4 +1,4 @@
-# classification : 35
+# classification : 38
 
 |id|file|
 |----|----|
@@ -37,3 +37,6 @@
 |11114|[11114_Automatic_Email_Classification_with_Gmail_and_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11114_Automatic_Email_Classification_with_Gmail_and_Claude_AI.json)|
 |11243|[11243_Automate_Email_Triage___Meeting_Scheduling_with_Gmail__GPT-4___Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11243_Automate_Email_Triage___Meeting_Scheduling_with_Gmail__GPT-4___Google_Calendar.json)|
 |11854|[11854_AI-Powered_Ticket_Triage_with_Multi-Model_Classification___Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11854_AI-Powered_Ticket_Triage_with_Multi-Model_Classification___Knowledge_Base.json)|
+|11911|[11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json)|
+|12946|[12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json)|
+|12961|[12961_Extract_data_from_PDF_reports_with_Gmail__OCR__Google_Sheets_and_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12961_Extract_data_from_PDF_reports_with_Gmail__OCR__Google_Sheets_and_OpenAI_GPT-4.1-mini.json)|

@@ -1,4 +1,4 @@
-# viral : 56
+# viral : 66
 
 |id|file|
 |----|----|
@@ -58,3 +58,13 @@
 |11505|[11505_Transform_Podcasts_into_Viral_Social_Media_Clips_with_Gemini_AI_and_Multi-Platform_Posting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11505_Transform_Podcasts_into_Viral_Social_Media_Clips_with_Gemini_AI_and_Multi-Platform_Posting.json)|
 |11584|[11584_Extract_Viral-Worthy_Clips_from_YouTube_Videos_with_Gemini_AI___FFmpeg_Editing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11584_Extract_Viral-Worthy_Clips_from_YouTube_Videos_with_Gemini_AI___FFmpeg_Editing.json)|
 |11710|[11710_Extend_and_Merge_UGC_Viral_Videos_Using_Kling_2.1__Then_Publish_on_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11710_Extend_and_Merge_UGC_Viral_Videos_Using_Kling_2.1__Then_Publish_on_Social_Media.json)|
+|12045|[12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json)|
+|12054|[12054_Auto-clip_long_videos_into_viral_short_clips_with_Vizard_AI_and_social_publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12054_Auto-clip_long_videos_into_viral_short_clips_with_Vizard_AI_and_social_publishing.json)|
+|12178|[12178_Discover_viral_social_media_trends_with_Gemini_Flash___Apify_scraping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12178_Discover_viral_social_media_trends_with_Gemini_Flash___Apify_scraping.json)|
+|12410|[12410_Monitor_viral_Reddit_posts_and_send_GPT-4o-mini_summaries_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12410_Monitor_viral_Reddit_posts_and_send_GPT-4o-mini_summaries_to_Telegram.json)|
+|12536|[12536_Create_AI_Viral_Selfie_videos___with_celebrities___using_Google_Veo_3.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12536_Create_AI_Viral_Selfie_videos___with_celebrities___using_Google_Veo_3.1.json)|
+|12542|[12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json)|
+|12587|[12587_Generate_Instagram_news_carousels_from_RSS_feeds_using_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12587_Generate_Instagram_news_carousels_from_RSS_feeds_using_GPT-4o.json)|
+|12682|[12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json)|
+|12867|[12867_Auto-dub_Viral_Instagram_and_TikTok_videos___with_Fal_AI_ElevenLabs_dubbing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12867_Auto-dub_Viral_Instagram_and_TikTok_videos___with_Fal_AI_ElevenLabs_dubbing.json)|
+|13089|[13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json)|

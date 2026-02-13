@@ -1,4 +1,4 @@
-# top : 24
+# top : 28
 
 |id|file|
 |----|----|
@@ -26,3 +26,7 @@
 |9891|[9891_Source_Top_GitHub_Talent_by_Language___Location_with_Gemini_AI_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9891_Source_Top_GitHub_Talent_by_Language___Location_with_Gemini_AI_and_BrowserAct.json)|
 |10556|[10556_Generate_Weekly_Twitter___Facebook_Performance_Reports_with_GPT-4o_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10556_Generate_Weekly_Twitter___Facebook_Performance_Reports_with_GPT-4o_Analysis.json)|
 |11426|[11426_Daily_Crypto_Yield_Monitor__Track_Top_Binance_Earn_APY_Rates_with_Earnings_Calculator.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11426_Daily_Crypto_Yield_Monitor__Track_Top_Binance_Earn_APY_Rates_with_Earnings_Calculator.json)|
+|11966|[11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json)|
+|12048|[12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json)|
+|12249|[12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json)|
+|12965|[12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json)|

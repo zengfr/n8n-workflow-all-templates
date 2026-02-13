@@ -1,4 +1,4 @@
-# face : 9
+# face : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |6485|[6485_Generate___Rank_Animal_Advocacy_Content_with_Claude_AI__Open_Paws___Hugging_Face.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6485_Generate___Rank_Animal_Advocacy_Content_with_Claude_AI__Open_Paws___Hugging_Face.json)|
 |8711|[8711_Sync_face-to-face_fundraising_data_from_offline_Google_Sheets_to_SinergiaCRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8711_Sync_face-to-face_fundraising_data_from_offline_Google_Sheets_to_SinergiaCRM.json)|
 |10644|[10644_Create___Auto-Publish_YouTube_Content_with_Gemini_AI__Face_Thumbnails___Human_Review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10644_Create___Auto-Publish_YouTube_Content_with_Gemini_AI__Face_Thumbnails___Human_Review.json)|
+|12338|[12338_Migrate_large_Hugging_Face_datasets_to_MongoDB_with_a_looping_subworkflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12338_Migrate_large_Hugging_Face_datasets_to_MongoDB_with_a_looping_subworkflow.json)|

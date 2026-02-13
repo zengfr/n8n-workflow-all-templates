@@ -1,4 +1,4 @@
-# assign : 10
+# assign : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |7681|[7681_Sync_New_Subscribers_from_Google_Sheets_to_MailerLite_without_Duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7681_Sync_New_Subscribers_from_Google_Sheets_to_MailerLite_without_Duplicates.json)|
 |9682|[9682_Route_Jira_Tasks_to_Experts_Using_Google_Sheets_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9682_Route_Jira_Tasks_to_Experts_Using_Google_Sheets_and_GPT-4o-mini.json)|
 |9983|[9983_Auto-Categorize_Blog_Posts_with_OpenAI_GPT-4__GitHub__and_Google_Sheets_for_Astro_Next.js.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9983_Auto-Categorize_Blog_Posts_with_OpenAI_GPT-4__GitHub__and_Google_Sheets_for_Astro_Next.js.json)|
+|12632|[12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json)|

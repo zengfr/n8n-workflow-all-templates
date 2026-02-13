@@ -1,4 +1,4 @@
-# knowledge : 69
+# knowledge : 71
 
 |id|file|
 |----|----|
@@ -71,3 +71,5 @@
 |11780|[11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json)|
 |11820|[11820_Answer_Product_Queries_via_WhatsApp_using_OpenAI_GPT-4o_and_PDF_Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11820_Answer_Product_Queries_via_WhatsApp_using_OpenAI_GPT-4o_and_PDF_Knowledge_Base.json)|
 |11854|[11854_AI-Powered_Ticket_Triage_with_Multi-Model_Classification___Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11854_AI-Powered_Ticket_Triage_with_Multi-Model_Classification___Knowledge_Base.json)|
+|12521|[12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json)|
+|13248|[13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json)|

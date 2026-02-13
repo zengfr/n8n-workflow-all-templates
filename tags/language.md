@@ -1,4 +1,4 @@
-# language : 67
+# language : 74
 
 |id|file|
 |----|----|
@@ -69,3 +69,10 @@
 |10268|[10268_Magento_Maintenance_via_Natural_Language_with_GPT_and_Telegram_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10268_Magento_Maintenance_via_Natural_Language_with_GPT_and_Telegram_WhatsApp.json)|
 |10385|[10385_Telegram_Multi-language_Translation_Bot_with_GPT-3.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10385_Telegram_Multi-language_Translation_Bot_with_GPT-3.5.json)|
 |10468|[10468_Schedule_Meetings_via_WhatsApp_Using_Natural_Language_with_Gemini_AI___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10468_Schedule_Meetings_via_WhatsApp_Using_Natural_Language_with_Gemini_AI___Google_Suite.json)|
+|11896|[11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json)|
+|11910|[11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json)|
+|12064|[12064_Generate_workflows_from_natural_language_using_GPT-4o_Mini_and_n8nBuilder_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12064_Generate_workflows_from_natural_language_using_GPT-4o_Mini_and_n8nBuilder_API.json)|
+|12265|[12265_Create_Anki_language_flashcards_with_GPT-4__DALL-E_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12265_Create_Anki_language_flashcards_with_GPT-4__DALL-E_and_ElevenLabs.json)|
+|13038|[13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json)|
+|13169|[13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json)|
+|13182|[13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json)|

@@ -1,4 +1,4 @@
-# release : 17
+# release : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |10332|[10332_Automate_Release_Notes_from_ClickUp_to_Notion___Slack_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10332_Automate_Release_Notes_from_ClickUp_to_Notion___Slack_with_GPT-4o.json)|
 |11569|[11569_Generate_GitHub_Release_Notes_with_AI_Comparison.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11569_Generate_GitHub_Release_Notes_with_AI_Comparison.json)|
 |11743|[11743_Generate_Multi-Channel_Release_Notes_from_ClickUp_Tasks_with_GPT-4o__Notion___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11743_Generate_Multi-Channel_Release_Notes_from_ClickUp_Tasks_with_GPT-4o__Notion___Slack.json)|
+|12005|[12005_Movie_release_calendar__Add_TMDB_films_to_Google_Calendar_via_Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12005_Movie_release_calendar__Add_TMDB_films_to_Google_Calendar_via_Telegram_Bot.json)|

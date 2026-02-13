@@ -1,4 +1,4 @@
-# weather : 52
+# weather : 55
 
 |id|file|
 |----|----|
@@ -54,3 +54,6 @@
 |11432|[11432_Smart_Break_Recommendation_System_using_Google_Calendar__Weather_Data__and_GPT-4_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11432_Smart_Break_Recommendation_System_using_Google_Calendar__Weather_Data__and_GPT-4_to_Slack.json)|
 |11470|[11470_Real-time_ISS_Overhead_Alert_with_Weather_Check_and_Multi-Channel_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11470_Real-time_ISS_Overhead_Alert_with_Weather_Check_and_Multi-Channel_Notifications.json)|
 |11514|[11514_Monitor_Commodity_Markets_with_Apify__DeepL_Translation___Sector_Impact_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11514_Monitor_Commodity_Markets_with_Apify__DeepL_Translation___Sector_Impact_Analysis.json)|
+|11939|[11939_Smart_irrigation_scheduler_with_weather_forecast_and_soil_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11939_Smart_irrigation_scheduler_with_weather_forecast_and_soil_analysis.json)|
+|12232|[12232_Send_daily_Malaysian_weather_alerts_with_Perplexity_AI__Firecrawl_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12232_Send_daily_Malaysian_weather_alerts_with_Perplexity_AI__Firecrawl_and_Telegram.json)|
+|12653|[12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json)|

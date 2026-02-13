@@ -1,4 +1,4 @@
-# microsoft : 29
+# microsoft : 35
 
 |id|file|
 |----|----|
@@ -31,3 +31,9 @@
 |8643|[8643_Sync_Azure_DevOps_Work_Items_to_GitHub_Issues_with_Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8643_Sync_Azure_DevOps_Work_Items_to_GitHub_Issues_with_Google_Sheets_Tracking.json)|
 |10186|[10186_Email-to-Task_Automation_with_Mistral_AI__Gmail_Outlook_to_Google_Tasks_Microsoft_To_Do.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10186_Email-to-Task_Automation_with_Mistral_AI__Gmail_Outlook_to_Google_Tasks_Microsoft_To_Do.json)|
 |10602|[10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json)|
+|12010|[12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json)|
+|12233|[12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json)|
+|12399|[12399_Email_reports_on_expiring_Microsoft_Entra_ID_app_secrets_and_certificates_with_Microsoft_Graph.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12399_Email_reports_on_expiring_Microsoft_Entra_ID_app_secrets_and_certificates_with_Microsoft_Graph.json)|
+|12495|[12495_Audit_SharePoint_Online_external_sharing_and_anonymous_links_with_Microsoft_Graph.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12495_Audit_SharePoint_Online_external_sharing_and_anonymous_links_with_Microsoft_Graph.json)|
+|12586|[12586_Sync_your_HRIS_employee_directory_with_Microsoft_Teams__Coda__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12586_Sync_your_HRIS_employee_directory_with_Microsoft_Teams__Coda__and_Slack.json)|
+|12664|[12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json)|

@@ -1,4 +1,4 @@
-# security : 41
+# security : 43
 
 |id|file|
 |----|----|
@@ -43,3 +43,5 @@
 |11220|[11220_Automated_Failed_Login_Detection_with_Jira_Tasks__Slack_Alerts___Notion_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11220_Automated_Failed_Login_Detection_with_Jira_Tasks__Slack_Alerts___Notion_Logging.json)|
 |11580|[11580_Automated_Customer_Support_System_with_Gemini_AI__RAG___Security_Guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11580_Automated_Customer_Support_System_with_Gemini_AI__RAG___Security_Guardrails.json)|
 |11635|[11635_Track_Software_Security_Patents_with_ScrapeGraphAI__Notion__and_Pushover_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11635_Track_Software_Security_Patents_with_ScrapeGraphAI__Notion__and_Pushover_Alerts.json)|
+|11975|[11975_AI-powered_security_analysis_for_n8n_with_Google_Gemini_and_n8n_audit_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11975_AI-powered_security_analysis_for_n8n_with_Google_Gemini_and_n8n_audit_API.json)|
+|12024|[12024_Automated_APK_security_scanning___PDF_reporting_with_MobSF__AI___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12024_Automated_APK_security_scanning___PDF_reporting_with_MobSF__AI___Google_Drive.json)|

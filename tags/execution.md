@@ -1,4 +1,4 @@
-# execution : 17
+# execution : 19
 
 |id|file|
 |----|----|
@@ -19,3 +19,5 @@
 |9951|[9951_Automate_Workflow_Execution_with_Telegram_Bot_Command_Center.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9951_Automate_Workflow_Execution_with_Telegram_Bot_Command_Center.json)|
 |9974|[9974_Automate_HVAC_Service_Scheduling_with_AI_Agent__Google_Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9974_Automate_HVAC_Service_Scheduling_with_AI_Agent__Google_Calendar_and_Gmail.json)|
 |10048|[10048_Distribute_Workflow_Execution_with_Round-Robin_Logic_using_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10048_Distribute_Workflow_Execution_with_Round-Robin_Logic_using_Data_Tables.json)|
+|12880|[12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json)|
+|12921|[12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json)|

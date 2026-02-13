@@ -1,4 +1,4 @@
-# automatic : 73
+# automatic : 76
 
 |id|file|
 |----|----|
@@ -75,3 +75,6 @@
 |10766|[10766_Automatic_PDF_Compression_with_iLovePDF_for_Google_Drive_Files.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10766_Automatic_PDF_Compression_with_iLovePDF_for_Google_Drive_Files.json)|
 |11005|[11005_Automatic_Email_Notifications_for_n8n_Version_Releases_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11005_Automatic_Email_Notifications_for_n8n_Version_Releases_with_Gmail.json)|
 |11114|[11114_Automatic_Email_Classification_with_Gmail_and_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11114_Automatic_Email_Classification_with_Gmail_and_Claude_AI.json)|
+|11985|[11985_Automatic_Instagram_content_creation_with_OpenAI__Nano_Banana_and_Telegram_check.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11985_Automatic_Instagram_content_creation_with_OpenAI__Nano_Banana_and_Telegram_check.json)|
+|12571|[12571_Generate__translate_and_publish_AI_content_to_WordPress_and_socials_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12571_Generate__translate_and_publish_AI_content_to_WordPress_and_socials_with_GPT-4.1_and_Google_Sheets.json)|
+|13290|[13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json)|

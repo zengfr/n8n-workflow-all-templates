@@ -1,4 +1,4 @@
-# short : 15
+# short : 20
 
 |id|file|
 |----|----|
@@ -17,3 +17,8 @@
 |9861|[9861_Generate_and_Manage_Short_Links_with_GPT-4.1_and_Data_Storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9861_Generate_and_Manage_Short_Links_with_GPT-4.1_and_Data_Storage.json)|
 |10308|[10308_Generate_AI_Short-Form_Videos_with_Creatomate__ElevenLabs___Pexels_Stock.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10308_Generate_AI_Short-Form_Videos_with_Creatomate__ElevenLabs___Pexels_Stock.json)|
 |11645|[11645_Generate_Short-form_Clips_from_YouTube_Videos_with_GPT-4o__Grok___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11645_Generate_Short-form_Clips_from_YouTube_Videos_with_GPT-4o__Grok___Airtable.json)|
+|12054|[12054_Auto-clip_long_videos_into_viral_short_clips_with_Vizard_AI_and_social_publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12054_Auto-clip_long_videos_into_viral_short_clips_with_Vizard_AI_and_social_publishing.json)|
+|12478|[12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json)|
+|13024|[13024_Create_and_publish_AI_avatar_short_videos_with_Gemini__HeyGen_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13024_Create_and_publish_AI_avatar_short_videos_with_Gemini__HeyGen_and_Google_Sheets.json)|
+|13040|[13040_Generate_short_joke_videos_from_Google_Sheets_with_Google_Gemini_and_Wavespeed_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13040_Generate_short_joke_videos_from_Google_Sheets_with_Google_Gemini_and_Wavespeed_AI.json)|
+|13089|[13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json)|

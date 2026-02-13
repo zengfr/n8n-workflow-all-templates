@@ -1,0 +1,642 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Debounce Telegram support messages and aggregate replies with OpenAI",
+    "wechat": "youandme10086",
+    "id": 13070,
+    "update_time": "2026-02-13"
+  },
+  "nodes": [
+    {
+      "id": "2b135de7-4e4c-4cce-8654-9d988dde7764",
+      "name": "Incoming Message Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1072,
+        176
+      ],
+      "webhookId": "support-webhook",
+      "parameters": {
+        "path": "support-webhook",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "344a2a08-a088-482d-bf85-d3ea5ee776ad",
+      "name": "Extract User Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -848,
+        272
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "user-id",
+              "name": "user_id",
+              "type": "number",
+              "value": "={{ $json.message.from.id }}"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "type": "string",
+              "value": "={{ $json.message.text }}"
+            },
+            {
+              "id": "timestamp",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ $now }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "9e46901e-9ff6-4023-8be6-be35bc9f1f22",
+      "name": "Check Active Session",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -624,
+        272
+      ],
+      "parameters": {
+        "query": "SELECT * FROM user_sessions WHERE user_id = '{{ $json.user_id }}' AND status IN ('LISTENING', 'AGGREGATING') AND wait_expires_at > NOW()",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "zLZZi776WafMNhNs",
+          "name": "[Railway/Naveen]Postgres account"
+        }
+      },
+      "typeVersion": 2.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "76ae5ad8-cfb9-4cec-a639-df635ceef428",
+      "name": "Create New Session",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -176,
+        176
+      ],
+      "parameters": {
+        "query": "INSERT INTO user_sessions (\n  user_id, session_id, messages, first_message_at,\n  wait_expires_at, status\n)\nVALUES\n  (\n    '{{ $('Extract User Data').item.json.user_id }}',\n    gen_random_uuid(),\n    ARRAY[jsonb_build_object(\n      'message', '{{ $('Extract User Data').item.json.message }}',\n      'timestamp', '{{ $('Extract User Data').item.json.timestamp }}'\n  )]::jsonb[],\n  NOW(), NOW() + INTERVAL '60 seconds',\n  'LISTENING'\n) RETURNING *",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "zLZZi776WafMNhNs",
+          "name": "[Railway/Naveen]Postgres account"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "dac56742-199a-4ebc-b210-90b3bec26d1a",
+      "name": "Append Message",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -176,
+        368
+      ],
+      "parameters": {
+        "query": "UPDATE \n  user_sessions \nSET \n  messages = messages || jsonb_build_object(\n    'message', '{{ $('Extract User Data').item.json.message }}', \n    'timestamp', '{{ $('Extract User Data').item.json.timestamp }}'\n  ):: jsonb, \n  status = 'AGGREGATING' \nWHERE \n  user_id = '{{ $('Extract User Data').item.json.user_id }}' \n  AND status IN ('LISTENING', 'AGGREGATING') RETURNING *\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "zLZZi776WafMNhNs",
+          "name": "[Railway/Naveen]Postgres account"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "61534e84-91dd-4b2c-a23e-96554430543a",
+      "name": "Fetch All Messages",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        496,
+        176
+      ],
+      "parameters": {
+        "query": "SELECT * FROM user_sessions WHERE user_id = '{{ $('Extract User Data').item.json.user_id }}' ORDER BY first_message_at DESC LIMIT 1",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "zLZZi776WafMNhNs",
+          "name": "[Railway/Naveen]Postgres account"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "5fd74cd8-85c6-422e-8ba3-8312e68bac0e",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        944,
+        176
+      ],
+      "parameters": {
+        "text": "=You are a helpful AI assistant. Please respond to the following conversation:\n\n{{ $json.conversation }}\n\nProvide a helpful and comprehensive response addressing all the messages above.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "0a5b2d34-2391-4908-b9e8-fd790aa3bb89",
+      "name": "Clear Session",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1520,
+        176
+      ],
+      "parameters": {
+        "query": "UPDATE user_sessions SET status = 'COMPLETED' WHERE user_id = '{{ $('Extract User Data').item.json.user_id }}'",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "zLZZi776WafMNhNs",
+          "name": "[Railway/Naveen]Postgres account"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "996930f3-2820-416c-802a-5432f1751df1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        48,
+        368
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: \"accepted\", message: \"Message received\" }) }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0400571f-1068-475d-89bd-155fdf472159",
+      "name": "Store Resume URL",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        48,
+        176
+      ],
+      "parameters": {
+        "query": "UPDATE \n  user_sessions \nSET \n  resume_url = '{{ $execution.resumeUrl }}' \nWHERE \n  session_id = '{{ $json.session_id }}'\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "zLZZi776WafMNhNs",
+          "name": "[Railway/Naveen]Postgres account"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "eb95a84c-3b73-4a4c-a304-7fd29f859969",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1016,
+        400
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "2FqzrBEciWnWPmSG",
+          "name": "iRocket OpenAi account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "e017160d-204e-4b19-8d73-61a42fca7516",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -1072,
+        368
+      ],
+      "webhookId": "1fc13afe-8b1b-4fe8-bcb9-7d55d01fc0e4",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "WZe8Z3Fa0fBQLx4M",
+          "name": "[DebounceAI/Naveen]Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f7ca54c1-4dce-4cab-b356-a842b6a8367e",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -400,
+        272
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c227a9a0-5df7-4404-ba61-fc036800ea65",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isEmpty() }}",
+              "rightValue": 0
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "5c8b2fc9-df5a-4683-8d36-b635c827afb3",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1296,
+        176
+      ],
+      "webhookId": "47cd0608-e895-4819-a037-93d413ef3eff",
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "chatId": "={{ $('Format All Messages').item.json.user_id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "WZe8Z3Fa0fBQLx4M",
+          "name": "[DebounceAI/Naveen]Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "dbe5598d-58c5-45e0-824e-5aa9d53f02e9",
+      "name": "Format All Messages",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        720,
+        176
+      ],
+      "parameters": {
+        "jsCode": "// Extract all messages from the session and format them\nconst session = $input.first().json;\nconst messages = session.messages;\n\n// Create a formatted conversation string\nconst conversation = messages.map((msg, index) => {\n  return `Message ${index + 1}: ${msg.message}`;\n}).join('\\n\\n');\n\nreturn {\n  user_id: session.user_id,\n  conversation: conversation,\n  message_count: messages.length\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d648d2ca-dc9e-47b8-8e61-91ae980d886b",
+      "name": "Wait 60s (New Session)",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        272,
+        176
+      ],
+      "webhookId": "wait-new",
+      "parameters": {
+        "amount": 60
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "954de179-2d69-4ac4-955a-c60544105050",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        -976
+      ],
+      "parameters": {
+        "width": 1024,
+        "height": 768,
+        "content": "# Intelligent Message Debouncing for Telegram Support Bot\n\nThis workflow prevents your AI support bot from responding to every single message by intelligently aggregating rapid-fire messages from users before generating a comprehensive response.\n\n## How it works\n1. User sends message(s) to Telegram bot\n2. Workflow creates/updates a session in PostgreSQL\n3. Waits 60 seconds to collect all messages\n4. Aggregates messages and sends to OpenAI\n5. Returns comprehensive AI response to user\n\n## Requirements\n- Telegram bot token (via BotFather)\n- OpenAI API key\n- PostgreSQL database\n\n## Database Setup\nCreate table with: user_id, session_id, messages (jsonb[]), first_message_at, wait_expires_at, status, resume_url\n\n## Customization\n- Adjust wait time in \"Wait 60s\" node\n- Modify AI prompt in \"AI Agent\" node\n- Change response style/tone as needed\n\n📺 [Setup Video Guide] (if you create one)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7df45fe2-1701-4d70-9efb-c847c6e53d9f",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1344,
+        576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 240,
+        "content": "## Step 1: Receive Message\n\nTelegram Trigger listens for incoming messages from users.\n\nExtract user data including:\n- User ID\n- Message text\n- Timestamp"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "77dbff3b-c29e-4663-831b-60e3f9e0747b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -816,
+        -48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 272,
+        "content": "## Step 2: Check for Active Session\n\nQueries PostgreSQL to see if user has an active session within the last 60 seconds.\n\n- If NO session → Create new session\n- If session EXISTS → Append message to existing session\n\nStatus options: LISTENING, AGGREGATING, COMPLETED"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "58c8be2e-72f6-45af-a9a4-b232801386f8",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 208,
+        "content": "## Step 3: Wait for More Messages\n\n⏱️ 60-second window to collect all user messages\n\nThis prevents the bot from responding immediately and allows users to fully explain their issue.\n\nAdjust timer here based on your use case!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "60a49ffa-2695-438f-baba-bb14d40277f2",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 368,
+        "content": "## Step 4: Process with AI\n\n1. Fetch all messages from the session\n2. Format into a single conversation string\n3. Send to OpenAI for comprehensive response\n\n💡 Tip: Customize the AI prompt in the Agent node for different response styles"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4de80290-6e55-4585-a884-5ec6be204e6b",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1312,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 352,
+        "height": 176,
+        "content": "## Step 5: Deliver Response\n\nSend AI-generated response back to user via Telegram, then clear the session status to COMPLETED.\n\nReady for the next conversation! 🎉"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "961b011b-8c26-4b21-aee7-95c35361b2c4",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2048,
+        -192
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 640,
+        "height": 1440,
+        "content": "⚠️ IMPORTANT: Database Setup Required\n\nBefore running this workflow, create the PostgreSQL table:\n```sql\n-- Debounced AI Support Agent - Database Schema\n-- PostgreSQL 13+ required for JSONB support\n\n-- Create enum type for session status\nCREATE TYPE session_status AS ENUM ('IDLE', 'LISTENING', 'AGGREGATING', 'PROCESSING', 'COMPLETED');\n\n-- Main user sessions table\nCREATE TABLE user_sessions (\n    user_id VARCHAR(255) PRIMARY KEY,\n    session_id UUID NOT NULL DEFAULT gen_random_uuid(),\n    messages JSONB[] NOT NULL DEFAULT '{}',\n    first_message_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n    last_message_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n    wait_expires_at TIMESTAMP WITH TIME ZONE,\n    status session_status NOT NULL DEFAULT 'IDLE',\n    resume_url TEXT,\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);\n\n-- Indexes for performance\nCREATE INDEX idx_user_sessions_status ON user_sessions(status);\nCREATE INDEX idx_user_sessions_wait_expires ON user_sessions(wait_expires_at);\nCREATE INDEX idx_user_sessions_created_at ON user_sessions(created_at);\n\n-- Composite index for active session lookups\nCREATE INDEX idx_user_sessions_active ON user_sessions(user_id, status, wait_expires_at) \n    WHERE status IN ('LISTENING', 'AGGREGATING');\n\n-- Function to update updated_at timestamp\nCREATE OR REPLACE FUNCTION update_updated_at_column()\nRETURNS TRIGGER AS $$\nBEGIN\n    NEW.updated_at = NOW();\n    RETURN NEW;\nEND;\n$$ language 'plpgsql';\n\n-- Trigger to auto-update updated_at\nCREATE TRIGGER update_user_sessions_updated_at \n    BEFORE UPDATE ON user_sessions \n    FOR EACH ROW \n    EXECUTE FUNCTION update_updated_at_column();\n\n-- Cleanup function for expired sessions\nCREATE OR REPLACE FUNCTION cleanup_expired_sessions()\nRETURNS INTEGER AS $$\nDECLARE\n    deleted_count INTEGER;\nBEGIN\n    DELETE FROM user_sessions \n    WHERE wait_expires_at < NOW() - INTERVAL '5 minutes' \n       OR (status = 'COMPLETED' AND updated_at < NOW() - INTERVAL '1 hour');\n    \n    GET DIAGNOSTICS deleted_count = ROW_COUNT;\n    RETURN deleted_count;\nEND;\n$$ LANGUAGE plpgsql;\n\n-- Optional: Create a scheduled job for cleanup (requires pg_cron extension)\n-- SELECT cron.schedule('cleanup-sessions', '*/5 * * * *', 'SELECT cleanup_expired_sessions()');\n\n-- Sample queries for debugging\n\n-- View active sessions\n-- SELECT * FROM user_sessions WHERE status IN ('LISTENING', 'AGGREGATING') ORDER BY wait_expires_at;\n\n-- View messages for a specific user\n-- SELECT user_id, jsonb_agg(m) as messages \n-- FROM user_sessions, unnest(messages) as m \n-- WHERE user_id = 'user@example.com' \n-- GROUP BY user_id;\n\n-- Manual cleanup\n-- SELECT cleanup_expired_sessions();```\n\nUpdate all Postgres nodes with your credentials!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6ea7452f-ba0d-4108-9d1e-08497396c779",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1264,
+        -336
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 400,
+        "content": "🔐 Security Checklist\n\nBefore publishing:\n✅ Remove test credentials\n✅ Clear any personal Telegram chat IDs\n✅ Remove database connection strings\n✅ Use credential parameters, not hardcoded values"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create New Session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Resume URL": {
+      "main": [
+        [
+          {
+            "node": "Wait 60s (New Session)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract User Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract User Data": {
+      "main": [
+        [
+          {
+            "node": "Check Active Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Session": {
+      "main": [
+        [
+          {
+            "node": "Store Resume URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Messages": {
+      "main": [
+        [
+          {
+            "node": "Format All Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format All Messages": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Clear Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Active Session": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 60s (New Session)": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Incoming Message Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract User Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

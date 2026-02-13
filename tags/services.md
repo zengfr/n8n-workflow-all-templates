@@ -1,4 +1,4 @@
-# services : 14
+# services : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |7853|[7853_Manage_Schedule___Contacts_with_Telegram_Bot_using_GPT-4o-mini___Google_Services.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/78/7853_Manage_Schedule___Contacts_with_Telegram_Bot_using_GPT-4o-mini___Google_Services.json)|
 |8237|[8237_Personal_Life_Manager_with_Telegram__Google_Services___Voice-Enabled_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8237_Personal_Life_Manager_with_Telegram__Google_Services___Voice-Enabled_AI.json)|
 |9758|[9758_Scheduled_Automation_for_X_and_Google_Sheets_Services.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9758_Scheduled_Automation_for_X_and_Google_Sheets_Services.json)|
+|12196|[12196_Generate_SEO_landing_page_content_with_GPT-4__Reddit__YouTube_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12196_Generate_SEO_landing_page_content_with_GPT-4__Reddit__YouTube_and_Google_Sheets.json)|
+|12719|[12719_Route_and_nurture_financial_services_leads_with_OpenAI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12719_Route_and_nurture_financial_services_leads_with_OpenAI__Gmail_and_Google_Sheets.json)|
+|12761|[12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json)|

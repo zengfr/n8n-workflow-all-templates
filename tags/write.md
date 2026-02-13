@@ -1,4 +1,4 @@
-# write : 10
+# write : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |7668|[7668_Write_Personalised_Direct_Messages_for_Instagram_with_Apify__OpenAI__GSheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7668_Write_Personalised_Direct_Messages_for_Instagram_with_Apify__OpenAI__GSheets.json)|
 |9018|[9018_Automated_Blog_Post_Generator_with_GPT-4__DALL-E__and_Wikipedia_for_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9018_Automated_Blog_Post_Generator_with_GPT-4__DALL-E__and_Wikipedia_for_WordPress.json)|
 |11703|[11703_Google_Docs_MCP_Server___Read___Write_Access_for_Agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11703_Google_Docs_MCP_Server___Read___Write_Access_for_Agents.json)|
+|12323|[12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json)|
+|12342|[12342_Write_personalized_cold_emails_from_LinkedIn_leads_with_Wiza.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12342_Write_personalized_cold_emails_from_LinkedIn_leads_with_Wiza.json)|

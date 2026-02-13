@@ -1,4 +1,4 @@
-# endpoint : 9
+# endpoint : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |6411|[6411_Aggregate_Endpoint_Security_Risk_Scores_with_EDR__Vulnerability_Data___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6411_Aggregate_Endpoint_Security_Risk_Scores_with_EDR__Vulnerability_Data___Google_Sheets.json)|
 |7022|[7022_Auto_Remediate_Endpoint_Infections_with_Wazuh__ClamAV__and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7022_Auto_Remediate_Endpoint_Infections_with_Wazuh__ClamAV__and_GPT-4.json)|
 |11254|[11254_Create_a_Calendly_Availability_API_Endpoint_for_Real-time_Scheduling_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11254_Create_a_Calendly_Availability_API_Endpoint_for_Real-time_Scheduling_Data.json)|
+|13134|[13134_Extract_Meta_Ads_detailed_targeting_across_all_endpoints_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13134_Extract_Meta_Ads_detailed_targeting_across_all_endpoints_using_Google_Sheets.json)|

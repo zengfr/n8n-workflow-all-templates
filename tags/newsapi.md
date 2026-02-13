@@ -1,4 +1,4 @@
-# newsapi : 10
+# newsapi : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |10093|[10093_Daily_Gemini-Powered_Global_Trend_Analysis_with_GDELT__NewsAPI___Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10093_Daily_Gemini-Powered_Global_Trend_Analysis_with_GDELT__NewsAPI___Discord.json)|
 |11092|[11092_Create_AI-Curated_News_Digests_with_GPT-5.1__NewsAPI__Tavily___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11092_Create_AI-Curated_News_Digests_with_GPT-5.1__NewsAPI__Tavily___Telegram.json)|
 |11572|[11572_Aggregate_News_Articles_from_NewsAPI__Mediastack___CurrentsAPI_into_Database.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11572_Aggregate_News_Articles_from_NewsAPI__Mediastack___CurrentsAPI_into_Database.json)|
+|12581|[12581_Generate_AI_market_research_reports_from_NewsAPI_and_competitor_sites_to_Notion__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12581_Generate_AI_market_research_reports_from_NewsAPI_and_competitor_sites_to_Notion__Sheets_and_Slack.json)|
+|12712|[12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json)|
+|12949|[12949_Generate_weekly_AI_equity_research_reports_with_Google_Sheets__FMP__NewsAPI__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12949_Generate_weekly_AI_equity_research_reports_with_Google_Sheets__FMP__NewsAPI__OpenAI__and_Gmail.json)|
+|13181|[13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json)|

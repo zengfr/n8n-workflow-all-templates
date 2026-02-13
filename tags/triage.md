@@ -1,4 +1,4 @@
-# triage : 36
+# triage : 43
 
 |id|file|
 |----|----|
@@ -38,3 +38,10 @@
 |11697|[11697_AI-Powered_Bug_Triage_System_with_OpenAI__Jira_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11697_AI-Powered_Bug_Triage_System_with_OpenAI__Jira_and_Slack_Alerts.json)|
 |11824|[11824_Automate_Vulnerability_Triage_from_Snyk_with_Jira__Slack___Airtable_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11824_Automate_Vulnerability_Triage_from_Snyk_with_Jira__Slack___Airtable_Integration.json)|
 |11854|[11854_AI-Powered_Ticket_Triage_with_Multi-Model_Classification___Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11854_AI-Powered_Ticket_Triage_with_Multi-Model_Classification___Knowledge_Base.json)|
+|12135|[12135_Triage_product_UAT_feedback_with_OpenAI__Jira__Slack__Notion_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12135_Triage_product_UAT_feedback_with_OpenAI__Jira__Slack__Notion_and_Google_Sheets.json)|
+|12208|[12208_Triage_product_UAT_feedback_with_OpenAI__Notion__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12208_Triage_product_UAT_feedback_with_OpenAI__Notion__Slack_and_Gmail.json)|
+|12428|[12428_Triage_tenant_complaints_with_GPT-4.1__Slack__email_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12428_Triage_tenant_complaints_with_GPT-4.1__Slack__email_and_Google_Sheets.json)|
+|12940|[12940_Triage_and_escalate_HubSpot_tickets_to_Jira_with_Slack_SLA_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12940_Triage_and_escalate_HubSpot_tickets_to_Jira_with_Slack_SLA_alerts.json)|
+|12986|[12986_Triage_emergency_patients_via_chat_with_GPT-4.1_and_hospital_systems.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12986_Triage_emergency_patients_via_chat_with_GPT-4.1_and_hospital_systems.json)|
+|13121|[13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json)|
+|13180|[13180_Triage_Slack_and_Gmail_requests_with_an_AI-powered_intake_layer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13180_Triage_Slack_and_Gmail_requests_with_an_AI-powered_intake_layer.json)|

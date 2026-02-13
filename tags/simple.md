@@ -1,4 +1,4 @@
-# simple : 42
+# simple : 43
 
 |id|file|
 |----|----|
@@ -44,3 +44,4 @@
 |10435|[10435_Create_Long-Form_Documents_from_Simple_Titles_with_GPT-5_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10435_Create_Long-Form_Documents_from_Simple_Titles_with_GPT-5_and_Google_Docs.json)|
 |10755|[10755_Simple_error_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10755_Simple_error_workflow.json)|
 |11234|[11234_Simple_Scheduling_and_Internal_Document_Query_Bot_with_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11234_Simple_Scheduling_and_Internal_Document_Query_Bot_with_Telegram.json)|
+|12125|[12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json)|

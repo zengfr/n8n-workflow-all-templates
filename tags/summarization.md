@@ -1,4 +1,4 @@
-# summarization : 39
+# summarization : 40
 
 |id|file|
 |----|----|
@@ -41,3 +41,4 @@
 |11413|[11413_OCR_Document_Processing_from_LINE_Gmail_using_GPT-4o_to_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11413_OCR_Document_Processing_from_LINE_Gmail_using_GPT-4o_to_Google_Workspace.json)|
 |11452|[11452_Create_Daily_Google_Alerts_Digest_with_Gemini_AI_Summarization_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11452_Create_Daily_Google_Alerts_Digest_with_Gemini_AI_Summarization_and_Gmail.json)|
 |11782|[11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json)|
+|12631|[12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json)|

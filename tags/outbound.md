@@ -1,4 +1,4 @@
-# outbound : 11
+# outbound : 14
 
 |id|file|
 |----|----|
@@ -13,3 +13,6 @@
 |6695|[6695_Trigger_Outbound_Vapi_AI_Voice_Calls_From_New_Jotform_Submissions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/66/6695_Trigger_Outbound_Vapi_AI_Voice_Calls_From_New_Jotform_Submissions.json)|
 |7958|[7958_Automated_Outbound_Calls__connect_Ultravox_AI_Agents_to_Phone_Calls_with_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7958_Automated_Outbound_Calls__connect_Ultravox_AI_Agents_to_Phone_Calls_with_Twilio.json)|
 |10561|[10561_Generate_Personalized_Sales_Leads_with_Claude_AI___Explorium_for_Gmail_Outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10561_Generate_Personalized_Sales_Leads_with_Claude_AI___Explorium_for_Gmail_Outreach.json)|
+|12526|[12526_Automate_outbound_AI_sales_calls_with_double-dial_using_Airtable_and_Vapi_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12526_Automate_outbound_AI_sales_calls_with_double-dial_using_Airtable_and_Vapi_AI.json)|
+|12856|[12856_Make_outbound_sales_calls_from_Google_Sheets_using_a_Retell_AI_voice_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12856_Make_outbound_sales_calls_from_Google_Sheets_using_a_Retell_AI_voice_agent.json)|
+|13114|[13114_Make_outbound_sales_calls_from_Google_Sheets_using_a_VAPI_voice_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13114_Make_outbound_sales_calls_from_Google_Sheets_using_a_VAPI_voice_agent.json)|

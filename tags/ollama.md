@@ -1,4 +1,4 @@
-# ollama : 33
+# ollama : 35
 
 |id|file|
 |----|----|
@@ -35,3 +35,5 @@
 |9158|[9158_Generate_Meeting_Minutes_from_Videos_with_Whisper__Ollama_LLM_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9158_Generate_Meeting_Minutes_from_Videos_with_Whisper__Ollama_LLM_and_Notion.json)|
 |10084|[10084_Monitor_Emails___Send_AI-Generated_Auto-Replies_with_Ollama___Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10084_Monitor_Emails___Send_AI-Generated_Auto-Replies_with_Ollama___Telegram_Alerts.json)|
 |10157|[10157_Local_Document_Question_Answering_with_Ollama_AI__Agentic_RAG___PGVector.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10157_Local_Document_Question_Answering_with_Ollama_AI__Agentic_RAG___PGVector.json)|
+|12387|[12387_Get_domain_expiry_reminders_with_Google_Sheets__WHOIS__Telegram__and_Ollama_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12387_Get_domain_expiry_reminders_with_Google_Sheets__WHOIS__Telegram__and_Ollama_AI.json)|
+|12889|[12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json)|

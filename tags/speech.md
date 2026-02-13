@@ -1,4 +1,4 @@
-# speech : 16
+# speech : 19
 
 |id|file|
 |----|----|
@@ -18,3 +18,6 @@
 |6419|[6419_Transcribe___Translate_Audio_Between_Languages_with_OpenAI___S3_Storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6419_Transcribe___Translate_Audio_Between_Languages_with_OpenAI___S3_Storage.json)|
 |8712|[8712_Two-Factor_Authentication_with_ClickSend_Voice_Calls_and_Email_Verification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8712_Two-Factor_Authentication_with_ClickSend_Voice_Calls_and_Email_Verification.json)|
 |10051|[10051_Automate_Podcast_Creation_with_GPT__Claude___Eleven_Labs_Text-to-Speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10051_Automate_Podcast_Creation_with_GPT__Claude___Eleven_Labs_Text-to-Speech.json)|
+|11982|[11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json)|
+|12383|[12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json)|
+|12384|[12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json)|

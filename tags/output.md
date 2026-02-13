@@ -1,4 +1,4 @@
-# output : 12
+# output : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |5829|[5829_Generate_Dynamic_JSON_Output_Formats_for_AI_Agents_with_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/58/5829_Generate_Dynamic_JSON_Output_Formats_for_AI_Agents_with_Mistral.json)|
 |6405|[6405_Scrape_Twitter_Profiles_with_Bright_Data_API_and_Export_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6405_Scrape_Twitter_Profiles_with_Bright_Data_API_and_Export_to_Google_Sheets.json)|
 |10316|[10316_Automate_Assignment_Grading_with_GPT-4-Turbo_and_Multi-Format_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10316_Automate_Assignment_Grading_with_GPT-4-Turbo_and_Multi-Format_Reports.json)|
+|12833|[12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json)|

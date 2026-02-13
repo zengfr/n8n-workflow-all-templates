@@ -1,4 +1,4 @@
-# rss : 98
+# rss : 108
 
 |id|file|
 |----|----|
@@ -100,3 +100,13 @@
 |11677|[11677_Publish_RSS_Articles_to_WordPress_and_Social_Media_Platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11677_Publish_RSS_Articles_to_WordPress_and_Social_Media_Platforms.json)|
 |11791|[11791_Automate_RSS_to_Instagram_with_AI-Generated_Content_and_Cloudinary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11791_Automate_RSS_to_Instagram_with_AI-Generated_Content_and_Cloudinary.json)|
 |11813|[11813_Daily_RSS_Feed_Summarizer_with_Gemini_AI_to_Slack_with_X_Sharing_Option.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11813_Daily_RSS_Feed_Summarizer_with_Gemini_AI_to_Slack_with_X_Sharing_Option.json)|
+|11951|[11951_Send_AI-curated_weekly_news_digests_with_RSS__Vector_DB___GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11951_Send_AI-curated_weekly_news_digests_with_RSS__Vector_DB___GPT-4o.json)|
+|12141|[12141_Daily_news_digest_from_RSS_and_YouTube_using_AI_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12141_Daily_news_digest_from_RSS_and_YouTube_using_AI_for_Telegram.json)|
+|12161|[12161_Analyze_competitor_strategy_from_YouTube___RSS_with_Gemini_AI_to_Notion___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12161_Analyze_competitor_strategy_from_YouTube___RSS_with_Gemini_AI_to_Notion___Telegram.json)|
+|12533|[12533_Curate_and_generate_an_AI_newsletter_from_RSS_feeds_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12533_Curate_and_generate_an_AI_newsletter_from_RSS_feeds_with_OpenAI_and_Slack.json)|
+|12587|[12587_Generate_Instagram_news_carousels_from_RSS_feeds_using_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12587_Generate_Instagram_news_carousels_from_RSS_feeds_using_GPT-4o.json)|
+|12589|[12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json)|
+|12780|[12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json)|
+|13103|[13103_Generate_a_weekly_content_calendar_with_OpenAI_GPT-5-mini__RSS_feeds__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13103_Generate_a_weekly_content_calendar_with_OpenAI_GPT-5-mini__RSS_feeds__and_Notion.json)|
+|13124|[13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json)|
+|13171|[13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json)|

@@ -1,4 +1,4 @@
-# audio : 56
+# audio : 66
 
 |id|file|
 |----|----|
@@ -58,3 +58,13 @@
 |11754|[11754_Build_a_WhatsApp_Assistant_for_Text__Audio___Images_using_GPT-4o___Evolution_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11754_Build_a_WhatsApp_Assistant_for_Text__Audio___Images_using_GPT-4o___Evolution_API.json)|
 |11883|[11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json)|
 |11888|[11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json)|
+|11896|[11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json)|
+|12141|[12141_Daily_news_digest_from_RSS_and_YouTube_using_AI_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12141_Daily_news_digest_from_RSS_and_YouTube_using_AI_for_Telegram.json)|
+|12203|[12203_Process_audio_with_ElevenLabs_via_KIE.AI__transcribe__TTS__and_isolate_audio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12203_Process_audio_with_ElevenLabs_via_KIE.AI__transcribe__TTS__and_isolate_audio.json)|
+|12347|[12347_Generate_audio_documentaries_from_web_articles_with_ElevenLabs_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12347_Generate_audio_documentaries_from_web_articles_with_ElevenLabs_and_BrowserAct.json)|
+|12378|[12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json)|
+|12381|[12381_Translate_Chinese_audio_into_multilingual_voiceovers_with_GPT-4o_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12381_Translate_Chinese_audio_into_multilingual_voiceovers_with_GPT-4o_and_ElevenLabs.json)|
+|12382|[12382_Translate_Chinese_text_to_multilingual_audio_with_GPT-4o_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12382_Translate_Chinese_text_to_multilingual_audio_with_GPT-4o_and_ElevenLabs.json)|
+|12383|[12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json)|
+|12425|[12425_Generate_highly_expressive_audio____using_ElevenLabs_v3_TTS_Audio_Tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12425_Generate_highly_expressive_audio____using_ElevenLabs_v3_TTS_Audio_Tags.json)|
+|13148|[13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json)|

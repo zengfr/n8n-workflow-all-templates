@@ -1,4 +1,4 @@
-# chatgpt : 42
+# chatgpt : 45
 
 |id|file|
 |----|----|
@@ -44,3 +44,6 @@
 |11442|[11442_Generate_Multiple_LinkedIn_Posts_from_Notion_with_ChatGPT___Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11442_Generate_Multiple_LinkedIn_Posts_from_Notion_with_ChatGPT___Claude_AI.json)|
 |11461|[11461_AI_Trading_Assistant_for_Telegram_using_chatGPT-4o__with_Position_Sizing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11461_AI_Trading_Assistant_for_Telegram_using_chatGPT-4o__with_Position_Sizing.json)|
 |11782|[11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json)|
+|11929|[11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json)|
+|12042|[12042_Generate___publish_SEO-optimized_Shopify_blog_articles_with_Gemini___ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12042_Generate___publish_SEO-optimized_Shopify_blog_articles_with_Gemini___ChatGPT.json)|
+|12270|[12270_Create_AI_sci_fi_book_review_videos_with_ChatGPT__Fal.ai_and_Nexrender.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12270_Create_AI_sci_fi_book_review_videos_with_ChatGPT__Fal.ai_and_Nexrender.json)|

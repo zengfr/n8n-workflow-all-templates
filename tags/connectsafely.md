@@ -1,7 +1,13 @@
-# connectsafely : 3
+# connectsafely : 9
 
 |id|file|
 |----|----|
 |11068|[11068_Automate_LinkedIn_Profile_Following_with_Google_Sheets_and_ConnectSafely.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11068_Automate_LinkedIn_Profile_Following_with_Google_Sheets_and_ConnectSafely.json)|
 |11450|[11450_Extract_Premium___Verified_LinkedIn_Group_Members_to_Google_Sheets_with_ConnectSafely.AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11450_Extract_Premium___Verified_LinkedIn_Group_Members_to_Google_Sheets_with_ConnectSafely.AI.json)|
 |11530|[11530_Send_Personalized_Connection_Requests_to_LinkedIn_Post_Commenters_with_ConnectSafely.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11530_Send_Personalized_Connection_Requests_to_LinkedIn_Post_Commenters_with_ConnectSafely.ai.json)|
+|12293|[12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json)|
+|12309|[12309_Sync_LinkedIn_profile_visitors_into_HubSpot_CRM_leads_with_ConnectSafely.ai_and_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12309_Sync_LinkedIn_profile_visitors_into_HubSpot_CRM_leads_with_ConnectSafely.ai_and_Apify.json)|
+|12311|[12311_Send_personalized_LinkedIn_DMs_to_profile_visitors_with_ConnectSafely.ai_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12311_Send_personalized_LinkedIn_DMs_to_profile_visitors_with_ConnectSafely.ai_and_Google_Sheets.json)|
+|13094|[13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json)|
+|13172|[13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json)|
+|13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|

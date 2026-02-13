@@ -1,4 +1,4 @@
-# tts : 19
+# tts : 23
 
 |id|file|
 |----|----|
@@ -21,3 +21,7 @@
 |11367|[11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json)|
 |11397|[11397_Convert_Gmail_Emails_to_Telegram_Voice_Messages_with_GPT-5_and_Inworld_TTS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11397_Convert_Gmail_Emails_to_Telegram_Voice_Messages_with_GPT-5_and_Inworld_TTS.json)|
 |11789|[11789_Convert_WordPress_Articles_to_Multilingual_Voiceovers_with_Google_TTS_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11789_Convert_WordPress_Articles_to_Multilingual_Voiceovers_with_Google_TTS_and_OpenAI.json)|
+|11982|[11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json)|
+|12203|[12203_Process_audio_with_ElevenLabs_via_KIE.AI__transcribe__TTS__and_isolate_audio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12203_Process_audio_with_ElevenLabs_via_KIE.AI__transcribe__TTS__and_isolate_audio.json)|
+|12425|[12425_Generate_highly_expressive_audio____using_ElevenLabs_v3_TTS_Audio_Tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12425_Generate_highly_expressive_audio____using_ElevenLabs_v3_TTS_Audio_Tags.json)|
+|13030|[13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json)|

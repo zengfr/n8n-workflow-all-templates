@@ -1,4 +1,4 @@
-# twitter : 72
+# twitter : 79
 
 |id|file|
 |----|----|
@@ -74,3 +74,10 @@
 |10826|[10826_Analyze_Social_Media_Sentiment___Trends_from_Twitter___Facebook_using_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10826_Analyze_Social_Media_Sentiment___Trends_from_Twitter___Facebook_using_GPT-4o.json)|
 |11121|[11121_Auto_Create___Publish_X-Threads__Twitter__with_GPT_via_Telegram___Approval_Loop.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11121_Auto_Create___Publish_X-Threads__Twitter__with_GPT_via_Telegram___Approval_Loop.json)|
 |11127|[11127_Cross-Platform_Content_Publisher__Telegram_to_WordPress__Facebook__Twitter___LinkedIn.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11127_Cross-Platform_Content_Publisher__Telegram_to_WordPress__Facebook__Twitter___LinkedIn.json)|
+|11960|[11960_Draft_daily_crypto_news_tweets_with_CryptoPanic__Google__GPT_4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11960_Draft_daily_crypto_news_tweets_with_CryptoPanic__Google__GPT_4o_and_Gmail.json)|
+|11969|[11969_Schedule_and_optimize_Twitter_and_LinkedIn_posts_from_Google_Sheets_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11969_Schedule_and_optimize_Twitter_and_LinkedIn_posts_from_Google_Sheets_with_OpenAI_GPT-4o-mini.json)|
+|12110|[12110_Discover_buying-intent_leads_on_Twitter_and_Instagram_with_GPT-4o-mini_and_send_summaries_to_Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12110_Discover_buying-intent_leads_on_Twitter_and_Instagram_with_GPT-4o-mini_and_send_summaries_to_Slack_and_Notion.json)|
+|12590|[12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json)|
+|12600|[12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json)|
+|12881|[12881_Post_daily_motivational_tweets_to_Twitter_X_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12881_Post_daily_motivational_tweets_to_Twitter_X_with_Google_Gemini_AI.json)|
+|13003|[13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json)|

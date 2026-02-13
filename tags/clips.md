@@ -1,4 +1,4 @@
-# clips : 10
+# clips : 17
 
 |id|file|
 |----|----|
@@ -12,3 +12,10 @@
 |11505|[11505_Transform_Podcasts_into_Viral_Social_Media_Clips_with_Gemini_AI_and_Multi-Platform_Posting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11505_Transform_Podcasts_into_Viral_Social_Media_Clips_with_Gemini_AI_and_Multi-Platform_Posting.json)|
 |11584|[11584_Extract_Viral-Worthy_Clips_from_YouTube_Videos_with_Gemini_AI___FFmpeg_Editing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11584_Extract_Viral-Worthy_Clips_from_YouTube_Videos_with_Gemini_AI___FFmpeg_Editing.json)|
 |11645|[11645_Generate_Short-form_Clips_from_YouTube_Videos_with_GPT-4o__Grok___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11645_Generate_Short-form_Clips_from_YouTube_Videos_with_GPT-4o__Grok___Airtable.json)|
+|12054|[12054_Auto-clip_long_videos_into_viral_short_clips_with_Vizard_AI_and_social_publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12054_Auto-clip_long_videos_into_viral_short_clips_with_Vizard_AI_and_social_publishing.json)|
+|12202|[12202_Generate_text-to-video_and_image-to-video_clips_with_Kling_2.6_via_KIE.AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12202_Generate_text-to-video_and_image-to-video_clips_with_Kling_2.6_via_KIE.AI.json)|
+|12253|[12253_Generate_text-__image-__and_video-to-video_clips_with_WAN_2.6_via_KIE.AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12253_Generate_text-__image-__and_video-to-video_clips_with_WAN_2.6_via_KIE.AI.json)|
+|12590|[12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json)|
+|12829|[12829_Generate_AI_video_clips_from_YouTube_automatically_with_Reka_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12829_Generate_AI_video_clips_from_YouTube_automatically_with_Reka_Vision.json)|
+|12926|[12926_Generate_AI_video_clips_from_YouTube_using_Reka_Vision_API_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12926_Generate_AI_video_clips_from_YouTube_using_Reka_Vision_API_and_Gmail.json)|
+|13169|[13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json)|

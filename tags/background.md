@@ -1,4 +1,4 @@
-# background : 10
+# background : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |9462|[9462_Remove_Video_Background___Compose_on_Custom_Video_Background_with_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9462_Remove_Video_Background___Compose_on_Custom_Video_Background_with_Google_Drive.json)|
 |9820|[9820_Video_Background_Removal_and_Image_Composition_with_Google_Drive_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9820_Video_Background_Removal_and_Image_Composition_with_Google_Drive_Integration.json)|
 |9821|[9821_Create_Videos_with_AI-Generated_Backgrounds_using_Gemini_and_VideoBGRemover.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9821_Create_Videos_with_AI-Generated_Backgrounds_using_Gemini_and_VideoBGRemover.json)|
+|12684|[12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json)|

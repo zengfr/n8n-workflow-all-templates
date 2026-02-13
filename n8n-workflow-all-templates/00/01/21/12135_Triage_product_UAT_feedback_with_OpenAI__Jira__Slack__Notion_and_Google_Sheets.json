@@ -1,0 +1,1507 @@
+{
+  "id": "KxBgdXF78My8LSWU",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Triage product UAT feedback with OpenAI, Jira, Slack, Notion and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 12135,
+    "update_time": "2026-02-13"
+  },
+  "name": "Product UAT Feedback Triage (AI) + Routing + Closed Loop",
+  "tags": [
+    {
+      "id": "bX1tZbypCr5HBJMz",
+      "name": "product management",
+      "createdAt": "2025-11-20T18:06:00.432Z",
+      "updatedAt": "2025-11-20T18:06:00.432Z"
+    },
+    {
+      "id": "rYuINsb3Y1XjrgNv",
+      "name": "Productivity",
+      "createdAt": "2025-08-02T17:36:49.812Z",
+      "updatedAt": "2025-08-02T17:36:49.812Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "2b4fb86c-09ca-42ed-b430-2865fdc3b3da",
+      "name": "trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        496,
+        -192
+      ],
+      "webhookId": "50b5cb50-43bb-42a5-9dda-1f50bf7ee356",
+      "parameters": {
+        "path": "50b5cb50-43bb-42a5-9dda-1f50bf7ee356",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "c9b3dce3-4e09-46de-b715-7a917923fdad",
+      "name": "normalize",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const input = $json || {};\n\nconst source = input.source || input.uat?.source || \"webhook\";\nconst testerName = input.tester_name || input.tester?.name || input.uat?.tester_name || \"\";\nconst testerEmail = input.tester_email || input.tester?.email || input.uat?.tester_email || \"\";\nconst messageRaw = input.message || input.text || input.feedback || input.uat?.message_raw || \"\";\nconst buildVersion = input.build_version || input.uat?.build_version || \"unknown\";\nconst pageUrl = input.page_url || input.uat?.page_url || \"\";\nconst screenshotUrl = input.screenshot_url || input.uat?.screenshot_url || \"\";\n\nreturn {\n  uat: {\n    source,\n    tester_name: testerName,\n    tester_email: testerEmail,\n    message_raw: messageRaw,\n    build_version: buildVersion,\n    page_url: pageUrl,\n    screenshot_url: screenshotUrl,\n    received_at: new Date().toISOString(),\n  },\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ffe2590e-1ee6-4186-9ab7-8af1ce13ddee",
+      "name": "parsing and validation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1600,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Try multiple possible fields depending on node output\nconst raw =\n  $json.output ||\n  $json.text ||\n  $json.message ||\n  ($json.response?.text) ||\n  ($json.data?.[0]?.content) ||\n  ($json.response?.[0]?.message?.content) ||\n\n  \"\";\n\nlet triage;\nlet parseOk = true;\n\ntry {\n  triage = JSON.parse(raw);\n} catch (e) {\n  parseOk = false;\n  triage = {\n    sentiment: \"Negative\",\n    type: \"Noise\",\n    severity: \"Minor\",\n    summary: \"AI response could not be parsed as JSON.\",\n    components: [\"other\"],\n    repro_steps: [],\n    suggested_title: \"UAT feedback (manual triage)\",\n    confidence: 0,\n  };\n}\n\n// Normalize + validate\nconst allowedType = [\"CriticalBug\", \"UXImprovement\", \"FeatureRequest\", \"Noise\"];\nif (!allowedType.includes(triage.type)) triage.type = \"Noise\";\n\nconst allowedSeverity = [\"Blocker\", \"Critical\", \"Major\", \"Minor\"];\nif (!allowedSeverity.includes(triage.severity)) triage.severity = \"Minor\";\n\nconst allowedSentiment = [\"Positive\", \"Negative\"];\nif (!allowedSentiment.includes(triage.sentiment)) triage.sentiment = \"Negative\";\n\ntriage.confidence = Math.max(0, Math.min(1, Number(triage.confidence ?? 0)));\n\nreturn {\n  ...$json,\n  triage: {\n    ...triage,\n    parse_ok: parseOk,\n  },\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d612d80e-11e4-480e-a3ee-9b228ad2543e",
+      "name": "critical bug",
+      "type": "n8n-nodes-base.jira",
+      "position": [
+        3104,
+        -368
+      ],
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "mode": "list",
+          "value": "10002",
+          "cachedResultName": "test2"
+        },
+        "summary": "= {{ $json.triage.suggested_title || $json.triage.summary }}",
+        "issueType": {
+          "__rl": true,
+          "mode": "list",
+          "value": "10013",
+          "cachedResultName": "Bug"
+        },
+        "additionalFields": {
+          "priority": {
+            "__rl": true,
+            "mode": "list",
+            "value": "2",
+            "cachedResultName": "High"
+          },
+          "description": "=Build: {{ $json.uat.build_version }}\nPage: {{ $json.uat.page_url }}\nScreenshot: {{ $json.uat.screenshot_url }}\n\nRepro steps:\n{{ ($json.triage.repro_steps || []).join(\"\\n\") }}\n\nReporter:\n{{ $json.uat.tester_name }} - {{ $json.uat.tester_email }}\nSource: {{ $json.uat.source }}"
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "credential-id",
+          "name": "jiraSoftwareCloudApi Credential"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "921bf59c-b4e1-4ce2-9f19-a48631c6f916",
+      "name": "engeneering alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3440,
+        -368
+      ],
+      "webhookId": "c8b61b95-5eb6-4e50-931e-8402c0ca7209",
+      "parameters": {
+        "text": "=🚨 UAT Critical Bug ({{ $json.triage.severity }}) • {{ $json.triage.summary }} • Build: {{ $json.uat.build_version }} • Component: {{ ($json.triage.components || []).join(\", \") }} • Jira: {{ $json.key || $json.id }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C09V1228324",
+          "cachedResultName": "tous-n8n"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "credential-id",
+          "name": "slackOAuth2Api Credential"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "55496dd7-044b-4cf0-a7a4-a50519444522",
+      "name": "double check",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        2880,
+        -48
+      ],
+      "parameters": {
+        "text": "={{ $json.triage.suggested_title }}",
+        "options": {},
+        "operation": "search"
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "credential-id",
+          "name": "notionApi Credential"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "9d6bc7f6-f0f2-41b1-95c1-1b82c0a38b8a",
+      "name": "Append row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2880,
+        144
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Feedback ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Feedback ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Source",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "User Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "User Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "User Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "User Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tags",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Tags",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Sentiment",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pain Level",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Pain Level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business Impact",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Business Impact",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Implementation Effort",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Implementation Effort",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RICE Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "RICE Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Priority",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "AI Summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Jira Ticket",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Jira Ticket",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Jira URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Jira URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets",
+          "cachedResultName": "Feuille 1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1jah3Nvy3GkFp_2fDd7NTkTgqpiI6G91WIlRDd-5y-uo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets",
+          "cachedResultName": "users feedback"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "googleSheetsOAuth2Api Credential"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "5100f4ed-f98b-462d-b916-d8bb3e5a9156",
+      "name": "archive",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        2880,
+        352
+      ],
+      "parameters": {
+        "title": "Choose a title",
+        "pageId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "=yourpage./notion.com"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "credential-id",
+          "name": "notionApi Credential"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "24a4f93d-c3d0-475b-9d0f-f074b9a0ff2a",
+      "name": "tester email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        4576,
+        112
+      ],
+      "webhookId": "45a5afd9-e6bb-4f10-a045-c1259f365d53",
+      "parameters": {
+        "sendTo": "={{ $json.uat.tester_email }}",
+        "message": "={{ $json.reply.body }}",
+        "options": {},
+        "subject": "={{ $json.reply.subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "gmailOAuth2 Credential"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "381bfb3b-96ba-4d87-bd12-ae15141592fc",
+      "name": "slack tester",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        4576,
+        -48
+      ],
+      "webhookId": "377e2929-ac8c-4980-bc6a-4489aa71deba",
+      "parameters": {
+        "text": "={{ $json.reply.body }}",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U09UKKK9R25",
+          "cachedResultName": "analyticsn8n"
+        },
+        "select": "user",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "credential-id",
+          "name": "slackOAuth2Api Credential"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "f6c9ede5-f42b-49ee-a658-9229c7288547",
+      "name": "clean text",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const msg = $json.uat?.message_raw || \"\";\n\nconst cleaned = msg\n  .replace(/<[^>]*>/g, \" \")\n  .replace(/\\s+/g, \" \")\n  .trim()\n  .slice(0, 3000);\n\nreturn {\n  ...$json,\n  uat: {\n    ...$json.uat,\n    message_clean: cleaned,\n  },\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e3bcb2cb-a8f8-4688-a5ab-c4d05fb481cd",
+      "name": "manual review",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1808,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "e433a6fe-7c89-464a-bd70-ad8f5b65ac74",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.triage.parse_ok }}",
+              "rightValue": "=$json[\"cfg.confidenceThreshold\"] }}"
+            },
+            {
+              "id": "b40d9226-ce67-469c-abed-e6f75a1dc221",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              },
+              "leftValue": "={{ $json.triage.confidence }}",
+              "rightValue": "={{ $json.cfg.confidenceThreshold }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c9f54a46-545e-4a1f-824b-27a3be6f8076",
+      "name": "route by triage type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2512,
+        -16
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "248afa59-db74-49ed-96dc-799681dea940",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.triage.type }}",
+                    "rightValue": "CriticalBug"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "930161dd-f9bc-4dd1-971a-a0538569c9fd",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.triage.type }}",
+                    "rightValue": "FeatureRequest"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "76bd5c21-7665-4192-9a4c-0f484922c0c0",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.triage.type }}",
+                    "rightValue": "UXImprovement"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "d03ec842-5997-4d64-8370-98c1bfb262bf",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.triage.type }}",
+                    "rightValue": "Noise"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "598b72ca-6346-4987-b04a-384944c79e52",
+      "name": "if found",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3072,
+        -48
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4735e31c-1ba2-4dc7-ade6-3f00759efa49",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ ($json.results || []).length }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "930ad695-120b-450b-a41f-3f77e094ea62",
+      "name": "compose reply branch 2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3808,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "64412928-6923-44ac-95bb-9325504b8fa5",
+              "name": "reply.subject",
+              "type": "string",
+              "value": "UAT feedback received — Feature request logged"
+            },
+            {
+              "id": "bff73169-e5d9-4248-bf2c-9aedf09db542",
+              "name": "reply.body",
+              "type": "string",
+              "value": "=Hi {{ $json.uat.tester_name }},\\n\\nThanks for the feature request!\\n\\n\\\"{{ $json.triage.summary }}\\\"\\n\\nWe've added it to our roadmap backlog for the product team to review.\\n\\nBest,\\nThe Team"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fa48c894-abfd-4e28-ab8b-2c52f19b1dbd",
+      "name": "compose reply branch 3",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3792,
+        144
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "434f4934-9de2-4d78-8868-78e9dabda4e0",
+              "name": "reply.subject",
+              "type": "string",
+              "value": "UAT feedback received — UX note captured"
+            },
+            {
+              "id": "bdc5bb01-9ef3-4746-8907-b2f0f7eea604",
+              "name": "reply.body",
+              "type": "string",
+              "value": "=Hi {{ $json.uat.tester_name }},\\n\\nThanks for the UX feedback on {{ $json.triage.components.join(', ') }}.\\n\\nWe've logged it in our weekly digest for the design team.\\n\\nBest,\\nThe Team"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0a6188a5-cd88-415c-939f-ca5dfd0871e4",
+      "name": "compose reply branch 4",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3792,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6fc0fd46-4efe-44c9-97dd-7422bd827712",
+              "name": "reply.subject",
+              "type": "string",
+              "value": "Quick follow-up on your UAT feedback"
+            },
+            {
+              "id": "277badf5-40ad-4164-9746-6cf44bd971f7",
+              "name": "reply.body",
+              "type": "string",
+              "value": "=Hi {{ $json.uat.tester_name }},\\n\\nThanks for reaching out about build {{ $json.uat.build_version }}.\\n\\nTo help us investigate, could you provide:\\n• Detailed steps to reproduce\\n• What you expected vs. what happened\\n• Device/browser info\\n\\nReply to this message or DM us in Slack.\\n\\nThanks,\\nThe Team"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "9a5e853e-6207-4f73-a1bb-9977a3779342",
+      "name": "manual review needed",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3824,
+        -640
+      ],
+      "webhookId": "8879fd6a-af82-481e-8ec5-9f82e0f6e071",
+      "parameters": {
+        "sendTo": "{{ $json.cfg.manualReviewEmail }}",
+        "message": "={{ $json.mail.body }}",
+        "options": {},
+        "subject": "={{ `Manual UAT triage needed (confidence ${$json.triage.confidence})` }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "gmailOAuth2 Credential"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a5f1b640-5241-4f52-a8a1-80a5738aaf75",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        4528,
+        -640
+      ],
+      "webhookId": "feddb504-ca07-48a2-8215-3a9a5744bafa",
+      "parameters": {
+        "text": "Manual review needed",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0A030UC0BW",
+          "cachedResultName": "data"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "credential-id",
+          "name": "slackOAuth2Api Credential"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "6f961a45-a7fe-4757-8798-93794555e27b",
+      "name": "ask for more information",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3440,
+        352
+      ],
+      "webhookId": "a610c721-3b7a-421e-a0bf-66fee0a0bbad",
+      "parameters": {
+        "text": "We need more info for the UAT, please have a look",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U09UKKK9R25",
+          "cachedResultName": "analyticsn8n"
+        },
+        "select": "user",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "credential-id",
+          "name": "slackOAuth2Api Credential"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "724225b9-0561-4eaf-9b90-7f111df507a4",
+      "name": "email code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3408,
+        -640
+      ],
+      "parameters": {
+        "jsCode": "const triage = $json.triage || {};\nconst uat = $json.uat || {};\nconst cfg = $json.cfg || {};\n\nconst reproSteps = Array.isArray(triage.repro_steps) && triage.repro_steps.length\n  ? triage.repro_steps.map(s => `- ${s}`).join('\\n')\n  : '- (none provided / not inferable)';\n\nconst subject = `Manual UAT triage needed (confidence ${triage.confidence ?? 0})`;\n\nconst body =\n`Hi team,\n\nManual review is needed for this UAT feedback (AI confidence: ${triage.confidence ?? 0}, parse_ok: ${triage.parse_ok ?? false}).\n\n— Context\n• Received at: ${uat.received_at ?? ''}\n• Source: ${uat.source ?? ''}\n• Build: ${uat.build_version ?? ''}\n• Page: ${uat.page_url ?? ''}\n• Screenshot: ${uat.screenshot_url ?? ''}\n\n— Tester\n• Name: ${uat.tester_name ?? ''}\n• Email: ${uat.tester_email ?? ''}\n\n— Feedback (clean)\n${uat.message_clean ?? ''}\n\n— AI triage output\nType: ${triage.type ?? ''}\nSeverity: ${triage.severity ?? ''}\nSentiment: ${triage.sentiment ?? ''}\nComponent(s): ${(triage.components || []).join(', ')}\nSuggested title: ${triage.suggested_title ?? ''}\nSummary: ${triage.summary ?? ''}\n\nRepro steps:\n${reproSteps}\n\n— What to do\nPlease confirm the correct category (CriticalBug / UXImprovement / FeatureRequest / Noise), adjust severity, and add any missing repro steps.\nIf this should become a Jira ticket, create it in project ${cfg.jiraProjectKey ?? 'UAT'} and share the link back in Slack.\n\nThanks,\nUAT Triage Bot`;\n\nreturn {\n  ...$json,\n  mail: { subject, body }\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9ff7f51e-8238-4501-a155-3b0018ac1a1f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -752
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 1328,
+        "content": "## How it works\n\nThis workflow automates Product UAT feedback triage by combining AI analysis,\nhuman-in-the-loop validation, and smart routing across product tools.\n\nWhen a tester submits feedback via a webhook (form, Slack, or internal tool),\nthe workflow normalizes and cleans the input into a consistent data model.\nAn AI model then analyzes the feedback to classify its type, assess urgency and sentiment,\ngenerate a short summary, and assign a confidence score.\n\nLow-confidence or invalid AI results are automatically escalated\nto manual review via email and Slack, ensuring safe and reliable automation.\n\nWhen confidence is sufficient, feedback is routed to the appropriate tools\n(Jira, Notion, logs) and the workflow closes the loop by notifying the tester\nand responding to the original webhook with a structured status payload."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0c690bdf-ba8c-4012-91b7-2668e1421238",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        -752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 768,
+        "height": 1328,
+        "content": "## Ingestion & Normalization\n\nCollects UAT feedback from a webhook and normalizes all inputs\n(tester, source, project, message) into a clean, AI-ready format."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb24d7bb-e5d0-437a-a077-c74742794141",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        -752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 784,
+        "height": 1328,
+        "content": "## AI Triage & Quality Control\n\nAn AI model analyzes the feedback and returns a structured triage\n(type, urgency, summary, confidence).\n\nLow-confidence or invalid results are automatically flagged\nfor manual review to ensure safe automation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c5f7970b-e51f-44e9-83db-0c2128f06d52",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        -752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2224,
+        "height": 1328,
+        "content": "## Routing, Actions & Closed Loop\n\nRoutes validated feedback to the right tools:\nbugs to Jira, feature and UX feedback to Notion,\nand non-actionable inputs to archive or logs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c2bed12d-8bae-4673-8c59-c7b81a27b512",
+      "name": "Webhook response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        4848,
+        32
+      ],
+      "parameters": {
+        "options": {
+          "responseKey": "={   \"status\": \"received\",   \"type\": \"{{ $json.triage.type }}\",   \"severity\": \"{{ $json.triage.severity }}\",   \"confidence\": \"{{ $json.triage.confidence }}\" }",
+          "responseCode": 200
+        },
+        "respondWith": "allIncomingItems"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "600d437a-0beb-4e08-84c2-d40c0374d971",
+      "name": "how to contact",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4272,
+        64
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8433c8f3-bdaf-4c64-af3c-7c091e51b8cc",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.uat.source }}",
+              "rightValue": "slack"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "037d4cc5-f200-4c37-a633-5ba71e11228e",
+      "name": "compose reply branch 1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3808,
+        -368
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9945be1d-27e1-4029-98f6-f19b04ae96a0",
+              "name": "reply.subject",
+              "type": "string",
+              "value": "=UAT feedback received — Ticket {{ $json.key || $json.id }}"
+            },
+            {
+              "id": "11a2ea6f-a0ab-43c7-9192-b43521667209",
+              "name": "reply.body",
+              "type": "string",
+              "value": "=Thanks for your feedback!\n\nWe logged it as a Critical Bug ({{ $json.triage.severity }}).\nTicket: {{ $json.key || $json.id }}\n\nSummary: {{ $json.triage.summary }}\nBuild: {{ $json.uat.build_version }}\n\nWe’ll keep you posted.\n"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "64c6cc11-599e-4cb8-89e9-01a9e3821a0e",
+      "name": "update notion database",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        3440,
+        -160
+      ],
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "=youridpage.com"
+        },
+        "options": {},
+        "resource": "databasePage",
+        "operation": "update"
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "credential-id",
+          "name": "notionApi Credential"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e48eee5f-bbca-405f-aa3d-2b634faa8b80",
+      "name": "create notion database",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        3440,
+        16
+      ],
+      "parameters": {
+        "title": "Add Roadmap Idea",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "=Title = suggested_title\n\nSummary\n\nComponent(s)\n\nBuild version\n\nTester\n\nSource\n\n“Status” = New\n\n“Impact”"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "2b311ca2-096c-8049-a5ab-de07d643edca",
+          "cachedResultUrl": "https://www.notion.so/",
+          "cachedResultName": "2b311ca2-096c-8049-a5ab-de07d643edca"
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "credential-id",
+          "name": "notionApi Credential"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c2f8ebe0-4634-4b61-acf8-ccafe4d6129e",
+      "name": "AI agent",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1296,
+        0
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.2",
+          "cachedResultName": "GPT-5.2"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "content": "=Analyze this UAT feedback and return ONLY JSON.\n\nContext:\n- build_version: {{ $json.uat.build_version }}\n- page_url: {{ $json.uat.page_url }}\n- screenshot_url: {{ $json.uat.screenshot_url }}\n\nFeedback:\n{{ $json.uat.message_clean }}\n\nJSON schema (strict):\n{\n  \"sentiment\": \"Positive|Negative\",\n  \"type\": \"CriticalBug|UXImprovement|FeatureRequest|Noise\",\n  \"severity\": \"Blocker|Critical|Major|Minor\",\n  \"summary\": \"string (max 160 chars)\",\n  \"components\": [\"string\"],\n  \"repro_steps\": [\"string\"],\n  \"suggested_title\": \"string (max 80 chars)\",\n  \"confidence\": 0.0\n}\n\nRules:\n- If the user reports something broken, crash, data loss, payment failure, login failure => type=CriticalBug and severity at least Critical.\n- If unclear or not actionable => type=Noise, confidence <= 0.5\n- repro_steps should be empty array if not inferable.\n- components: choose from [login, onboarding, checkout, search, profile, settings, performance, ui, api, other].\n"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "openAiApi Credential"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6fb627f9-59f2-4492-ac1f-7661f79c1666",
+      "name": "data merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        704,
+        0
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "5ea2fa83-b128-42f7-bd42-8468806ec491",
+      "name": "data mapping",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        496,
+        192
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0346a94c-9b3c-4317-8085-ea2505521edf",
+              "name": "cfg.jiraProjectKey",
+              "type": "string",
+              "value": "UAT"
+            },
+            {
+              "id": "caf9cd84-2d85-4faa-bd7b-c7e240bf6c7f",
+              "name": "cfg.jiraIssueTypeBug",
+              "type": "string",
+              "value": "Bug"
+            },
+            {
+              "id": "da76905d-3985-4eae-88da-b705580e38c6",
+              "name": "cfg.slackChannelEng",
+              "type": "string",
+              "value": "#eng-uat"
+            },
+            {
+              "id": "c96cb9ed-66db-463d-a7a8-145d1cc3c9d9",
+              "name": "cfg.slackChannelPm",
+              "type": "string",
+              "value": "#product-uat"
+            },
+            {
+              "id": "1c3b1959-e21a-487e-b121-3662b8914819",
+              "name": "cfg.sheetIdDigest",
+              "type": "string",
+              "value": "YourID"
+            },
+            {
+              "id": "059b436b-a29b-4991-a72e-c8bd4b844722",
+              "name": "cfg.manualReviewEmail",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "25dbf28f-db8a-4a49-9cbf-587276851c61",
+              "name": "cfg.confidenceThreshold",
+              "type": "number",
+              "value": 0.6
+            },
+            {
+              "id": "745af86b-f13d-4ead-a322-ab4e2473e3d6",
+              "name": "cfg.dedupeEnabled",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "dd5c4b90-2919-4d15-8768-913c9b5ae62e",
+              "name": "cfg.llmProvider",
+              "type": "string",
+              "value": "openai"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "94fc447b-2984-4ab6-b39d-99cefe48c4f6",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4256,
+        -752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 784,
+        "height": 1328,
+        "content": "## Closed Loop\n\nNotifies the tester via Slack or email\nand responds to the original webhook\nwith a structured status payload."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6790d406-1abf-4d7d-b06b-0c2eac66ce07",
+  "connections": {
+    "archive": {
+      "main": [
+        [
+          {
+            "node": "ask for more information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "trigger": {
+      "main": [
+        [
+          {
+            "node": "data merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI agent": {
+      "main": [
+        [
+          {
+            "node": "parsing and validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if found": {
+      "main": [
+        [
+          {
+            "node": "update notion database",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "create notion database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize": {
+      "main": [
+        [
+          {
+            "node": "clean text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "clean text": {
+      "main": [
+        [
+          {
+            "node": "AI agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "data merge": {
+      "main": [
+        [
+          {
+            "node": "normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email code": {
+      "main": [
+        [
+          {
+            "node": "manual review needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "critical bug": {
+      "main": [
+        [
+          {
+            "node": "engeneering alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "data mapping": {
+      "main": [
+        [
+          {
+            "node": "data merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "double check": {
+      "main": [
+        [
+          {
+            "node": "if found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "slack tester": {
+      "main": [
+        [
+          {
+            "node": "Webhook response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tester email": {
+      "main": [
+        [
+          {
+            "node": "Webhook response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "manual review": {
+      "main": [
+        [
+          {
+            "node": "email code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "route by triage type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Webhook response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "how to contact": {
+      "main": [
+        [
+          {
+            "node": "slack tester",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "tester email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "engeneering alert": {
+      "main": [
+        [
+          {
+            "node": "compose reply branch 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "compose reply branch 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "manual review needed": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "route by triage type": {
+      "main": [
+        [
+          {
+            "node": "critical bug",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "double check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compose reply branch 1": {
+      "main": [
+        [
+          {
+            "node": "how to contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compose reply branch 2": {
+      "main": [
+        [
+          {
+            "node": "how to contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compose reply branch 3": {
+      "main": [
+        [
+          {
+            "node": "how to contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compose reply branch 4": {
+      "main": [
+        [
+          {
+            "node": "how to contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create notion database": {
+      "main": [
+        [
+          {
+            "node": "compose reply branch 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parsing and validation": {
+      "main": [
+        [
+          {
+            "node": "manual review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update notion database": {
+      "main": [
+        [
+          {
+            "node": "compose reply branch 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ask for more information": {
+      "main": [
+        [
+          {
+            "node": "compose reply branch 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

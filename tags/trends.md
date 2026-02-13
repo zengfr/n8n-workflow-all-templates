@@ -1,4 +1,4 @@
-# trends : 37
+# trends : 42
 
 |id|file|
 |----|----|
@@ -39,3 +39,8 @@
 |11175|[11175_Auto-Generate_Trending_Merchandise_on_Printify_with_GPT-4o__Stable_Diffusion___Google_Trends.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11175_Auto-Generate_Trending_Merchandise_on_Printify_with_GPT-4o__Stable_Diffusion___Google_Trends.json)|
 |11271|[11271_Personalize_Instagram_Trends_for_Custom_Skin_Tones_with_GPT-4o__DALL-E___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11271_Personalize_Instagram_Trends_for_Custom_Skin_Tones_with_GPT-4o__DALL-E___Slack.json)|
 |11783|[11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json)|
+|12039|[12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json)|
+|12178|[12178_Discover_viral_social_media_trends_with_Gemini_Flash___Apify_scraping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12178_Discover_viral_social_media_trends_with_Gemini_Flash___Apify_scraping.json)|
+|12748|[12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json)|
+|12796|[12796_Track_CoinMarketCap_crypto_sector_pumps_with_Gemini_AI_and_send_digests_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12796_Track_CoinMarketCap_crypto_sector_pumps_with_Gemini_AI_and_send_digests_to_Discord.json)|
+|13181|[13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json)|

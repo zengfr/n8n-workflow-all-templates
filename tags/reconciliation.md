@@ -1,4 +1,4 @@
-# reconciliation : 5
+# reconciliation : 10
 
 |id|file|
 |----|----|
@@ -7,3 +7,8 @@
 |10581|[10581_Automate_Bank_Statement_and_Invoice_Reconciliation_with_GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10581_Automate_Bank_Statement_and_Invoice_Reconciliation_with_GPT-4.1-mini_and_Google_Sheets.json)|
 |11479|[11479_Inventory_Reconciliation_between_Notion___Airtable_with_GPT-4o_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11479_Inventory_Reconciliation_between_Notion___Airtable_with_GPT-4o_Slack_Alerts.json)|
 |11684|[11684_Automate_Payment_Gateway___Database_Transaction_Reconciliation_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11684_Automate_Payment_Gateway___Database_Transaction_Reconciliation_with_Google_Sheets.json)|
+|12033|[12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json)|
+|12377|[12377_Reconcile_bank_transactions_and_generate_reports_with_GPT-4_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12377_Reconcile_bank_transactions_and_generate_reports_with_GPT-4_and_Gmail.json)|
+|12385|[12385_Detect_financial_anomalies_and_reconcile_revenue_with_GPT-4o_and_API_integrations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12385_Detect_financial_anomalies_and_reconcile_revenue_with_GPT-4o_and_API_integrations.json)|
+|12493|[12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json)|
+|12732|[12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json)|

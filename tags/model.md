@@ -1,4 +1,4 @@
-# model : 39
+# model : 42
 
 |id|file|
 |----|----|
@@ -41,3 +41,6 @@
 |10615|[10615_AI-Powered_Stock_Analysis_with_Multi-Model_Consensus_and_Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10615_AI-Powered_Stock_Analysis_with_Multi-Model_Consensus_and_Telegram_Alerts.json)|
 |11460|[11460_Automate_3D_Body_Model_Generation_from_Images_Using_SAM-3D___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11460_Automate_3D_Body_Model_Generation_from_Images_Using_SAM-3D___Google_Sheets.json)|
 |11854|[11854_AI-Powered_Ticket_Triage_with_Multi-Model_Classification___Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11854_AI-Powered_Ticket_Triage_with_Multi-Model_Classification___Knowledge_Base.json)|
+|12537|[12537_Run_multi-model_research_analysis_and_email_reports_with_GPT-4__Claude_and_NVIDIA_NIM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12537_Run_multi-model_research_analysis_and_email_reports_with_GPT-4__Claude_and_NVIDIA_NIM.json)|
+|12833|[12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json)|
+|12889|[12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json)|

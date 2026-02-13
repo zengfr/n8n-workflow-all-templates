@@ -1,4 +1,4 @@
-# veo : 31
+# veo : 38
 
 |id|file|
 |----|----|
@@ -33,3 +33,10 @@
 |11276|[11276_Generate___Publish_AI_Videos_with_Sora_2__Veo_3.1__Gemini___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11276_Generate___Publish_AI_Videos_with_Sora_2__Veo_3.1__Gemini___Blotato.json)|
 |11367|[11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json)|
 |11594|[11594_Creating_Consistent_Character_Videos_with_Veo_3.1__GPT-4o__and_Google_NanoBanana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11594_Creating_Consistent_Character_Videos_with_Veo_3.1__GPT-4o__and_Google_NanoBanana.json)|
+|12462|[12462_Create_AI_product_images_and_marketing_videos_with_NanoBanana_Pro__Veo_3.1_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12462_Create_AI_product_images_and_marketing_videos_with_NanoBanana_Pro__Veo_3.1_and_Blotato.json)|
+|12536|[12536_Create_AI_Viral_Selfie_videos___with_celebrities___using_Google_Veo_3.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12536_Create_AI_Viral_Selfie_videos___with_celebrities___using_Google_Veo_3.1.json)|
+|12752|[12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json)|
+|12929|[12929_Create_AI_product_review_videos_with_Gemini__Veo_3__Blotato_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12929_Create_AI_product_review_videos_with_Gemini__Veo_3__Blotato_and_Google_Sheets.json)|
+|13089|[13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json)|
+|13097|[13097_Create_TikTok_videos_with_GPT-4o__Digital_Twins__Veo_3_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13097_Create_TikTok_videos_with_GPT-4o__Digital_Twins__Veo_3_and_Telegram.json)|
+|13149|[13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json)|

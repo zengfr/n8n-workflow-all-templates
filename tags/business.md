@@ -1,4 +1,4 @@
-# business : 119
+# business : 127
 
 |id|file|
 |----|----|
@@ -121,3 +121,11 @@
 |11503|[11503_Automate_Google_My_Business_Responses_with_Gemini_AI_and_Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11503_Automate_Google_My_Business_Responses_with_Gemini_AI_and_Google_Sheets_Tracking.json)|
 |11622|[11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json)|
 |11708|[11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json)|
+|12008|[12008_Automated_business_KPI_insights_with_GPT-4__MSSQL__analytics___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12008_Automated_business_KPI_insights_with_GPT-4__MSSQL__analytics___multi-channel_alerts.json)|
+|12058|[12058_Automate_business_card_management_with_LINE__AI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12058_Automate_business_card_management_with_LINE__AI__and_Google_Sheets.json)|
+|12833|[12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json)|
+|12855|[12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json)|
+|12937|[12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json)|
+|12956|[12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json)|
+|12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|
+|13170|[13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json)|

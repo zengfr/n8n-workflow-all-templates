@@ -1,4 +1,4 @@
-# mailchimp : 15
+# mailchimp : 19
 
 |id|file|
 |----|----|
@@ -17,3 +17,7 @@
 |8590|[8590_Automate_Lead_Qualification___Follow-up_with_Gemini__HubSpot__Zoom___Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8590_Automate_Lead_Qualification___Follow-up_with_Gemini__HubSpot__Zoom___Mailchimp.json)|
 |8909|[8909_AI_Lead_Scoring___Enrichment_from_Mailchimp_to_HubSpot_and_Pipedrive_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8909_AI_Lead_Scoring___Enrichment_from_Mailchimp_to_HubSpot_and_Pipedrive_with_GPT-4o.json)|
 |11593|[11593_Sync_Zoom_Webinar_Attendees_to_Mailchimp_with_Double_Opt-in_and_Email_Filtering.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11593_Sync_Zoom_Webinar_Attendees_to_Mailchimp_with_Double_Opt-in_and_Email_Filtering.json)|
+|11927|[11927_Automate_commercial_real_estate_monitoring_with_ScrapeGraphAI__Notion_and_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11927_Automate_commercial_real_estate_monitoring_with_ScrapeGraphAI__Notion_and_Mailchimp.json)|
+|12760|[12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json)|
+|13225|[13225_Sync_CRM_contacts_with_Mailchimp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13225_Sync_CRM_contacts_with_Mailchimp_and_Pipedrive.json)|
+|13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|

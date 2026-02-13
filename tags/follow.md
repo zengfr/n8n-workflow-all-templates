@@ -1,4 +1,4 @@
-# follow : 58
+# follow : 68
 
 |id|file|
 |----|----|
@@ -60,3 +60,13 @@
 |10827|[10827_AI-Powered_Outreach___Follow-Up_Automation__GPT-4o___Gmail___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10827_AI-Powered_Outreach___Follow-Up_Automation__GPT-4o___Gmail___Google_Sheets.json)|
 |11283|[11283_B2B_Lead_Follow-up_Automation_with_Gemini_AI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11283_B2B_Lead_Follow-up_Automation_with_Gemini_AI__Gmail_and_Google_Sheets.json)|
 |11649|[11649_Post-Surgery_Patient_Triage___Follow-up_System_with_Gemini_AI__Telegram___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11649_Post-Surgery_Patient_Triage___Follow-up_System_with_Gemini_AI__Telegram___Google_Suite.json)|
+|12050|[12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json)|
+|12374|[12374_Capture_website_leads_to_HubSpot_or_Google_Sheets_with_Slack_follow-up.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12374_Capture_website_leads_to_HubSpot_or_Google_Sheets_with_Slack_follow-up.json)|
+|12530|[12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json)|
+|12638|[12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json)|
+|12745|[12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json)|
+|12746|[12746_Send_AI_pet_grooming_reminders_and_follow-ups_with_GPT-4o_mini__Twilio__email__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12746_Send_AI_pet_grooming_reminders_and_follow-ups_with_GPT-4o_mini__Twilio__email__Google_Sheets_and_Slack.json)|
+|12810|[12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json)|
+|12960|[12960_Send_AI-prioritized_follow-up_reminders_with_GPT-4.1-mini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12960_Send_AI-prioritized_follow-up_reminders_with_GPT-4.1-mini__Gmail_and_Slack.json)|
+|12985|[12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json)|
+|13058|[13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json)|

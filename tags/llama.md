@@ -1,4 +1,4 @@
-# llama : 28
+# llama : 31
 
 |id|file|
 |----|----|
@@ -30,3 +30,6 @@
 |7386|[7386_Daily_Tech_News_Digest_from_Google_News_Summarized_with_Llama_AI_and_Email_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/73/7386_Daily_Tech_News_Digest_from_Google_News_Summarized_with_Llama_AI_and_Email_Delivery.json)|
 |9147|[9147_RSS_to_Social__Automated_Content_Generation_with_Llama_3___GetLate_Publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9147_RSS_to_Social__Automated_Content_Generation_with_Llama_3___GetLate_Publishing.json)|
 |11116|[11116_Generate_Fact-Checked_Research_Reports_with_Llama_AI_and_Web_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11116_Generate_Fact-Checked_Research_Reports_with_Llama_AI_and_Web_Search.json)|
+|12094|[12094_Real-time_lead_response_across_social_channels_with_Llama_AI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12094_Real-time_lead_response_across_social_channels_with_Llama_AI___Google_Sheets.json)|
+|12097|[12097_Create_an_all-in-one_Discord_assistant_with_Gemini__Llama_Vision___Flux_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12097_Create_an_all-in-one_Discord_assistant_with_Gemini__Llama_Vision___Flux_images.json)|
+|12671|[12671_Route_and_categorize_Gmail_emails_to_Slack_with_Llama_3_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12671_Route_and_categorize_Gmail_emails_to_Slack_with_Llama_3_via_OpenRouter.json)|

@@ -1,0 +1,1019 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Track SEC Form D filings and send issuer and investor data to Google Sheets",
+    "wechat": "youandme10086",
+    "id": 12851,
+    "update_time": "2026-02-13"
+  },
+  "nodes": [
+    {
+      "id": "47cd563b-454a-452c-be87-d687b7430594",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1744,
+        256
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/10 6-21 * * 1-5"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d709c9a0-5711-469a-844d-9590a13342e3",
+      "name": "Extract Key Personnel",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -832,
+        752
+      ],
+      "parameters": {
+        "jsCode": "const xmlContent = $('Parse JSON and Extract SEC Document').first().json.rawXml;\n\n// Extract all related persons\nconst relatedPersonsRegex = /<relatedPersonInfo>([\\s\\S]*?)<\\/relatedPersonInfo>/g;\nconst personnel = [];\n\nlet match;\nwhile ((match = relatedPersonsRegex.exec(xmlContent)) !== null) {\n  const personXml = match[1];\n  \n  const firstName = personXml.match(/<firstName>(.*?)<\\/firstName>/)?.[1];\n  const lastName = personXml.match(/<lastName>(.*?)<\\/lastName>/)?.[1];\n  const clarification = personXml.match(/<relationshipClarification>(.*?)<\\/relationshipClarification>/)?.[1];\n  \n  // Extract all relationships for this person\n  const relationshipRegex = /<relationship>(.*?)<\\/relationship>/g;\n  const relationships = [];\n  let relMatch;\n  while ((relMatch = relationshipRegex.exec(personXml)) !== null) {\n    relationships.push(relMatch[1]);\n  }\n  \n  // Handle company entities vs individuals\n  const name = firstName === '-' ? lastName : `${firstName} ${lastName}`;\n  \n  personnel.push({\n    name: name,\n    roles: relationships,\n    clarification: clarification || null,\n    type: firstName === '-' ? 'Entity' : 'Individual'\n  });\n}\n\nreturn [{\n  json: {\n    keyPersonnel: personnel\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c18e8863-7e28-422a-a36b-b13a4f9480bf",
+      "name": "Extract Offering Financial Details",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -608,
+        752
+      ],
+      "parameters": {
+        "jsCode": "const xmlContent = $('Parse JSON and Extract SEC Document').first().json.rawXml;\n\n// Extract financial information\nconst totalOffering = xmlContent.match(/<totalOfferingAmount>(.*?)<\\/totalOfferingAmount>/)?.[1];\nconst totalSold = xmlContent.match(/<totalAmountSold>(.*?)<\\/totalAmountSold>/)?.[1];\nconst totalRemaining = xmlContent.match(/<totalRemaining>(.*?)<\\/totalRemaining>/)?.[1];\nconst totalInvestors = xmlContent.match(/<totalNumberAlreadyInvested>(.*?)<\\/totalNumberAlreadyInvested>/)?.[1];\nconst hasNonAccredited = xmlContent.match(/<hasNonAccreditedInvestors>(.*?)<\\/hasNonAccreditedInvestors>/)?.[1];\nconst yetToOccur = xmlContent.match(/<yetToOccur>(.*?)<\\/yetToOccur>/)?.[1];\nconst moreThanOneYear = xmlContent.match(/<moreThanOneYear>(.*?)<\\/moreThanOneYear>/)?.[1];\n\n// Extract exemptions\nconst exemptionRegex = /<item>(.*?)<\\/item>/g;\nconst exemptions = [];\nlet exemptionMatch;\nwhile ((exemptionMatch = exemptionRegex.exec(xmlContent)) !== null) {\n  exemptions.push(exemptionMatch[1]);\n}\n\n// Format currency function\nconst formatCurrency = (amount) => {\n  if (amount === 'Indefinite' || amount === '0' || !amount) {\n    return amount === 'Indefinite' ? 'Indefinite' : '$0';\n  }\n  return new Intl.NumberFormat('en-US', {\n    style: 'currency',\n    currency: 'USD',\n    minimumFractionDigits: 0\n  }).format(parseInt(amount));\n};\n\nreturn [{\n  json: {\n    offeringDetails: {\n      totalOfferingAmount: totalOffering,\n      totalAmountSold: formatCurrency(totalSold),\n      totalRemaining: totalRemaining,\n      numberOfInvestors: totalInvestors,\n      allAccreditedInvestors: hasNonAccredited === 'false',\n      exemptionsUsed: exemptions.map(e => {\n        if (e === '06b') return 'Rule 506(b)';\n        if (e === '3C') return 'Investment Company Act Section 3(c)';\n        if (e === '3C.7') return 'Section 3(c)(7)';\n        return e;\n      }),\n      saleStatus: yetToOccur === 'true' ? 'Not yet commenced' : 'Active',\n      offeringDuration: moreThanOneYear === 'false' ? 'Less than one year' : 'More than one year'\n    }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "83a62bab-d2a5-4caf-912f-17ae4b43d584",
+      "name": "Parse JSON and Extract SEC Document",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueRegularOutput",
+      "position": [
+        -1280,
+        752
+      ],
+      "parameters": {
+        "jsCode": "// Parse the input data structure\nconst inputData = $input.all()[0].json;\nlet docText;\n\nconst filingLinkTxt = $(\"Process Filings Batch\").first().json;\n\n// Handle different input formats\nif (Array.isArray(inputData)) {\n  docText = inputData[0].data;\n} else if (inputData.data) {\n  docText = inputData.data;\n} else {\n  docText = inputData.body || inputData;\n}\n\n// Extract basic document info\nconst xmlMatch = docText.match(/<XML>([\\s\\S]*?)<\\/XML>/);\nif (!xmlMatch) {\n  throw new Error('No XML content found');\n}\n\nconst xmlContent = xmlMatch[1];\n\nreturn [{\n  json: {\n    rawXml: xmlContent,\n    filingDate: docText.match(/FILED AS OF DATE:\\s*(\\d+)/)?.[1],\n    accessionNumber: docText.match(/ACCESSION NUMBER:\\s*([^\\n]+)/)?.[1]?.trim(),\n    submissionType: docText.match(/CONFORMED SUBMISSION TYPE:\\s*([^\\n]+)/)?.[1]?.trim(),\n    filingLinkTxt: filingLinkTxt.filingLinkTxt\n  }\n}];"
+      },
+      "notesInFlow": false,
+      "typeVersion": 2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "232301b1-ecab-40fe-b535-c544233c5e76",
+      "name": "Fetch SEC Form D Feed",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1520,
+        256
+      ],
+      "parameters": {
+        "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&CIK=&type=D&company=&dateb=&owner=include&start=0&count=40&output=atom",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Nick Automations user@example.com"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bc802f11-052b-42f4-8d66-1c043948aa75",
+      "name": "Parse XML Feed",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        -1296,
+        256
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c940154e-1f71-4691-8db3-ceefc6b84597",
+      "name": "Transform Feed Entries",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1072,
+        256
+      ],
+      "parameters": {
+        "jsCode": "// Extract the entries array\nconst entries = $('Parse XML Feed').first().json.feed.entry;\n\n// Map each entry to a flat object\nreturn entries.map(entry => {\n  // Best method: Extract CIK from title (in parentheses)\n  const titleMatch = entry.title.match(/\\((\\d{10})\\)/);\n  const cikNumber = titleMatch ? titleMatch[1].replace(/^0+/, '') : '';\n  \n  // Get the HTML link\n  const htmlLink = entry.link.href;\n  \n  // Convert to TXT link by:\n  // 1. Removing \"-index.htm\" at the end\n  // 2. Adding \".txt\" extension\n  const txtLink = htmlLink.replace('-index.htm', '.txt');\n  \n  return {\n    cikNumber: cikNumber || '',\n    title: entry.title,\n    formType: entry.category.term,\n    filingLinkHtml: htmlLink,\n    filingLinkTxt: txtLink,\n    updated: entry.updated,\n    status: \"\"\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "de02ee8d-7fa0-4e7a-86e2-1e0c572f8296",
+      "name": "Filter Previously Processed Filings",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        -848,
+        256
+      ],
+      "parameters": {
+        "options": {
+          "historySize": 1000000
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.filingLinkTxt }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d4dda878-4eee-4678-92c9-8effebf76bc7",
+      "name": "Add New Filing to Tracking Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -624,
+        256
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "title": "={{ $json.title }}",
+            "status": "={{ $json.status }}",
+            "updated": "={{ $json.updated.toDateTime().format('yyyy-MM-dd') }}",
+            "formType": "={{ $json.formType }}",
+            "cikNumber": "={{ $json.cikNumber }}",
+            "filingLinkTxt": "={{ $json.filingLinkTxt }}",
+            "filingLinkHtml": "={{ $json.filingLinkHtml }}"
+          },
+          "schema": [
+            {
+              "id": "cikNumber",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "cikNumber",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "formType",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "formType",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "filingLinkHtml",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "filingLinkHtml",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "filingLinkTxt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "filingLinkTxt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "companyName",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "companyName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyExecutive",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "keyExecutive",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "executiveRole",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "executiveRole",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fundType",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "fundType",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "targetAmount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "targetAmount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "amountRaised",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "amountRaised",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "investorCount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "investorCount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "salesStatus",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "salesStatus",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "filingDate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "filingDate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "exemptions",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "exemptions",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "comment",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "comment",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VoGfVpk1mMrqKIc5hsO7peYuLx0SwhsbW7uUeYJCmrU/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1VoGfVpk1mMrqKIc5hsO7peYuLx0SwhsbW7uUeYJCmrU",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VoGfVpk1mMrqKIc5hsO7peYuLx0SwhsbW7uUeYJCmrU/edit?usp=drivesdk",
+          "cachedResultName": "SEC Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "[Naveen]Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "cf3aa200-c9ca-4013-bfca-104e1e210fc5",
+      "name": "Filter Unprocessed Form D Filings",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -400,
+        256
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9474efbb-620f-4107-b529-b4b5a991fc55",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": ""
+            },
+            {
+              "id": "a6be67cf-39b3-4286-b91a-9e9ccf1ae5d0",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              },
+              "leftValue": "={{ $json.formType }}",
+              "rightValue": "^D(/A)?$"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "33de9328-23c9-4bf4-9ad4-f8395c47088d",
+      "name": "Process Filings Batch",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -1760,
+        608
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "088a9f5e-f571-4938-bb37-f7c5e5076194",
+      "name": "Retrieve Form D Document",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1504,
+        752
+      ],
+      "parameters": {
+        "url": "={{ $json.filingLinkTxt }}",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "iRocket VC user@example.com"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "58faa687-8356-448b-b92d-eb6c5ef776a2",
+      "name": "Parse Issuer Details",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1056,
+        752
+      ],
+      "parameters": {
+        "jsCode": "const xmlContent = $input.first().json.rawXml;\n\n// Extract company details\nconst companyName = xmlContent.match(/<entityName>(.*?)<\\/entityName>/)?.[1];\nconst cik = xmlContent.match(/<cik>(.*?)<\\/cik>/)?.[1];\nconst street1 = xmlContent.match(/<street1>(.*?)<\\/street1>/)?.[1];\nconst street2 = xmlContent.match(/<street2>(.*?)<\\/street2>/)?.[1];\nconst city = xmlContent.match(/<city>(.*?)<\\/city>/)?.[1];\nconst state = xmlContent.match(/<stateOrCountry>([^<]*)<\\/stateOrCountry>/)?.[1];\nconst zipCode = xmlContent.match(/<zipCode>(.*?)<\\/zipCode>/)?.[1];\nconst phone = xmlContent.match(/<issuerPhoneNumber>(.*?)<\\/issuerPhoneNumber>/)?.[1];\nconst jurisdiction = xmlContent.match(/<jurisdictionOfInc>(.*?)<\\/jurisdictionOfInc>/)?.[1];\nconst yearOfInc = xmlContent.match(/<value>(\\d{4})<\\/value>/)?.[1];\nconst entityType = xmlContent.match(/<entityType>(.*?)<\\/entityType>/)?.[1];\n\n// Extract fund-specific info\nconst industryGroup = xmlContent.match(/<industryGroupType>(.*?)<\\/industryGroupType>/)?.[1];\nconst investmentFundType = xmlContent.match(/<investmentFundType>(.*?)<\\/investmentFundType>/)?.[1];\n\n// Build address\nlet address = street1;\nif (street2) address += `, ${street2}`;\naddress += `, ${city}, ${state} ${zipCode}`;\n\nreturn [{\n  json: {\n    companyInfo: {\n      name: companyName,\n      cik: cik,\n      address: address,\n      phone: phone,\n      jurisdiction: jurisdiction,\n      yearIncorporated: yearOfInc,\n      entityType: entityType,\n      industry: industryGroup,\n      fundType: investmentFundType,\n    }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ee9cfb77-73b7-4ca5-bc66-742f27cd9248",
+      "name": "Consolidate Filing Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -384,
+        752
+      ],
+      "parameters": {
+        "jsCode": "const companyInfo = $('Parse Issuer Details').all()[0].json.companyInfo;\nconst personnel = $('Extract Key Personnel').all()[0].json.keyPersonnel;\nconst offering = $('Extract Offering Financial Details').all()[0].json.offeringDetails;\nconst docInfo = $('Parse JSON and Extract SEC Document').all()[0].json;\n\n// Separate entities from individuals\nconst individuals = personnel.filter(p => p.type === 'Individual');\nconst entities = personnel.filter(p => p.type === 'Entity');\n\n// Find key executive (prefer CEO, then any Executive Officer)\nlet keyExecutive = '';\nlet executiveRole = '';\n\nif (individuals.length > 0) {\n  // Look for CEO first\n  const ceo = individuals.find(p => \n    p.roles.some(role => \n      role.toLowerCase().includes('chief executive') || \n      role.toLowerCase().includes('ceo')\n    )\n  );\n  \n  if (ceo) {\n    keyExecutive = ceo.name;\n    executiveRole = ceo.roles.find(role => \n      role.toLowerCase().includes('chief executive') || \n      role.toLowerCase().includes('ceo')\n    ) || ceo.roles[0];\n  } else {\n    // If no CEO, take first Executive Officer\n    const execOfficer = individuals.find(p => \n      p.roles.some(role => \n        role.toLowerCase().includes('executive officer')\n      )\n    );\n    \n    if (execOfficer) {\n      keyExecutive = execOfficer.name;\n      executiveRole = execOfficer.roles.find(role => \n        role.toLowerCase().includes('executive officer')\n      ) || execOfficer.roles[0];\n    } else {\n      // If no Executive Officer, take first individual\n      keyExecutive = individuals[0].name;\n      executiveRole = individuals[0].roles[0] || '';\n    }\n  }\n}\n\nreturn [{\n  json: {\n    summary: {\n      filingLinkText: docInfo.filingLinkTxt,\n      companyName: companyInfo.name,\n      keyExecutive: keyExecutive,\n      executiveRole: executiveRole,      \n      fundType: companyInfo.fundType,\n      targetAmount: offering.totalOfferingAmount,\n      amountRaised: offering.totalAmountSold,\n      investorCount: offering.numberOfInvestors,\n      saleStatus: offering.saleStatus,\n      filingDate: docInfo.filingDate,\n      exemptions: offering.exemptionsUsed\n    },\n    fullDetails: {\n      company: companyInfo,\n      executiveTeam: individuals,\n      relatedEntities: entities,\n      offering: offering,\n      document: {\n        filingLinkText: docInfo.filingLinkTxt,\n        accessionNumber: docInfo.accessionNumber,\n        submissionType: docInfo.submissionType,\n        filingDate: docInfo.filingDate\n      }\n    }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c21ec4dd-89c7-4305-b9b9-78fb4812aec1",
+      "name": "Rate Limit Delay",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -1232,
+        1152
+      ],
+      "webhookId": "93557849-f25b-42e7-8ffe-70634b45e0ed",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0df9ab57-ca28-4109-a862-8a1b7e936e83",
+      "name": "Update Filing Status in Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1456,
+        1072
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "processed",
+            "fundType": "={{ $json.summary.fundType }}",
+            "exemptions": "={{ $json.summary.exemptions }}",
+            "filingDate": "={{ $json.summary.filingDate }}",
+            "companyName": "={{ $json.summary.companyName }}",
+            "salesStatus": "={{ $json.summary.saleStatus }}",
+            "amountRaised": "={{ $json.summary.amountRaised }}",
+            "keyExecutive": "={{ $json.summary.keyExecutive }}",
+            "targetAmount": "={{ $json.summary.targetAmount }}",
+            "executiveRole": "={{ $json.summary.executiveRole }}",
+            "filingLinkTxt": "={{ $json.summary.filingLinkText }}",
+            "investorCount": "={{ $json.summary.investorCount }}"
+          },
+          "schema": [
+            {
+              "id": "cikNumber",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "cikNumber",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "formType",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "formType",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "filingLinkHtml",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "filingLinkHtml",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "filingLinkTxt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "filingLinkTxt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "companyName",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "companyName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyExecutive",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "keyExecutive",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "executiveRole",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "executiveRole",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fundType",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "fundType",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "targetAmount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "targetAmount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "amountRaised",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "amountRaised",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "investorCount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "investorCount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "salesStatus",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "salesStatus",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "filingDate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "filingDate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "exemptions",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "exemptions",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "comment",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "comment",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "filingLinkTxt"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VoGfVpk1mMrqKIc5hsO7peYuLx0SwhsbW7uUeYJCmrU/edit#gid=0",
+          "cachedResultName": "Summary"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1VoGfVpk1mMrqKIc5hsO7peYuLx0SwhsbW7uUeYJCmrU",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VoGfVpk1mMrqKIc5hsO7peYuLx0SwhsbW7uUeYJCmrU/edit?usp=drivesdk",
+          "cachedResultName": "SEC Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "[Naveen]Google Sheets account"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "004a0490-1d70-4df7-b158-3b5357e1bbfc",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2480,
+        496
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 592,
+        "content": "📊 SEC Form D Filing Tracker\n\nThis workflow automatically monitors SEC EDGAR for new Form D filings \n(private securities offerings) and extracts key data to Google Sheets.\n\n🎯 WHO'S IT FOR\nVCs, PE firms, investment analysts tracking private market fundraising\n\n⚙️ HOW IT WORKS\n1. Fetches SEC Form D feed every 10 minutes (business hours)\n2. Filters new filings and logs them to Google Sheets\n3. Retrieves full filing documents for unprocessed entries\n4. Extracts company info, executives, and offering details\n5. Updates Google Sheet with complete data\n\n📋 REQUIREMENTS\n- Google Sheet with tracking columns (see description)\n- Google Sheets OAuth credentials\n- Replace nchoudhary110792@gmail.com with your email in HTTP nodes\n\n⏱️ SCHEDULE\nRuns every 10 minutes, Mon-Fri, 6 AM - 9 PM\n(Customizable via Schedule Trigger node)\n\n💡 TIP: This workflow respects SEC rate limits. The Wait node \nprevents overwhelming the EDGAR system."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "383a80df-e75b-4bbe-a06e-436da0a78942",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1808,
+        32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 368,
+        "height": 192,
+        "content": "📥 STEP 1: Collect New Filings\n\nFetches the SEC EDGAR atom feed for Form D filings\nand parses the XML response into structured data.\n\nEach entry contains the filing title, CIK number,\nform type, and links to the full document."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5b992091-a18c-401d-be03-22aafd83452d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -896,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 224,
+        "content": "🔍 STEP 2: Filter & Track\n\nTransforms feed entries into clean data objects,\nremoves duplicates based on filing URL, and adds\nnew filings to Google Sheets with empty status.\n\nThis creates a queue for detailed processing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "580b3675-be3f-4d62-a17a-deecb0af4ec3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 224,
+        "content": "⚡ STEP 3: Batch Processing\n\nFilters for unprocessed Form D filings (status = empty)\nand processes them in batches to avoid overwhelming\nthe SEC servers.\n\nOnly processes actual Form D and Form D/A (amendments)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5232eea7-84fc-4d14-be2e-00a17812a015",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 224,
+        "content": "🔬 STEP 4: Extract Filing Details\n\nDownloads the full Form D document and parses\nthe XML content to extract:\n\n- Company name, address, CIK, industry\n- Key executives and their roles\n- Offering amount, funds raised, investor count\n- Regulatory exemptions used (e.g., 506(b))"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "25093afa-98e1-42f9-993e-8c17ffb8eac9",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1072,
+        992
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 192,
+        "content": "✅ STEP 5: Update & Rate Limit\n\nConsolidates all extracted data into a summary format,\nupdates the Google Sheet row with complete information,\nand marks status as \"processed\".\n\nThe Wait node adds a delay between filings to comply\nwith SEC's rate limiting requirements."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Parse XML Feed": {
+      "main": [
+        [
+          {
+            "node": "Transform Feed Entries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate Limit Delay": {
+      "main": [
+        [
+          {
+            "node": "Process Filings Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch SEC Form D Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Issuer Details": {
+      "main": [
+        [
+          {
+            "node": "Extract Key Personnel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Key Personnel": {
+      "main": [
+        [
+          {
+            "node": "Extract Offering Financial Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SEC Form D Feed": {
+      "main": [
+        [
+          {
+            "node": "Parse XML Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Filings Batch": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Retrieve Form D Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Feed Entries": {
+      "main": [
+        [
+          {
+            "node": "Filter Previously Processed Filings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate Filing Data": {
+      "main": [
+        [
+          {
+            "node": "Update Filing Status in Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Form D Document": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON and Extract SEC Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Filing Status in Sheet": {
+      "main": [
+        [
+          {
+            "node": "Rate Limit Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add New Filing to Tracking Sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter Unprocessed Form D Filings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Unprocessed Form D Filings": {
+      "main": [
+        [
+          {
+            "node": "Process Filings Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Offering Financial Details": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Filing Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Previously Processed Filings": {
+      "main": [
+        [
+          {
+            "node": "Add New Filing to Tracking Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON and Extract SEC Document": {
+      "main": [
+        [
+          {
+            "node": "Parse Issuer Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

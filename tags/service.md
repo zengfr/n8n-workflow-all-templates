@@ -1,4 +1,4 @@
-# service : 41
+# service : 46
 
 |id|file|
 |----|----|
@@ -43,3 +43,8 @@
 |10200|[10200_Perform_Multi-type_DNS_Lookups_with_Google_s_Free_Public_DNS_Service.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10200_Perform_Multi-type_DNS_Lookups_with_Google_s_Free_Public_DNS_Service.json)|
 |10327|[10327_Client_Review_Collection___Sentiment_Analysis_with_HighLevel__GPT-4o__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10327_Client_Review_Collection___Sentiment_Analysis_with_HighLevel__GPT-4o__Gmail___Slack.json)|
 |11604|[11604_Interactive_Recruitment_Customer_Service_with_WhatsApp__Google_Sheets_CRM___Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11604_Interactive_Recruitment_Customer_Service_with_WhatsApp__Google_Sheets_CRM___Notifications.json)|
+|12432|[12432_Verify_service_providers_via_Telegram_using_BrowserAct_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12432_Verify_service_providers_via_Telegram_using_BrowserAct_and_Google_Gemini.json)|
+|12742|[12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json)|
+|12803|[12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json)|
+|12861|[12861_Manage_garage_service_reminders__pickups_and_feedback_with_Airtable__WhatsApp_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12861_Manage_garage_service_reminders__pickups_and_feedback_with_Airtable__WhatsApp_and_Gmail.json)|
+|13080|[13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json)|

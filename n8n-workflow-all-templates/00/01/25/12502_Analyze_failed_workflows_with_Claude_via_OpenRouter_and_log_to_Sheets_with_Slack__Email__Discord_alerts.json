@@ -1,0 +1,641 @@
+{
+  "id": "sLBblAK-xKcFM5JwQ6dyn",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Analyze failed workflows with Claude via OpenRouter and log to Sheets with Slack, Email, Discord alerts",
+    "wechat": "youandme10086",
+    "id": 12502,
+    "update_time": "2026-02-13"
+  },
+  "name": "Analyze failed n8n workflows with AI and send Slack, Email, or Discord alerts",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "fde4bf6f-40b6-473e-9d67-38b2906e2381",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        880,
+        640
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "29d27254-f33a-404e-bd17-c8186cd1a21d",
+      "name": "Generate Error Signature",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2128,
+        640
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Generate a stable error signature for deduplication\n// Using custom hash function instead of crypto module\n\n// Simple string hash function (djb2 algorithm)\nfunction simpleHash(str) {\n  let hash = 5381;\n  for (let i = 0; i < str.length; i++) {\n    hash = ((hash << 5) + hash) + str.charCodeAt(i); // hash * 33 + c\n    hash = hash & hash; // Convert to 32-bit integer\n  }\n  // Convert to positive hex string\n  return Math.abs(hash).toString(16).padStart(8, '0');\n}\n\n// Get input data\nconst failedNode = $input.item.json.failed_node || '';\nconst errorMessage = $input.item.json.error_message || '';\nconst workflowId = $input.item.json.workflow_id || '';\n\n// Normalize error message by removing variable content\nlet normalizedError = errorMessage\n  .replace(/\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z/g, 'TIMESTAMP') // ISO timestamps\n  .replace(/\\d{13,}/g, 'TIMESTAMP') // Unix timestamps\n  .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, 'UUID') // UUIDs\n  .replace(/\\b\\d+\\b/g, 'NUMBER') // Generic numbers\n  .replace(/\"[^\"]*\"/g, 'STRING') // Quoted strings\n  .replace(/\\s+/g, ' ') // Normalize whitespace\n  .trim();\n\n// Create signature from stable components\nconst signatureInput = `${failedNode}|${normalizedError}|${workflowId}`;\nconst errorSignature = simpleHash(signatureInput);\n\n// Return all input fields plus new fields\nreturn {\n  ...$input.item.json,\n  error_signature: errorSignature,\n  normalized_error: normalizedError\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2bd5467f-178c-4c0b-97ba-0d9636adbf57",
+      "name": "Check Alert Fatigue",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2800,
+        640
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// OPTIONAL: Alert Fatigue Prevention\n// This node checks if the same error has occurred recently to prevent notification spam.\n// You can disable this node if you want to receive all error notifications.\n\n// Configuration\nconst LOOKBACK_COUNT = 10; // Number of recent entries to check\nconst TIME_WINDOW_HOURS = 1; // Time window in hours to check for duplicates\n\n// Get current item data\nconst currentItem = $input.item.json;\nconst currentSignature = currentItem.error_signature;\nconst currentTimestamp = new Date(currentItem.timestamp);\n\n// Get all items from Google Sheets (previous node output)\nconst sheetsData = $('Log to Google Sheets1').all();\n\n// Initialize output fields\nlet alertSuppressed = false;\nlet downgradeUrgency = false;\nlet duplicateCount = 0;\nlet lastOccurrence = null;\n\n// Check recent entries for duplicates\nif (sheetsData && sheetsData.length > 0) {\n  // Get the most recent entries (excluding current one)\n  const recentEntries = sheetsData.slice(-LOOKBACK_COUNT);\n  \n  for (const entry of recentEntries) {\n    const entryData = entry.json;\n    const entrySignature = entryData.error_signature;\n    const entryTimestamp = new Date(entryData.timestamp);\n    \n    // Check if signatures match\n    if (entrySignature === currentSignature) {\n      // Calculate time difference in hours\n      const timeDiffHours = (currentTimestamp - entryTimestamp) / (1000 * 60 * 60);\n      \n      // Check if within time window\n      if (timeDiffHours <= TIME_WINDOW_HOURS) {\n        duplicateCount++;\n        \n        // Update last occurrence if this is more recent\n        if (!lastOccurrence || entryTimestamp > new Date(lastOccurrence)) {\n          lastOccurrence = entryData.timestamp;\n        }\n      }\n    }\n  }\n  \n  // Set suppression flags if duplicates found\n  if (duplicateCount > 0) {\n    alertSuppressed = true;\n    downgradeUrgency = true;\n  }\n}\n\n// Return all input fields plus alert fatigue fields\nreturn {\n  ...currentItem,\n  alert_suppressed: alertSuppressed,\n  downgrade_urgency: downgradeUrgency,\n  duplicate_count: duplicateCount,\n  last_occurrence: lastOccurrence\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1632fea4-ba7f-4b0d-ac19-3ec2bb7c6d03",
+      "name": "Prepare Log Record",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2352,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.timestamp }}"
+            },
+            {
+              "id": "id-2",
+              "name": "workflowName",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.workflow_name }}"
+            },
+            {
+              "id": "id-3",
+              "name": "workflowId",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.workflow_id }}"
+            },
+            {
+              "id": "id-4",
+              "name": "executionId",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.execution_id }}"
+            },
+            {
+              "id": "id-5",
+              "name": "failedNode",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.failed_node }}"
+            },
+            {
+              "id": "id-6",
+              "name": "errorMessage",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.error_message }}"
+            },
+            {
+              "id": "id-7",
+              "name": "errorSignature",
+              "type": "string",
+              "value": "={{ $json.error_signature }}"
+            },
+            {
+              "id": "id-8",
+              "name": "aiRootCause",
+              "type": "string",
+              "value": "={{ $('AI Error Analysis1').item.json.text.split('\\n\\n')[0].substring(0, 500) }}"
+            },
+            {
+              "id": "id-9",
+              "name": "aiFixSummary",
+              "type": "string",
+              "value": "={{ $('AI Error Analysis1').item.json.text.split('\\n\\n')[2]?.substring(0, 500) || 'N/A' }}"
+            },
+            {
+              "id": "id-10",
+              "name": "aiConfidence",
+              "type": "number",
+              "value": "={{ $json.ai_confidence || 0.5 }}"
+            },
+            {
+              "id": "id-11",
+              "name": "severity",
+              "type": "string",
+              "value": "high"
+            },
+            {
+              "id": "id-12",
+              "name": "executionMode",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.execution_mode }}"
+            },
+            {
+              "id": "id-13",
+              "name": "triggerType",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.trigger_type }}"
+            },
+            {
+              "id": "id-14",
+              "name": "environment",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.environment }}"
+            },
+            {
+              "id": "id-15",
+              "name": "inputPayload",
+              "type": "string",
+              "value": "={{ $('Normalize Error Payload1').item.json.input_payload }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3ef615f5-885c-477c-82df-17b287ea2183",
+      "name": "Extract AI Confidence",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1904,
+        640
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extract AI confidence score from the AI analysis output\n// The AI is instructed to output a line like: CONFIDENCE: 0.85\n\nconst inputData = $input.item.json;\nconst aiOutput = inputData.text || inputData.output || '';\n\n// Use regex to find the confidence score\nconst confidenceMatch = aiOutput.match(/CONFIDENCE:\\s*([0-9.]+)/i);\n\nlet aiConfidence = 0.5; // Default confidence if not found\n\nif (confidenceMatch && confidenceMatch[1]) {\n  const parsedConfidence = parseFloat(confidenceMatch[1]);\n  // Validate that it's a number between 0 and 1\n  if (!isNaN(parsedConfidence) && parsedConfidence >= 0 && parsedConfidence <= 1) {\n    aiConfidence = parsedConfidence;\n  }\n}\n\n// Return all input fields plus the extracted confidence score\nreturn {\n  ...inputData,\n  ai_confidence: aiConfidence\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "84fd0d60-d271-4ec3-9961-e4727fe8a06c",
+      "name": "Normalize Error Payload1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1104,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "workflow_name",
+              "type": "string",
+              "value": "={{ $json.workflow.name }}"
+            },
+            {
+              "id": "id-2",
+              "name": "workflow_id",
+              "type": "string",
+              "value": "={{ $json.workflow.id }}"
+            },
+            {
+              "id": "id-3",
+              "name": "execution_id",
+              "type": "string",
+              "value": "={{ $json.execution.id }}"
+            },
+            {
+              "id": "id-4",
+              "name": "execution_mode",
+              "type": "string",
+              "value": "={{ $json.execution.mode }}"
+            },
+            {
+              "id": "id-5",
+              "name": "failed_node",
+              "type": "string",
+              "value": "={{ $json.execution.lastNodeExecuted }}"
+            },
+            {
+              "id": "id-6",
+              "name": "error_message",
+              "type": "string",
+              "value": "={{ $json.execution.error.message }}"
+            },
+            {
+              "id": "id-7",
+              "name": "error_stack",
+              "type": "string",
+              "value": "={{ $json.execution.error.stack || 'N/A' }}"
+            },
+            {
+              "id": "id-8",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "id": "0c1a8386-a882-4ab1-ad20-d15d4582d961",
+              "name": "receiver emails",
+              "type": "array",
+              "value": "=[]"
+            },
+            {
+              "id": "id-9",
+              "name": "trigger_type",
+              "type": "string",
+              "value": "={{ $json.execution.data?.triggerData?.type || 'unknown' }}"
+            },
+            {
+              "id": "id-10",
+              "name": "input_payload",
+              "type": "string",
+              "value": "={{ JSON.stringify($json.execution.data?.startData?.destinationNode ? $json.execution.data.startData : {}, null, 2).substring(0, 1000) }}"
+            },
+            {
+              "id": "id-11",
+              "name": "environment",
+              "type": "string",
+              "value": "production"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e56d7473-23d8-4755-a7ae-452c8387c36f",
+      "name": "AI Error Analysis1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1552,
+        640
+      ],
+      "parameters": {
+        "text": "=You are analyzing a workflow execution error. Below is the complete context:\n\n## WORKFLOW DEFINITION\n```json\n{{ $json.workflow_json }}\n```\n\n## EXECUTION DETAILS\n```json\n{{ $json.execution_json }}\n```\n\n## ERROR INFORMATION\n- **Failed Node**: {{ $json.failed_node }}\n- **Error Message**: {{ $json.error_message }}\n- **Error Stack**: {{ $json.error_stack }}\n- **Timestamp**: {{ $json.timestamp }}\n\n## REPRODUCTION CONTEXT\n- **Trigger Type**: {{ $json.trigger_type }}\n- **Execution Mode**: {{ $json.execution_mode }}\n- **Environment**: {{ $json.environment }}\n- **Input Payload**: {{ $json.input_payload }}\n\nPlease provide a comprehensive analysis including:\n\n1. **Root Cause**: What is the fundamental reason this error occurred?\n\n2. **Error Chain Tracing**: Trace the execution path that led to this failure, identifying which nodes were involved and how data flowed between them.\n\n3. **Precise Fix Steps**: Provide specific, actionable steps to fix this error. Include:\n   - Exact node names that need to be modified\n   - Specific fields/parameters to change\n   - Recommended values or configurations\n   - Any new nodes that should be added\n\n4. **Prevention Strategies**: Suggest how to prevent similar errors in the future, including:\n   - Validation checks to add\n   - Error handling improvements\n   - Best practices to follow\n\n5. **Confidence Assessment**: Rate your confidence in this analysis from 0.0 to 1.0, where 1.0 means you are certain about the root cause and fix. Output this as a single line: CONFIDENCE: [score]\n\nProvide your analysis in a clear, structured format.",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.8
+    },
+    {
+      "id": "e4e51024-1629-43df-a2c9-c98607990e42",
+      "name": "Send Email1",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3024,
+        640
+      ],
+      "webhookId": "dfe10f33-3060-4780-9a10-07d2025e0fa3",
+      "parameters": {
+        "sendTo": "={{ $('Normalize Error Payload1').item.json['receiver emails'].join(', ') }}",
+        "message": "=<h2>🚨 Workflow Error Alert</h2>\n\n<p><strong>Workflow Name:</strong> {{ $('Normalize Error Payload1').item.json.workflow_name }}</p>\n<p><strong>Failed Node:</strong> {{ $('Normalize Error Payload1').item.json.failed_node }}</p>\n<p><strong>Error Message:</strong> {{ $('Normalize Error Payload1').item.json.error_message }}</p>\n<p><strong>Execution ID:</strong> {{ $('Normalize Error Payload1').item.json.execution_id }}</p>\n<p><strong>Timestamp:</strong> {{ $('Normalize Error Payload1').item.json.timestamp }}</p>\n<p><strong>Error Signature:</strong> {{ $('Generate Error Signature').item.json.error_signature }}</p>\n\n<hr>\n\n<h3>🔄 Reproduction Context</h3>\n<p><strong>Execution Mode:</strong> {{ $('Normalize Error Payload1').item.json.execution_mode }}</p>\n<p><strong>Error Stack:</strong></p>\n<pre>{{ $('Normalize Error Payload1').item.json.error_stack }}</pre>\n\n<hr>\n\n<h3>🤖 AI Analysis {{ $('Check Alert Fatigue').item.json.ai_confidence < 0.6 ? '(⚠️ Low Confidence: ' + ($('Check Alert Fatigue').item.json.ai_confidence * 100).toFixed(0) + '%)' : '(Confidence: ' + ($('Check Alert Fatigue').item.json.ai_confidence * 100).toFixed(0) + '%)' }}</h3>\n<pre>{{ $('AI Error Analysis1').item.json.text }}</pre>\n\n<hr>\n\n<p><a href=\"https://sacogov.app.n8n.cloud/workflow/{{ $('Normalize Error Payload1').item.json.workflow_id }}/executions/{{ $('Normalize Error Payload1').item.json.execution_id }}\">View Execution Details</a></p>",
+        "options": {},
+        "subject": "=[n8n Error]{{ $('Check Alert Fatigue').item.json.ai_confidence < 0.6 ? '[⚠️ Low Confidence]' : '[High]' }} Workflow \"{{ $('Normalize Error Payload1').item.json.workflow_name }}\" failed"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d018b3ff-2296-40b0-a3d1-3f49820bd644",
+      "name": "OpenRouter Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        1632,
+        864
+      ],
+      "parameters": {
+        "model": "anthropic/claude-3.5-sonnet",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "bXzeDNe3czHzToYH",
+          "name": "Reddit Replies"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0e0bba81-2708-490c-b518-e0825175b0cc",
+      "name": "Log to Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2576,
+        640
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OgkqYM1vYDi5bLrxfOBete2Og7hL8JVjBAvfskXZk5Y/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1OgkqYM1vYDi5bLrxfOBete2Og7hL8JVjBAvfskXZk5Y",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OgkqYM1vYDi5bLrxfOBete2Og7hL8JVjBAvfskXZk5Y/edit?usp=drivesdk",
+          "cachedResultName": "Test Test Test"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OnREAVMrotNp4kqA",
+          "name": "Google Sheets - sam@openpaws.ai"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "df5c4a8a-6517-4d0b-bc94-a87f607b5904",
+      "name": "Send Slack Message1",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3248,
+        448
+      ],
+      "webhookId": "3595315c-9c3a-4e72-a1fb-9a23950e339a",
+      "parameters": {
+        "text": "=🚨 *Workflow Error Alert*{{ $json.downgrade_urgency ? ' (Recurring)' : '' }}\n\n*Workflow:* {{ $('Normalize Error Payload1').item.json.workflow_name }}\n*Failed Node:* {{ $('Normalize Error Payload1').item.json.failed_node }}\n*Error Message:* {{ $('Normalize Error Payload1').item.json.error_message }}\n*Error Signature:* `{{ $json.error_signature }}`\n\n*🤖 AI Root Cause Summary:* {{ $json.ai_confidence >= 0.8 ? '🟢' : $json.ai_confidence >= 0.5 ? '🟡' : '🔴' }}\n{{ $('AI Error Analysis1').item.json.output.split('\\n').slice(0, 5).join('\\n') }}\n\n*Reproduction Context:*\n{{ $json.reproduction_context }}\n\n*Execution ID:* {{ $('Normalize Error Payload1').item.json.execution_id }}\n\n<https://sacogov.app.n8n.cloud/workflow/{{ $('Normalize Error Payload1').item.json.workflow_id }}/executions/{{ $('Normalize Error Payload1').item.json.execution_id }}|View Execution Details>",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "<__PLACEHOLDER_VALUE__Slack Channel ID or Name__>"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "f022b0c6-9d5f-4587-bd33-e56fd3629ab8",
+      "name": "Send Discord Message1",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        3248,
+        640
+      ],
+      "webhookId": "25a623c4-9aa1-49be-80a8-b3efdbb0a051",
+      "parameters": {
+        "content": "=🚨 **Workflow Error Alert**\n\n**Workflow Name:** {{ $('Normalize Error Payload1').item.json.workflow_name }}\n**Failed Node:** {{ $('Normalize Error Payload1').item.json.failed_node }}\n**Error Message:** {{ $('Normalize Error Payload1').item.json.error_message }}\n**Execution ID:** {{ $('Normalize Error Payload1').item.json.execution_id }}\n**Error Signature:** {{ $('Generate Error Signature').item.json.error_signature }}\n\n---\n\n**🤖 AI Analysis Summary:**\n{{ $('AI Error Analysis1').item.json.output.substring(0, 500) }}...\n\n**Confidence Level:** {{ $('Generate Error Signature').item.json.ai_confidence >= 0.8 ? '🟢 High' : ($('Generate Error Signature').item.json.ai_confidence >= 0.5 ? '🟡 Medium' : '🔴 Low') }}\n\n**Reproduction Context:**\n{{ $('Prepare Log Record').item.json.reproduction_context }}\n\n{{ $('Check Alert Fatigue').item.json.downgrade_urgency ? '⚠️ Note: Similar error detected recently - urgency downgraded' : '' }}\n\n[View Full Execution](https://sacogov.app.n8n.cloud/workflow/{{ $('Normalize Error Payload1').item.json.workflow_id }}/executions/{{ $('Normalize Error Payload1').item.json.execution_id }})",
+        "options": {},
+        "authentication": "webhook"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4bd4bb7d-2b51-471b-864a-ece92c884b48",
+      "name": "Webhook Notification1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3248,
+        832
+      ],
+      "parameters": {
+        "url": "<__PLACEHOLDER_VALUE__Webhook URL__>",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "workflow_name",
+              "value": "={{ $('Normalize Error Payload1').item.json.workflow_name }}"
+            },
+            {
+              "name": "failed_node",
+              "value": "={{ $('Normalize Error Payload1').item.json.failed_node }}"
+            },
+            {
+              "name": "error_message",
+              "value": "={{ $('Normalize Error Payload1').item.json.error_message }}"
+            },
+            {
+              "name": "ai_analysis",
+              "value": "={{ $('AI Error Analysis1').item.json.output }}"
+            },
+            {
+              "name": "execution_id",
+              "value": "={{ $('Normalize Error Payload1').item.json.execution_id }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $('Normalize Error Payload1').item.json.timestamp }}"
+            },
+            {
+              "name": "error_signature",
+              "value": "={{ $json.error_signature }}"
+            },
+            {
+              "name": "ai_confidence",
+              "value": "={{ $json.ai_confidence }}"
+            },
+            {
+              "name": "reproduction_context",
+              "value": "={{ JSON.stringify({ trigger_type: $json.trigger_type, execution_mode: $json.execution_mode, environment: $json.environment }) }}"
+            },
+            {
+              "name": "alert_suppressed",
+              "value": "={{ $json.alert_suppressed }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e72f26c2-7cd2-4614-b168-55c42dafa01e",
+      "name": "Prepare AI Context1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1328,
+        640
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// ============================================================================\n// GREEDY MIDDLE-OUT CONTEXT EXTRACTION ALGORITHM\n// ============================================================================\n// \n// PURPOSE:\n// When workflows fail, we need to send context to an AI for analysis.\n// However, full workflow/execution dumps can be massive (100K+ chars),\n// exceeding LLM context windows and wasting tokens on irrelevant data.\n//\n// STRATEGY:\n// Instead of dumping everything, we use a \"middle-out\" approach:\n// 1. Start at the FAILED NODE (the epicenter of the error)\n// 2. Expand outward in \"hops\" - first direct connections, then their connections\n// 3. For each node, include: definition, parameters, input data, output data\n// 4. Stop when we hit our character budget (default 50K chars)\n// 5. NEVER truncate mid-node - either include a full node or skip it\n//\n// WHY THIS WORKS:\n// - The failed node and its immediate neighbors contain 90% of relevant context\n// - Distant nodes are rarely relevant to the root cause\n// - This gives AI the \"smoking gun\" without drowning it in noise\n// - We respect token limits while maximizing signal-to-noise ratio\n//\n// ============================================================================\n\nconst MAX_CONTEXT_CHARS = 50000; // Configurable budget - adjust based on your LLM\n\n// Get input data from previous node\nconst inputData = $input.item.json;\nconst failedNode = inputData.failed_node;\n\n// Parse workflow and execution JSON from error trigger\nlet workflowData, executionData;\ntry {\n  workflowData = inputData.workflow || {};\n  executionData = inputData.execution || {};\n} catch (e) {\n  // Fallback if parsing fails\n  return {\n    ...inputData,\n    workflow_json: JSON.stringify({ error: 'Failed to parse workflow data' }),\n    execution_json: JSON.stringify({ error: 'Failed to parse execution data' })\n  };\n}\n\n// ============================================================================\n// STEP 1: BUILD NODE CONNECTION GRAPH\n// ============================================================================\n// We need to know which nodes connect to which, so we can expand outward\n\nconst nodeConnections = new Map(); // node_name -> Set of connected node names\nconst nodeDefinitions = new Map(); // node_name -> node definition\n\n// Parse workflow nodes\nif (workflowData.nodes) {\n  workflowData.nodes.forEach(node => {\n    nodeDefinitions.set(node.name, node);\n    nodeConnections.set(node.name, new Set());\n  });\n}\n\n// Parse connections to build adjacency graph\nif (workflowData.connections) {\n  Object.keys(workflowData.connections).forEach(sourceNode => {\n    const connections = workflowData.connections[sourceNode];\n    if (connections.main) {\n      connections.main.forEach(outputConnections => {\n        if (outputConnections) {\n          outputConnections.forEach(conn => {\n            // Add bidirectional edges (we want to traverse both ways)\n            nodeConnections.get(sourceNode)?.add(conn.node);\n            nodeConnections.get(conn.node)?.add(sourceNode);\n          });\n        }\n      });\n    }\n  });\n}\n\n// ============================================================================\n// STEP 2: EXTRACT EXECUTION DATA FOR EACH NODE\n// ============================================================================\n// Get the actual input/output data from the execution\n\nconst nodeExecutionData = new Map(); // node_name -> execution data\n\nif (executionData.data && executionData.data.resultData) {\n  const runData = executionData.data.resultData.runData || {};\n  Object.keys(runData).forEach(nodeName => {\n    nodeExecutionData.set(nodeName, runData[nodeName]);\n  });\n}\n\n// ============================================================================\n// STEP 3: GREEDY MIDDLE-OUT EXPANSION\n// ============================================================================\n// Start from failed node, expand outward hop by hop until budget exhausted\n\nconst includedNodes = new Set();\nconst nodesToProcess = [failedNode]; // Queue for BFS traversal\nconst processedNodes = new Set();\nlet currentHop = 0;\nlet totalChars = 0;\n\n// Helper function to estimate size of a node's context\nfunction estimateNodeSize(nodeName) {\n  let size = 0;\n  \n  // Node definition size\n  const nodeDef = nodeDefinitions.get(nodeName);\n  if (nodeDef) {\n    size += JSON.stringify(nodeDef).length;\n  }\n  \n  // Execution data size\n  const execData = nodeExecutionData.get(nodeName);\n  if (execData) {\n    size += JSON.stringify(execData).length;\n  }\n  \n  return size;\n}\n\n// BFS traversal with budget constraint\nwhile (nodesToProcess.length > 0 && currentHop < 10) { // Max 10 hops as safety\n  const currentLevelSize = nodesToProcess.length;\n  const nextLevel = [];\n  \n  // Process all nodes at current hop level\n  for (let i = 0; i < currentLevelSize; i++) {\n    const nodeName = nodesToProcess.shift();\n    \n    if (processedNodes.has(nodeName)) continue;\n    processedNodes.add(nodeName);\n    \n    // Check if adding this node would exceed budget\n    const nodeSize = estimateNodeSize(nodeName);\n    \n    if (totalChars + nodeSize <= MAX_CONTEXT_CHARS) {\n      // We have budget - include this node\n      includedNodes.add(nodeName);\n      totalChars += nodeSize;\n      \n      // Add neighbors to next level\n      const neighbors = nodeConnections.get(nodeName) || new Set();\n      neighbors.forEach(neighbor => {\n        if (!processedNodes.has(neighbor)) {\n          nextLevel.push(neighbor);\n        }\n      });\n    } else {\n      // Budget exhausted - stop expansion\n      break;\n    }\n  }\n  \n  // Move to next hop level\n  nodesToProcess.push(...nextLevel);\n  currentHop++;\n  \n  // If we couldn't add any nodes this level, stop\n  if (nextLevel.length === 0) break;\n}\n\n// ============================================================================\n// STEP 4: BUILD FILTERED WORKFLOW AND EXECUTION JSON\n// ============================================================================\n// Only include nodes that made it into our budget\n\n// Filter workflow nodes\nconst filteredNodes = [];\nincludedNodes.forEach(nodeName => {\n  const nodeDef = nodeDefinitions.get(nodeName);\n  if (nodeDef) {\n    filteredNodes.push(nodeDef);\n  }\n});\n\n// Filter workflow connections\nconst filteredConnections = {};\nif (workflowData.connections) {\n  Object.keys(workflowData.connections).forEach(sourceNode => {\n    if (includedNodes.has(sourceNode)) {\n      const connections = workflowData.connections[sourceNode];\n      const filteredNodeConnections = { main: [] };\n      \n      if (connections.main) {\n        connections.main.forEach(outputConnections => {\n          if (outputConnections) {\n            const filtered = outputConnections.filter(conn => \n              includedNodes.has(conn.node)\n            );\n            filteredNodeConnections.main.push(filtered.length > 0 ? filtered : null);\n          } else {\n            filteredNodeConnections.main.push(null);\n          }\n        });\n      }\n      \n      if (filteredNodeConnections.main.some(c => c && c.length > 0)) {\n        filteredConnections[sourceNode] = filteredNodeConnections;\n      }\n    }\n  });\n}\n\n// Build filtered workflow JSON\nconst filteredWorkflow = {\n  ...workflowData,\n  nodes: filteredNodes,\n  connections: filteredConnections,\n  _context_metadata: {\n    extraction_method: 'middle-out',\n    failed_node: failedNode,\n    hops_included: currentHop,\n    nodes_included: includedNodes.size,\n    total_nodes: nodeDefinitions.size,\n    estimated_chars: totalChars,\n    budget_chars: MAX_CONTEXT_CHARS\n  }\n};\n\n// Filter execution data\nconst filteredRunData = {};\nincludedNodes.forEach(nodeName => {\n  const execData = nodeExecutionData.get(nodeName);\n  if (execData) {\n    filteredRunData[nodeName] = execData;\n  }\n});\n\nconst filteredExecution = {\n  ...executionData,\n  data: {\n    ...executionData.data,\n    resultData: {\n      ...executionData.data?.resultData,\n      runData: filteredRunData\n    }\n  },\n  _context_metadata: {\n    extraction_method: 'middle-out',\n    nodes_included: includedNodes.size\n  }\n};\n\n// ============================================================================\n// STEP 5: RETURN RESULTS\n// ============================================================================\n// Return all input fields plus our extracted context\n\nreturn {\n  ...inputData,\n  workflow_json: JSON.stringify(filteredWorkflow, null, 2),\n  execution_json: JSON.stringify(filteredExecution, null, 2),\n  _extraction_stats: {\n    nodes_included: Array.from(includedNodes),\n    hops_traversed: currentHop,\n    total_chars: totalChars,\n    budget_chars: MAX_CONTEXT_CHARS,\n    compression_ratio: (totalChars / (JSON.stringify(workflowData).length + JSON.stringify(executionData).length)).toFixed(2)\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0b436351-63d9-451f-ab6e-51cbbf7fbac0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        896,
+        -64
+      ],
+      "parameters": {
+        "width": 832,
+        "height": 592,
+        "content": "#  Analyze failed n8n workflows with AI and send Slack, Email, or Discord alerts\n\n## How it works\n\nThis workflow automatically runs whenever an n8n workflow fails.\nIt captures the error details, sends them to an AI model for analysis,\nand generates a clear explanation of what went wrong, why it happened,\nand how it can be fixed.\n\nThe workflow then logs the error and sends notifications to selected\nchannels such as Slack, Email, or Discord. It also includes basic\nalert fatigue control to avoid sending repeated alerts for the same issue.\n\n## Setup steps\n\n1. Add your AI provider credentials (OpenAI or OpenRouter).\n2. Configure notification channels (Slack, Email, Discord, or Webhook).\n3. (Optional) Enable Google Sheets or another database for error logging.\n4. Activate the workflow to start monitoring failures.\n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "467757b2-227e-4106-a40a-d10f46de4b47",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1760,
+        -64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 624,
+        "height": 400,
+        "content": "## 🔐 Credentials Required\n\nThis workflow uses:\n- **OpenRouter API** — for AI root-cause analysis  \n- **Google Sheets** — for centralized error logging  \n- **Slack / Discord / Email credentials** — for notifications  \n- Optional **Webhook URL** for external integrations  \n\nNo credentials are included.  \nUsers must add their own before running the workflow.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "cd5b6a6a-fd48-4f14-b1b0-1ca95f8520cb",
+  "connections": {
+    "Send Email1": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Discord Message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Webhook Notification1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Error Payload1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Error Analysis1": {
+      "main": [
+        [
+          {
+            "node": "Extract AI Confidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Log Record": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Alert Fatigue": {
+      "main": [
+        [
+          {
+            "node": "Send Email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Context1": {
+      "main": [
+        [
+          {
+            "node": "AI Error Analysis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract AI Confidence": {
+      "main": [
+        [
+          {
+            "node": "Generate Error Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Check Alert Fatigue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Error Analysis1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Error Signature": {
+      "main": [
+        [
+          {
+            "node": "Prepare Log Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Error Payload1": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Context1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

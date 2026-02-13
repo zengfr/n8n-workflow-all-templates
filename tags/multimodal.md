@@ -1,4 +1,4 @@
-# multimodal : 8
+# multimodal : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |9008|[9008_Multimodal_Telegram_Bot_with_Voice__Image___Video_Analysis_using_Claude___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9008_Multimodal_Telegram_Bot_with_Voice__Image___Video_Analysis_using_Claude___Gemini.json)|
 |9149|[9149_Multimodal_Slack_AI_Assistant_with_Voice__Image___Video_Processing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9149_Multimodal_Slack_AI_Assistant_with_Voice__Image___Video_Processing.json)|
 |11754|[11754_Build_a_WhatsApp_Assistant_for_Text__Audio___Images_using_GPT-4o___Evolution_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11754_Build_a_WhatsApp_Assistant_for_Text__Audio___Images_using_GPT-4o___Evolution_API.json)|
+|12006|[12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json)|

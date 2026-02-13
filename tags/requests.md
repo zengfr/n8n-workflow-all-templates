@@ -1,4 +1,4 @@
-# requests : 35
+# requests : 44
 
 |id|file|
 |----|----|
@@ -37,3 +37,12 @@
 |10578|[10578_Automate_Hotel_Booking_Requests_from_Gmail_to_Google_Sheets_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10578_Automate_Hotel_Booking_Requests_from_Gmail_to_Google_Sheets_with_GPT-4o-mini.json)|
 |11420|[11420_Send_AI-Personalized_LinkedIn_Connection_Requests_from_Google_Sheets_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11420_Send_AI-Personalized_LinkedIn_Connection_Requests_from_Google_Sheets_with_Gemini.json)|
 |11530|[11530_Send_Personalized_Connection_Requests_to_LinkedIn_Post_Commenters_with_ConnectSafely.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11530_Send_Personalized_Connection_Requests_to_LinkedIn_Post_Commenters_with_ConnectSafely.ai.json)|
+|11967|[11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json)|
+|12638|[12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json)|
+|12687|[12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json)|
+|12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|
+|13094|[13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json)|
+|13118|[13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json)|
+|13138|[13138_Process_data_rights_requests_and_governance_compliance_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13138_Process_data_rights_requests_and_governance_compliance_with_Anthropic_Claude.json)|
+|13180|[13180_Triage_Slack_and_Gmail_requests_with_an_AI-powered_intake_layer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13180_Triage_Slack_and_Gmail_requests_with_an_AI-powered_intake_layer.json)|
+|13238|[13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json)|

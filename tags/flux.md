@@ -1,4 +1,4 @@
-# flux : 33
+# flux : 34
 
 |id|file|
 |----|----|
@@ -35,3 +35,4 @@
 |8641|[8641_Generate___Post_Animated_Anime_Wallpapers_to_TikTok_with_Flux_AI_and_Fal_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8641_Generate___Post_Animated_Anime_Wallpapers_to_TikTok_with_Flux_AI_and_Fal_AI.json)|
 |9372|[9372_Transform_Meeting_Transcripts_into_AI-Generated_Presentations_with_Google_Slides___Flux.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9372_Transform_Meeting_Transcripts_into_AI-Generated_Presentations_with_Google_Slides___Flux.json)|
 |10735|[10735_Generate_Animal_Battle_Videos_with_Flux_AI__Creatomate___Multi-Platform_Publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10735_Generate_Animal_Battle_Videos_with_Flux_AI__Creatomate___Multi-Platform_Publishing.json)|
+|12097|[12097_Create_an_all-in-one_Discord_assistant_with_Gemini__Llama_Vision___Flux_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12097_Create_an_all-in-one_Discord_assistant_with_Gemini__Llama_Vision___Flux_images.json)|

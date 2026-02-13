@@ -1,4 +1,4 @@
-# ideas : 41
+# ideas : 48
 
 |id|file|
 |----|----|
@@ -43,3 +43,10 @@
 |10806|[10806_Voice-to-Ideas__Transcribe_Telegram_Voice_Notes_with_OpenAI_Whisper_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10806_Voice-to-Ideas__Transcribe_Telegram_Voice_Notes_with_OpenAI_Whisper_to_Google_Sheets.json)|
 |11306|[11306_Transform_NASA_Patents_into_Business_Ideas_with_OpenAI_and_Send_to_Google_Sheets___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11306_Transform_NASA_Patents_into_Business_Ideas_with_OpenAI_and_Send_to_Google_Sheets___Slack.json)|
 |11362|[11362_Convert_Task_Ideas_to_Implementation_Plans_with_GPT-4o__Slack___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11362_Convert_Task_Ideas_to_Implementation_Plans_with_GPT-4o__Slack___Google_Sheets.json)|
+|11950|[11950_Generate_YouTube_video_ideas_from_comments_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11950_Generate_YouTube_video_ideas_from_comments_with_GPT-4o-mini_and_Google_Sheets.json)|
+|12047|[12047_Generate_product_ideas_from_website_content_with_FireCrawl_and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12047_Generate_product_ideas_from_website_content_with_FireCrawl_and_GPT-4.1.json)|
+|12084|[12084_Research_content_keywords_with_SE_Ranking_and_export_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12084_Research_content_keywords_with_SE_Ranking_and_export_to_Google_Sheets.json)|
+|12478|[12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json)|
+|12497|[12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json)|
+|12509|[12509_Generate_YouTube_content_ideas_with_Firecrawl__OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12509_Generate_YouTube_content_ideas_with_Firecrawl__OpenAI_and_Notion.json)|
+|12780|[12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json)|

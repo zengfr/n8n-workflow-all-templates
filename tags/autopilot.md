@@ -1,4 +1,4 @@
-# autopilot : 11
+# autopilot : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |9115|[9115_Generate_SEO_AEO-optimized_Shopify_Blog_Articles_with_GPT-4_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9115_Generate_SEO_AEO-optimized_Shopify_Blog_Articles_with_GPT-4_and_Google_Sheets.json)|
 |9780|[9780_Cross-Post_Tiktok_Videos_to_Multiple_Social_Media_Platforms_with_RSS___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9780_Cross-Post_Tiktok_Videos_to_Multiple_Social_Media_Platforms_with_RSS___Blotato.json)|
 |10051|[10051_Automate_Podcast_Creation_with_GPT__Claude___Eleven_Labs_Text-to-Speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10051_Automate_Podcast_Creation_with_GPT__Claude___Eleven_Labs_Text-to-Speech.json)|
+|12858|[12858_Generate_Blog_Posts_on_Autopilot_with_GPT_5__Tavily_and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12858_Generate_Blog_Posts_on_Autopilot_with_GPT_5__Tavily_and_WordPress.json)|

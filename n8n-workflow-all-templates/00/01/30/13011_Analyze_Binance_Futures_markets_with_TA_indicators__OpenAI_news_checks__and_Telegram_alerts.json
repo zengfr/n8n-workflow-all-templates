@@ -1,0 +1,774 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Analyze Binance Futures markets with TA indicators, OpenAI news checks, and Telegram alerts",
+    "wechat": "youandme10086",
+    "id": 13011,
+    "update_time": "2026-02-13"
+  },
+  "nodes": [
+    {
+      "id": "5ac7aafc-4b76-49c9-ba48-4f938ddc4688",
+      "name": "Get Exchange Rules",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -176,
+        144
+      ],
+      "parameters": {
+        "url": "https://fapi.binance.com/fapi/v1/exchangeInfo?symbol={{ $json.symbol }}",
+        "options": {}
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "45b21da7-88e5-4a78-9e57-c74f57154675",
+      "name": "🛡 RSI Safety Check.",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1520,
+        64
+      ],
+      "parameters": {
+        "jsCode": "// --- RSI SAFETY FILTER ---\n// Settings are now dynamic, but logic remains local for speed\nconst RSI_MAX = 70; \nconst RSI_MIN = 30; \n\nconst input = $input.first().json;\nconst rsi = parseFloat(input.rsi || input.RSI); \nconst signal = input.signal; \n\nif (!rsi) return { json: input }; \n\nlet isSafe = true;\n\n// 1. Long Check\nif (signal === 'LONG' && rsi > RSI_MAX) isSafe = false;\n\n// 2. Short Check\nif (signal === 'SHORT' && rsi < RSI_MIN) isSafe = false;\n\n// --- RESULT ---\nif (isSafe) {\n    return { json: input };\n} else {\n    return []; // Stop execution\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a62ad409-0869-43bb-a44b-984d45f6ba43",
+      "name": "Execute (Paper Trading)",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        720,
+        160
+      ],
+      "parameters": {
+        "url": "=https://testnet.binancefuture.com{{ $json.endpoint }}?{{ $json.queryString }}&signature={{ $json.signature }}",
+        "method": "POST",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-MBX-APIKEY",
+              "value": "={{ $json.apiKey }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "8277823b-cb18-47e2-a988-9aa93f265763",
+      "name": "🔐 Sign Request",
+      "type": "n8n-nodes-base.crypto",
+      "position": [
+        544,
+        160
+      ],
+      "parameters": {
+        "type": "SHA256",
+        "value": "={{ $json.queryString }}",
+        "action": "hmac",
+        "secret": "YOUR_CREDENTIAL_HERE",
+        "dataPropertyName": "signature"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "33abbdf9-3dea-4857-a020-b1e959dfa785",
+      "name": "🔄 Loop (SplitBatch)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        352,
+        144
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "21554eeb-da99-48ff-ae96-bd843ea7db50",
+      "name": "Loop Connector",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        -176,
+        320
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b1b7dce3-9bbe-440b-9ebe-447e9149ed48",
+      "name": "📢 Notify Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        -416,
+        224
+      ],
+      "webhookId": "14593e08-8a1c-4026-a05d-818295a5676c",
+      "parameters": {
+        "text": "=🚀 <b>#{{ $json.symbol }}</b> | <b>{{ $json.signal }}</b> {{ $json.emoji }}\n━━━━━━━━━━━━━━\n🚪 Entry: <code>{{ $json.price }}</code> \n💰 Target: <code>{{ $json.calc_tp }}</code> \n🛡 Stop: <code>{{ $json.calc_sl }}</code>\n\n📈 <b>Analytics:</b>\n• Trend: <b>{{ $json.trend }}</b>\n• R/R Ratio: <b>{{ $json.rr_ratio }}</b>\n• RSI: {{ $json.rsi }} ({{ $json.rsi_status }})\n• Volatility: {{ $json.bb_width }}%\n\n🤖 <b>AI Risk Check:</b> {{ $json.ai_reason }}\n📢 <i>Paper Trading / Educational</i>",
+        "chatId": "={{ $('📝 MAIN CONFIG').first().json.TELEGRAM_CHANNEL_ID }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "49291e69-cc20-4278-a255-307d4a6bdd1e",
+      "name": "🛠️ Merge & Clean Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -720,
+        64
+      ],
+      "parameters": {
+        "jsCode": "// 1. Get AI Output\nconst inputItem = $input.first();\nconst aiRaw = inputItem ? (inputItem.json.text || \"{}\") : \"{}\";\n\nlet marketData = {};\ntry {\n    marketData = $('🧠 Analyze Logic').item.json;\n} catch(e) {\n    marketData = { symbol: \"ERROR\", price: 0 };\n}\n\n// 2. Clean JSON from Markdown\nlet aiReason = \"CONFIRM: Analysis confirmed.\";\nlet cleanAi = aiRaw.replace(/```json/g, '').replace(/```/g, '').trim();\n\nconst firstBrace = cleanAi.indexOf('{');\nconst lastBrace = cleanAi.lastIndexOf('}');\n\nif (firstBrace !== -1 && lastBrace !== -1) {\n    try {\n        const parsed = JSON.parse(cleanAi.substring(firstBrace, lastBrace + 1));\n        if (parsed.reason) {\n            aiReason = parsed.reason;\n        }\n    } catch (e) {\n        aiReason = \"CHECK: \" + cleanAi.substring(0, 200);\n    }\n} else if (cleanAi.length > 5) {\n    aiReason = cleanAi.substring(0, 250);\n}\n\nreturn {\n    json: {\n        ...marketData,\n        ai_reason: aiReason,\n        processed_at: new Date().toISOString()\n    }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9ea585cf-ba43-4861-a118-a52d770c9316",
+      "name": "OpenRouter/OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        -976,
+        224
+      ],
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "413e695e-d4ea-4245-b092-a79e303bcf67",
+      "name": "🤖 AI Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -976,
+        64
+      ],
+      "parameters": {
+        "text": "=You are the Risk Manager of an algorithmic hedge fund.\nYour job is to protect capital from trading during high-risk news events.\n\nINPUT DATA:\n1. Ticker: {{ $json.symbol }}\n2. Strategy Signal: {{ $json.signal }} (LONG = Buy, SHORT = Sell)\n3. RECENT NEWS:\n{{ $json.news_context }}\n\nINSTRUCTIONS:\nAnalyze the headlines. Look ONLY for critical threats to the current signal.\n- Threats for LONG: Hacks, Delisting, Lawsuits, FUD, Massive outflows.\n- Threats for SHORT: Partnerships, Listings, Mainnet launch, Hardfork, Pumps.\n\nRESPONSE FORMAT (STRICT JSON):\nIf news is neutral or confirms the signal:\n{ \"reason\": \"CONFIRM: Neutral or Positive news. No obstacles.\" }\n\nIf CRITICAL THREAT detected (Contradiction):\n{ \"reason\": \"SKIP: High risk detected! (Brief explanation)\" }\n\nIMPORTANT:\n1. Use \"SKIP\" only for real threats.\n2. Use \"CONFIRM\" if clear.",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "424080ed-d729-4dc1-9579-c9da41012f8a",
+      "name": "📝 Format Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1120,
+        64
+      ],
+      "parameters": {
+        "jsCode": "const newsData = $input.first()?.json?.Data || [];\nlet newsText = \"No recent news found.\";\nif (newsData.length > 0) {\n    const headlines = newsData.slice(0, 3).map(n => `- ${n.title}`).join('\\n');\n    newsText = `Latest News:\\n${headlines}`;\n}\nconst techData = $('🧠 Analyze Logic').first().json;\n\nreturn {\n    json: {\n        ...techData,\n        news_context: newsText\n    }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3da47f7d-8061-4c55-865f-4423469777ec",
+      "name": "📰 Get News",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1280,
+        64
+      ],
+      "parameters": {
+        "url": "https://min-api.cryptocompare.com/data/v2/news/",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "categories",
+              "value": "={{ $('🧠 Analyze Logic').first().json.symbol.replace('USDT', '') }}"
+            },
+            {
+              "name": "lang",
+              "value": "EN"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "bd5f25f7-75d2-4610-8e6e-d266f023a283",
+      "name": "🚦 Signal Check",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1696,
+        144
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.hasSignal }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6863704f-ca57-4b7f-91b6-e74f0600bd39",
+      "name": "🧠 Analyze Logic",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1888,
+        144
+      ],
+      "parameters": {
+        "jsCode": "// --- STRATEGY SETTINGS ---\nconst MIN_VOL_X = 1.2; // Volume multiplier threshold\nconst DEDUP_TIMEOUT_MS = 60 * 60 * 1000; // 1 Hour cooldown per coin\n\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.lastSignals) staticData.lastSignals = {};\n\nconst items = $input.all();\nconst klines = items.map(i => i.json);\nlet symbol = \"UNKNOWN\";\ntry { symbol = $('SplitInBatches').first().json.symbol; } catch(e) {}\nconst noSignal = () => ({ json: { hasSignal: false, symbol } });\n\n// Need at least 200 candles for EMA calculation\nif (klines.length < 200) return noSignal(); \n\nconst closes = klines.map(k => parseFloat(k[4]));\nconst highs = klines.map(k => parseFloat(k[2]));\nconst lows = klines.map(k => parseFloat(k[3]));\nconst volumes = klines.map(k => parseFloat(k[5]));\n\nconst lastIdx = closes.length - 2; // Closed candle\nconst prevIdx = lastIdx - 1;     // Previous candle\n\nconst currentClose = closes[lastIdx];\nconst currentVol = volumes[lastIdx];\n\n// --- 1. EMA 200 (Trend Filter) ---\nfunction calculateEMA(data, period) {\n    const k = 2 / (period + 1);\n    let ema = data[0];\n    for (let i = 1; i < data.length; i++) {\n        ema = (data[i] * k) + (ema * (1 - k));\n    }\n    return ema;\n}\nconst ema200 = calculateEMA(closes.slice(0, lastIdx + 1), 200);\nconst isUpTrend = currentClose > ema200;\n\n// --- 2. BOLLINGER BANDS ---\nconst bbPeriod = 20;\nconst sliceBB = closes.slice(lastIdx - bbPeriod + 1, lastIdx + 1);\nconst smaBB = sliceBB.reduce((a, b) => a + b, 0) / bbPeriod;\nconst stdDev = Math.sqrt(sliceBB.map(x => Math.pow(x - smaBB, 2)).reduce((a, b) => a + b, 0) / bbPeriod);\nconst upperBand = smaBB + (stdDev * 2);\nconst lowerBand = smaBB - (stdDev * 2);\nconst bbWidth = ((upperBand - lowerBand) / smaBB * 100).toFixed(2);\n\n// --- 3. RSI (14) ---\nfunction getRSI(data, endIdx) {\n    let gains = 0, losses = 0;\n    const period = 14;\n    for (let i = endIdx - period; i < endIdx; i++) {\n        let diff = data[i+1] - data[i];\n        if (diff >= 0) gains += diff;\n        else losses -= diff;\n    }\n    let rs = (losses === 0) ? 100 : gains / losses;\n    return 100 - (100 / (1 + rs));\n}\nconst rsi = getRSI(closes, lastIdx);\nconst prevRsi = getRSI(closes, prevIdx);\n\nlet rsiStatus = rsi < 35 ? \"Oversold\" : (rsi > 65 ? \"Overbought\" : \"Neutral\");\n\n// --- 4. VOLUME ANALYSIS ---\nconst avgVol = volumes.slice(lastIdx - 20, lastIdx).reduce((a, b) => a + b, 0) / 20;\nconst volFactor = currentVol / avgVol;\n\n// --- 5. ENTRY LOGIC ---\nlet signal = null;\n\n// LONG Logic\nif (isUpTrend && currentClose < lowerBand && rsi > prevRsi && rsi < 45 && volFactor > MIN_VOL_X) {\n    signal = \"Long\";\n} \n// SHORT Logic\nelse if (!isUpTrend && currentClose > upperBand && rsi < prevRsi && rsi > 55 && volFactor > MIN_VOL_X) {\n    signal = \"Short\";\n}\n\nif (!signal) return noSignal();\n\n// --- 6. RISK/REWARD CALC ---\nlet tpMultiplier = 2.5; \nif (parseFloat(bbWidth) > 3 || volFactor > 2.0) {\n    tpMultiplier = 3.5; // Target higher for volatile assets\n}\n\n// --- 7. ATR & SL/TP ---\nlet trSum = 0;\nfor (let i = lastIdx - 14; i <= lastIdx; i++) {\n    trSum += Math.max(highs[i]-lows[i], Math.abs(highs[i]-(closes[i-1]||0)), Math.abs(lows[i]-(closes[i-1]||0)));\n}\nconst atr = trSum / 14;\nconst prec = currentClose > 10 ? 2 : 5;\n\n// Deduplication check\nconst now = Date.now();\nif (now - (staticData.lastSignals[symbol] || 0) < DEDUP_TIMEOUT_MS) return noSignal();\nstaticData.lastSignals[symbol] = now;\n\nreturn {\n    json: {\n        hasSignal: true,\n        symbol,\n        price: currentClose,\n        signal,\n        emoji: signal === \"Long\" ? \"🟢\" : \"🔴\",\n        rsi: rsi.toFixed(1),\n        rsi_status: rsiStatus,\n        vol_x: volFactor.toFixed(1),\n        bb_width: bbWidth,\n        trend: isUpTrend ? \"Bullish 📈\" : \"Bearish 📉\",\n        rr_ratio: `1:${tpMultiplier}`,\n        calc_sl: (signal === \"Long\" ? currentClose - atr * 1.5 : currentClose + atr * 1.5).toFixed(prec),\n        calc_tp: (signal === \"Long\" ? currentClose + atr * tpMultiplier : currentClose - atr * tpMultiplier).toFixed(prec)\n    }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c0dbde9d-13e9-46e2-bbc6-da93427a6472",
+      "name": "Get Klines",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2064,
+        144
+      ],
+      "parameters": {
+        "url": "https://fapi.binance.com/fapi/v1/klines",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "symbol",
+              "value": "={{ $('SplitInBatches').first().json.symbol }}"
+            },
+            {
+              "name": "interval",
+              "value": "15m"
+            },
+            {
+              "name": "limit",
+              "value": "300"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "d6881a0b-7448-4395-bc64-448dae9cebcb",
+      "name": "⏸️ Wait 1s",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -2336,
+        144
+      ],
+      "webhookId": "e26f08ae-c238-4cf6-8378-24e9f8def15d",
+      "parameters": {
+        "unit": "seconds",
+        "amount": 0.2
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "462c756d-51c1-4afd-89d7-8265f0cb5725",
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -2544,
+        128
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 10
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "b2e2f395-3ad7-430b-bf2b-dca99c79a5b8",
+      "name": "🔍 Filter Candidates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2736,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// --- CONFIGURATION LOAD ---\n// We get the blacklist string from the new Config Node\nconst rawBlacklist = $('📝 MAIN CONFIG').first().json.BLACKLIST || \"\";\nconst BLACKLIST = rawBlacklist.split(',').map(s => s.trim());\n\n// 1. Filter USDT Pairs only\nlet pairs = $input.all().map(i => i.json).filter(i => i.symbol.endsWith('USDT'));\n\n// 2. Sort by Quote Volume (High liquidity first)\npairs.sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume));\n\n// 3. Remove Blacklisted symbols\npairs = pairs.filter(p => !BLACKLIST.includes(p.symbol));\n\n// 4. Select TOP Candidates (e.g., Rank 10 to 150 to avoid stablecoins usually at top)\nreturn pairs.slice(10, 150).map(c => ({ json: { symbol: c.symbol } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "adeb4fa8-fc95-4c54-b022-32e3b9bfd2db",
+      "name": "Get All Tickers",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2912,
+        128
+      ],
+      "parameters": {
+        "url": "https://fapi.binance.com/fapi/v1/ticker/24hr",
+        "options": {}
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "d367f61e-54eb-472d-8cf6-6f1136efe7d7",
+      "name": "📝 MAIN CONFIG",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3152,
+        128
+      ],
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "TRADE_AMOUNT_USDT",
+              "value": 100
+            },
+            {
+              "name": "LEVERAGE",
+              "value": 1
+            }
+          ],
+          "string": [
+            {
+              "name": "BINANCE_API_KEY",
+              "value": "INSERT_TESTNET_KEY_HERE"
+            },
+            {
+              "name": "BINANCE_SECRET",
+              "value": "INSERT_TESTNET_SECRET_HERE"
+            },
+            {
+              "name": "TELEGRAM_CHANNEL_ID",
+              "value": "@your_channel"
+            },
+            {
+              "name": "BLACKLIST",
+              "value": "USDCUSDT,BUSDUSDT,USDPUSDT"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d9c49044-507d-4749-9516-42af5b0a0717",
+      "name": "⏱️ Every 15 mins",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -3360,
+        128
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/15 * * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "42a98e69-920b-4d45-86fd-0f43d07c4f2e",
+      "name": "Main Sticky",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3872,
+        -32
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 400,
+        "height": 580,
+        "content": "# 🤖 Crypto market analyzer & Paper trader\n\nThis workflow demonstrates advanced market analysis logic using n8n.\n\n### How it works\n1. **Scan:** Filters top pairs by volume on Binance.\n2. **Analyze:** Calculates EMA, BB, and RSI using pure JavaScript.\n3. **Validate:** Uses AI to check news sentiment for the selected asset.\n4. **Paper Trade:** Places a test order on Binance Testnet using signed requests.\n\n### Setup steps\n1. **Credentials:** Set up Telegram Bot & OpenRouter creds.\n2. **Configuration:** Open the `📝 MAIN CONFIG` node and set your Testnet keys."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de42408e-ab7d-4f78-b07e-057fd7a7dc67",
+      "name": "Warning Sticky",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3200,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 188,
+        "height": 340,
+        "content": "⚠️ **CONFIGURATION**\nInsert Binance TESTNET keys here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6860e9ec-48f2-4991-b364-357cede9c2cb",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 852,
+        "height": 416,
+        "content": "## 5. Paper Trading Execution Loop\nPrepares parameters, signs the request (HMAC SHA256), and executes on Binance Testnet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2eda8c6-b036-4fc3-90b0-28d01f93810a",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1344,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 808,
+        "height": 412,
+        "content": "## 3. AI Sentiment Filter\nScrapes news and uses LLM to validate the trade against risk factors."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "92836ae0-a2ed-4901-a0a1-c3c90b1e3361",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 548,
+        "height": 549,
+        "content": "## 4. Telegram Notification\nSends analysis and alerts to your channel."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "45e4c4c9-dcc9-45c6-85cb-be69920353c5",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2144,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 764,
+        "height": 332,
+        "content": "## 2. Technical Analysis Core\nCalculates EMA, Bollinger Bands, RSI, and Volume anomalies via JS."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2251fc2a-8c09-49ba-9af4-cb8ea7bf227d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2992,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 804,
+        "height": 332,
+        "content": "## 1. Market Data Collection\nFetches top volume pairs, filters stablecoins, and prepares candidates."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "78632b28-2570-449e-9d43-2531cea2ee23",
+      "name": "📝 Prep String",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        144,
+        144
+      ],
+      "parameters": {
+        "jsCode": "// --- CONFIGURATION LOAD ---\nconst config = $('📝 MAIN CONFIG').first().json;\n\nconst API_KEY = config.BINANCE_API_KEY;\nconst USDT_AMOUNT = parseFloat(config.TRADE_AMOUNT_USDT);\nconst LEVERAGE = parseInt(config.LEVERAGE);\nconst TRAILING_CALLBACK = 2.0;\n\n// --- LOGIC BELOW ---\nconst marketData = $('🛠️ Merge & Clean Data').item.json;\nconst symbol = marketData.symbol;\n\nconst allExchangeRules = $input.first().json;\nconst symbolInfo = allExchangeRules.symbols.find(s => s.symbol === symbol);\n\nif (!symbolInfo) {\n    throw new Error(`Symbol ${symbol} not found on Binance.`);\n}\n\n// Precision Calc\nconst priceFilter = symbolInfo.filters.find(f => f.filterType === 'PRICE_FILTER');\nconst lotFilter = symbolInfo.filters.find(f => f.filterType === 'LOT_SIZE');\n\nconst getPrecision = (step) => {\n    const s = parseFloat(step).toString();\n    return s.includes('.') ? s.split('.')[1].length : 0;\n};\n\nconst pPrec = getPrecision(priceFilter.tickSize);\nconst qPrec = getPrecision(lotFilter.stepSize);\n\nconst toB = (val, prec) => {\n    if (!val || isNaN(val)) return \"0\";\n    const factor = Math.pow(10, prec);\n    const rounded = Math.floor(parseFloat(val) * factor) / factor;\n    return rounded.toFixed(prec).replace(/\\.?0+$/, \"\");\n};\n\n// Prices\nconst currentPrice = parseFloat(marketData.price);\nlet sl = parseFloat(marketData.calc_sl);\nlet tp = parseFloat(marketData.calc_tp);\n\nif (!sl || sl === 0) sl = marketData.signal === 'LONG' ? currentPrice * 0.98 : currentPrice * 1.02;\nif (!tp || tp === 0) tp = marketData.signal === 'LONG' ? currentPrice * 1.04 : currentPrice * 0.96;\n\nconst slPrice = toB(sl, pPrec);\nconst tpPrice = toB(tp, pPrec);\nconst totalQty = toB((USDT_AMOUNT * LEVERAGE) / currentPrice, qPrec);\n\nif (parseFloat(totalQty) <= 0) return []; \n\nconst side = marketData.signal === 'LONG' ? 'BUY' : 'SELL';\nconst closeSide = marketData.signal === 'LONG' ? 'SELL' : 'BUY';\nconst timestamp = Date.now();\n\nfunction makeQuery(p) { return Object.keys(p).map(k => `${k}=${p[k]}`).join('&'); }\n\n// Order Construction\nreturn [\n    { json: { queryString: makeQuery({symbol, marginType: 'ISOLATED', timestamp}), endpoint: \"/fapi/v1/marginType\", apiKey: API_KEY, type: \"MARGIN\" } },\n    { json: { queryString: makeQuery({symbol, leverage: LEVERAGE, timestamp}), endpoint: \"/fapi/v1/leverage\", apiKey: API_KEY, type: \"LEVERAGE\" } },\n    { json: { queryString: makeQuery({symbol, side, type: 'MARKET', quantity: totalQty, timestamp}), endpoint: \"/fapi/v1/order\", apiKey: API_KEY, type: \"ENTRY\" } },\n    { json: { queryString: makeQuery({symbol, side: closeSide, type: 'STOP_MARKET', stopPrice: slPrice, closePosition: 'true', timestamp}), endpoint: \"/fapi/v1/order\", apiKey: API_KEY, type: \"SL\" } },\n    { json: { queryString: makeQuery({symbol, side: closeSide, type: 'TAKE_PROFIT_MARKET', stopPrice: tpPrice, quantity: toB(parseFloat(totalQty)/2, qPrec), reduceOnly: 'true', timestamp}), endpoint: \"/fapi/v1/order\", apiKey: API_KEY, type: \"TP\" } },\n    { json: { queryString: makeQuery({symbol, side: closeSide, type: 'TRAILING_STOP_MARKET', quantity: toB(parseFloat(totalQty)/2, qPrec), callbackRate: TRAILING_CALLBACK, activationPrice: tpPrice, reduceOnly: 'true', timestamp}), endpoint: \"/fapi/v1/order\", apiKey: API_KEY, type: \"TRAILING\" } }\n];"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Klines": {
+      "main": [
+        [
+          {
+            "node": "🧠 Analyze Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📰 Get News": {
+      "main": [
+        [
+          {
+            "node": "📝 Format Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Connector": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [],
+        [
+          {
+            "node": "⏸️ Wait 1s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏸️ Wait 1s": {
+      "main": [
+        [
+          {
+            "node": "Get Klines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Tickers": {
+      "main": [
+        [
+          {
+            "node": "🔍 Filter Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 MAIN CONFIG": {
+      "main": [
+        [
+          {
+            "node": "Get All Tickers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 Prep String": {
+      "main": [
+        [
+          {
+            "node": "🔄 Loop (SplitBatch)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "🛠️ Merge & Clean Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔐 Sign Request": {
+      "main": [
+        [
+          {
+            "node": "Execute (Paper Trading)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚦 Signal Check": {
+      "main": [
+        [
+          {
+            "node": "🛡 RSI Safety Check.",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Connector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Exchange Rules": {
+      "main": [
+        [
+          {
+            "node": "📝 Prep String",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Analyze Logic": {
+      "main": [
+        [
+          {
+            "node": "🚦 Signal Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 Format Context": {
+      "main": [
+        [
+          {
+            "node": "🤖 AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏱️ Every 15 mins": {
+      "main": [
+        [
+          {
+            "node": "📝 MAIN CONFIG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📢 Notify Telegram": {
+      "main": [
+        [
+          {
+            "node": "Loop Connector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔄 Loop (SplitBatch)": {
+      "main": [
+        [],
+        [
+          {
+            "node": "🔐 Sign Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Filter Candidates": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛡 RSI Safety Check.": {
+      "main": [
+        [
+          {
+            "node": "📰 Get News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute (Paper Trading)": {
+      "main": [
+        [
+          {
+            "node": "🔄 Loop (SplitBatch)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter/OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🤖 AI Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛠️ Merge & Clean Data": {
+      "main": [
+        [
+          {
+            "node": "Get Exchange Rules",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📢 Notify Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

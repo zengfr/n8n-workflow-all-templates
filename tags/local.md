@@ -1,4 +1,4 @@
-# local : 39
+# local : 43
 
 |id|file|
 |----|----|
@@ -41,3 +41,7 @@
 |10232|[10232_Generate_Weather-Based_Date_Itineraries_with_Google_Places__OpenRouter_AI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10232_Generate_Weather-Based_Date_Itineraries_with_Google_Places__OpenRouter_AI__and_Slack.json)|
 |11360|[11360_Generate_Local_Business_Leads_with_Google_Places_API___Website_Email_Scraping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11360_Generate_Local_Business_Leads_with_Google_Places_API___Website_Email_Scraping.json)|
 |11843|[11843_Chat_with_Gemini_AI_through_Local_CLI_via_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11843_Chat_with_Gemini_AI_through_Local_CLI_via_SSH.json)|
+|12855|[12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json)|
+|12889|[12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json)|
+|12956|[12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json)|
+|12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|

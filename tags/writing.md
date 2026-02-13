@@ -1,4 +1,4 @@
-# writing : 10
+# writing : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |7509|[7509_Generate_SEO_Blog_Content_with_GPT-4__Perplexity___WordPress_Auto-Publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7509_Generate_SEO_Blog_Content_with_GPT-4__Perplexity___WordPress_Auto-Publishing.json)|
 |8654|[8654_Multi-Agent_SEO_Optimized_Blog_Writing_System_with_Hyperlinks_for_E-Commmerce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8654_Multi-Agent_SEO_Optimized_Blog_Writing_System_with_Hyperlinks_for_E-Commmerce.json)|
 |10524|[10524_Phase-Based_Blog_Creation_System_with_Specialized_AI_Sub-Agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10524_Phase-Based_Blog_Creation_System_with_Specialized_AI_Sub-Agents.json)|
+|12535|[12535_Generate_product_feature_announcements_from_Notion_to_Google_Docs_with_GPT-5_Mini_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12535_Generate_product_feature_announcements_from_Notion_to_Google_Docs_with_GPT-5_Mini_and_Claude.json)|

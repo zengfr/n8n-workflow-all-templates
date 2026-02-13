@@ -1,4 +1,4 @@
-# construction : 11
+# construction : 17
 
 |id|file|
 |----|----|
@@ -13,3 +13,9 @@
 |7956|[7956_Construction_Blueprint_to_Google_Sheets_Automation_with_VLM_Run_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7956_Construction_Blueprint_to_Google_Sheets_Automation_with_VLM_Run_and_Google_Drive.json)|
 |8304|[8304_Extract_Construction_Blueprint_Data_with_VLM_Run_and_Microsoft_Office_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8304_Extract_Construction_Blueprint_Data_with_VLM_Run_and_Microsoft_Office_Suite.json)|
 |9608|[9608_Generate_Pro_Construction_Quotes_from_jotform_to_Email_with_Supabase_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9608_Generate_Pro_Construction_Quotes_from_jotform_to_Email_with_Supabase_CRM.json)|
+|11907|[11907_Standardize_daily_construction_reports_with_OpenAI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11907_Standardize_daily_construction_reports_with_OpenAI__Gmail_and_Google_Sheets.json)|
+|12174|[12174_Estimate_construction_costs_from_text_with_Telegram__OpenAI_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12174_Estimate_construction_costs_from_text_with_Telegram__OpenAI_and_DDC_CWICR.json)|
+|12175|[12175_Generate_photo-based_construction_cost_estimates_with_GPT-4_Vision_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12175_Generate_photo-based_construction_cost_estimates_with_GPT-4_Vision_and_DDC_CWICR.json)|
+|12176|[12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json)|
+|12177|[12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json)|
+|12921|[12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# accounts : 13
+# accounts : 15
 
 |id|file|
 |----|----|
@@ -15,3 +15,5 @@
 |9758|[9758_Scheduled_Automation_for_X_and_Google_Sheets_Services.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9758_Scheduled_Automation_for_X_and_Google_Sheets_Services.json)|
 |9766|[9766_Retweet_Cleanup_with_Scheduling_for_X_Twitter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9766_Retweet_Cleanup_with_Scheduling_for_X_Twitter.json)|
 |11721|[11721_Poll_Multiple_Gmail_Accounts_with_Unified_Data_Table_Storage___Discord_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11721_Poll_Multiple_Gmail_Accounts_with_Unified_Data_Table_Storage___Discord_Notifications.json)|
+|11941|[11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json)|
+|12090|[12090_Provision_new_employee_accounts_to_Google_Workspace__Slack__Jira__and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12090_Provision_new_employee_accounts_to_Google_Workspace__Slack__Jira__and_Salesforce.json)|

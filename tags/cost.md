@@ -1,4 +1,4 @@
-# cost : 15
+# cost : 23
 
 |id|file|
 |----|----|
@@ -17,3 +17,11 @@
 |10864|[10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json)|
 |10967|[10967_Meal_Planner__Cost_Tracking__Leftover_Recipes___Nutrition_Diary_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10967_Meal_Planner__Cost_Tracking__Leftover_Recipes___Nutrition_Diary_in_Google_Sheets.json)|
 |11612|[11612_Detect_AWS_Orphaned_Resources___Send_Cost_Reports_to_Slack__Email__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11612_Detect_AWS_Orphaned_Resources___Send_Cost_Reports_to_Slack__Email__and_Sheets.json)|
+|12175|[12175_Generate_photo-based_construction_cost_estimates_with_GPT-4_Vision_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12175_Generate_photo-based_construction_cost_estimates_with_GPT-4_Vision_and_DDC_CWICR.json)|
+|12176|[12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json)|
+|12177|[12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json)|
+|12275|[12275_Detect_and_correct_claims_cost_leakage_with_GPT-4_and_automated_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12275_Detect_and_correct_claims_cost_leakage_with_GPT-4_and_automated_alerts.json)|
+|12521|[12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json)|
+|12802|[12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json)|
+|13313|[13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json)|
+|13320|[13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json)|

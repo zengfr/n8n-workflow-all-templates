@@ -1,4 +1,4 @@
-# briefing : 10
+# briefing : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |9633|[9633_Newsletter_Summarization___Briefing_with_Gmail__AI__Google_Sheets___Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9633_Newsletter_Summarization___Briefing_with_Gmail__AI__Google_Sheets___Email.json)|
 |9819|[9819_Daily_Morning_Briefing_with_Google_Calendar__Weather__and_News_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9819_Daily_Morning_Briefing_with_Google_Calendar__Weather__and_News_to_Slack.json)|
 |10164|[10164_Customer_Pain_Analysis___AI_Briefing_with_Anthropic__Reddit__X__and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10164_Customer_Pain_Analysis___AI_Briefing_with_Anthropic__Reddit__X__and_SerpAPI.json)|
+|13181|[13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json)|

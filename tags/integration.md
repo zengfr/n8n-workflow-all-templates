@@ -1,4 +1,4 @@
-# integration : 153
+# integration : 160
 
 |id|file|
 |----|----|
@@ -155,3 +155,10 @@
 |11613|[11613_Xano_Support_Ticket_Router__AI___Xano_Node_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11613_Xano_Support_Ticket_Router__AI___Xano_Node_Integration.json)|
 |11755|[11755_Mistral_OCR__GPT-4o-mini__and_Google_Sheets_Integration_for_Enhanced_Data_Processing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11755_Mistral_OCR__GPT-4o-mini__and_Google_Sheets_Integration_for_Enhanced_Data_Processing.json)|
 |11824|[11824_Automate_Vulnerability_Triage_from_Snyk_with_Jira__Slack___Airtable_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11824_Automate_Vulnerability_Triage_from_Snyk_with_Jira__Slack___Airtable_Integration.json)|
+|11900|[11900_Automate_GST_VAT_tax_returns_with_OpenAI__Gmail_and_government_portal_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11900_Automate_GST_VAT_tax_returns_with_OpenAI__Gmail_and_government_portal_integration.json)|
+|11901|[11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json)|
+|11996|[11996_Social_media_auto-posting_to_Instagram__Facebook___LinkedIn_from_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11996_Social_media_auto-posting_to_Instagram__Facebook___LinkedIn_from_Google_Sheets.json)|
+|12013|[12013_Automate_purchase_bill_processing_with_AI_OCR___QuickBooks_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12013_Automate_purchase_bill_processing_with_AI_OCR___QuickBooks_integration.json)|
+|12032|[12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json)|
+|12070|[12070_Automate_employee_leave_approvals_with_GPT__Gmail___Calendar_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12070_Automate_employee_leave_approvals_with_GPT__Gmail___Calendar_integration.json)|
+|12733|[12733_Automate_satellite_data_analysis_and_regulatory_reporting_with_GPT-4_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12733_Automate_satellite_data_analysis_and_regulatory_reporting_with_GPT-4_and_Slack.json)|

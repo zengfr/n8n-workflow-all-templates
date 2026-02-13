@@ -1,0 +1,315 @@
+{
+  "id": "zbpHuVvtlRSOE27NGyyGs",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Verify AI draft answers with Pearl Hybrid Intelligence and OpenAI",
+    "wechat": "youandme10086",
+    "id": 12725,
+    "update_time": "2026-02-13"
+  },
+  "name": "Verify AI draft answers with Pearl Hybrid Intelligence and Open AI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "05107af8-a4e3-4aa0-a1e9-f0ce0ae57148",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -544,
+        48
+      ],
+      "parameters": {
+        "width": 528,
+        "height": 540,
+        "content": "# Verify AI answers with Pearl Hybrid Intelligence and Open AI\n\n## How it works\n1. A user asks a question.\n2. If anything is missing, the assistant asks one focused follow-up question.\n3. Once ready, the assistant drafts an answer with OpenAI.\n4. The draft is reviewed by a licensed Pearl expert.\n5. The user receives the verified answer with expert attribution.\n\n## Setup steps\n1. Add your OpenAI credential in n8n.\n2. Add your Pearl MCP Server API key (request a demo key at: https://www.pearl.com/enterprise/contact-get-started).\n3. Activate the workflow and call the webhook with your conversation messages.\n4. Adjust the intake + drafting prompts in **Prepare Input** to match your domain and tone."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f37c8600-de53-40e3-8a2d-0a2d58158860",
+      "name": "Pearl Verify Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        160,
+        368
+      ],
+      "webhookId": "c3de4d5a-8a68-4c3e-9245-f02f64e06562",
+      "parameters": {
+        "path": "pearl-verify",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "18b2c188-327d-4823-972f-7f0d7f38cf8e",
+      "name": "Prepare Input",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        384,
+        368
+      ],
+      "parameters": {
+        "jsCode": "/**\n * n8n Code node (JavaScript)\n * Purpose:\n * - Accept webhook body containing an OpenAI Chat Completions-style `messages` array:\n *     [{ role: \"user\"|\"assistant\"|\"system\", content: \"...\" }, ...]\n * - Construct two message arrays:\n *     1) messagesClarify: system prompt + messages (forces output: END or 1 clarifying question)\n *     2) messagesDraft:   system prompt + messages (produces draft answer)\n */\n\nfunction assertValidMessages(messages) {\n  if (!Array.isArray(messages)) {\n    throw new Error('Request body must include a \"messages\" array.');\n  }\n\n  for (let i = 0; i < messages.length; i++) {\n    const m = messages[i];\n    if (typeof m !== \"object\" || m === null) {\n      throw new Error(`messages[${i}] must be an object.`);\n    }\n    if (typeof m.role !== \"string\" || !m.role.trim()) {\n      throw new Error(`messages[${i}].role must be a non-empty string.`);\n    }\n    if (typeof m.content !== \"string\" || !m.content.trim()) {\n      throw new Error(`messages[${i}].content must be a non-empty string.`);\n    }\n  }\n}\n\nfunction getLastUserMessage(messages) {\n  for (let i = messages.length - 1; i >= 0; i--) {\n    if (messages[i].role === \"user\") return messages[i].content;\n  }\n  return \"\";\n}\n\n// n8n webhook payload can appear as items[0].json.body (Webhook node) or items[0].json (some setups)\nconst input = $input.first() ?? {};\nconst body = input.json.body ?? input;\n\n// Read request fields\nconst messages = body.messages;\nconst openaiModel = body.model || \"gpt-4o-mini\";\n\n// Validate\nassertValidMessages(messages);\n\n// Optional: strip any accidental leading/trailing whitespace\nconst normalizedMessages = messages.map((m) => ({\n  role: m.role.trim(),\n  content: m.content.trim(),\n}));\n\nconst userQuestion = getLastUserMessage(normalizedMessages);\n\n// System prompt: Clarification gate (must output END or a single question)\nconst clarificationSystem = {\n  role: \"system\",\n  content: [\n    \"You are an intake assistant for complex legal and health questions.\",\n    \"\",\n    \"Your job is NOT to answer yet. First decide if you need more context.\",\n    \"\",\n    \"Rules:\",\n    \"1) If you need more information to answer safely/accurately, respond with ONLY the single best clarifying question.\",\n    \"   - No preamble, no bullet points, no multiple questions.\",\n    \"2) If you do NOT need any clarification, respond with EXACTLY this single token: END\",\n    \"\",\n    \"Output must be plain text only.\"\n  ].join(\"\\n\"),\n};\n\n// System prompt: Draft answer generation (used only when clarification returns END)\nconst draftSystem = {\n  role: \"system\",\n  content: [\n    \"You are a helpful assistant.\",\n    \"\",\n    \"Provide a draft answer to the user's question using the full conversation context.\",\n    \"\",\n    \"IMPORTANT SAFETY/QUALITY REQUIREMENTS (health/legal):\",\n    \"- Provide general informational guidance only; do NOT claim to be a professional.\",\n    \"- Encourage consulting a licensed professional for decisions.\",\n    \"- If health: if there are urgent or dangerous symptoms, advise urgent care/emergency services.\",\n    \"- If legal: mention jurisdiction matters and advise consulting a qualified attorney.\",\n    \"\",\n    \"Structure:\",\n    \"1) Short summary\",\n    \"2) Key considerations (bullets)\",\n    \"3) Next steps\"\n  ].join(\"\\n\"),\n};\n\n// Build the two request message arrays\nconst messagesClarify = [clarificationSystem, ...normalizedMessages];\nconst messagesDraft = [draftSystem, ...normalizedMessages];\n\n// Return a single item with fields used by downstream OpenAI HTTP Request nodes\nreturn [\n  {\n    json: {\n      openaiModel,\n      messages: normalizedMessages,\n      userQuestion,\n      messagesClarify,\n      messagesDraft,\n    },\n  },\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bd546b30-10b0-4b16-91c0-0eae052510b9",
+      "name": "OpenAI - Clarify",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        608,
+        368
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ {\n   \"model\": $json.openaiModel,\n   \"messages\": $json.messagesClarify,\n   \"temperature\": 0\n} }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi"
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "2ee71615-4cb2-44b9-8930-872ec49adb37",
+      "name": "IF - Needs clarification?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        832,
+        368
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "155eb509-212b-44fb-8240-e6cb2c13c348",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.choices[0].message.content.trim() }}",
+              "rightValue": "END"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "ef4c9f2e-6194-4994-8893-8a50d649a328",
+      "name": "Respond: Clarification Question",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1056,
+        272
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ {\n  status: 'needs_clarification',\n  clarificationQuestion: $json.choices[0].message.content.trim()\n} }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "0e62e22c-5af6-47c4-816b-147172e3f99d",
+      "name": "Open AI - Draft Answer",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        992,
+        624
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ {\n  \"model\": $node['Prepare Input'].json.openaiModel,\n  \"messages\": $node['Prepare Input'].json.messagesDraft,\n  \"temperature\": 0.2\n} }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi"
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "50264f0c-d972-48ac-9661-3ddd01a958ca",
+      "name": "MCP Client",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "position": [
+        1216,
+        624
+      ],
+      "parameters": {
+        "tool": {
+          "__rl": true,
+          "mode": "list",
+          "value": "verifyAnswer",
+          "cachedResultName": "verifyAnswer"
+        },
+        "options": {},
+        "inputMode": "json",
+        "jsonInput": "={{ {\n  \"answer\": $json.choices[0].message.content.trim(),\n  \"chatHistory\": $('Prepare Input').item.json.messages\n} }}",
+        "endpointUrl": "https://mcp.pearl.com/mcp",
+        "authentication": "headerAuth"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c5e89c86-8dbd-49ee-83ba-47b7c8f7454d",
+      "name": "Respond: Verified Answer by Pearl Expert",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1408,
+        624
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ { \n  status: 'verified', \n  answer: $json.content[0].text.answer, \n  verifiedBy: [\n  $json.content?.[0]?.text?.expert?.name,\n  $json.content?.[0]?.text?.expert?.expertise\n].filter(Boolean).join(', ')\n} }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "76ac001e-e195-41af-89e8-8ead030182be",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 272,
+        "content": "## 1) Intake & prompt setup\nReceives the user conversation and prepares prompts for intake + drafting.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e1aa795-0ac0-466c-904a-fa5272aa8db2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 704,
+        "height": 272,
+        "content": "## 2) Intake (clarification)\nAsks one follow-up question if more information is needed.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2fb6d5ed-147a-4c96-8753-0c7f483aef4b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        896,
+        544
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 704,
+        "height": 240,
+        "content": "## 3) Draft + expert verification\nDrafts an answer, then sends it to Pearl for professional verification.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "3e782757-99b5-4cee-bd04-9eaaddad1869",
+  "connections": {
+    "MCP Client": {
+      "main": [
+        [
+          {
+            "node": "Respond: Verified Answer by Pearl Expert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Input": {
+      "main": [
+        [
+          {
+            "node": "OpenAI - Clarify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Clarify": {
+      "main": [
+        [
+          {
+            "node": "IF - Needs clarification?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pearl Verify Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Open AI - Draft Answer": {
+      "main": [
+        [
+          {
+            "node": "MCP Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Needs clarification?": {
+      "main": [
+        [
+          {
+            "node": "Respond: Clarification Question",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Open AI - Draft Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

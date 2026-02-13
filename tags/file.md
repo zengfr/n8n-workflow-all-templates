@@ -1,4 +1,4 @@
-# file : 82
+# file : 84
 
 |id|file|
 |----|----|
@@ -84,3 +84,5 @@
 |11065|[11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json)|
 |11197|[11197_Build_a_RAG_system_by_uploading_PDFs_to_the_Google_Gemini_File_Search_Store.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11197_Build_a_RAG_system_by_uploading_PDFs_to_the_Google_Gemini_File_Search_Store.json)|
 |11269|[11269_Build_Enterprise_RAG_System_with_Google_Gemini_File_Search___Retell_AI_Voice.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11269_Build_Enterprise_RAG_System_with_Google_Gemini_File_Search___Retell_AI_Voice.json)|
+|13192|[13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json)|
+|13229|[13229_Check_file_hash_reputation_with_VirusTotal_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13229_Check_file_hash_reputation_with_VirusTotal_and_Slack_alerts.json)|

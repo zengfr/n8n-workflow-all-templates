@@ -1,4 +1,4 @@
-# when : 60
+# when : 61
 
 |id|file|
 |----|----|
@@ -62,3 +62,4 @@
 |6774|[6774_Automate_Construction_Site_Attendance_Tracking_with_Geofencing__Google_Sheets___Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/67/6774_Automate_Construction_Site_Attendance_Tracking_with_Geofencing__Google_Sheets___Email_Alerts.json)|
 |10237|[10237_Send_Rapiwa_WhatsApp_Apology___Reorder_Link_When_Shopify_Order_is_Cancelled.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10237_Send_Rapiwa_WhatsApp_Apology___Reorder_Link_When_Shopify_Order_is_Cancelled.json)|
 |11369|[11369_Notify_Users_When_Features_Ship_with_Semantic_Search_from_Tally_to_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11369_Notify_Users_When_Features_Ship_with_Semantic_Search_from_Tally_to_Gmail.json)|
+|12298|[12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json)|

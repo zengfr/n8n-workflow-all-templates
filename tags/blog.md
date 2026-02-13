@@ -1,4 +1,4 @@
-# blog : 132
+# blog : 141
 
 |id|file|
 |----|----|
@@ -134,3 +134,12 @@
 |11394|[11394_Transform_Shopify_Products_into_SEO_Blog_Content_with_DeepSeek_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11394_Transform_Shopify_Products_into_SEO_Blog_Content_with_DeepSeek_AI_and_Google_Sheets.json)|
 |11536|[11536_The_Blog_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11536_The_Blog_Agent.json)|
 |11599|[11599_Repurpose_Blog___YouTube_Content_to_Social_Media_with_GPT-5.1_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11599_Repurpose_Blog___YouTube_Content_to_Social_Media_with_GPT-5.1_and_Google_Docs.json)|
+|11897|[11897_Convert_blog_posts_to_podcast_episodes_with_GPT-4o__ElevenLabs___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11897_Convert_blog_posts_to_podcast_episodes_with_GPT-4o__ElevenLabs___Google_Drive.json)|
+|12042|[12042_Generate___publish_SEO-optimized_Shopify_blog_articles_with_Gemini___ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12042_Generate___publish_SEO-optimized_Shopify_blog_articles_with_Gemini___ChatGPT.json)|
+|12123|[12123_Generate_blog_posts_and_social_media_content_with_GPT-4.1_and_Pexels_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12123_Generate_blog_posts_and_social_media_content_with_GPT-4.1_and_Pexels_images.json)|
+|12386|[12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json)|
+|12477|[12477_Generate_research-backed_blog_articles_from_news_with_OpenAI__Tavily_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12477_Generate_research-backed_blog_articles_from_news_with_OpenAI__Tavily_and_Google_Docs.json)|
+|12694|[12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json)|
+|12858|[12858_Generate_Blog_Posts_on_Autopilot_with_GPT_5__Tavily_and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12858_Generate_Blog_Posts_on_Autopilot_with_GPT_5__Tavily_and_WordPress.json)|
+|12939|[12939_Create_and_publish_SEO_blog_posts_using_Google_Sheets__Gemini_OpenAI__Ideogram__and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12939_Create_and_publish_SEO_blog_posts_using_Google_Sheets__Gemini_OpenAI__Ideogram__and_WordPress.json)|
+|13028|[13028_Create_SEO_blog_posts_with_Gemini__DeepSeek_and_publish_to_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13028_Create_SEO_blog_posts_with_Gemini__DeepSeek_and_publish_to_WordPress.json)|

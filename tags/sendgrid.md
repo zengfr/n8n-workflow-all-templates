@@ -1,4 +1,4 @@
-# sendgrid : 9
+# sendgrid : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |11233|[11233_Automate_Lead_Intake___CRM_with_Tally_Forms_to_Google_Sheets_and_SendGrid_Emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11233_Automate_Lead_Intake___CRM_with_Tally_Forms_to_Google_Sheets_and_SendGrid_Emails.json)|
 |11669|[11669_Breaking_News_Aggregator_with_SendGrid_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11669_Breaking_News_Aggregator_with_SendGrid_and_PostgreSQL.json)|
 |11759|[11759_Email_Newsletter_System_with_SendGrid__Google_Sheets___Freemium_Rate_Limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11759_Email_Newsletter_System_with_SendGrid__Google_Sheets___Freemium_Rate_Limiting.json)|
+|11952|[11952_Automate_B2B_lead_generation_using_Google_Places_API___SendGrid_with_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11952_Automate_B2B_lead_generation_using_Google_Places_API___SendGrid_with_dashboard.json)|
+|12073|[12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json)|
+|12460|[12460_Auto-reply_to_emails_using_Google_Gemini_AI_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12460_Auto-reply_to_emails_using_Google_Gemini_AI_and_SendGrid.json)|
+|12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|

@@ -1,4 +1,4 @@
-# value : 13
+# value : 15
 
 |id|file|
 |----|----|
@@ -15,3 +15,5 @@
 |7560|[7560_Automate_Real_Estate_Value_Updates_in_YNAB_using_Rentcast.io_with_Discord_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7560_Automate_Real_Estate_Value_Updates_in_YNAB_using_Rentcast.io_with_Discord_Alerts.json)|
 |9469|[9469_Sync_Adobe_Commerce_Customer_Data_to_KlickTipp_with_Value-Based_Tagging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9469_Sync_Adobe_Commerce_Customer_Data_to_KlickTipp_with_Value-Based_Tagging.json)|
 |10151|[10151_Automate_High-Value_Lead_Alerts_from_GoHighLevel_to_Slack__Sheets_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10151_Automate_High-Value_Lead_Alerts_from_GoHighLevel_to_Slack__Sheets_and_Calendar.json)|
+|12026|[12026_Monitor_high-value_USDT_transfers_on_Ethereum_with_Airtable_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12026_Monitor_high-value_USDT_transfers_on_Ethereum_with_Airtable_and_Slack_alerts.json)|
+|13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|

@@ -1,4 +1,4 @@
-# asana : 16
+# asana : 25
 
 |id|file|
 |----|----|
@@ -18,3 +18,12 @@
 |7845|[7845_Update_Grocery_Lists_in_Asana_via_Telegram_Voice___Text_using_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/78/7845_Update_Grocery_Lists_in_Asana_via_Telegram_Voice___Text_using_GPT-4o_mini.json)|
 |9628|[9628_AI-powered_Client_Onboarding_with_Jotform__Asana__Slack__and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9628_AI-powered_Client_Onboarding_with_Jotform__Asana__Slack__and_HubSpot.json)|
 |9875|[9875_Transform_Meeting_Notes_into_Asana_Tasks___Slack_Summaries_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9875_Transform_Meeting_Notes_into_Asana_Tasks___Slack_Summaries_with_GPT-4o.json)|
+|12101|[12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json)|
+|12102|[12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json)|
+|12105|[12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json)|
+|12267|[12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json)|
+|12271|[12271_Schedule_and_track_interviews_using_Calendly__Zoom__Asana__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12271_Schedule_and_track_interviews_using_Calendly__Zoom__Asana__and_Gmail.json)|
+|12478|[12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json)|
+|12479|[12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json)|
+|12480|[12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json)|
+|12498|[12498_Analyze_stock_sentiment_with_GPT-4o_and_create_Asana_tasks_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12498_Analyze_stock_sentiment_with_GPT-4o_and_create_Asana_tasks_with_Slack_alerts.json)|

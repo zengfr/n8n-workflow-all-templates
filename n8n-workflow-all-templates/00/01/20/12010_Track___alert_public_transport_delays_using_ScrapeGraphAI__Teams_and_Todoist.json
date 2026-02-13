@@ -1,0 +1,389 @@
+{
+  "id": "y0Yk7da21T4u9zlp",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Track & alert public transport delays using ScrapeGraphAI, Teams and Todoist",
+    "wechat": "youandme10086",
+    "id": 12010,
+    "update_time": "2026-02-13"
+  },
+  "name": "Public Transport Delay Tracker with Microsoft Teams and Todoist",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "efd3927d-c4af-4892-b88b-10f6e51e1c3c",
+      "name": "Webhook – Incoming Request",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -864,
+        608
+      ],
+      "webhookId": "b3c668e5-d3d2-403e-9b8b-c9cc0295654d",
+      "parameters": {
+        "path": "public-transport-tracker",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "69275fd6-f3df-4799-a79c-229926c24b59",
+      "name": "Validate & Parse Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -688,
+        608
+      ],
+      "parameters": {
+        "jsCode": "// Validate incoming body and ensure required fields exist\nconst items = $input.all();\nreturn items.map(item => {\n  const body = item.json;\n  if (!body.line || !body.stop) {\n    throw new Error('Request body must include \"line\" and \"stop\"');\n  }\n  return { json: { line: body.line, stop: body.stop } };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "213c1c60-4f87-4ef5-b2fb-687357604b64",
+      "name": "Generate Target URLs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -528,
+        592
+      ],
+      "parameters": {
+        "jsCode": "// Build status & schedule URLs for the requested line/stop\nconst line = $json.line;\nconst stop = encodeURIComponent($json.stop);\nconst base = `https://www.citytransitauthority.com/api/next-departures?line=${line}&stop=${stop}`;\nreturn [{ json: { url: base, line } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "983317b5-ca3c-4816-996f-278e1fe7dbce",
+      "name": "Split URLs",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -304,
+        608
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "e99eed8c-aad6-4941-8601-39f242f1a63f",
+      "name": "Scrape Schedules & Delays",
+      "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
+      "position": [
+        -96,
+        592
+      ],
+      "parameters": {
+        "userPrompt": "Extract the next three departures for this stop including departure_time (ISO8601), destination, and delay_minutes (integer, 0 if on time). Return JSON array named \"departures\".",
+        "websiteUrl": "={{ $json.url }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4bffbb82-e2ab-402d-bfba-56fe28280608",
+      "name": "Clean & Enrich Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        64,
+        592
+      ],
+      "parameters": {
+        "jsCode": "// Flatten each departure into individual items with useful metadata\nconst data = $json.departures;\nreturn data.map(dep => {\n  return {\n    json: {\n      line: $item(0).$json.line,\n      destination: dep.destination,\n      departureISO: dep.departure_time,\n      delayMinutes: Number(dep.delay_minutes) || 0,\n      title: `${$item(0).$json.line} → ${dep.destination} @ ${dep.departure_time}`,\n      msTeamsMessage: `Line ${$item(0).$json.line} to ${dep.destination} departs at ${dep.departure_time}. Current delay: ${dep.delay_minutes} min.`\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b0edc489-b2f5-4b25-a0bf-79120fed481b",
+      "name": "Delay > 0?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        336,
+        576
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.delayMinutes }}",
+              "value2": 0,
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "03e62d0c-61ce-45af-abbd-3fa19e246058",
+      "name": "Prepare Teams Message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        368,
+        1216
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a31ab106-851e-4668-b13a-066fbccf53f7",
+      "name": "Send Teams Alert",
+      "type": "n8n-nodes-base.microsoftTeams",
+      "position": [
+        608,
+        1168
+      ],
+      "webhookId": "596a0a5e-4de2-4eed-8e6e-c19a5c6ee3fa",
+      "parameters": {
+        "chatId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "message": "={{ '<b>' + $json.title + ':</b> ' + $json.message }}",
+        "options": {},
+        "resource": "chatMessage",
+        "contentType": "html"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5d8a8e7c-ff09-4e3b-92f4-29bde65d2006",
+      "name": "Prepare Todoist Task",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        512,
+        448
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "917f76e1-152c-49d1-bb85-a867b9b7242f",
+      "name": "Create Todoist Task",
+      "type": "n8n-nodes-base.todoist",
+      "position": [
+        656,
+        416
+      ],
+      "parameters": {
+        "content": "={{ $json.content }}",
+        "options": {},
+        "project": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9be8ca93-6421-4f76-92a5-a8567443fc23",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1504,
+        256
+      ],
+      "parameters": {
+        "width": 550,
+        "height": 738,
+        "content": "## How it works\n\nThis workflow provides real-time public transport monitoring for busy commuters. A mobile app or any HTTP client sends a POST request containing a line number and stop name to the webhook trigger. The workflow validates the payload, builds the correct transit authority URL, and hands the request to ScrapeGraphAI. Using AI-powered scraping, the node extracts the next three departures along with current delay information. Cleaned results pass through a conditional check: if any departure is delayed, a Microsoft Teams message alerts the appropriate channel. Regardless of delay status, every departure becomes a Todoist task so travellers can track schedules directly within their personal productivity system.\n\n## Setup steps\n\n1. Create ScrapeGraphAI, Todoist, and Microsoft Teams credentials in n8n.\n2. Replace `{{YOUR_TEAM_ID}}` and `{{YOUR_CHANNEL_ID}}` in the Teams node.\n3. Deploy the workflow and copy the webhook URL.\n4. Send a test POST request with `{\"line\":\"A\",\"stop\":\"Central Station\"}`.\n5. Confirm Teams notifications appear when delays occur.\n6. Check Todoist for newly created tasks.\n7. Enable the workflow for continuous use."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "32e7a97b-9d4d-4638-8d2d-10816f6381fa",
+      "name": "Section – Trigger & Input",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -896,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 514,
+        "height": 750,
+        "content": "## Trigger & Input Validation\n\nThe first two functional nodes form the entry point for the entire automation. The webhook listens for HTTP POST requests so any external system—mobile app, chatbot, or another workflow—can supply line and stop information in real time. Using a webhook keeps latency low and avoids polling schedules that might miss last-minute changes. Immediately after the trigger, the **Validate & Parse Request** Code node checks that the payload includes both a `line` and a `stop`. Throwing an error early prevents wasted API calls and ensures the workflow processes only well-formed requests. Parsing here also normalizes the stop name, converting any special characters to a URL-safe format so downstream nodes can build clean query strings for the transit API."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "50676904-21ff-48b7-bf8b-ed22b39238bf",
+      "name": "Section – Scraping & Transformation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 546,
+        "height": 766,
+        "content": "## Scraping & Transformation\n\nAfter generating the target URL, the Split In Batches node lets you scale beyond a single stop or line by queuing multiple requests one at a time. This prevents rate-limit issues with the transit authority site. **Scrape Schedules & Delays** leverages ScrapeGraphAI to interpret HTML or JSON responses using an LLM, reliably pulling departure times, destinations, and delay minutes even if the website layout changes. The following **Clean & Enrich Data** Code node flattens the scraped array into individual items and injects helpful metadata such as a human-readable title and a pre-formatted Microsoft Teams message. This transformation keeps later nodes simple because they no longer need to understand raw scrape output."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14cfbbfb-0959-40b6-91bb-5158b893de2b",
+      "name": "Section – Conditional Logic & Storage",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 450,
+        "height": 670,
+        "content": "## Conditional Logic & Todoist Storage\n\nThe **Delay > 0?** IF node adds smart routing without over-complicating the overall linear design. If a departure is delayed, the workflow branches to include a Teams alert before converging back to task creation. The **Prepare Todoist Task** Set node converts enriched JSON into Todoist-friendly fields—`content` for the task label, `dueDate` for reminders, and `priority` that increases when a delay is present. Finally, the **Create Todoist Task** node records each departure in the user’s Todoist inbox, giving travellers a personal itinerary that updates automatically. This storage step also serves as an audit trail, enabling users to review historical punctuality trends later."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4a0fa795-10de-4deb-a53c-ffc435451b18",
+      "name": "Section – Microsoft Teams Alerts",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        864
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 450,
+        "height": 526,
+        "content": "## Microsoft Teams Notifications\n\nDelays often require immediate action—perhaps choosing an alternate route or informing colleagues of a late arrival. When the IF node detects any non-zero `delayMinutes`, execution continues through **Prepare Teams Message** and **Send Teams Alert**. The Set node keeps only the fields required by the Teams connector and formats HTML for improved readability. The Teams node posts directly into a designated channel, ensuring visibility for everyone who needs the update. Because the path eventually rejoins the Todoist branch, even delayed departures are still logged as tasks, giving users one consolidated view of their travel schedule while simultaneously alerting relevant stakeholders in real time."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e145c2a6-c149-45c6-9733-37d7881458b6",
+  "connections": {
+    "Delay > 0?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Teams Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Todoist Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split URLs": {
+      "main": [
+        [
+          {
+            "node": "Scrape Schedules & Delays",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Teams Alert": {
+      "main": [
+        [
+          {
+            "node": "Prepare Todoist Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean & Enrich Data": {
+      "main": [
+        [
+          {
+            "node": "Delay > 0?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Target URLs": {
+      "main": [
+        [
+          {
+            "node": "Split URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Todoist Task": {
+      "main": [
+        [
+          {
+            "node": "Create Todoist Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Teams Message": {
+      "main": [
+        [
+          {
+            "node": "Send Teams Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Parse Request": {
+      "main": [
+        [
+          {
+            "node": "Generate Target URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Schedules & Delays": {
+      "main": [
+        [
+          {
+            "node": "Clean & Enrich Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook – Incoming Request": {
+      "main": [
+        [
+          {
+            "node": "Validate & Parse Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

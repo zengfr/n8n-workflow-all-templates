@@ -1,0 +1,708 @@
+{
+  "id": "IeBivCzRFCURDFhsQYiLK",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Ingest Excel data into Oracle and chat with it using Select AI and Azure OpenAI",
+    "wechat": "youandme10086",
+    "id": 13264,
+    "update_time": "2026-02-13"
+  },
+  "name": "AI-powered Excel data ingestion and chat with Oracle Select AI",
+  "tags": [
+    {
+      "id": "CbMTvzvsbyZDStoF",
+      "name": "Oracle",
+      "createdAt": "2026-02-09T05:31:29.437Z",
+      "updatedAt": "2026-02-09T05:31:29.437Z"
+    },
+    {
+      "id": "2I1PThbTTnNo0Bsy",
+      "name": "Excel",
+      "createdAt": "2026-02-09T05:31:29.442Z",
+      "updatedAt": "2026-02-09T05:31:29.442Z"
+    },
+    {
+      "id": "80WpuBi1dqegELmF",
+      "name": "AI",
+      "createdAt": "2026-02-09T05:31:29.450Z",
+      "updatedAt": "2026-02-09T05:31:29.450Z"
+    },
+    {
+      "id": "gnoHTwMC409NIKTr",
+      "name": "OpenAI",
+      "createdAt": "2026-02-09T05:31:29.454Z",
+      "updatedAt": "2026-02-09T05:31:29.454Z"
+    },
+    {
+      "id": "sSCvAMZ48mOAtMOJ",
+      "name": "Azure",
+      "createdAt": "2026-02-09T05:31:29.455Z",
+      "updatedAt": "2026-02-09T05:31:29.455Z"
+    },
+    {
+      "id": "Uy7mraVsYyA8H7tI",
+      "name": "Chat",
+      "createdAt": "2026-02-09T05:43:15.141Z",
+      "updatedAt": "2026-02-09T05:43:15.141Z"
+    },
+    {
+      "id": "QhTegm7SSdZCE3B4",
+      "name": "Select AI",
+      "createdAt": "2026-02-09T05:43:15.144Z",
+      "updatedAt": "2026-02-09T05:43:15.144Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "0a22c3e5-cb40-49e8-9f85-2016509f06db",
+      "name": "Webhook - File Upload",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -336,
+        -288
+      ],
+      "webhookId": "upload-excel-webhook",
+      "parameters": {
+        "path": "upload-excel",
+        "options": {
+          "rawBody": false
+        },
+        "httpMethod": "POST",
+        "responseMode": "lastNode"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "58fbff39-0a0a-498f-bab5-4344ee757ce6",
+      "name": "Validate & Normalize File",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -112,
+        -288
+      ],
+      "parameters": {
+        "jsCode": "// Detect and fix file binary data\n// Webhook stores files with dynamic property names, we normalize them here\nconst items = $input.all();\n\nfor (const item of items) {\n  if (!item.binary) {\n    throw new Error('No binary data found. Please upload a file.');\n  }\n  \n  // Get the first binary property (whatever the webhook named it)\n  const binaryKeys = Object.keys(item.binary);\n  if (binaryKeys.length === 0) {\n    throw new Error('Binary object exists but is empty');\n  }\n  \n  const firstKey = binaryKeys[0];\n  let binaryData = item.binary[firstKey];\n  \n  // Fix MIME type and extension based on filename\n  const fileName = binaryData.fileName || '';\n  \n  if (fileName.endsWith('.xlsx')) {\n    binaryData.mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';\n    binaryData.fileExtension = 'xlsx';\n  } else if (fileName.endsWith('.xls')) {\n    binaryData.mimeType = 'application/vnd.ms-excel';\n    binaryData.fileExtension = 'xls';\n  } else {\n    throw new Error(`Invalid file type: ${fileName}. Please upload .xlsx or .xls files only.`);\n  }\n  \n  // Ensure binary data is available as 'data' for downstream nodes\n  if (firstKey !== 'data') {\n    item.binary.data = binaryData;\n  }\n}\n\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c8ca06b8-33d0-4da7-a4ef-51b3d5462cb0",
+      "name": "Extract from Excel",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        112,
+        -288
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "xlsx"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de6f63ea-0df4-4818-8880-07640b0af2ec",
+      "name": "Infer Schema & Table Name",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        336,
+        -288
+      ],
+      "parameters": {
+        "jsCode": "// Automatically infer schema from Excel data\n// Generates Oracle table name and column definitions\nconst rows = $input.all().map(i => i.json);\nif (!rows.length) throw new Error('Excel file is empty');\n\n// Sanitize column names for Oracle compatibility\nconst sanitize = k => k.trim()\n  .replace(/[^a-zA-Z0-9]/g, '_')\n  .replace(/^_+|_+$/g, '')\n  .toUpperCase();\n\nconst sample = rows[0];\nconst columns = [];\n\n// Infer data types from first row\nfor (const [k, v] of Object.entries(sample)) {\n  let type = 'VARCHAR2(4000)';\n  if (typeof v === 'number') {\n    type = 'NUMBER';\n  } else if (v && !isNaN(Date.parse(v))) {\n    type = 'DATE';\n  }\n  columns.push({ name: sanitize(k), type });\n}\n\n// Clean all rows with sanitized column names\nconst cleanRows = rows.map(r => {\n  const o = {};\n  for (const [k, v] of Object.entries(r)) {\n    o[sanitize(k)] = v;\n  }\n  return o;\n});\n\n// Generate unique table name with timestamp\nconst tableName = `UPLOAD_EXCEL_${new Date().toISOString().replace(/[-:.TZ]/g, '')}`;\n\nreturn [{ json: { tableName, columns, rows: cleanRows } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6de17ea8-672a-49c1-a9f7-23757464dff0",
+      "name": "Create Oracle Table",
+      "type": "n8n-nodes-base.oracleDatabase",
+      "notes": "Configure your Oracle Database credentials in the credentials panel",
+      "position": [
+        560,
+        -288
+      ],
+      "parameters": {
+        "query": "={{ (() => {\n  const cols = $json.columns.map(c => `${c.name} ${c.type}`).join(', ');\n  return `CREATE TABLE ${$json.tableName} (${cols}, UPLOADED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`;\n})() }}",
+        "options": {},
+        "operation": "execute"
+      },
+      "credentials": {
+        "oracleDBApi": {
+          "id": "mGr6r7HBiH2VvIiR",
+          "name": "Oracle Database Credentials account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f3605d97-8dc0-4aac-8e64-f0ec6afdb3b7",
+      "name": "Restore Data Rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        784,
+        -216
+      ],
+      "parameters": {
+        "jsCode": "// Restore original data rows for insertion\nconst infer = $(\"Infer Schema & Table Name\").first().json;\nreturn infer.rows.map(r => ({ json: r }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e7dc3285-3f21-4e54-ae92-0b8ff05424d3",
+      "name": "Split into Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "notes": "Process rows in batches of 50 for better performance",
+      "position": [
+        1008,
+        -288
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 50
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "eade0b96-2816-4a48-887d-2eb815e63d03",
+      "name": "Insert Rows into Oracle",
+      "type": "n8n-nodes-base.oracleDatabase",
+      "notes": "Update the schema name to match your Oracle schema (e.g., MOVIESTREAM, ADMIN, etc.)",
+      "position": [
+        1232,
+        -288
+      ],
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $(\"Infer Schema & Table Name\").first().json.tableName }}"
+        },
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $json.schema || 'YOUR_SCHEMA_NAME' }}"
+        },
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {}
+      },
+      "credentials": {
+        "oracleDBApi": {
+          "id": "mGr6r7HBiH2VvIiR",
+          "name": "Oracle Database Credentials account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "437acba1-e305-4b3f-8999-7fe4fd0b2776",
+      "name": "Configure Select AI Settings",
+      "type": "n8n-nodes-base.set",
+      "notes": "⚠️ IMPORTANT: Update these values with your Azure OpenAI configuration:\n- azure_resource_name: Your Azure OpenAI resource name\n- azure_deployment_name: Your GPT model deployment name\n- credential_name: Oracle credential name for Azure OpenAI (created via DBMS_CLOUD.CREATE_CREDENTIAL)",
+      "position": [
+        1456,
+        -288
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "profile-config",
+              "name": "selectAIConfig",
+              "type": "object",
+              "value": "={{ {\n  \"profile_name\": \"EXCEL_AI\",\n  \"provider\": \"azure\",\n  \"azure_resource_name\": \"YOUR_AZURE_RESOURCE_NAME\",\n  \"azure_deployment_name\": \"YOUR_DEPLOYMENT_NAME\",\n  \"credential_name\": \"YOUR_ORACLE_CREDENTIAL_NAME\",\n  \"table_name\": $(\"Infer Schema & Table Name\").first().json.tableName\n} }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "326e9710-108f-44c7-a6f7-7ec4f9b5fb25",
+      "name": "Register with Select AI",
+      "type": "n8n-nodes-base.oracleDatabase",
+      "notes": "Registers the uploaded table with Oracle Select AI for natural language querying",
+      "position": [
+        1680,
+        -288
+      ],
+      "parameters": {
+        "query": "=DECLARE\n  v_owner VARCHAR2(128);\n  v_profile_name VARCHAR2(128) := '{{ $json.selectAIConfig.profile_name }}';\n  v_table_name VARCHAR2(128) := '{{ $json.selectAIConfig.table_name }}';\nBEGIN\n  -- Get current schema\n  SELECT SYS_CONTEXT('USERENV', 'CURRENT_USER')\n  INTO v_owner\n  FROM dual;\n\n  -- Drop profile if it already exists\n  BEGIN\n    DBMS_CLOUD_AI.DROP_PROFILE(profile_name => v_profile_name);\n  EXCEPTION\n    WHEN OTHERS THEN\n      NULL; -- Ignore if profile doesn't exist\n  END;\n\n  -- Create Select AI profile with enforced object list\n  DBMS_CLOUD_AI.CREATE_PROFILE(\n    profile_name => v_profile_name,\n    attributes => JSON_OBJECT(\n      'provider' VALUE '{{ $json.selectAIConfig.provider }}',\n      'azure_resource_name' VALUE '{{ $json.selectAIConfig.azure_resource_name }}',\n      'azure_deployment_name' VALUE '{{ $json.selectAIConfig.azure_deployment_name }}',\n      'credential_name' VALUE '{{ $json.selectAIConfig.credential_name }}',\n      'object_list' VALUE JSON_ARRAY(\n        JSON_OBJECT(\n          'owner' VALUE v_owner,\n          'name' VALUE v_table_name\n        )\n      ),\n      'enforce_object_list' VALUE TRUE\n    )\n  );\nEND;",
+        "options": {},
+        "operation": "execute"
+      },
+      "credentials": {
+        "oracleDBApi": {
+          "id": "mGr6r7HBiH2VvIiR",
+          "name": "Oracle Database Credentials account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a7b5d3f-36ae-4fbb-8f63-6869e1be1ae6",
+      "name": "Prepare Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1904,
+        -288
+      ],
+      "parameters": {
+        "jsCode": "// Prepare success response\nconst infer = $(\"Infer Schema & Table Name\").first().json;\nconst config = $json.selectAIConfig;\n\nreturn [{ \n  json: {\n    success: true,\n    tableName: infer.tableName,\n    columns: infer.columns.map(c => c.name),\n    rowCount: infer.rows.length,\n    selectAIProfile: config.profile_name,\n    message: 'Excel file successfully ingested and registered with Oracle Select AI',\n    nextSteps: [\n      `Query your data using: SELECT AI ${config.profile_name} your question here`,\n      `Example: SELECT AI ${config.profile_name} show me the top 10 records by salary`\n    ]\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d06ad825-0210-4f1d-8d46-cf5f718de089",
+      "name": "Return Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2128,
+        -288
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "807306dc-fd4b-42bf-aa89-31d910441360",
+      "name": "Chat Input",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        672,
+        480
+      ],
+      "webhookId": "chat-with-excel-ai",
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9b736ab-d1f9-4d5d-8a87-0a7d54646ef0",
+      "name": "Configure Select AI Profile",
+      "type": "n8n-nodes-base.set",
+      "notes": "⚠️ IMPORTANT: Update 'profileName' to match your Select AI profile name.\nThis should be the same profile created when you uploaded your Excel file.\nDefault: EXCEL_AI",
+      "position": [
+        896,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "profile-name",
+              "name": "profileName",
+              "type": "string",
+              "value": "EXCEL_AI"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2b607c70-260b-49c8-ac7e-fda09f6238fd",
+      "name": "Oracle Select AI Query",
+      "type": "n8n-nodes-base.oracleDatabase",
+      "notes": "Executes natural language queries against your Excel data using Oracle Select AI.\nThe AI converts your question into SQL and returns the results.",
+      "position": [
+        1120,
+        480
+      ],
+      "parameters": {
+        "query": "={{ `SELECT DBMS_CLOUD_AI.GENERATE(\n  prompt => '${$('Chat Input').item.json.chatInput.replace(/'/g, \"''\")}',\n  profile_name => '${$json.profileName}',\n  action => 'runsql'\n) AS RESPONSE FROM dual` }}",
+        "options": {},
+        "operation": "execute"
+      },
+      "credentials": {
+        "oracleDBApi": {
+          "id": "mGr6r7HBiH2VvIiR",
+          "name": "Oracle Database Credentials account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67577111-0c99-45a4-aede-b9be25d7c41a",
+      "name": "Format Chat Response",
+      "type": "n8n-nodes-base.code",
+      "notes": "Formats the AI response for display in the chat interface",
+      "position": [
+        1344,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Extract and format the AI response\nconst response = $json.RESPONSE || Object.values($json)[0];\n\nif (!response) {\n  return [{ \n    json: { \n      message: 'No data returned. Please try rephrasing your question.' \n    } \n  }];\n}\n\n// Return formatted response\nreturn [{ \n  json: { \n    message: response \n  } \n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "909c841c-d019-46cd-8e19-c5c61a1b802d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        96
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1216,
+        "height": 576,
+        "content": "## Workflow B\n### How It Works\nUser asks question in natural language\n         ↓\nChat Input captures the question\n         ↓\nConfigure Select AI Profile (sets profile name)\n         ↓\nOracle Select AI Query\n- Sends question to DBMS_CLOUD_AI.GENERATE\n- AI converts question to SQL\n- Executes SQL against your data\n- Returns formatted results\n↓\nFormat Chat Response (cleans up the output)\n↓\nDisplay answer to user"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e34740c-1175-4b14-9508-eea32c9be7fd",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        -752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 288,
+        "height": 464,
+        "content": "## Configure Oracle Database Credentials\n\nClick on any Oracle Database node (e.g., \"Create Oracle Table\")\nClick Create New Credential\nEnter your Oracle connection details:\n\nHost: Your Oracle DB host\nDatabase: Service name or SID\nUser: Database username\nPassword: Database password\nPort: 1521 (default)\n\n\nSave the credential\nApply the same credential to all Oracle nodes:\n\nCreate Oracle Table\nInsert Rows into Oracle\nRegister with Select AI"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef8efe2a-343f-4684-85d9-58ecffed9c24",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 192,
+        "height": 192,
+        "content": "### Update Schema Name\nIn the \"Insert Rows into Oracle\" node:\nChange YOUR_SCHEMA_NAME to your actual Oracle schema (e.g., ADMIN, SCOTT, etc.)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "116d1501-cdea-4420-81b9-15c8e4ae03cf",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1408,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 192,
+        "height": 192,
+        "content": "### Configure Azure OpenAI Settings\nIn the \"Configure Select AI Settings\" node, update the selectAIConfig object"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0cda7158-5ab5-4200-b981-a3c93eb07ad3",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 208,
+        "height": 192,
+        "content": "### File Size Limits\nAdd validation in \"Validate & Normalize File\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef486a6f-d92d-4f91-9452-cebf5777543b",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1632,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 192,
+        "height": 192,
+        "content": "### Registers with select AI\nRegisters the data with Oracle Select AI for natural language querying powered by Azure OpenAI."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a01934f9-baa3-410b-8a4c-95168f3d4c9d",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2064,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 224,
+        "height": 192,
+        "content": "### Return Success Output:\nReturns { success, tableName, columns, rowCount, selectAIProfile }.\n**tableName** is passed to the chat workflow so Select AI knows which table to query."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7de15b6d-349c-45f2-ad06-4f6cd418c835",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 192,
+        "height": 192,
+        "content": "### Change Batch Size\n\nDefault: 50 rows per batch\nAdjust based on your data size and database performance"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb61ac4b-49c0-4891-8edb-3da0fb813b62",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -432,
+        -960
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 512,
+        "height": 80,
+        "content": "**This creates the Oracle table and Select AI profile needed for querying**"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f17c42e-22de-4e8e-830b-1529f3850a04",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2336,
+        -384
+      ],
+      "parameters": {
+        "width": 576,
+        "height": 272,
+        "content": "### Expected Response\n{\n  \"success\": true,\n  \"tableName\": \"UPLOAD_EXCEL_20260209123456789\",\n  \"columns\": [\"ID\", \"NAME\", \"AGE\", \"CITY\", \"SALARY\"],\n  \"rowCount\": 150,\n  \"selectAIProfile\": \"EXCEL_AI\",\n  \"message\": \"Excel file successfully ingested and registered with Oracle Select AI\",\n  \"nextSteps\": [\n    \"Query your data using: SELECT AI EXCEL_AI your question here\",\n    \"Example: SELECT AI EXCEL_AI show me the top 10 records by salary\"\n  ]\n}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "93ce236e-ec12-4eb4-94d1-910ec8aebaa4",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        368
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 272,
+        "height": 112,
+        "content": "Invokes DBMS_CLOUD_AI.GENERATE with action='runsql' to translate the chat prompt into SQL, execute it on the Select AI–registered table, and return the result set."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c9f113b-6dc8-4dd0-afea-b5134c66f5d8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -432,
+        -880
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 2752,
+        "height": 864,
+        "content": "## Workflow A Flow:\n1. Webhook receives Excel file\n   ↓\n2. Validate & normalize file\n   ↓\n3. Extract data from Excel\n   ↓\n4. Infer schema (column names & types)\n   ↓\n5. Create Oracle table dynamically\n   ↓\n6. Insert data in batches (50 rows at a time)\n   ↓\n7. Configure Select AI settings\n   ↓\n8. Register table with Select AI\n   ↓\n9. Return success response"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "c2cd9245-4dbb-474c-b382-95de8ee1d4e5",
+  "connections": {
+    "Chat Input": {
+      "main": [
+        [
+          {
+            "node": "Configure Select AI Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Response": {
+      "main": [
+        [
+          {
+            "node": "Return Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Data Rows": {
+      "main": [
+        [
+          {
+            "node": "Split into Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from Excel": {
+      "main": [
+        [
+          {
+            "node": "Infer Schema & Table Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split into Batches": {
+      "main": [
+        [
+          {
+            "node": "Insert Rows into Oracle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Oracle Table": {
+      "main": [
+        [
+          {
+            "node": "Split into Batches",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Restore Data Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - File Upload": {
+      "main": [
+        [
+          {
+            "node": "Validate & Normalize File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Oracle Select AI Query": {
+      "main": [
+        [
+          {
+            "node": "Format Chat Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Rows into Oracle": {
+      "main": [
+        [
+          {
+            "node": "Configure Select AI Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register with Select AI": {
+      "main": [
+        [
+          {
+            "node": "Prepare Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Infer Schema & Table Name": {
+      "main": [
+        [
+          {
+            "node": "Create Oracle Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Normalize File": {
+      "main": [
+        [
+          {
+            "node": "Extract from Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure Select AI Profile": {
+      "main": [
+        [
+          {
+            "node": "Oracle Select AI Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure Select AI Settings": {
+      "main": [
+        [
+          {
+            "node": "Register with Select AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

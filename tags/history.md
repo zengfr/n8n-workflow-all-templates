@@ -1,4 +1,4 @@
-# history : 20
+# history : 22
 
 |id|file|
 |----|----|
@@ -22,3 +22,5 @@
 |9598|[9598_Create___Publish_YouTube_Shorts_on_Historical_What-Ifs_with_GPT-4o___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9598_Create___Publish_YouTube_Shorts_on_Historical_What-Ifs_with_GPT-4o___Blotato.json)|
 |11482|[11482_Automate_Niche_Research_with_Wikipedia__GPT-4o-mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11482_Automate_Niche_Research_with_Wikipedia__GPT-4o-mini__and_Google_Sheets.json)|
 |11518|[11518_Smart_Gmail_Auto-Labeler_with_Gemini_AI___Sender_History.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11518_Smart_Gmail_Auto-Labeler_with_Gemini_AI___Sender_History.json)|
+|12991|[12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json)|
+|13091|[13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json)|

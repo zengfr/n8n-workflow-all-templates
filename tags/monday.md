@@ -1,4 +1,4 @@
-# monday : 23
+# monday : 25
 
 |id|file|
 |----|----|
@@ -25,3 +25,5 @@
 |9836|[9836_Analyze_Customer_Feedback_with_Azure_GPT-4__Jira_Tasks___Outlook_Reports_from_Monday.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9836_Analyze_Customer_Feedback_with_Azure_GPT-4__Jira_Tasks___Outlook_Reports_from_Monday.com.json)|
 |9838|[9838_Enforce_Pre-Release_Compliance_with_Jira__Monday.com__and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9838_Enforce_Pre-Release_Compliance_with_Jira__Monday.com__and_Slack_Alerts.json)|
 |11666|[11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json)|
+|12267|[12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json)|
+|12269|[12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json)|

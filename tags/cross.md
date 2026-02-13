@@ -1,4 +1,4 @@
-# cross : 13
+# cross : 17
 
 |id|file|
 |----|----|
@@ -15,3 +15,7 @@
 |11127|[11127_Cross-Platform_Content_Publisher__Telegram_to_WordPress__Facebook__Twitter___LinkedIn.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11127_Cross-Platform_Content_Publisher__Telegram_to_WordPress__Facebook__Twitter___LinkedIn.json)|
 |11708|[11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11708_Generate_Strategic_Business_Recommendations_with_GPT-4_Mini_and_Multi-Channel_Distribution.json)|
 |11797|[11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json)|
+|11904|[11904_Automate_cross-border_tax_compliance_with_Google_Sheets__PostgreSQL_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11904_Automate_cross-border_tax_compliance_with_Google_Sheets__PostgreSQL_and_Slack_alerts.json)|
+|13227|[13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json)|
+|13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|
+|13323|[13323_Cross-post_social_content_from_Google_Sheets_to_5_platforms_with_OpenAI_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13323_Cross-post_social_content_from_Google_Sheets_to_5_platforms_with_OpenAI_images.json)|

@@ -1,4 +1,4 @@
-# multilingual : 17
+# multilingual : 25
 
 |id|file|
 |----|----|
@@ -19,3 +19,11 @@
 |10907|[10907_Multilingual_Email_Auto-Replies_with_DeepL__GPT-4o_and_Slack_Human_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10907_Multilingual_Email_Auto-Replies_with_DeepL__GPT-4o_and_Slack_Human_Approval.json)|
 |11262|[11262_Multilingual_RSS_to_WordPress_Publishing_with_OpenAI__ACF__and_AI-Generated_Images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11262_Multilingual_RSS_to_WordPress_Publishing_with_OpenAI__ACF__and_AI-Generated_Images.json)|
 |11789|[11789_Convert_WordPress_Articles_to_Multilingual_Voiceovers_with_Google_TTS_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11789_Convert_WordPress_Articles_to_Multilingual_Voiceovers_with_Google_TTS_and_OpenAI.json)|
+|11896|[11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json)|
+|11910|[11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json)|
+|11982|[11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json)|
+|12378|[12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json)|
+|12381|[12381_Translate_Chinese_audio_into_multilingual_voiceovers_with_GPT-4o_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12381_Translate_Chinese_audio_into_multilingual_voiceovers_with_GPT-4o_and_ElevenLabs.json)|
+|12382|[12382_Translate_Chinese_text_to_multilingual_audio_with_GPT-4o_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12382_Translate_Chinese_text_to_multilingual_audio_with_GPT-4o_and_ElevenLabs.json)|
+|12383|[12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json)|
+|12384|[12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json)|

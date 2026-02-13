@@ -1,4 +1,4 @@
-# screening : 34
+# screening : 37
 
 |id|file|
 |----|----|
@@ -36,3 +36,6 @@
 |10359|[10359_Automate_CV_Screening_and_Candidate_Scoring_with_Gemini_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10359_Automate_CV_Screening_and_Candidate_Scoring_with_Gemini_AI_and_Google_Sheets.json)|
 |10559|[10559_Automated_Candidate_Screening___Response_using_GPT-4__Mistral_OCR_and_Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10559_Automated_Candidate_Screening___Response_using_GPT-4__Mistral_OCR_and_Slack_Notifications.json)|
 |10722|[10722_Automate_Resume_Screening___Candidate_Routing_with_Gemini_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10722_Automate_Resume_Screening___Candidate_Routing_with_Gemini_AI_and_Google_Sheets.json)|
+|11912|[11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json)|
+|12157|[12157_Automate_job_applicant_screening_with_GPT-4__Gmail___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12157_Automate_job_applicant_screening_with_GPT-4__Gmail___Google_Sheets.json)|
+|12268|[12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json)|

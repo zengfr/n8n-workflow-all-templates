@@ -1,4 +1,4 @@
-# feedback : 63
+# feedback : 73
 
 |id|file|
 |----|----|
@@ -65,3 +65,13 @@
 |11477|[11477_Analyze_Sales_Calls_with_GPT-4_and_Deliver_Coaching_Feedback_via_Slack___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11477_Analyze_Sales_Calls_with_GPT-4_and_Deliver_Coaching_Feedback_via_Slack___Sheets.json)|
 |11628|[11628_AI-Powered_Customer_Feedback_Routing_with_Gmail__Slack__Pipedrive__Zendesk___Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11628_AI-Powered_Customer_Feedback_Routing_with_Gmail__Slack__Pipedrive__Zendesk___Notion.json)|
 |11889|[11889_AI-Powered_Webinar_Feedback_Replies_with_GPT-4__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11889_AI-Powered_Webinar_Feedback_Replies_with_GPT-4__Google_Sheets__and_Gmail.json)|
+|12135|[12135_Triage_product_UAT_feedback_with_OpenAI__Jira__Slack__Notion_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12135_Triage_product_UAT_feedback_with_OpenAI__Jira__Slack__Notion_and_Google_Sheets.json)|
+|12208|[12208_Triage_product_UAT_feedback_with_OpenAI__Notion__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12208_Triage_product_UAT_feedback_with_OpenAI__Notion__Slack_and_Gmail.json)|
+|12254|[12254_Monitor_customer_risk_and_AI_feedback_using_PostgreSQL__Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12254_Monitor_customer_risk_and_AI_feedback_using_PostgreSQL__Gmail_and_Discord.json)|
+|12323|[12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json)|
+|12541|[12541_Analyze_customer_feedback_and_send_AI-written_replies_with_GPT-4_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12541_Analyze_customer_feedback_and_send_AI-written_replies_with_GPT-4_and_Gmail.json)|
+|12621|[12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json)|
+|12731|[12731_Grade_and_deliver_multi-course_assignment_feedback_with_GPT-4o__Google_Drive__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12731_Grade_and_deliver_multi-course_assignment_feedback_with_GPT-4o__Google_Drive__Slack__and_Gmail.json)|
+|12861|[12861_Manage_garage_service_reminders__pickups_and_feedback_with_Airtable__WhatsApp_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12861_Manage_garage_service_reminders__pickups_and_feedback_with_Airtable__WhatsApp_and_Gmail.json)|
+|12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|
+|13314|[13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json)|

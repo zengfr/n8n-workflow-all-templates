@@ -1,4 +1,4 @@
-# receptionist : 7
+# receptionist : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |9429|[9429_Automated_Phone_Receptionist_for_Scheduling_with_Twilio__ElevenLabs___Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9429_Automated_Phone_Receptionist_for_Scheduling_with_Twilio__ElevenLabs___Claude_AI.json)|
 |10033|[10033_WhatsApp_Virtual_Receptionist_with_Gemini_AI_-_Handles_Text___Voice_with_Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10033_WhatsApp_Virtual_Receptionist_with_Gemini_AI_-_Handles_Text___Voice_with_Knowledge_Base.json)|
 |10214|[10214_Hotel_Receptionist_with_WhatsApp__Gemini_Model-Switching__Redis___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10214_Hotel_Receptionist_with_WhatsApp__Gemini_Model-Switching__Redis___Google_Sheets.json)|
+|12004|[12004_Restaurant_GPT-4_receptionist_for_bookings___delivery_using_Vapi__Telegram__Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12004_Restaurant_GPT-4_receptionist_for_bookings___delivery_using_Vapi__Telegram__Airtable.json)|
+|12956|[12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json)|

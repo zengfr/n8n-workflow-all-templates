@@ -1,4 +1,4 @@
-# scrapegraphai : 40
+# scrapegraphai : 49
 
 |id|file|
 |----|----|
@@ -42,3 +42,12 @@
 |11722|[11722_Healthcare_Policy_Monitoring_with_ScrapeGraphAI__Pipedrive_and_Matrix_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11722_Healthcare_Policy_Monitoring_with_ScrapeGraphAI__Pipedrive_and_Matrix_Alerts.json)|
 |11803|[11803_Track_E-commerce_Price_Changes_with_ScrapeGraphAI__Baserow___Pushover_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11803_Track_E-commerce_Price_Changes_with_ScrapeGraphAI__Baserow___Pushover_Alerts.json)|
 |11835|[11835_Track_Certification_Requirement_Changes_with_ScrapeGraphAI__GitHub_and_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11835_Track_Certification_Requirement_Changes_with_ScrapeGraphAI__GitHub_and_Email.json)|
+|11927|[11927_Automate_commercial_real_estate_monitoring_with_ScrapeGraphAI__Notion_and_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11927_Automate_commercial_real_estate_monitoring_with_ScrapeGraphAI__Notion_and_Mailchimp.json)|
+|12010|[12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json)|
+|12072|[12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json)|
+|12073|[12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json)|
+|12154|[12154_Automatically_track_certification_changes_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12154_Automatically_track_certification_changes_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json)|
+|12233|[12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json)|
+|12234|[12234_Track_certification_requirements_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12234_Track_certification_requirements_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json)|
+|12654|[12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json)|
+|12782|[12782_Automated_Feedaty_Review_Scraper___using_ScrapegraphAI___Gemini_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12782_Automated_Feedaty_Review_Scraper___using_ScrapegraphAI___Gemini_3.json)|

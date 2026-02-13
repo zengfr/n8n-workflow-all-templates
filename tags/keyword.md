@@ -1,4 +1,4 @@
-# keyword : 58
+# keyword : 62
 
 |id|file|
 |----|----|
@@ -60,3 +60,7 @@
 |10648|[10648_Search___Enrich__Smart_Keyword_Analysis_with_Decodo___OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10648_Search___Enrich__Smart_Keyword_Analysis_with_Decodo___OpenAI_GPT-4.1-mini.json)|
 |10829|[10829_Generate_SEO_Content_Briefs_with_GPT-4o__DataForSEO_Keyword_Research___SERP_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10829_Generate_SEO_Content_Briefs_with_GPT-4o__DataForSEO_Keyword_Research___SERP_Analysis.json)|
 |11216|[11216_Find_low-competition_keyword_opportunities_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11216_Find_low-competition_keyword_opportunities_with_DataForSEO.json)|
+|11893|[11893_Automate_SEO_research___content_gap_analysis_with_GPT-4o__SerpAPI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11893_Automate_SEO_research___content_gap_analysis_with_GPT-4o__SerpAPI__and_Gmail.json)|
+|12159|[12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json)|
+|12631|[12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json)|
+|12809|[12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json)|

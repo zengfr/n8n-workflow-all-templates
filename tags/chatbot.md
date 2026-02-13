@@ -1,4 +1,4 @@
-# chatbot : 161
+# chatbot : 175
 
 |id|file|
 |----|----|
@@ -163,3 +163,17 @@
 |10840|[10840_Sales_CRM_Chatbot_with_GPT-4o-mini__Google_Sheets_Lookup___Memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10840_Sales_CRM_Chatbot_with_GPT-4o-mini__Google_Sheets_Lookup___Memory.json)|
 |10924|[10924_Voice_AI_Chatbot_with_OpenAI__RAG__Qdrant____Guardrails_for_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10924_Voice_AI_Chatbot_with_OpenAI__RAG__Qdrant____Guardrails_for_WordPress.json)|
 |11570|[11570_Retrieve_Answers_from_Knowledge_Base_with_InfraNodus_GraphRAG_Chatbot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11570_Retrieve_Answers_from_Knowledge_Base_with_InfraNodus_GraphRAG_Chatbot.json)|
+|11920|[11920_Smart_human_takeover___auto_pause_AI-powered_Facebook_Messenger_chatbot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11920_Smart_human_takeover___auto_pause_AI-powered_Facebook_Messenger_chatbot.json)|
+|11993|[11993_Create_an_intelligent_Facebook_Messenger_chatbot_with_GPT-4o-mini___message_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11993_Create_an_intelligent_Facebook_Messenger_chatbot_with_GPT-4o-mini___message_memory.json)|
+|12022|[12022_AI_chatbot_for_Max_Messenger_with_voice_recognition__GigaChat__SaluteSpeech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12022_AI_chatbot_for_Max_Messenger_with_voice_recognition__GigaChat__SaluteSpeech.json)|
+|12146|[12146_Build_a_website-powered_customer_support_chatbot_with_Decodo__Pinecone_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12146_Build_a_website-powered_customer_support_chatbot_with_Decodo__Pinecone_and_Gemini.json)|
+|12521|[12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json)|
+|12722|[12722_Create_an_AI_chatbot_for_WhatsApp_with_Whapi.Cloud_and_OpenAI_GPT-3.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12722_Create_an_AI_chatbot_for_WhatsApp_with_Whapi.Cloud_and_OpenAI_GPT-3.5.json)|
+|12848|[12848_Facebook_Messenger_Chatbot_That_Learns_From_Your_Documents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12848_Facebook_Messenger_Chatbot_That_Learns_From_Your_Documents.json)|
+|12981|[12981_Turn_any_website_into_an_AI_support_chatbot_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12981_Turn_any_website_into_an_AI_support_chatbot_with_OpenAI_and_Pinecone.json)|
+|13080|[13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json)|
+|13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|
+|13182|[13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json)|
+|13248|[13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json)|
+|13250|[13250_Collect_leads_with_a_conversational_GPT-4.1_chatbot_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13250_Collect_leads_with_a_conversational_GPT-4.1_chatbot_and_Google_Sheets.json)|
+|13354|[13354_Question_and_Answer_AI_Agent_Chatbot__2_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13354_Question_and_Answer_AI_Agent_Chatbot__2_2.json)|

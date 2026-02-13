@@ -1,4 +1,4 @@
-# onboarding : 34
+# onboarding : 42
 
 |id|file|
 |----|----|
@@ -36,3 +36,11 @@
 |11586|[11586_Automate_Client_Lifecycle__Lead_Intake_to_Onboarding_with_Airtable__Notion___Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11586_Automate_Client_Lifecycle__Lead_Intake_to_Onboarding_with_Airtable__Notion___Google_Calendar.json)|
 |11666|[11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11666_Complete_Client_Onboarding__Form_to_Monday.com__Google_Drive___Email.json)|
 |11735|[11735_Transform_HR_PDFs_into_Engaging_Onboarding_Videos_with_AI__HeyGen_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11735_Transform_HR_PDFs_into_Engaging_Onboarding_Videos_with_AI__HeyGen_and_Google_Drive.json)|
+|12056|[12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json)|
+|12069|[12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json)|
+|12478|[12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json)|
+|12479|[12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json)|
+|12633|[12633_Automate_multi-step_onboarding_emails_from_Notion_leads_via_Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12633_Automate_multi-step_onboarding_emails_from_Notion_leads_via_Gmail_and_Telegram.json)|
+|12739|[12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json)|
+|13145|[13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json)|
+|13302|[13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json)|

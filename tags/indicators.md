@@ -1,4 +1,4 @@
-# indicators : 10
+# indicators : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |4746|[4746_Binance_SM_1day_Indicators_Tool.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/47/4746_Binance_SM_1day_Indicators_Tool.json)|
 |4747|[4747_Binance_SM_Indicators_Webhook_Tool.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/47/4747_Binance_SM_Indicators_Webhook_Tool.json)|
 |5965|[5965_Monitor_Customer_Churn_Indicators_with_Bright_Data_MCP_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/59/5965_Monitor_Customer_Churn_Indicators_with_Bright_Data_MCP_and_OpenAI.json)|
+|12485|[12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json)|
+|13011|[13011_Analyze_Binance_Futures_markets_with_TA_indicators__OpenAI_news_checks__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13011_Analyze_Binance_Futures_markets_with_TA_indicators__OpenAI_news_checks__and_Telegram_alerts.json)|

@@ -1,4 +1,4 @@
-# self : 20
+# self : 22
 
 |id|file|
 |----|----|
@@ -22,3 +22,5 @@
 |9787|[9787_Collect_Star_Rating_Feedback_with_Self-Contained_HTML_Forms_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9787_Collect_Star_Rating_Feedback_with_Self-Contained_HTML_Forms_and_Data_Tables.json)|
 |10348|[10348_Monitor___Auto-Heal_AWS_EC2_Instances_with_Multi-Channel_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10348_Monitor___Auto-Heal_AWS_EC2_Instances_with_Multi-Channel_Alerts.json)|
 |10471|[10471_Self_Update_Docker-based_n8n_with_Email_Approval_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10471_Self_Update_Docker-based_n8n_with_Email_Approval_and_SSH.json)|
+|12242|[12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json)|
+|12907|[12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json)|

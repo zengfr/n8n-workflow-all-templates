@@ -1,4 +1,4 @@
-# whisper : 29
+# whisper : 30
 
 |id|file|
 |----|----|
@@ -31,3 +31,4 @@
 |10869|[10869_Transform_Voice_Notes_into_Business_Reviews_with_Groq_Whisper___GPT-5_to_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10869_Transform_Voice_Notes_into_Business_Reviews_with_Groq_Whisper___GPT-5_to_Google_Slides.json)|
 |10870|[10870_Transcribe_Long_Audio_Files_Beyond_25MB_Limit_with_FileFlows_and_OpenAI_Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10870_Transcribe_Long_Audio_Files_Beyond_25MB_Limit_with_FileFlows_and_OpenAI_Whisper.json)|
 |11083|[11083_Transcribe_YouTube_Videos___Create_GEO_Summaries_with_Whisper_and_GPT-4o-mini_in_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11083_Transcribe_YouTube_Videos___Create_GEO_Summaries_with_Whisper_and_GPT-4o-mini_in_Notion.json)|
+|11982|[11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json)|

@@ -1,4 +1,4 @@
-# unstructured : 6
+# unstructured : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |10086|[10086_How_to_Transform_Unstructured_Email_Data_into_Structured_Format_with_AI_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10086_How_to_Transform_Unstructured_Email_Data_into_Structured_Format_with_AI_Agent.json)|
 |10289|[10289_Unstructured_Resume_Parser_with_Thordata_Universal_API___OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10289_Unstructured_Resume_Parser_with_Thordata_Universal_API___OpenAI_GPT-4.1-mini.json)|
 |10577|[10577_Build_a_RAG_System_for_PDF_Documents_with_Google_Drive__Unstructured__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10577_Build_a_RAG_System_for_PDF_Documents_with_Google_Drive__Unstructured__and_OpenAI.json)|
+|12799|[12799_Generate_AI_SOPs_from_Google_Drive_with_GPT_4o__Google_Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12799_Generate_AI_SOPs_from_Google_Drive_with_GPT_4o__Google_Docs_and_Sheets.json)|

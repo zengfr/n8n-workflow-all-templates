@@ -1,4 +1,4 @@
-# usage : 18
+# usage : 20
 
 |id|file|
 |----|----|
@@ -20,3 +20,5 @@
 |9733|[9733_Proxmox_System_Monitor_-_VM_Status__Host_Resources___Temperature_Alerts_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9733_Proxmox_System_Monitor_-_VM_Status__Host_Resources___Temperature_Alerts_via_Telegram.json)|
 |10560|[10560_Qualify_Leads_with_Salesforce__Explorium_Data___Claude_AI_Analysis_of_API_Usage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10560_Qualify_Leads_with_Salesforce__Explorium_Data___Claude_AI_Analysis_of_API_Usage.json)|
 |11469|[11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json)|
+|12646|[12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json)|
+|12802|[12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json)|

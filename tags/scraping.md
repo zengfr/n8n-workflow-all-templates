@@ -1,4 +1,4 @@
-# scraping : 64
+# scraping : 69
 
 |id|file|
 |----|----|
@@ -66,3 +66,8 @@
 |11360|[11360_Generate_Local_Business_Leads_with_Google_Places_API___Website_Email_Scraping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11360_Generate_Local_Business_Leads_with_Google_Places_API___Website_Email_Scraping.json)|
 |11371|[11371_Automate_Lead_Enrichment_with_Web_Scraping__GPT-4o__Airtable_and_Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11371_Automate_Lead_Enrichment_with_Web_Scraping__GPT-4o__Airtable_and_Slack_Notifications.json)|
 |11590|[11590_Automate_Personalized_Lead_Responses_with_Website_Scraping__GPT-4o__and_Airtable_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11590_Automate_Personalized_Lead_Responses_with_Website_Scraping__GPT-4o__and_Airtable_CRM.json)|
+|12178|[12178_Discover_viral_social_media_trends_with_Gemini_Flash___Apify_scraping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12178_Discover_viral_social_media_trends_with_Gemini_Flash___Apify_scraping.json)|
+|12362|[12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json)|
+|12855|[12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json)|
+|13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|
+|13282|[13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json)|

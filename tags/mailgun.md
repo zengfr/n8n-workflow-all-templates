@@ -1,4 +1,4 @@
-# mailgun : 7
+# mailgun : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |11608|[11608_Automated_Product_Price_Tracking_with_ScrapeGraphAI__Slack_Alerts_and_Jira_Tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11608_Automated_Product_Price_Tracking_with_ScrapeGraphAI__Slack_Alerts_and_Jira_Tickets.json)|
 |11609|[11609_E-commerce_Product_Price_Tracker_with_ScrapeGraphAI__Baserow_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11609_E-commerce_Product_Price_Tracker_with_ScrapeGraphAI__Baserow_and_Slack_Alerts.json)|
 |11634|[11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json)|
+|13260|[13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json)|

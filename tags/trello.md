@@ -1,4 +1,4 @@
-# trello : 29
+# trello : 30
 
 |id|file|
 |----|----|
@@ -31,3 +31,4 @@
 |10723|[10723_Automate_Daily_Google_Calendar_Events_to_Trello_Cards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10723_Automate_Daily_Google_Calendar_Events_to_Trello_Cards.json)|
 |11198|[11198_Analyze_Sales_Calls___Route_Leads_with_GPT-4o__Airtable_and_Trello.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11198_Analyze_Sales_Calls___Route_Leads_with_GPT-4o__Airtable_and_Trello.json)|
 |11202|[11202_Manage_Trello_Tasks_with_AI_Assistants_via_MCP_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11202_Manage_Trello_Tasks_with_AI_Assistants_via_MCP_Server.json)|
+|12751|[12751_Score_and_route_leads_with_Clearbit__Mattermost_and_Trello.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12751_Score_and_route_leads_with_Clearbit__Mattermost_and_Trello.json)|

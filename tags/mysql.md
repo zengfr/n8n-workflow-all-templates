@@ -1,4 +1,4 @@
-# mysql : 17
+# mysql : 19
 
 |id|file|
 |----|----|
@@ -19,3 +19,5 @@
 |6300|[6300_Automatically_Add_Gmail_Sender_Contacts_to_MySQL_Database.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6300_Automatically_Add_Gmail_Sender_Contacts_to_MySQL_Database.json)|
 |6302|[6302_Store_Gmail_Email_Details_in_MySQL_Database.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6302_Store_Gmail_Email_Details_in_MySQL_Database.json)|
 |7765|[7765_Compliance_Report_Collector_With_Google_Form___Drive___MySQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7765_Compliance_Report_Collector_With_Google_Form___Drive___MySQL.json)|
+|11971|[11971_Synchronize_MySQL_database_schemas_to_Pinecone_with_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11971_Synchronize_MySQL_database_schemas_to_Pinecone_with_OpenAI_embeddings.json)|
+|12158|[12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json)|

@@ -1,4 +1,4 @@
-# incoming : 9
+# incoming : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |4647|[4647_Automate_Gmail_Labeling_with_Gemini_AI___Build_InfraNodus_Knowledge_Graph_with_Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/46/4647_Automate_Gmail_Labeling_with_Gemini_AI___Build_InfraNodus_Knowledge_Graph_with_Telegram_Alerts.json)|
 |5595|[5595_Categorize_and_Label_Incoming_Gmail_Emails_Automatically_with_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/55/5595_Categorize_and_Label_Incoming_Gmail_Emails_Automatically_with_GPT-4o_mini.json)|
 |8031|[8031_Auto-Translate_Incoming_Gmail_Emails_to_English_with_OpenAI_GPT-3.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8031_Auto-Translate_Incoming_Gmail_Emails_to_English_with_OpenAI_GPT-3.5.json)|
+|13192|[13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json)|

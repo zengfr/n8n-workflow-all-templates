@@ -1,4 +1,4 @@
-# submission : 20
+# submission : 23
 
 |id|file|
 |----|----|
@@ -22,3 +22,6 @@
 |9503|[9503_Validate___Process_Startup_Pitch_Decks_with_Email_Verification___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9503_Validate___Process_Startup_Pitch_Decks_with_Email_Verification___Google_Drive.json)|
 |9905|[9905_Automate_Invoice_Processing_with_Gmail__OCR.space__Slack___Xero.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9905_Automate_Invoice_Processing_with_Gmail__OCR.space__Slack___Xero.json)|
 |9922|[9922_Generate_UGC_Images_from_Form_Submissions_with_Google_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9922_Generate_UGC_Images_from_Form_Submissions_with_Google_Gemini_and_Telegram.json)|
+|11899|[11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json)|
+|11900|[11900_Automate_GST_VAT_tax_returns_with_OpenAI__Gmail_and_government_portal_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11900_Automate_GST_VAT_tax_returns_with_OpenAI__Gmail_and_government_portal_integration.json)|
+|11990|[11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json)|

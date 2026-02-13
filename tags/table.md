@@ -1,4 +1,4 @@
-# table : 26
+# table : 27
 
 |id|file|
 |----|----|
@@ -28,3 +28,4 @@
 |9288|[9288_Process_Telegram_Image_Albums_with_Data_Tables_Cache_and_NanoBanana_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9288_Process_Telegram_Image_Albums_with_Data_Tables_Cache_and_NanoBanana_AI.json)|
 |9369|[9369_Create_a_Simple_Data_Caching_System_with_No_External_Dependencies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9369_Create_a_Simple_Data_Caching_System_with_No_External_Dependencies.json)|
 |11721|[11721_Poll_Multiple_Gmail_Accounts_with_Unified_Data_Table_Storage___Discord_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11721_Poll_Multiple_Gmail_Accounts_with_Unified_Data_Table_Storage___Discord_Notifications.json)|
+|13353|[13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json)|

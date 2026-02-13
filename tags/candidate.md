@@ -1,4 +1,4 @@
-# candidate : 31
+# candidate : 32
 
 |id|file|
 |----|----|
@@ -33,3 +33,4 @@
 |10559|[10559_Automated_Candidate_Screening___Response_using_GPT-4__Mistral_OCR_and_Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10559_Automated_Candidate_Screening___Response_using_GPT-4__Mistral_OCR_and_Slack_Notifications.json)|
 |10607|[10607_Automate_Candidate_Creation_in_Recrutei_with_GPT-4_Vacancy_Matching___Resume_Parsing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10607_Automate_Candidate_Creation_in_Recrutei_with_GPT-4_Vacancy_Matching___Resume_Parsing.json)|
 |10722|[10722_Automate_Resume_Screening___Candidate_Routing_with_Gemini_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10722_Automate_Resume_Screening___Candidate_Routing_with_Gemini_AI_and_Google_Sheets.json)|
+|13062|[13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json)|

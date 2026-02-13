@@ -1,4 +1,4 @@
-# deal : 22
+# deal : 27
 
 |id|file|
 |----|----|
@@ -24,3 +24,8 @@
 |10398|[10398_Smart_CSM_Assignment___AI_Welcome_Emails_for_HubSpot_Deal_Wins_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10398_Smart_CSM_Assignment___AI_Welcome_Emails_for_HubSpot_Deal_Wins_with_Gmail.json)|
 |10621|[10621_Flight_Deal_Analyzer_with_Weather_Data_using_GPT__Google_Flights___WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10621_Flight_Deal_Analyzer_with_Weather_Data_using_GPT__Google_Flights___WordPress.json)|
 |11689|[11689_Generate_Personalized_Deal_Content_Recommendations_with_Zoho_CRM__GPT-4o-mini___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11689_Generate_Personalized_Deal_Content_Recommendations_with_Zoho_CRM__GPT-4o-mini___Gmail.json)|
+|12025|[12025_Monitor_and_alert_stalled_deals_in_Zoho_CRM_with_Gemini_AI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12025_Monitor_and_alert_stalled_deals_in_Zoho_CRM_with_Gemini_AI_and_Gmail.json)|
+|12027|[12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json)|
+|12328|[12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json)|
+|12474|[12474_Score_HubSpot_deal_conversion_risk_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12474_Score_HubSpot_deal_conversion_risk_with_OpenAI_and_Slack_alerts.json)|
+|12577|[12577_Monitor_HubSpot_deal_risk_with_OpenAI_scoring_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12577_Monitor_HubSpot_deal_risk_with_OpenAI_scoring_and_Slack_alerts.json)|

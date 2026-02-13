@@ -1,4 +1,4 @@
-# websites : 28
+# websites : 30
 
 |id|file|
 |----|----|
@@ -30,3 +30,5 @@
 |11367|[11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json)|
 |11658|[11658_Auto-Generate_Competitive_Battle_Cards_from_Websites_with_Zoho_CRM_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11658_Auto-Generate_Competitive_Battle_Cards_from_Websites_with_Zoho_CRM_and_Gemini_AI.json)|
 |11682|[11682_Extract_Company_Data_from_Websites_with_Gemini_AI_through_Chat_Conversation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11682_Extract_Company_Data_from_Websites_with_Gemini_AI_through_Chat_Conversation.json)|
+|11924|[11924_Generate_scored_B2B_leads_from_Google_Maps_websites_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11924_Generate_scored_B2B_leads_from_Google_Maps_websites_to_Google_Sheets.json)|
+|13248|[13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json)|

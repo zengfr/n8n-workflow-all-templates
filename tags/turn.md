@@ -1,4 +1,4 @@
-# turn : 27
+# turn : 38
 
 |id|file|
 |----|----|
@@ -29,3 +29,14 @@
 |10642|[10642_Generate_AI_Video_Avatars_from_URLs_with_HeyGen__Gemini___Upload_to_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10642_Generate_AI_Video_Avatars_from_URLs_with_HeyGen__Gemini___Upload_to_Social_Media.json)|
 |11300|[11300_Turn_NASA_Astronomy_Pictures_into_Matching_Spotify_Tracks_using_GPT-4o_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11300_Turn_NASA_Astronomy_Pictures_into_Matching_Spotify_Tracks_using_GPT-4o_Vision.json)|
 |11362|[11362_Convert_Task_Ideas_to_Implementation_Plans_with_GPT-4o__Slack___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11362_Convert_Task_Ideas_to_Implementation_Plans_with_GPT-4o__Slack___Google_Sheets.json)|
+|11897|[11897_Convert_blog_posts_to_podcast_episodes_with_GPT-4o__ElevenLabs___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11897_Convert_blog_posts_to_podcast_episodes_with_GPT-4o__ElevenLabs___Google_Drive.json)|
+|12227|[12227_Turn_closed-won_HubSpot_deals_into_lookalike_prospects_with_CompanyEnrich.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12227_Turn_closed-won_HubSpot_deals_into_lookalike_prospects_with_CompanyEnrich.json)|
+|12286|[12286_Turn_new_Shopify_products_into_SEO_blogs_with_Perplexity__Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12286_Turn_new_Shopify_products_into_SEO_blogs_with_Perplexity__Gemini_and_Sheets.json)|
+|12476|[12476_Turn_Gmail_meeting_summaries_into_HubSpot_CRM_records_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12476_Turn_Gmail_meeting_summaries_into_HubSpot_CRM_records_with_OpenAI.json)|
+|12769|[12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json)|
+|12812|[12812_Turn_a_YouTube_channel_into_a_second_brain_with_Neo4j_GraphRAG_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12812_Turn_a_YouTube_channel_into_a_second_brain_with_Neo4j_GraphRAG_and_GPT-4o-mini.json)|
+|12944|[12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json)|
+|12949|[12949_Generate_weekly_AI_equity_research_reports_with_Google_Sheets__FMP__NewsAPI__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12949_Generate_weekly_AI_equity_research_reports_with_Google_Sheets__FMP__NewsAPI__OpenAI__and_Gmail.json)|
+|12981|[12981_Turn_any_website_into_an_AI_support_chatbot_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12981_Turn_any_website_into_an_AI_support_chatbot_with_OpenAI_and_Pinecone.json)|
+|13124|[13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json)|
+|13248|[13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json)|

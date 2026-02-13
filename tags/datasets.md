@@ -1,4 +1,4 @@
-# datasets : 7
+# datasets : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |4219|[4219_Create_AI-Ready_Vector_Datasets_from_Web_Content_with_Claude__Ollama___Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/42/4219_Create_AI-Ready_Vector_Datasets_from_Web_Content_with_Claude__Ollama___Qdrant.json)|
 |7955|[7955_Create_Multi-Sheet_Excel_Workbooks_by_Merging_Datasets_with_Google_Drive___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7955_Create_Multi-Sheet_Excel_Workbooks_by_Merging_Datasets_with_Google_Drive___Sheets.json)|
 |11748|[11748_Generate_AI_Search_Visibility_Datasets_with_Claude_and_GPT_for_Tracking_Platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11748_Generate_AI_Search_Visibility_Datasets_with_Claude_and_GPT_for_Tracking_Platforms.json)|
+|12338|[12338_Migrate_large_Hugging_Face_datasets_to_MongoDB_with_a_looping_subworkflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12338_Migrate_large_Hugging_Face_datasets_to_MongoDB_with_a_looping_subworkflow.json)|

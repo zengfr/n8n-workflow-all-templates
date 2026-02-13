@@ -1,4 +1,4 @@
-# validation : 34
+# validation : 40
 
 |id|file|
 |----|----|
@@ -36,3 +36,9 @@
 |11097|[11097_Automated_Digital_Certificate_Creator___Validator_with_PDF_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11097_Automated_Digital_Certificate_Creator___Validator_with_PDF_Generation.json)|
 |11538|[11538_Bulk_Email_Validation_and_AI_Scoring_with_ZeroBounce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11538_Bulk_Email_Validation_and_AI_Scoring_with_ZeroBounce.json)|
 |11886|[11886_Create___Validate_Digital_Certificates_with_PDF_Generator_API_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11886_Create___Validate_Digital_Certificates_with_PDF_Generator_API_and_Gmail.json)|
+|11901|[11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11901_Automate_tax_compliance_validation_with_OpenAI_anomaly_detection___accounting_integration.json)|
+|12276|[12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json)|
+|12880|[12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json)|
+|13153|[13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json)|
+|13156|[13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json)|
+|13157|[13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json)|

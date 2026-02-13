@@ -1,4 +1,4 @@
-# addresses : 12
+# addresses : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |7948|[7948_Extract_Email_Addresses_from_Websites_with_EmailListVerify_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7948_Extract_Email_Addresses_from_Websites_with_EmailListVerify_API_and_Google_Sheets.json)|
 |10068|[10068_Find_Domain-Based_Gmail_Addresses_for_Outreach_with_EmailListVerify___Google_Sheet.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10068_Find_Domain-Based_Gmail_Addresses_for_Outreach_with_EmailListVerify___Google_Sheet.json)|
 |11498|[11498_Validate_and_Score_Email_Addresses_with_ZeroBounce_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11498_Validate_and_Score_Email_Addresses_with_ZeroBounce_AI.json)|
+|13239|[13239_Enrich_IP_addresses_with_country_attribution_using_IPinfo_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13239_Enrich_IP_addresses_with_country_attribution_using_IPinfo_and_Slack_alerts.json)|

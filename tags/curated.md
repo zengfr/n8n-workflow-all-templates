@@ -1,4 +1,4 @@
-# curated : 7
+# curated : 10
 
 |id|file|
 |----|----|
@@ -9,3 +9,6 @@
 |8991|[8991_Generate_Curated_Local_News_Digests_with_Gemini_AI_for_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8991_Generate_Curated_Local_News_Digests_with_Gemini_AI_for_Discord.json)|
 |10246|[10246_Generate_AI-Curated_Reddit_Digests_for_Telegram__Discord___Slack_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10246_Generate_AI-Curated_Reddit_Digests_for_Telegram__Discord___Slack_with_Gemini.json)|
 |11092|[11092_Create_AI-Curated_News_Digests_with_GPT-5.1__NewsAPI__Tavily___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11092_Create_AI-Curated_News_Digests_with_GPT-5.1__NewsAPI__Tavily___Telegram.json)|
+|11951|[11951_Send_AI-curated_weekly_news_digests_with_RSS__Vector_DB___GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11951_Send_AI-curated_weekly_news_digests_with_RSS__Vector_DB___GPT-4o.json)|
+|12348|[12348_Create_curated_industry_trend_reports_from_Medium_to_Google_Docs_with_Claude_via_OpenRouter_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12348_Create_curated_industry_trend_reports_from_Medium_to_Google_Docs_with_Claude_via_OpenRouter_and_BrowserAct.json)|
+|12436|[12436_Auto-post_curated_remote_jobs_to_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12436_Auto-post_curated_remote_jobs_to_Telegram_with_BrowserAct_and_Gemini.json)|

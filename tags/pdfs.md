@@ -1,4 +1,4 @@
-# pdfs : 42
+# pdfs : 51
 
 |id|file|
 |----|----|
@@ -44,3 +44,12 @@
 |10864|[10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json)|
 |11197|[11197_Build_a_RAG_system_by_uploading_PDFs_to_the_Google_Gemini_File_Search_Store.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11197_Build_a_RAG_system_by_uploading_PDFs_to_the_Google_Gemini_File_Search_Store.json)|
 |11735|[11735_Transform_HR_PDFs_into_Engaging_Onboarding_Videos_with_AI__HeyGen_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11735_Transform_HR_PDFs_into_Engaging_Onboarding_Videos_with_AI__HeyGen_and_Google_Drive.json)|
+|12012|[12012_Automate_AI-powered_quiz_generation_from_PDFs_with_Google_Forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12012_Automate_AI-powered_quiz_generation_from_PDFs_with_Google_Forms.json)|
+|12176|[12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json)|
+|12447|[12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json)|
+|12544|[12544_Consolidate_and_report_monthly_financial_PDFs_with_Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12544_Consolidate_and_report_monthly_financial_PDFs_with_Google_Drive_and_Slack.json)|
+|12655|[12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json)|
+|12659|[12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json)|
+|12660|[12660_Deliver_encrypted_payroll_PDFs_via_Google_Drive__Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12660_Deliver_encrypted_payroll_PDFs_via_Google_Drive__Sheets__Gmail_and_Slack.json)|
+|13033|[13033_Extract_invoice_data_from_Gmail_PDFs_to_JSON__Google_Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13033_Extract_invoice_data_from_Gmail_PDFs_to_JSON__Google_Sheets_and_Airtable.json)|
+|13135|[13135_Create_anti-cheating_tests_from_PDFs_with_GPT-4o-mini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13135_Create_anti-cheating_tests_from_PDFs_with_GPT-4o-mini_and_Google_Docs.json)|

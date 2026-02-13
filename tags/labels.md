@@ -1,4 +1,4 @@
-# labels : 9
+# labels : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |5839|[5839_Create_AI-Summarized_Email_Digests_from_Gmail_Labels_with_OpenAI_O4-Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/58/5839_Create_AI-Summarized_Email_Digests_from_Gmail_Labels_with_OpenAI_O4-Mini.json)|
 |6504|[6504_Automatically_Create_Invoices_from_Gmail_Labels_with_GPT-4O___QuickBooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/65/6504_Automatically_Create_Invoices_from_Gmail_Labels_with_GPT-4O___QuickBooks.json)|
 |7619|[7619_Automatic_Trello_Board_Cleanup_by_Removing_Cards_with_Specific_Labels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7619_Automatic_Trello_Board_Cleanup_by_Removing_Cards_with_Specific_Labels.json)|
+|13121|[13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json)|

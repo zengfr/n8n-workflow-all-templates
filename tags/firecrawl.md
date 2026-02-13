@@ -1,4 +1,4 @@
-# firecrawl : 28
+# firecrawl : 35
 
 |id|file|
 |----|----|
@@ -30,3 +30,10 @@
 |10239|[10239_Generate_Answer_Engine_Optimization_strategy_with_Firecrawl__Gemini__OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10239_Generate_Answer_Engine_Optimization_strategy_with_Firecrawl__Gemini__OpenAI.json)|
 |10391|[10391_Generate_Comprehensive_Business_Analysis_Reports_with_Gemini_AI___Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10391_Generate_Comprehensive_Business_Analysis_Reports_with_Gemini_AI___Firecrawl.json)|
 |11098|[11098_Track_Website_Changes_with_Firecrawl__GPT-5-Mini__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11098_Track_Website_Changes_with_Firecrawl__GPT-5-Mini__Notion__and_Gmail.json)|
+|12047|[12047_Generate_product_ideas_from_website_content_with_FireCrawl_and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12047_Generate_product_ideas_from_website_content_with_FireCrawl_and_GPT-4.1.json)|
+|12132|[12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json)|
+|12232|[12232_Send_daily_Malaysian_weather_alerts_with_Perplexity_AI__Firecrawl_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12232_Send_daily_Malaysian_weather_alerts_with_Perplexity_AI__Firecrawl_and_Telegram.json)|
+|12509|[12509_Generate_YouTube_content_ideas_with_Firecrawl__OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12509_Generate_YouTube_content_ideas_with_Firecrawl__OpenAI_and_Notion.json)|
+|12882|[12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json)|
+|12884|[12884_Generate_Reddit_customer_leads_from_a_product_URL_with_OpenAI_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12884_Generate_Reddit_customer_leads_from_a_product_URL_with_OpenAI_and_Firecrawl.json)|
+|12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|

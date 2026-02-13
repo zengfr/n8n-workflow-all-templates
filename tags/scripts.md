@@ -1,4 +1,4 @@
-# scripts : 13
+# scripts : 19
 
 |id|file|
 |----|----|
@@ -15,3 +15,9 @@
 |10649|[10649_Generate_AI_Voiceovers_from_Scripts_with_Gemini_TTS_and_Upload_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10649_Generate_AI_Voiceovers_from_Scripts_with_Gemini_TTS_and_Upload_to_Google_Drive.json)|
 |11203|[11203_Generate_avatar_snippet_videos_from_Google_Sheets_scripts_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11203_Generate_avatar_snippet_videos_from_Google_Sheets_scripts_in_Google_Drive.json)|
 |11589|[11589_Automated_POV_Video_Creation_with_AI_Scripts__Visual_Generation___YouTube_Publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11589_Automated_POV_Video_Creation_with_AI_Scripts__Visual_Generation___YouTube_Publishing.json)|
+|11895|[11895_Generate_AI_avatar_videos_from_scripts_using_ElevenLabs_and_HeyGen.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11895_Generate_AI_avatar_videos_from_scripts_using_ElevenLabs_and_HeyGen.json)|
+|11896|[11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json)|
+|11965|[11965_Create_personalized_Loom_video_scripts_from_Upwork_jobs_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11965_Create_personalized_Loom_video_scripts_from_Upwork_jobs_with_Claude_AI.json)|
+|12045|[12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json)|
+|12384|[12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json)|
+|12392|[12392_Create_YouTube_videos_with_OpenAI_scripts__ElevenLabs_voice__Pixabay_and_Shotstack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12392_Create_YouTube_videos_with_OpenAI_scripts__ElevenLabs_voice__Pixabay_and_Shotstack.json)|

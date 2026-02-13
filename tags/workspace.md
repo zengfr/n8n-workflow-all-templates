@@ -1,4 +1,4 @@
-# workspace : 34
+# workspace : 39
 
 |id|file|
 |----|----|
@@ -36,3 +36,8 @@
 |11012|[11012_Generate_Verifiable_CEU_Certificates_with_Google_Workspace___QR_Verification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11012_Generate_Verifiable_CEU_Certificates_with_Google_Workspace___QR_Verification.json)|
 |11327|[11327_Automate_Timesheet_to_Invoice_Conversion_with_OpenAI__Gmail___Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11327_Automate_Timesheet_to_Invoice_Conversion_with_OpenAI__Gmail___Google_Workspace.json)|
 |11413|[11413_OCR_Document_Processing_from_LINE_Gmail_using_GPT-4o_to_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11413_OCR_Document_Processing_from_LINE_Gmail_using_GPT-4o_to_Google_Workspace.json)|
+|12090|[12090_Provision_new_employee_accounts_to_Google_Workspace__Slack__Jira__and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12090_Provision_new_employee_accounts_to_Google_Workspace__Slack__Jira__and_Salesforce.json)|
+|12256|[12256_Review_and_approve_employee_expenses_with_forms__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12256_Review_and_approve_employee_expenses_with_forms__OpenAI_and_Google_Workspace.json)|
+|12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|
+|12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|
+|13145|[13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json)|

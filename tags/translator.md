@@ -1,4 +1,4 @@
-# translator : 12
+# translator : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |9847|[9847_Auto_Summarize_YouTube_Videos_to_Japanese_with_GPT-4o-mini___Post_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9847_Auto_Summarize_YouTube_Videos_to_Japanese_with_GPT-4o-mini___Post_to_Slack.json)|
 |9943|[9943_Slack_Auto_Translator__JA___EN__with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9943_Slack_Auto_Translator__JA___EN__with_GPT-4o-mini.json)|
 |10187|[10187_Voice_Translator_Bridge__Telegram___Slack__with_GPT-4o-mini___Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10187_Voice_Translator_Bridge__Telegram___Slack__with_GPT-4o-mini___Whisper.json)|
+|12748|[12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json)|

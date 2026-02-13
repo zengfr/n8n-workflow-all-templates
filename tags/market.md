@@ -1,4 +1,4 @@
-# market : 77
+# market : 86
 
 |id|file|
 |----|----|
@@ -79,3 +79,12 @@
 |11291|[11291_Generate_merchandise_proposals_and_market_research_from_NASA_APOD.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11291_Generate_merchandise_proposals_and_market_research_from_NASA_APOD.json)|
 |11621|[11621_Automated_Stock_Technical_Analysis_with_xAI_Grok___Multi-channel_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11621_Automated_Stock_Technical_Analysis_with_xAI_Grok___Multi-channel_Notifications.json)|
 |11783|[11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json)|
+|12027|[12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json)|
+|12236|[12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json)|
+|12497|[12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json)|
+|12553|[12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json)|
+|12581|[12581_Generate_AI_market_research_reports_from_NewsAPI_and_competitor_sites_to_Notion__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12581_Generate_AI_market_research_reports_from_NewsAPI_and_competitor_sites_to_Notion__Sheets_and_Slack.json)|
+|12599|[12599_Analyze_market_demand_using_GPT-4o__XPOZ_MCP__Notion_and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12599_Analyze_market_demand_using_GPT-4o__XPOZ_MCP__Notion_and_email_reports.json)|
+|12795|[12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json)|
+|12864|[12864_KodoFlow_-_Futures___Options_Market_Intelligence.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12864_KodoFlow_-_Futures___Options_Market_Intelligence.json)|
+|12944|[12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json)|

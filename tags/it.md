@@ -1,4 +1,4 @@
-# it : 39
+# it : 42
 
 |id|file|
 |----|----|
@@ -41,3 +41,6 @@
 |10127|[10127_Classify___Process_IT_Requests_with_Jotform__Gemini_AI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10127_Classify___Process_IT_Requests_with_Jotform__Gemini_AI_and_Google_Workspace.json)|
 |10211|[10211_Food_Photo_Analysis_to_Restaurant___Book_Recommendations_with_GPT_Vision_and_Google_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10211_Food_Photo_Analysis_to_Restaurant___Book_Recommendations_with_GPT_Vision_and_Google_APIs.json)|
 |10766|[10766_Automatic_PDF_Compression_with_iLovePDF_for_Google_Drive_Files.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10766_Automatic_PDF_Compression_with_iLovePDF_for_Google_Drive_Files.json)|
+|12562|[12562_Build_a_prospecting_list_with_LeadIQ_and_save_it_to_Airtable_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12562_Build_a_prospecting_list_with_LeadIQ_and_save_it_to_Airtable_CRM.json)|
+|13148|[13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json)|
+|13264|[13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json)|

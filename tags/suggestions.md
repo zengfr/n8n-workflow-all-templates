@@ -1,4 +1,4 @@
-# suggestions : 8
+# suggestions : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |7919|[7919_WhatsApp_Recipe_Suggestions_from_Pantry_Items_with_Gemini_AI___FatSecret_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7919_WhatsApp_Recipe_Suggestions_from_Pantry_Items_with_Gemini_AI___FatSecret_API.json)|
 |9375|[9375_AI-Powered_Workflow_Error_Analysis___Fix_Suggestions_with_Gemini_2.5_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9375_AI-Powered_Workflow_Error_Analysis___Fix_Suggestions_with_Gemini_2.5_Pro.json)|
 |10270|[10270_Google_Calendar_Events_with_Gemini_AI_Follow-up_Suggestions_via_WhatsApp___Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10270_Google_Calendar_Events_with_Gemini_AI_Follow-up_Suggestions_via_WhatsApp___Email.json)|
+|12767|[12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json)|

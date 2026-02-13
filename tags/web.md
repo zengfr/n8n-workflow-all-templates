@@ -1,4 +1,4 @@
-# web : 105
+# web : 113
 
 |id|file|
 |----|----|
@@ -107,3 +107,11 @@
 |11371|[11371_Automate_Lead_Enrichment_with_Web_Scraping__GPT-4o__Airtable_and_Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11371_Automate_Lead_Enrichment_with_Web_Scraping__GPT-4o__Airtable_and_Slack_Notifications.json)|
 |11389|[11389_Web_Research_Summarizer_with_Decodo_Scraper__Google_Gemini_AI___Sheets_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11389_Web_Research_Summarizer_with_Decodo_Scraper__Google_Gemini_AI___Sheets_Integration.json)|
 |11637|[11637_Automate_Data_Extraction_with_Zyte_AI__Products__Jobs__Articles___More.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11637_Automate_Data_Extraction_with_Zyte_AI__Products__Jobs__Articles___More.json)|
+|12068|[12068_Aggregate_web_product_reviews_and_sentiment_with_Decodo_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12068_Aggregate_web_product_reviews_and_sentiment_with_Decodo_and_Google_Gemini.json)|
+|12347|[12347_Generate_audio_documentaries_from_web_articles_with_ElevenLabs_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12347_Generate_audio_documentaries_from_web_articles_with_ElevenLabs_and_BrowserAct.json)|
+|12504|[12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json)|
+|12506|[12506_Research_organizations_with_GPT_5__Gemini__CourtListener__LegiScan_and_OSINT_web_sources.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12506_Research_organizations_with_GPT_5__Gemini__CourtListener__LegiScan_and_OSINT_web_sources.json)|
+|12508|[12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json)|
+|13268|[13268_Rewrite_web_content_with_exact_character_counts_using_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13268_Rewrite_web_content_with_exact_character_counts_using_GPT-4.1_and_Google_Sheets.json)|
+|13271|[13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json)|
+|13282|[13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json)|

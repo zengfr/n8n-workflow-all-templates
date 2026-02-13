@@ -1,4 +1,4 @@
-# bookings : 14
+# bookings : 18
 
 |id|file|
 |----|----|
@@ -16,3 +16,7 @@
 |8919|[8919_Sync_Calendly_Bookings_to_Easy_Redmine_CRM_with_Comments_and_Sales_Activities.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8919_Sync_Calendly_Bookings_to_Easy_Redmine_CRM_with_Comments_and_Sales_Activities.json)|
 |8987|[8987_Automate_Lead_Calling_with_VAPI__Google_Sheets_Logging__and_Calendar_Bookings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8987_Automate_Lead_Calling_with_VAPI__Google_Sheets_Logging__and_Calendar_Bookings.json)|
 |9850|[9850_Automated_Property___Restaurant_Bookings_with_AI_Voice_Calls_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9850_Automated_Property___Restaurant_Bookings_with_AI_Voice_Calls_via_Telegram.json)|
+|12004|[12004_Restaurant_GPT-4_receptionist_for_bookings___delivery_using_Vapi__Telegram__Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12004_Restaurant_GPT-4_receptionist_for_bookings___delivery_using_Vapi__Telegram__Airtable.json)|
+|12063|[12063_Sync_AI-enriched_TimeRex_bookings_to_Google_Sheets_and_Slack_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12063_Sync_AI-enriched_TimeRex_bookings_to_Google_Sheets_and_Slack_with_Gemini.json)|
+|12079|[12079_Handle_Calendly_bookings__cancellations_and_reschedules_with_Gmail__Google_Calendar__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12079_Handle_Calendly_bookings__cancellations_and_reschedules_with_Gmail__Google_Calendar__Sheets_and_Slack.json)|
+|13196|[13196_Manage_online_bookings_with_webhook__Gmail__Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13196_Manage_online_bookings_with_webhook__Gmail__Google_Calendar_and_Slack.json)|

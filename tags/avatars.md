@@ -1,4 +1,4 @@
-# avatars : 9
+# avatars : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |6789|[6789_Generate_Custom_AI_Avatars_with_Babysea_Babyavatar_via_Replicate_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/67/6789_Generate_Custom_AI_Avatars_with_Babysea_Babyavatar_via_Replicate_API.json)|
 |10000|[10000_Auto-Create_TikTok_Videos_with_VEED.io_AI_Avatars__ElevenLabs___GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10000_Auto-Create_TikTok_Videos_with_VEED.io_AI_Avatars__ElevenLabs___GPT-4.json)|
 |10642|[10642_Generate_AI_Video_Avatars_from_URLs_with_HeyGen__Gemini___Upload_to_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10642_Generate_AI_Video_Avatars_from_URLs_with_HeyGen__Gemini___Upload_to_Social_Media.json)|
+|12125|[12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json)|
+|12729|[12729_Generate_social_videos_with_AI_avatars_using_VEED__Claude__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12729_Generate_social_videos_with_AI_avatars_using_VEED__Claude__and_OpenAI.json)|

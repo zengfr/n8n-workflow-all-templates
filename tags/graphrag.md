@@ -1,4 +1,4 @@
-# graphrag : 9
+# graphrag : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |6816|[6816_Create_Custom_Reasoning_Patterns_for_AI_Agents_with_GraphRAG___Knowledge_Ontology.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/68/6816_Create_Custom_Reasoning_Patterns_for_AI_Agents_with_GraphRAG___Knowledge_Ontology.json)|
 |6887|[6887_Enhance_AI_Chatbot_Responses_with_InfraNodus_Knowledge_Graph_Reasoning___GraphRAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/68/6887_Enhance_AI_Chatbot_Responses_with_InfraNodus_Knowledge_Graph_Reasoning___GraphRAG.json)|
 |11570|[11570_Retrieve_Answers_from_Knowledge_Base_with_InfraNodus_GraphRAG_Chatbot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11570_Retrieve_Answers_from_Knowledge_Base_with_InfraNodus_GraphRAG_Chatbot.json)|
+|12812|[12812_Turn_a_YouTube_channel_into_a_second_brain_with_Neo4j_GraphRAG_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12812_Turn_a_YouTube_channel_into_a_second_brain_with_Neo4j_GraphRAG_and_GPT-4o-mini.json)|

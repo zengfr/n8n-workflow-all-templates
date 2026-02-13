@@ -1,4 +1,4 @@
-# management : 137
+# management : 148
 
 |id|file|
 |----|----|
@@ -139,3 +139,14 @@
 |11860|[11860_GPT_4.1-mini_Automated_Proposal_to_Payment_Lifecycle_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11860_GPT_4.1-mini_Automated_Proposal_to_Payment_Lifecycle_Management.json)|
 |11863|[11863_Intelligent_Project_Delivery_and_Task_Management_System.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11863_Intelligent_Project_Delivery_and_Task_Management_System.json)|
 |11864|[11864_GPT-4.1_mini-Powered_Learning_Management_Automation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11864_GPT-4.1_mini-Powered_Learning_Management_Automation.json)|
+|11914|[11914_Real_estate_property_matching___lead_management_with_Airtable__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11914_Real_estate_property_matching___lead_management_with_Airtable__Gmail_and_Slack.json)|
+|11946|[11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json)|
+|12058|[12058_Automate_business_card_management_with_LINE__AI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12058_Automate_business_card_management_with_LINE__AI__and_Google_Sheets.json)|
+|12113|[12113_Invoice_management_system_with_Gmail_reminders__Google_Sheets__and_Slack_escalations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12113_Invoice_management_system_with_Gmail_reminders__Google_Sheets__and_Slack_escalations.json)|
+|12296|[12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json)|
+|12428|[12428_Triage_tenant_complaints_with_GPT-4.1__Slack__email_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12428_Triage_tenant_complaints_with_GPT-4.1__Slack__email_and_Google_Sheets.json)|
+|12429|[12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json)|
+|12516|[12516_Manage_your_WooCommerce_store_with_OpenAI_and_MCP-powered_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12516_Manage_your_WooCommerce_store_with_OpenAI_and_MCP-powered_AI_assistant.json)|
+|12730|[12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json)|
+|12734|[12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json)|
+|12985|[12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json)|

@@ -1,4 +1,4 @@
-# account : 13
+# account : 16
 
 |id|file|
 |----|----|
@@ -15,3 +15,6 @@
 |7648|[7648_Generate_and_Store_AI_Images_with_DALL-E_and_Azure_Blob_Storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7648_Generate_and_Store_AI_Images_with_DALL-E_and_Azure_Blob_Storage.json)|
 |10254|[10254_AI-Powered_Email_Forwarding_to_WhatsApp_with_Gmail__Outlook___Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10254_AI-Powered_Email_Forwarding_to_WhatsApp_with_Gmail__Outlook___Google_Gemini.json)|
 |10950|[10950_Automate_LINE___Google_Account_Linking_with_OAuth2_Authentication.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10950_Automate_LINE___Google_Account_Linking_with_OAuth2_Authentication.json)|
+|12056|[12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json)|
+|12223|[12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json)|
+|13145|[13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json)|

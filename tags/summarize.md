@@ -1,4 +1,4 @@
-# summarize : 83
+# summarize : 89
 
 |id|file|
 |----|----|
@@ -85,3 +85,9 @@
 |10666|[10666_Summarize_Apple_App_Store_Reviews_with_Pinecone__GPT-4_Mini___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10666_Summarize_Apple_App_Store_Reviews_with_Pinecone__GPT-4_Mini___Slack_Notifications.json)|
 |11782|[11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json)|
 |11813|[11813_Daily_RSS_Feed_Summarizer_with_Gemini_AI_to_Slack_with_X_Sharing_Option.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11813_Daily_RSS_Feed_Summarizer_with_Gemini_AI_to_Slack_with_X_Sharing_Option.json)|
+|12048|[12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json)|
+|12291|[12291_Summarize_SE_Ranking_AI_search_visibility_using_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12291_Summarize_SE_Ranking_AI_search_visibility_using_OpenAI_GPT-4.1-mini.json)|
+|12631|[12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json)|
+|12934|[12934_Summarize_YouTube_videos_in_Slack_using_AssemblyAI_transcription_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12934_Summarize_YouTube_videos_in_Slack_using_AssemblyAI_transcription_and_OpenAI.json)|
+|13126|[13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json)|
+|13148|[13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json)|

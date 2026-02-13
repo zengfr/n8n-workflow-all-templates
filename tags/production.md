@@ -1,4 +1,4 @@
-# production : 14
+# production : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |6644|[6644_Real-time_Error_Detection_with_Slack_Alerts_and_Jira_Ticket_Creation_for_Production.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/66/6644_Real-time_Error_Detection_with_Slack_Alerts_and_Jira_Ticket_Creation_for_Production.json)|
 |7125|[7125_Monitor_Solar_Energy_Production___Send_Alerts_with_Gmail__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/71/7125_Monitor_Solar_Energy_Production___Send_Alerts_with_Gmail__Google_Sheets__and_Slack.json)|
 |8404|[8404_Automate_AI_Video_Creation___Multi-Platform_Publishing_with_Gemini___Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8404_Automate_AI_Video_Creation___Multi-Platform_Publishing_with_Gemini___Creatomate.json)|
+|12020|[12020_Automated_podcast_production___publishing_with_OpenAI__Airtable___Buzzsprout.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12020_Automated_podcast_production___publishing_with_OpenAI__Airtable___Buzzsprout.json)|

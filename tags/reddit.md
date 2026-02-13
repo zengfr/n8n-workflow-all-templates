@@ -1,4 +1,4 @@
-# reddit : 72
+# reddit : 81
 
 |id|file|
 |----|----|
@@ -74,3 +74,12 @@
 |11182|[11182_Reddit_Monitoring_with_AI_Sentiment_Analysis_and_Growth_Insights_Dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11182_Reddit_Monitoring_with_AI_Sentiment_Analysis_and_Growth_Insights_Dashboard.json)|
 |11698|[11698_Generate_Content_Strategy_Insights_from_Reddit___X_Using_Gemini_AI_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11698_Generate_Content_Strategy_Insights_from_Reddit___X_Using_Gemini_AI_Analysis.json)|
 |11700|[11700_Track_and_Score_Contact_Engagement_with_Zoho_CRM__PDL__News___Reddit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11700_Track_and_Score_Contact_Engagement_with_Zoho_CRM__PDL__News___Reddit.json)|
+|12102|[12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json)|
+|12196|[12196_Generate_SEO_landing_page_content_with_GPT-4__Reddit__YouTube_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12196_Generate_SEO_landing_page_content_with_GPT-4__Reddit__YouTube_and_Google_Sheets.json)|
+|12410|[12410_Monitor_viral_Reddit_posts_and_send_GPT-4o-mini_summaries_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12410_Monitor_viral_Reddit_posts_and_send_GPT-4o-mini_summaries_to_Telegram.json)|
+|12696|[12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json)|
+|12703|[12703_Create_a_daily_AI___automation_content_digest_from_YouTube__Reddit__X_and_Perplexity_with_OpenAI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12703_Create_a_daily_AI___automation_content_digest_from_YouTube__Reddit__X_and_Perplexity_with_OpenAI_and_Airtable.json)|
+|12882|[12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json)|
+|12884|[12884_Generate_Reddit_customer_leads_from_a_product_URL_with_OpenAI_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12884_Generate_Reddit_customer_leads_from_a_product_URL_with_OpenAI_and_Firecrawl.json)|
+|12944|[12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json)|
+|13042|[13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json)|

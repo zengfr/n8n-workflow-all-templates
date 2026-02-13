@@ -1,4 +1,4 @@
-# portfolio : 9
+# portfolio : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |5994|[5994_Personalized_Stock_Portfolio_Analysis_and_Recommendations_with_Grok-4_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/59/5994_Personalized_Stock_Portfolio_Analysis_and_Recommendations_with_Grok-4_and_Perplexity.json)|
 |6317|[6317_Track_Multi-Broker_Investment_Portfolio_with_Google_Sheets_and_Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6317_Track_Multi-Broker_Investment_Portfolio_with_Google_Sheets_and_Telegram_Alerts.json)|
 |11150|[11150_Automate_Image_Portfolio_Organization_with_GPT-4o_Vision__Google_Drive_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11150_Automate_Image_Portfolio_Organization_with_GPT-4o_Vision__Google_Drive_and_Notion.json)|
+|12092|[12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json)|
+|12487|[12487_Track_portfolio_performance_and_risk_using_Google_Sheets_and_Alpha_Vantage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12487_Track_portfolio_performance_and_risk_using_Google_Sheets_and_Alpha_Vantage.json)|
+|12947|[12947_Track_weekly_portfolio_risk_using_GPT-4.1__Slack_alerts__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12947_Track_weekly_portfolio_risk_using_GPT-4.1__Slack_alerts__and_Google_Sheets.json)|
+|12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|

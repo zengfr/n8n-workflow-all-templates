@@ -1,4 +1,4 @@
-# property : 22
+# property : 31
 
 |id|file|
 |----|----|
@@ -24,3 +24,12 @@
 |9850|[9850_Automated_Property___Restaurant_Bookings_with_AI_Voice_Calls_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9850_Automated_Property___Restaurant_Bookings_with_AI_Voice_Calls_via_Telegram.json)|
 |10004|[10004_Two-way_Property_Repair_Management_System_with_Google_Sheets___Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10004_Two-way_Property_Repair_Management_System_with_Google_Sheets___Drive.json)|
 |11130|[11130_Scrape_Property_Listings_from_Zillow_with_Olostep_API_and_Store_in_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11130_Scrape_Property_Listings_from_Zillow_with_Olostep_API_and_Store_in_Data_Tables.json)|
+|11914|[11914_Real_estate_property_matching___lead_management_with_Airtable__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11914_Real_estate_property_matching___lead_management_with_Airtable__Gmail_and_Slack.json)|
+|11927|[11927_Automate_commercial_real_estate_monitoring_with_ScrapeGraphAI__Notion_and_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11927_Automate_commercial_real_estate_monitoring_with_ScrapeGraphAI__Notion_and_Mailchimp.json)|
+|11997|[11997_Fetch_property_listings_from_99Acres___MagicBricks_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11997_Fetch_property_listings_from_99Acres___MagicBricks_with_Apify_and_Google_Sheets.json)|
+|12036|[12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json)|
+|12195|[12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json)|
+|12233|[12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json)|
+|12431|[12431_Automate_property_inspections_and_reporting_with_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12431_Automate_property_inspections_and_reporting_with_OpenAI__Google_Sheets_and_Slack.json)|
+|12496|[12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json)|
+|12687|[12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json)|

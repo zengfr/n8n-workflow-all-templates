@@ -1,4 +1,4 @@
-# channel : 102
+# channel : 113
 
 |id|file|
 |----|----|
@@ -104,3 +104,14 @@
 |11743|[11743_Generate_Multi-Channel_Release_Notes_from_ClickUp_Tasks_with_GPT-4o__Notion___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11743_Generate_Multi-Channel_Release_Notes_from_ClickUp_Tasks_with_GPT-4o__Notion___Slack.json)|
 |11795|[11795_Extract_Clean_Transcripts_from_Your_YouTube_Channel_Videos_using_Data_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11795_Extract_Clean_Transcripts_from_Your_YouTube_Channel_Videos_using_Data_API.json)|
 |11883|[11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json)|
+|11909|[11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json)|
+|11921|[11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json)|
+|12008|[12008_Automated_business_KPI_insights_with_GPT-4__MSSQL__analytics___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12008_Automated_business_KPI_insights_with_GPT-4__MSSQL__analytics___multi-channel_alerts.json)|
+|12082|[12082_Capture_and_score_multi-channel_leads_with_GPT-4__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12082_Capture_and_score_multi-channel_leads_with_GPT-4__Gmail_and_Google_Sheets.json)|
+|12091|[12091_Monitor_ad_performance_drops_with_Meta___Google_Ads___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12091_Monitor_ad_performance_drops_with_Meta___Google_Ads___multi-channel_alerts.json)|
+|12735|[12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json)|
+|12812|[12812_Turn_a_YouTube_channel_into_a_second_brain_with_Neo4j_GraphRAG_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12812_Turn_a_YouTube_channel_into_a_second_brain_with_Neo4j_GraphRAG_and_GPT-4o-mini.json)|
+|12960|[12960_Send_AI-prioritized_follow-up_reminders_with_GPT-4.1-mini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12960_Send_AI-prioritized_follow-up_reminders_with_GPT-4.1-mini__Gmail_and_Slack.json)|
+|13009|[13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json)|
+|13013|[13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json)|
+|13038|[13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json)|

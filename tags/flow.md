@@ -1,4 +1,4 @@
-# flow : 28
+# flow : 30
 
 |id|file|
 |----|----|
@@ -30,3 +30,5 @@
 |9314|[9314_Create_Financial_Newsletters_with_Perplexity_Research__GPT_Drafting__and_Gmail_Approval_Flow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9314_Create_Financial_Newsletters_with_Perplexity_Research__GPT_Drafting__and_Gmail_Approval_Flow.json)|
 |10109|[10109_Daily_Cash_Flow_Reports_with_Google_Sheets__Slack___Email_for_Finance_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10109_Daily_Cash_Flow_Reports_with_Google_Sheets__Slack___Email_for_Finance_Teams.json)|
 |10138|[10138_Newsletter_Signup_Flow_with_Email_Verification_API__Gmail___Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10138_Newsletter_Signup_Flow_with_Email_Verification_API__Gmail___Google_Sheets_Tracking.json)|
+|11903|[11903_Multi-source_tax___cash_flow_forecasting_with_GPT-4__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11903_Multi-source_tax___cash_flow_forecasting_with_GPT-4__Gmail_and_Google_Sheets.json)|
+|12904|[12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json)|

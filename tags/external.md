@@ -1,4 +1,4 @@
-# external : 9
+# external : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |9369|[9369_Create_a_Simple_Data_Caching_System_with_No_External_Dependencies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9369_Create_a_Simple_Data_Caching_System_with_No_External_Dependencies.json)|
 |10740|[10740_Automate_External_Attack_Surface_Mapping_with_Shodan_API_and_DNS_Lookups.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10740_Automate_External_Attack_Surface_Mapping_with_Shodan_API_and_DNS_Lookups.json)|
 |11867|[11867_Extract_transcripts_from_external_YouTube_Videos_using_YouTube_Transcript_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11867_Extract_transcripts_from_external_YouTube_Videos_using_YouTube_Transcript_API.json)|
+|12027|[12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json)|
+|12495|[12495_Audit_SharePoint_Online_external_sharing_and_anonymous_links_with_Microsoft_Graph.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12495_Audit_SharePoint_Online_external_sharing_and_anonymous_links_with_Microsoft_Graph.json)|

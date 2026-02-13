@@ -1,4 +1,4 @@
-# quotes : 11
+# quotes : 14
 
 |id|file|
 |----|----|
@@ -13,3 +13,6 @@
 |8402|[8402_Generate_AI-Curated_Sales_Quotes_with_OpenAI__Qdrant___CraftMyPDF_PDF_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8402_Generate_AI-Curated_Sales_Quotes_with_OpenAI__Qdrant___CraftMyPDF_PDF_Delivery.json)|
 |9608|[9608_Generate_Pro_Construction_Quotes_from_jotform_to_Email_with_Supabase_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9608_Generate_Pro_Construction_Quotes_from_jotform_to_Email_with_Supabase_CRM.json)|
 |9652|[9652_Generate_Instagram_Posts_with_AI_Quotes___Images_using_GPT___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9652_Generate_Instagram_Posts_with_AI_Quotes___Images_using_GPT___Gemini.json)|
+|12285|[12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json)|
+|12638|[12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json)|
+|12994|[12994_Generate_and_send_AI-powered_sales_quotes_with_Gmail__OpenAI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12994_Generate_and_send_AI-powered_sales_quotes_with_Gmail__OpenAI_and_Supabase.json)|

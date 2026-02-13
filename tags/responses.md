@@ -1,4 +1,4 @@
-# responses : 54
+# responses : 59
 
 |id|file|
 |----|----|
@@ -56,3 +56,8 @@
 |11503|[11503_Automate_Google_My_Business_Responses_with_Gemini_AI_and_Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11503_Automate_Google_My_Business_Responses_with_Gemini_AI_and_Google_Sheets_Tracking.json)|
 |11590|[11590_Automate_Personalized_Lead_Responses_with_Website_Scraping__GPT-4o__and_Airtable_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11590_Automate_Personalized_Lead_Responses_with_Website_Scraping__GPT-4o__and_Airtable_CRM.json)|
 |11618|[11618_Compare_GPT-4__Claude___Gemini_Responses_with_Contextual_AI_s_LMUnit_Evaluation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11618_Compare_GPT-4__Claude___Gemini_Responses_with_Contextual_AI_s_LMUnit_Evaluation.json)|
+|12003|[12003_Build_a_voice___text_Telegram_Bot_with_GPT-4.1-Mini_and_Gemini_transcription.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12003_Build_a_voice___text_Telegram_Bot_with_GPT-4.1-Mini_and_Gemini_transcription.json)|
+|12316|[12316_Synthesize_and_compare_multiple_LLM_responses_with_OpenRouter_council.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12316_Synthesize_and_compare_multiple_LLM_responses_with_OpenRouter_council.json)|
+|12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|
+|13137|[13137_Validate_and_orchestrate_lawsuit_responses_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13137_Validate_and_orchestrate_lawsuit_responses_with_OpenAI_and_Google_Sheets.json)|
+|13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|

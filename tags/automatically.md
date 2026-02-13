@@ -1,4 +1,4 @@
-# automatically : 155
+# automatically : 165
 
 |id|file|
 |----|----|
@@ -157,3 +157,13 @@
 |11495|[11495_Automatically_Optimize_AI_Prompts_with_OpenAI_Using_OPRO___DSPy_Methodology.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11495_Automatically_Optimize_AI_Prompts_with_OpenAI_Using_OPRO___DSPy_Methodology.json)|
 |11728|[11728_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11728_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json)|
 |11736|[11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json)|
+|11928|[11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json)|
+|11941|[11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json)|
+|12154|[12154_Automatically_track_certification_changes_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12154_Automatically_track_certification_changes_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json)|
+|12156|[12156_Track_BlueSky_post_engagement_metrics_in_Google_Sheets_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12156_Track_BlueSky_post_engagement_metrics_in_Google_Sheets_automatically.json)|
+|12394|[12394_Generate_your_GitLab_year-in-review_wrapped_report_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12394_Generate_your_GitLab_year-in-review_wrapped_report_automatically.json)|
+|12480|[12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json)|
+|12637|[12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json)|
+|12747|[12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json)|
+|12829|[12829_Generate_AI_video_clips_from_YouTube_automatically_with_Reka_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12829_Generate_AI_video_clips_from_YouTube_automatically_with_Reka_Vision.json)|
+|13221|[13221_Categorise_and_label_Gmail_emails_with_GPT-4o_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13221_Categorise_and_label_Gmail_emails_with_GPT-4o_and_OpenAI.json)|

@@ -1,4 +1,4 @@
-# server : 257
+# server : 260
 
 |id|file|
 |----|----|
@@ -259,3 +259,6 @@
 |11202|[11202_Manage_Trello_Tasks_with_AI_Assistants_via_MCP_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11202_Manage_Trello_Tasks_with_AI_Assistants_via_MCP_Server.json)|
 |11703|[11703_Google_Docs_MCP_Server___Read___Write_Access_for_Agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11703_Google_Docs_MCP_Server___Read___Write_Access_for_Agents.json)|
 |11812|[11812_Discord_Server_Anti-Impersonation___Scammer_Tracker_with_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11812_Discord_Server_Anti-Impersonation___Scammer_Tracker_with_Data_Tables.json)|
+|12194|[12194_Find_the_best_Roblox_server_for_your_game_using_a_webhook_and_Roblox_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12194_Find_the_best_Roblox_server_for_your_game_using_a_webhook_and_Roblox_API.json)|
+|12296|[12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json)|
+|13074|[13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json)|

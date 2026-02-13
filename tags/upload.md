@@ -1,4 +1,4 @@
-# upload : 95
+# upload : 100
 
 |id|file|
 |----|----|
@@ -97,3 +97,8 @@
 |10713|[10713_Telegram_to_Google_Drive__Auto_Upload___Track_Videos_with_Gemini_AI_Assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10713_Telegram_to_Google_Drive__Auto_Upload___Track_Videos_with_Gemini_AI_Assistant.json)|
 |11049|[11049_Generate_Professional_Documents_with_Claude_AI_Skills_and_Upload_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11049_Generate_Professional_Documents_with_Claude_AI_Skills_and_Upload_to_Google_Drive.json)|
 |11830|[11830_Auto-upload_Instagram_Videos_to_YouTube_with_GPT-4o_and_Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11830_Auto-upload_Instagram_Videos_to_YouTube_with_GPT-4o_and_Google_Sheets_Tracking.json)|
+|12353|[12353_Repurpose_Instagram_videos_to_YouTube_with_Claude_and_Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12353_Repurpose_Instagram_videos_to_YouTube_with_Claude_and_Google_Sheets_tracking.json)|
+|12542|[12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json)|
+|12723|[12723_Translate___and_upload_dubbed_YouTube_videos___using_ElevenLabs_AI_Dubbing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12723_Translate___and_upload_dubbed_YouTube_videos___using_ElevenLabs_AI_Dubbing.json)|
+|12773|[12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json)|
+|13148|[13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json)|

@@ -1,4 +1,4 @@
-# results : 29
+# results : 32
 
 |id|file|
 |----|----|
@@ -31,3 +31,6 @@
 |9793|[9793_Automating_Job_Searches_on_LinkedIn_and_X__then_Saving_Results_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9793_Automating_Job_Searches_on_LinkedIn_and_X__then_Saving_Results_to_Notion.json)|
 |9823|[9823_Telegram_Bot__Analyze_Images_with_GPT-4o-Mini_NVIDIA_Vila___Generate_Images_with_Stable_Diffusion_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9823_Telegram_Bot__Analyze_Images_with_GPT-4o-Mini_NVIDIA_Vila___Generate_Images_with_Stable_Diffusion_3.json)|
 |10153|[10153_Download_Threads_Videos___Log_Results_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10153_Download_Threads_Videos___Log_Results_in_Google_Sheets.json)|
+|12287|[12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json)|
+|12293|[12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json)|
+|12343|[12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json)|

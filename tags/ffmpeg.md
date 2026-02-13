@@ -1,4 +1,4 @@
-# ffmpeg : 8
+# ffmpeg : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |9944|[9944_Ebook_to_Audiobook_converter_using_MiniMax_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9944_Ebook_to_Audiobook_converter_using_MiniMax_and_FFmpeg.json)|
 |11584|[11584_Extract_Viral-Worthy_Clips_from_YouTube_Videos_with_Gemini_AI___FFmpeg_Editing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11584_Extract_Viral-Worthy_Clips_from_YouTube_Videos_with_Gemini_AI___FFmpeg_Editing.json)|
 |11591|[11591_Create___Publish_Inspirational_Videos_with_FFmpeg__Google_Drive___YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11591_Create___Publish_Inspirational_Videos_with_FFmpeg__Google_Drive___YouTube.json)|
+|13088|[13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json)|

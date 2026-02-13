@@ -1,4 +1,4 @@
-# http : 26
+# http : 29
 
 |id|file|
 |----|----|
@@ -28,3 +28,6 @@
 |9165|[9165_Create_Dynamic_API_Gateway_with_HTTP_Router_and_Workflow_Orchestration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9165_Create_Dynamic_API_Gateway_with_HTTP_Router_and_Workflow_Orchestration.json)|
 |9852|[9852_Automated_Server_Health_Check_with_SSH__Azure_GPT-4_Analysis___Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9852_Automated_Server_Health_Check_with_SSH__Azure_GPT-4_Analysis___Email_Alerts.json)|
 |10726|[10726_Lusha_to_Easy_Redmine_CRM__Automated_Lead_Enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10726_Lusha_to_Easy_Redmine_CRM__Automated_Lead_Enrichment.json)|
+|12279|[12279_Score_telematics_driving_risk_with_Claude_and_adjust_insurance_premiums_via_HTTP__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12279_Score_telematics_driving_risk_with_Claude_and_adjust_insurance_premiums_via_HTTP__Gmail__and_Slack.json)|
+|13186|[13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json)|
+|13272|[13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json)|

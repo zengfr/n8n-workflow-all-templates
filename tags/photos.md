@@ -1,4 +1,4 @@
-# photos : 25
+# photos : 28
 
 |id|file|
 |----|----|
@@ -27,3 +27,6 @@
 |11138|[11138_Generate_AI_Photos_with_Gemini___Auto-Post_to_Facebook__Instagram___X_with_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11138_Generate_AI_Photos_with_Gemini___Auto-Post_to_Facebook__Instagram___X_with_Approval.json)|
 |11159|[11159_Analyze_food_ingredients_from_Telegram_photos_using_Gemini_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11159_Analyze_food_ingredients_from_Telegram_photos_using_Gemini_and_Airtable.json)|
 |11445|[11445_Create_AI_Diary_Entries_from_LINE_Photos_with_OpenAI_Vision_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11445_Create_AI_Diary_Entries_from_LINE_Photos_with_OpenAI_Vision_and_Google_Drive.json)|
+|12176|[12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json)|
+|12380|[12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json)|
+|12921|[12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json)|

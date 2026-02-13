@@ -1,4 +1,4 @@
-# survey : 7
+# survey : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |9484|[9484_Generate_Personalized_and_Aggregate_Survey_Reports_with_Jotform_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9484_Generate_Personalized_and_Aggregate_Survey_Reports_with_Jotform_and_Gemini_AI.json)|
 |9809|[9809_Analyze_Customer_Survey_Feedback_with_AI__Google_Sheets___Slack_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9809_Analyze_Customer_Survey_Feedback_with_AI__Google_Sheets___Slack_Reports.json)|
 |10384|[10384_Automate_Cancellation_Feedback_Collection_with_Stripe_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10384_Automate_Cancellation_Feedback_Collection_with_Stripe_and_Google_Sheets.json)|
+|12621|[12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json)|

@@ -1,0 +1,665 @@
+{
+  "name": "Competitor Poach - Auto Daily Limit",
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        368,
+        -96
+      ],
+      "webhookId": "9347ebb6-33c7-4653-8bd8-a633be91a996",
+      "parameters": {
+        "options": {},
+        "formTitle": "Competitor Post Scraper",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "LinkedIn Post URL",
+              "placeholder": "https://www.linkedin.com/feed/update/...",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Competitor Name",
+              "placeholder": "e.g., Salesforce",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Send Message?",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Message Template",
+              "placeholder": "Hi {firstName}, saw your comment. Would love to connect!"
+            }
+          ]
+        },
+        "formDescription": "Scrape competitor post and auto-send connections (max 8/day, auto-continues next day)"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "set-config",
+      "name": "Set Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        592,
+        -96
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "daily-limit",
+              "name": "dailyLimit",
+              "type": "number",
+              "value": 10
+            },
+            {
+              "id": "post-url",
+              "name": "postUrl",
+              "type": "string",
+              "value": "={{ $json['LinkedIn Post URL'] }}"
+            },
+            {
+              "id": "competitor",
+              "name": "competitor",
+              "type": "string",
+              "value": "={{ $json['Competitor Name'].toLowerCase() }}"
+            },
+            {
+              "id": "send-msg",
+              "name": "sendMessage",
+              "type": "boolean",
+              "value": "={{ $json['Send Message?'] === 'Yes' }}"
+            },
+            {
+              "id": "template",
+              "name": "template",
+              "type": "string",
+              "value": "={{ $json['Message Template'] || 'Hi {firstName}, saw your comment. Would love to connect!' }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "get-comments",
+      "name": "Get Comments",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        816,
+        -96
+      ],
+      "parameters": {
+        "url": "https://api.connectsafely.ai/linkedin/posts/comments/all",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ postUrl: $json.postUrl, maxComments: 500 }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kLeBNWzpktJl3IZ7",
+          "name": "Anandi API Key"
+        },
+        "httpHeaderAuth": {
+          "id": "0mnpo4vqBWfDkxZD",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "extract-profiles",
+      "name": "Extract Profiles",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "const config = $('Set Config').first().json;\nconst response = $input.first().json;\n\n// Handle array wrapper - API returns [{success, comments, ...}]\nconst comments = Array.isArray(response) ? response[0]?.comments : response.comments;\n\nif (!comments || comments.length === 0) {\n  return [{ json: { error: 'No comments found', profiles: [] } }];\n}\n\n// Deduplicate by profileUrl\nconst seen = new Set();\nconst profiles = [];\n\nfor (const c of comments) {\n  if (c.profileUrl && !seen.has(c.profileUrl)) {\n    seen.add(c.profileUrl);\n    profiles.push({\n      profileId: c.publicIdentifier,\n      name: c.authorName || '',\n      profileUrl: c.profileUrl,\n      competitor: config.competitor,\n      sendMessage: config.sendMessage,\n      template: config.template,\n      dailyLimit: config.dailyLimit\n    });\n  }\n}\n\nreturn profiles.map(p => ({ json: p }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "loop",
+      "name": "Loop",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1264,
+        -96
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "check-limit",
+      "name": "Check Limit",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1504,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst staticData = $getWorkflowStaticData('global');\nconst today = new Date().toISOString().split('T')[0];\nconst DAILY_LIMIT = item.dailyLimit || 8;\n\n// Reset if new day\nif (staticData.date !== today) {\n  staticData.date = today;\n  staticData.count = 0;\n}\n\nconst count = staticData.count || 0;\nconst limitReached = count >= DAILY_LIMIT;\n\nreturn [{ json: { ...item, limitReached, sentToday: count, dailyLimit: DAILY_LIMIT } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-limit",
+      "name": "Limit Reached?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1712,
+        -96
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.limitReached }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "wait-tomorrow",
+      "name": "Wait Until Tomorrow",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1936,
+        -176
+      ],
+      "parameters": {
+        "jsCode": "// Calculate seconds until midnight\nconst now = new Date();\nconst tomorrow = new Date(now);\ntomorrow.setDate(tomorrow.getDate() + 1);\ntomorrow.setHours(0, 0, 5, 0); // 12:00:05 AM\n\nconst secondsUntilTomorrow = Math.ceil((tomorrow - now) / 1000);\n\n// Reset counter for new day\nconst staticData = $getWorkflowStaticData('global');\nconst newDate = tomorrow.toISOString().split('T')[0];\nstaticData.date = newDate;\nstaticData.count = 0;\n\nreturn [{ json: { ...$input.first().json, waitSeconds: secondsUntilTomorrow, resumeAt: tomorrow.toISOString(), limitReached: false, sentToday: 0 } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "wait-node",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2160,
+        -176
+      ],
+      "webhookId": "89744166-74fb-40c6-9d7a-07bbca0e8efd",
+      "parameters": {
+        "amount": "={{ $json.waitSeconds }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "get-profile",
+      "name": "Get Profile",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2336,
+        -32
+      ],
+      "parameters": {
+        "url": "https://api.connectsafely.ai/linkedin/profile",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ profileId: $json.profileId }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kLeBNWzpktJl3IZ7",
+          "name": "Anandi API Key"
+        },
+        "httpHeaderAuth": {
+          "id": "0mnpo4vqBWfDkxZD",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "prepare-send",
+      "name": "Prepare & Filter",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1408,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const profile = $input.first().json;\nconst item = $('Loop').first().json;\n\n// Skip if competitor employee\nconst company = (profile.currentCompany || profile.headline || '').toLowerCase();\nif (company.includes(item.competitor)) {\n  return [{ json: { skip: true, reason: 'competitor_employee', profileId: item.profileId, name: item.name } }];\n}\n\n// Build message if enabled\nlet message = null;\nif (item.sendMessage && item.template) {\n  const firstName = profile.firstName || item.name?.split(' ')[0] || 'there';\n  message = item.template.replace('{firstName}', firstName);\n  if (message.length > 300) message = message.slice(0, 297) + '...';\n}\n\nreturn [{ json: { skip: false, profileId: item.profileId, name: item.name, firstName: profile.firstName, message } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-skip",
+      "name": "Should Send?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1664,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "not-skip",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": false
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-connection",
+      "name": "Send Connection",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1952,
+        208
+      ],
+      "parameters": {
+        "url": "https://api.connectsafely.ai/linkedin/connect",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ (() => { const b = {profileId: $json.profileId}; if($json.message) b.customMessage = $json.message; return JSON.stringify(b); })() }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kLeBNWzpktJl3IZ7",
+          "name": "Anandi API Key"
+        },
+        "httpHeaderAuth": {
+          "id": "0mnpo4vqBWfDkxZD",
+          "name": "Header Auth account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "log-increment",
+      "name": "Log & Increment",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2160,
+        208
+      ],
+      "parameters": {
+        "jsCode": "const res = $input.first().json;\nconst item = $('Loop').first().json;\nconst sent = res.success === true;\n\n// Increment daily counter if sent successfully\nif (sent) {\n  const staticData = $getWorkflowStaticData('global');\n  staticData.count = (staticData.count || 0) + 1;\n}\n\nreturn [{ json: { profileId: item.profileId, name: item.name, sent, error: res.error || null } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "wait-3s",
+      "name": "Wait 3s",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2320,
+        400
+      ],
+      "webhookId": "40ca502f-2dee-4f2a-8e0a-b8f59fe3ded3",
+      "parameters": {
+        "amount": 3
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "aggregate",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1952,
+        -448
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "results"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "summary",
+      "name": "Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2224,
+        -448
+      ],
+      "parameters": {
+        "jsCode": "const results = $input.first().json.results || [];\nconst sent = results.filter(r => r.sent).length;\nconst skipped = results.filter(r => r.skip).length;\nconst staticData = $getWorkflowStaticData('global');\n\nreturn [{ json: {\n  status: 'completed',\n  total: results.length,\n  sent,\n  skipped,\n  failed: results.length - sent - skipped,\n  dailyCountNow: staticData.count || 0,\n  results\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sticky-overview",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -336,
+        -464
+      ],
+      "parameters": {
+        "width": 594,
+        "height": 854,
+        "content": "## Competitor Poach - Auto Daily Limit\n\nAutomatically scrape LinkedIn post commenters and send connection requests with built-in daily limits and auto-scheduling.\n\n### Who is this for?\n- Sales teams targeting competitor audiences\n- Recruiters finding engaged professionals\n- Marketers building targeted networks\n\n### How it works\n1. Submit a LinkedIn post URL via the form\n2. Extracts all commenters (up to 500)\n3. Loops through each profile one-by-one\n4. Checks daily limit before each send\n5. If limit reached → waits until midnight → resumes\n6. Filters out competitor employees\n7. Sends personalized connection requests\n8. Returns summary when complete\n\n### Setup steps\n1. Add ConnectSafely.ai API credentials (Header Auth)\n2. Configure `dailyLimit` in Set Config node (default: 8)\n\n### Customization\n- Change `dailyLimit` in Set Config node\n- Modify message template in the form\n- Adjust `Wait 3s` for different rate limiting\n\n### Requirements\n- ConnectSafely.ai account with API access\n- n8n credentials: Header Auth type"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section1",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        304,
+        -192
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 702,
+        "height": 262,
+        "content": "## 1. Setup & Data Collection"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section2",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1168,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1358,
+        "height": 876,
+        "content": "## 2. Processing Loop with Daily Limit"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1856,
+        -560
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 650,
+        "height": 278,
+        "content": "## 3. Results & Response"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Loop": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary": {
+      "main": [
+        []
+      ]
+    },
+    "Wait 3s": {
+      "main": [
+        [
+          {
+            "node": "Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Config": {
+      "main": [
+        [
+          {
+            "node": "Get Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Limit": {
+      "main": [
+        [
+          {
+            "node": "Limit Reached?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Profile": {
+      "main": [
+        [
+          {
+            "node": "Prepare & Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Comments": {
+      "main": [
+        [
+          {
+            "node": "Extract Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Send?": {
+      "main": [
+        [
+          {
+            "node": "Send Connection",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 3s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit Reached?": {
+      "main": [
+        [
+          {
+            "node": "Wait Until Tomorrow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log & Increment": {
+      "main": [
+        [
+          {
+            "node": "Wait 3s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Connection": {
+      "main": [
+        [
+          {
+            "node": "Log & Increment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Profiles": {
+      "main": [
+        [
+          {
+            "node": "Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare & Filter": {
+      "main": [
+        [
+          {
+            "node": "Should Send?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Until Tomorrow": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Send LinkedIn connection requests to competitor post commenters via ConnectSafely.ai",
+    "wechat": "youandme10086",
+    "id": 13094,
+    "update_time": "2026-02-13"
+  }
+}

@@ -1,4 +1,4 @@
-# sell : 17
+# sell : 19
 
 |id|file|
 |----|----|
@@ -19,3 +19,5 @@
 |3874|[3874_Automate_SEO_Blog_Content_Creation_with_GPT-4__Perplexity_AI_and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/38/3874_Automate_SEO_Blog_Content_Creation_with_GPT-4__Perplexity_AI_and_WordPress.json)|
 |8099|[8099_Extract_Colombian_Invoice_Data_from_Drive_to_Sheets_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8099_Extract_Colombian_Invoice_Data_from_Drive_to_Sheets_with_GPT-4o.json)|
 |10141|[10141_Send_WooCommerce_Cross-Sell_Offers_to_Customers_via_WhatsApp_Using_Rapiwa_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10141_Send_WooCommerce_Cross-Sell_Offers_to_Customers_via_WhatsApp_Using_Rapiwa_API.json)|
+|12249|[12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json)|
+|12485|[12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# enrichment : 57
+# enrichment : 68
 
 |id|file|
 |----|----|
@@ -59,3 +59,14 @@
 |11070|[11070_Email_Verification_and_Enrichment_from_Google_Sheets_with_Hunter_and_Dropcontact.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11070_Email_Verification_and_Enrichment_from_Google_Sheets_with_Hunter_and_Dropcontact.json)|
 |11189|[11189_Find___Score_LinkedIn_Leads_with_GPT-4_AI_and_Export_to_Google_Sheets_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11189_Find___Score_LinkedIn_Leads_with_GPT-4_AI_and_Export_to_Google_Sheets_CRM.json)|
 |11371|[11371_Automate_Lead_Enrichment_with_Web_Scraping__GPT-4o__Airtable_and_Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11371_Automate_Lead_Enrichment_with_Web_Scraping__GPT-4o__Airtable_and_Slack_Notifications.json)|
+|11928|[11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json)|
+|11937|[11937_Automate_company_data_enrichment_with_HubSpot__Sona__OpenAI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11937_Automate_company_data_enrichment_with_HubSpot__Sona__OpenAI___Google_Sheets.json)|
+|12188|[12188_Automate_company_data_enrichment_with_HubSpot__Sona___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12188_Automate_company_data_enrichment_with_HubSpot__Sona___Google_Sheets.json)|
+|12310|[12310_Add_LinkedIn_post_commenters_to_HubSpot_CRM_with_Apify_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12310_Add_LinkedIn_post_commenters_to_HubSpot_CRM_with_Apify_enrichment.json)|
+|12343|[12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json)|
+|12699|[12699_Enrich_Google_Sheets_data_with_the_Tavily_Research_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12699_Enrich_Google_Sheets_data_with_the_Tavily_Research_API.json)|
+|12710|[12710_Enrich_B2B_leads_for_Attio_CRM_with_Apollo__LinkedIn__news_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12710_Enrich_B2B_leads_for_Attio_CRM_with_Apollo__LinkedIn__news_and_GPT-4o.json)|
+|12906|[12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json)|
+|12995|[12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json)|
+|12996|[12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json)|
+|13239|[13239_Enrich_IP_addresses_with_country_attribution_using_IPinfo_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13239_Enrich_IP_addresses_with_country_attribution_using_IPinfo_and_Slack_alerts.json)|

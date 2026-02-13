@@ -1,4 +1,4 @@
-# brand : 28
+# brand : 34
 
 |id|file|
 |----|----|
@@ -30,3 +30,9 @@
 |10617|[10617_Brand_DNA_Generator_Using_JotForm__Google_Search__Gemini_AI___Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10617_Brand_DNA_Generator_Using_JotForm__Google_Search__Gemini_AI___Notion.json)|
 |11080|[11080_Track_Daily_Brand_Mentions_from_Hacker_News_to_Slack_with_GPT-4o-mini_Sentiment_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11080_Track_Daily_Brand_Mentions_from_Hacker_News_to_Slack_with_GPT-4o-mini_Sentiment_Analysis.json)|
 |11808|[11808_Influencer_Brand_Safety_Auditor_with_Engagement_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11808_Influencer_Brand_Safety_Auditor_with_Engagement_Analysis.json)|
+|12057|[12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json)|
+|12101|[12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json)|
+|12221|[12221_Monitor_SSL_certificates_for_brand-impersonating_domains_with_crt.sh__Urlscan.io_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12221_Monitor_SSL_certificates_for_brand-impersonating_domains_with_crt.sh__Urlscan.io_and_Slack.json)|
+|12283|[12283_Monitor_brand_reputation_and_detect_crises_with_GPT-4__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12283_Monitor_brand_reputation_and_detect_crises_with_GPT-4__Slack_and_Gmail.json)|
+|12442|[12442_Analyze_brand_visibility_in_AI_SERPs_with_SE_Ranking_and_OpenAI_GPT-4.1_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12442_Analyze_brand_visibility_in_AI_SERPs_with_SE_Ranking_and_OpenAI_GPT-4.1_mini.json)|
+|12772|[12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json)|

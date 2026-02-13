@@ -1,4 +1,4 @@
-# aggregation : 5
+# aggregation : 9
 
 |id|file|
 |----|----|
@@ -7,3 +7,7 @@
 |9507|[9507_Insurance_News_Aggregation_Keyword_Analysis___Database_Storage_via_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9507_Insurance_News_Aggregation_Keyword_Analysis___Database_Storage_via_Supabase.json)|
 |10759|[10759_Real-time_IoT_Anomaly_Detection_with_MQTT__GPT-4o-mini_AI__and_Multi-channel_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10759_Real-time_IoT_Anomaly_Detection_with_MQTT__GPT-4o-mini_AI__and_Multi-channel_Alerts.json)|
 |11632|[11632_Automated_Product_Review_Monitoring_with_Sentiment_Analysis_via_Decodo__Gemini___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11632_Automated_Product_Review_Monitoring_with_Sentiment_Analysis_via_Decodo__Gemini___Telegram.json)|
+|11909|[11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json)|
+|12995|[12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json)|
+|12996|[12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json)|
+|13261|[13261_Multi-AI_Council_Research____GPT_5.2__Claude_Opus_4.6___Gemini_3_Pro_Aggregation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13261_Multi-AI_Council_Research____GPT_5.2__Claude_Opus_4.6___Gemini_3_Pro_Aggregation.json)|

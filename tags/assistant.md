@@ -1,4 +1,4 @@
-# assistant : 220
+# assistant : 229
 
 |id|file|
 |----|----|
@@ -222,3 +222,12 @@
 |11780|[11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json)|
 |11790|[11790_Analyze_LinkedIn_Content_Performance_with_OpenAI__Bright_Data_and_NocoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11790_Analyze_LinkedIn_Content_Performance_with_OpenAI__Bright_Data_and_NocoDB.json)|
 |11817|[11817_Manage_Notion_To-Do_Tasks_via_Telegram_with_Voice_Messages___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11817_Manage_Notion_To-Do_Tasks_via_Telegram_with_Voice_Messages___OpenAI.json)|
+|11912|[11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json)|
+|11990|[11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json)|
+|12097|[12097_Create_an_all-in-one_Discord_assistant_with_Gemini__Llama_Vision___Flux_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12097_Create_an_all-in-one_Discord_assistant_with_Gemini__Llama_Vision___Flux_images.json)|
+|12296|[12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json)|
+|12516|[12516_Manage_your_WooCommerce_store_with_OpenAI_and_MCP-powered_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12516_Manage_your_WooCommerce_store_with_OpenAI_and_MCP-powered_AI_assistant.json)|
+|12568|[12568_Build_a_Telegram_AI_assistant_with_MemMachine__OpenAI__and_voice_support.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12568_Build_a_Telegram_AI_assistant_with_MemMachine__OpenAI__and_voice_support.json)|
+|13064|[13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json)|
+|13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|
+|13309|[13309_Manage_Google_Calendar_via_Telegram_and_get_daily_AI_briefings__OpenAI___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13309_Manage_Google_Calendar_via_Telegram_and_get_daily_AI_briefings__OpenAI___Gemini.json)|

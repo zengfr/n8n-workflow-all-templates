@@ -1,4 +1,4 @@
-# qwen : 6
+# qwen : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |7661|[7661_Manage_Appian_Tasks_with_Ollama_Qwen_LLM_and_Postgres_Memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7661_Manage_Appian_Tasks_with_Ollama_Qwen_LLM_and_Postgres_Memory.json)|
 |9283|[9283_Compare_AI_Models_with_Nvidia_API__Qwen__DeepSeek__Seed-OSS___Nemotron.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9283_Compare_AI_Models_with_Nvidia_API__Qwen__DeepSeek__Seed-OSS___Nemotron.json)|
 |10314|[10314_Qwen-Max__Journal_Paper_Generation_from_Title_Abstract.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10314_Qwen-Max__Journal_Paper_Generation_from_Title_Abstract.json)|
+|12092|[12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json)|

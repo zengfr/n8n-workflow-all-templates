@@ -1,4 +1,4 @@
-# avatar : 17
+# avatar : 19
 
 |id|file|
 |----|----|
@@ -19,3 +19,5 @@
 |9251|[9251_Turn_TikTok_Comments_into_AI_Avatar_Videos_with_Dumpling_AI__GPT-4___Captions.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9251_Turn_TikTok_Comments_into_AI_Avatar_Videos_with_Dumpling_AI__GPT-4___Captions.ai.json)|
 |10642|[10642_Generate_AI_Video_Avatars_from_URLs_with_HeyGen__Gemini___Upload_to_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10642_Generate_AI_Video_Avatars_from_URLs_with_HeyGen__Gemini___Upload_to_Social_Media.json)|
 |11203|[11203_Generate_avatar_snippet_videos_from_Google_Sheets_scripts_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11203_Generate_avatar_snippet_videos_from_Google_Sheets_scripts_in_Google_Drive.json)|
+|11895|[11895_Generate_AI_avatar_videos_from_scripts_using_ElevenLabs_and_HeyGen.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11895_Generate_AI_avatar_videos_from_scripts_using_ElevenLabs_and_HeyGen.json)|
+|13024|[13024_Create_and_publish_AI_avatar_short_videos_with_Gemini__HeyGen_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13024_Create_and_publish_AI_avatar_short_videos_with_Gemini__HeyGen_and_Google_Sheets.json)|

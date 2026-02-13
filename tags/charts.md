@@ -1,4 +1,4 @@
-# charts : 6
+# charts : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |7997|[7997_Crypto_RSI_Alert_System_with_EODHD__Telegram_and_TradingView_Charts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7997_Crypto_RSI_Alert_System_with_EODHD__Telegram_and_TradingView_Charts.json)|
 |8443|[8443_Daily_Competitor_WordPress_Analysis_with_Charts__Gemini___Telegram_Reporting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8443_Daily_Competitor_WordPress_Analysis_with_Charts__Gemini___Telegram_Reporting.json)|
 |8697|[8697_Transform_Spreadsheet_Data_into_Smart_Charts_with_OpenAI__QuickChart___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8697_Transform_Spreadsheet_Data_into_Smart_Charts_with_OpenAI__QuickChart___Google_Drive.json)|
+|12289|[12289_Send_sales_forecast_charts_and_answer_Q_A_on_WhatsApp_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12289_Send_sales_forecast_charts_and_answer_Q_A_on_WhatsApp_with_OpenAI.json)|

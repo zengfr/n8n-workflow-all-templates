@@ -1,4 +1,4 @@
-# pipeline : 49
+# pipeline : 57
 
 |id|file|
 |----|----|
@@ -51,3 +51,11 @@
 |10292|[10292_Automate_Recruitment_with_GPT-4o-mini__CV_Screening_to_Interview_Scheduling_in_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10292_Automate_Recruitment_with_GPT-4o-mini__CV_Screening_to_Interview_Scheduling_in_Airtable.json)|
 |10759|[10759_Real-time_IoT_Anomaly_Detection_with_MQTT__GPT-4o-mini_AI__and_Multi-channel_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10759_Real-time_IoT_Anomaly_Detection_with_MQTT__GPT-4o-mini_AI__and_Multi-channel_Alerts.json)|
 |10896|[10896_Multi-Channel_Feedback_to_Jira_Pipeline_with_AI_Analysis___Notion_Reporting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10896_Multi-Channel_Feedback_to_Jira_Pipeline_with_AI_Analysis___Notion_Reporting.json)|
+|11910|[11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json)|
+|12177|[12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json)|
+|12268|[12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json)|
+|12383|[12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json)|
+|12838|[12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json)|
+|13065|[13065_Score_and_route_leads_with_Telegram_alerts_and_Box_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13065_Score_and_route_leads_with_Telegram_alerts_and_Box_storage.json)|
+|13116|[13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json)|
+|13192|[13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json)|

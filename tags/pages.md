@@ -1,4 +1,4 @@
-# pages : 20
+# pages : 22
 
 |id|file|
 |----|----|
@@ -22,3 +22,5 @@
 |10447|[10447_Generate___Deploy_Landing_Pages_with_GPT__Gemini_and_Vercel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10447_Generate___Deploy_Landing_Pages_with_GPT__Gemini_and_Vercel.json)|
 |11370|[11370_Generate_Branded_Word_Documents_with_Claude_AI_and_Json2Doc__up_to_20_Pages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11370_Generate_Branded_Word_Documents_with_Claude_AI_and_Json2Doc__up_to_20_Pages.json)|
 |11650|[11650_Automate_Lead_Processing_from_Landing_Pages_with_Zoho_CRM__Jira___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11650_Automate_Lead_Processing_from_Landing_Pages_with_Zoho_CRM__Jira___Slack.json)|
+|12237|[12237_Generate_stale_page_reports_for_Confluence_spaces_with_REST_API_v1_and_v2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12237_Generate_stale_page_reports_for_Confluence_spaces_with_REST_API_v1_and_v2.json)|
+|12238|[12238_Scan_Confluence_pages_with_the_REST_API_for_inactive_page_owners.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12238_Scan_Confluence_pages_with_the_REST_API_for_inactive_page_owners.json)|

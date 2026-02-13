@@ -1,0 +1,620 @@
+{
+  "name": "Smart Irrigation Scheduler with Weather Forecast and Soil Analysis",
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Daily Morning Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "webhook",
+      "name": "Manual Override Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "onError": "continueRegularOutput",
+      "position": [
+        0,
+        608
+      ],
+      "parameters": {
+        "path": "irrigation-check",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "merge_triggers",
+      "name": "Merge Triggers",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        256,
+        512
+      ],
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "set_zones",
+      "name": "Define Irrigation Zones",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        464,
+        512
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "[\n  {\"zone\": \"Front Garden\", \"lat\": \"35.6762\", \"lon\": \"139.6503\", \"plantType\": \"flowers\", \"soilType\": \"loam\", \"lastWatered\": \"2024-01-01\", \"waterThreshold\": 30},\n  {\"zone\": \"Vegetable Patch\", \"lat\": \"35.6762\", \"lon\": \"139.6503\", \"plantType\": \"vegetables\", \"soilType\": \"clay\", \"lastWatered\": \"2024-01-01\", \"waterThreshold\": 40},\n  {\"zone\": \"Lawn Area\", \"lat\": \"35.6762\", \"lon\": \"139.6503\", \"plantType\": \"grass\", \"soilType\": \"sandy\", \"lastWatered\": \"2024-01-01\", \"waterThreshold\": 25}\n]"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "split_zones",
+      "name": "Split Zones",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        656,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "="
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "get_current",
+      "name": "Get Current Weather",
+      "type": "n8n-nodes-base.openWeatherMap",
+      "position": [
+        912,
+        352
+      ],
+      "parameters": {
+        "latitude": "={{ $json.lat }}",
+        "longitude": "={{ $json.lon }}",
+        "locationSelection": "coordinates"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "get_forecast",
+      "name": "Get 5-Day Forecast",
+      "type": "n8n-nodes-base.openWeatherMap",
+      "position": [
+        912,
+        560
+      ],
+      "parameters": {
+        "latitude": "={{ $json.lat }}",
+        "longitude": "={{ $json.lon }}",
+        "operation": "5DayForecast",
+        "locationSelection": "coordinates"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "merge_weather",
+      "name": "Merge Weather Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1152,
+        464
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "analyze_conditions",
+      "name": "Analyze Irrigation Need",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1408,
+        464
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst zoneData = $('Split Zones').item.json;\nconst results = [];\n\nfor (const item of items) {\n  const current = item.json;\n  const temp = current.main?.temp || 20;\n  const humidity = current.main?.humidity || 50;\n  const clouds = current.clouds?.all || 0;\n  const windSpeed = current.wind?.speed || 0;\n  \n  // Check forecast for rain in next 24 hours\n  const forecastList = current.list || [];\n  const next24h = forecastList.slice(0, 8);\n  const rainExpected = next24h.some(f => \n    f.weather?.[0]?.main === 'Rain' || \n    f.weather?.[0]?.main === 'Drizzle' ||\n    (f.rain && f.rain['3h'] > 0)\n  );\n  const totalExpectedRain = next24h.reduce((sum, f) => sum + (f.rain?.['3h'] || 0), 0);\n  \n  // Calculate evapotranspiration estimate (simplified Penman)\n  const solarRadiation = (100 - clouds) / 100 * 20;\n  const evapotranspiration = (0.0023 * (temp + 17.8) * solarRadiation * 0.5).toFixed(2);\n  \n  // Soil moisture simulation based on last watered\n  const lastWatered = new Date(zoneData.lastWatered);\n  const daysSinceWater = Math.floor((Date.now() - lastWatered) / (1000 * 60 * 60 * 24));\n  const soilMoistureEstimate = Math.max(0, 100 - (daysSinceWater * 15) - (evapotranspiration * 5));\n  \n  // Plant water requirements\n  const plantNeeds = {\n    'flowers': { min: 40, ideal: 60, frequency: 2 },\n    'vegetables': { min: 50, ideal: 70, frequency: 1 },\n    'grass': { min: 30, ideal: 50, frequency: 3 },\n    'shrubs': { min: 35, ideal: 55, frequency: 4 }\n  };\n  const needs = plantNeeds[zoneData.plantType] || plantNeeds['flowers'];\n  \n  // Decision logic\n  let shouldWater = false;\n  let urgency = 'none';\n  let reason = '';\n  let waterAmount = 0;\n  \n  if (rainExpected && totalExpectedRain > 5) {\n    shouldWater = false;\n    reason = `Rain expected (${totalExpectedRain.toFixed(1)}mm in 24h) - skip watering`;\n  } else if (soilMoistureEstimate < needs.min) {\n    shouldWater = true;\n    urgency = 'high';\n    waterAmount = Math.round((needs.ideal - soilMoistureEstimate) * 0.5);\n    reason = `Soil moisture critically low (${soilMoistureEstimate.toFixed(0)}%)`;\n  } else if (soilMoistureEstimate < needs.ideal && temp > 25) {\n    shouldWater = true;\n    urgency = 'medium';\n    waterAmount = Math.round((needs.ideal - soilMoistureEstimate) * 0.3);\n    reason = `Hot day (${temp}°C) and moisture below ideal`;\n  } else if (daysSinceWater >= needs.frequency && !rainExpected) {\n    shouldWater = true;\n    urgency = 'low';\n    waterAmount = Math.round((needs.ideal - soilMoistureEstimate) * 0.2);\n    reason = `Scheduled watering (${daysSinceWater} days since last)`;\n  } else {\n    reason = `Adequate moisture (${soilMoistureEstimate.toFixed(0)}%) - no action needed`;\n  }\n  \n  // Best watering time\n  let bestTime = '06:00';\n  if (temp > 30) bestTime = '05:00';\n  if (windSpeed > 5) bestTime = '19:00';\n  \n  results.push({\n    json: {\n      zone: zoneData.zone,\n      plantType: zoneData.plantType,\n      soilType: zoneData.soilType,\n      currentConditions: {\n        temperature: temp,\n        humidity: humidity,\n        clouds: clouds,\n        windSpeed: windSpeed\n      },\n      analysis: {\n        soilMoistureEstimate: parseFloat(soilMoistureEstimate.toFixed(1)),\n        evapotranspiration: parseFloat(evapotranspiration),\n        daysSinceWater: daysSinceWater,\n        rainExpected: rainExpected,\n        expectedRainfall: parseFloat(totalExpectedRain.toFixed(1))\n      },\n      decision: {\n        shouldWater: shouldWater,\n        urgency: urgency,\n        waterAmount: waterAmount,\n        bestTime: bestTime,\n        reason: reason\n      },\n      timestamp: new Date().toISOString()\n    }\n  });\n}\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "filter_needs_water",
+      "name": "Filter Zones Needing Water",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1664,
+        464
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "water-check",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.decision.shouldWater }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "aggregate_zones",
+      "name": "Aggregate All Results",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1664,
+        656
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "generate_schedule",
+      "name": "Generate Irrigation Schedule",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1904,
+        464
+      ],
+      "parameters": {
+        "jsCode": "const zonesToWater = $input.all();\nconst allZones = $('Aggregate All Results').first().json.data;\n\nconst schedule = [];\nlet currentTime = 6 * 60; // Start at 6:00 AM in minutes\n\nfor (const item of zonesToWater) {\n  const zone = item.json;\n  const duration = Math.max(10, zone.decision.waterAmount * 2); // min 10 minutes\n  \n  const startHour = Math.floor(currentTime / 60);\n  const startMin = currentTime % 60;\n  const endTime = currentTime + duration;\n  const endHour = Math.floor(endTime / 60);\n  const endMin = endTime % 60;\n  \n  schedule.push({\n    zone: zone.zone,\n    plantType: zone.plantType,\n    urgency: zone.decision.urgency,\n    startTime: `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`,\n    endTime: `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`,\n    durationMinutes: duration,\n    waterAmount: zone.decision.waterAmount,\n    reason: zone.decision.reason\n  });\n  \n  currentTime = endTime + 5; // 5 min gap between zones\n}\n\nconst totalDuration = schedule.reduce((sum, s) => sum + s.durationMinutes, 0);\nconst totalWater = schedule.reduce((sum, s) => sum + s.waterAmount, 0);\n\n// Build report\nlet report = `🌱 **SMART IRRIGATION SCHEDULE**\\n`;\nreport += `📅 ${new Date().toISOString().split('T')[0]}\\n`;\nreport += `━━━━━━━━━━━━━━━━━━━━━━━━\\n\\n`;\n\nif (schedule.length === 0) {\n  report += `✅ No irrigation needed today!\\n\\n`;\n  report += `**Zone Status:**\\n`;\n  for (const z of allZones) {\n    report += `• ${z.zone}: ${z.decision.reason}\\n`;\n  }\n} else {\n  report += `**Today's Schedule (${schedule.length} zones):**\\n\\n`;\n  for (const s of schedule) {\n    const urgencyIcon = s.urgency === 'high' ? '🔴' : s.urgency === 'medium' ? '🟡' : '🟢';\n    report += `${urgencyIcon} **${s.zone}** (${s.plantType})\\n`;\n    report += `   ⏰ ${s.startTime} - ${s.endTime} (${s.durationMinutes} min)\\n`;\n    report += `   💧 ${s.waterAmount}L | ${s.reason}\\n\\n`;\n  }\n  report += `━━━━━━━━━━━━━━━━━━━━━━━━\\n`;\n  report += `📊 **Total:** ${totalDuration} min | ${totalWater}L estimated\\n`;\n}\n\nreturn [{\n  json: {\n    schedule: schedule,\n    summary: {\n      totalZones: schedule.length,\n      totalDuration: totalDuration,\n      totalWater: totalWater,\n      date: new Date().toISOString().split('T')[0]\n    },\n    allZoneStatus: allZones,\n    report: report,\n    hasIrrigation: schedule.length > 0\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "check_has_schedule",
+      "name": "Has Irrigation Tasks?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2160,
+        464
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-tasks",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.hasIrrigation }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "log_to_sheets",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2400,
+        240
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "send_iot_commands",
+      "name": "Send IoT Commands",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2400,
+        384
+      ],
+      "parameters": {
+        "url": "https://your-iot-hub.com/api/irrigation",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json.schedule) }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "notify_slack",
+      "name": "Send Slack Report",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2416,
+        80
+      ],
+      "parameters": {
+        "text": "={{ $json.report }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#garden"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "no_irrigation",
+      "name": "Log No Action",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2400,
+        544
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "status",
+              "type": "string",
+              "value": "No irrigation needed"
+            },
+            {
+              "id": "2",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "respond_webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2688,
+        464
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ {success: true, schedule: $json.schedule, summary: $json.summary} }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "sticky_main",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        96
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 480,
+        "height": 872,
+        "content": "## Smart Irrigation Scheduler with Weather Forecast and Soil Analysis\n\n**What this workflow does:**\nAutomatically determines optimal irrigation schedules based on weather forecasts, soil conditions, plant types, and evapotranspiration calculations. Prevents overwatering by checking rain forecasts and adjusts for hot/windy conditions.\n\n**Key Features:**\n- Multi-zone irrigation management\n- Weather-based decision making (rain forecast, temperature, wind)\n- Evapotranspiration calculation for accurate water needs\n- Plant-type specific watering requirements\n- Soil type consideration (clay, loam, sandy)\n- Urgency-based scheduling (high/medium/low priority)\n- IoT integration ready for smart valves\n- Historical logging for optimization\n\n**Who is this for:**\n- Home gardeners with smart irrigation systems\n- Commercial greenhouses and nurseries\n- Agricultural operations\n- Landscaping companies\n- Property managers with large grounds\n- Anyone wanting to conserve water while maintaining healthy plants\n\n**How to set up:**\n1. Configure your irrigation zones with coordinates\n2. Add OpenWeatherMap API credentials\n3. Set plant types and soil types per zone\n4. Connect to your IoT irrigation controller\n5. Configure Slack for notifications\n6. (Optional) Connect Google Sheets for logging\n\n**APIs Used:**\n- OpenWeatherMap API (current + forecast)\n- IoT Hub API (irrigation commands)\n- Slack API (notifications)\n- Google Sheets API (logging)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_step1",
+      "name": "Step 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 120,
+        "content": "### Step 1: Triggers & Zone Config\nDaily morning check at 6 AM plus manual webhook trigger. Define irrigation zones with coordinates, plant types, and soil conditions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_step2",
+      "name": "Step 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        848,
+        192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 120,
+        "content": "### Step 2: Weather Data Collection\nFetch current conditions and 5-day forecast from OpenWeatherMap for each zone. Checks temperature, humidity, wind, and rain probability."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_step3",
+      "name": "Step 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        288
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 120,
+        "content": "### Step 3: Irrigation Analysis\nCalculates evapotranspiration, estimates soil moisture, checks plant requirements, and determines if watering is needed with urgency level."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_step4",
+      "name": "Step 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2192,
+        736
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 120,
+        "content": "### Step 4: Schedule & Execute\nGenerates timed schedule, sends commands to IoT controllers, logs to Sheets, and notifies via Slack with detailed report."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Split Zones": {
+      "main": [
+        [
+          {
+            "node": "Get Current Weather",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get 5-Day Forecast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log No Action": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Triggers": {
+      "main": [
+        [
+          {
+            "node": "Define Irrigation Zones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send IoT Commands": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 5-Day Forecast": {
+      "main": [
+        [
+          {
+            "node": "Merge Weather Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Weather Data": {
+      "main": [
+        [
+          {
+            "node": "Analyze Irrigation Need",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Morning Check": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Weather": {
+      "main": [
+        [
+          {
+            "node": "Merge Weather Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate All Results": {
+      "main": [
+        [
+          {
+            "node": "Generate Irrigation Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Irrigation Tasks?": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send IoT Commands",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Slack Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log No Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Irrigation Need": {
+      "main": [
+        [
+          {
+            "node": "Filter Zones Needing Water",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate All Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define Irrigation Zones": {
+      "main": [
+        [
+          {
+            "node": "Split Zones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Override Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Filter Zones Needing Water": {
+      "main": [
+        [
+          {
+            "node": "Generate Irrigation Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Irrigation Schedule": {
+      "main": [
+        [
+          {
+            "node": "Has Irrigation Tasks?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Smart irrigation scheduler with weather forecast and soil analysis",
+    "wechat": "youandme10086",
+    "id": 11939,
+    "update_time": "2026-02-13"
+  }
+}

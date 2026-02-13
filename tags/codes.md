@@ -1,4 +1,4 @@
-# codes : 11
+# codes : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |9560|[9560_Automatically_Send_WhatsApp_Discount_Codes_to_Shopify_Customers_Using_Rapiwa.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9560_Automatically_Send_WhatsApp_Discount_Codes_to_Shopify_Customers_Using_Rapiwa.json)|
 |10130|[10130_Generate_Event_Badges_with_QR_Codes__HTMLCSStoImage__Gmail___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10130_Generate_Event_Badges_with_QR_Codes__HTMLCSStoImage__Gmail___Google_Sheets.json)|
 |10793|[10793_Automated_Press_Pass_Verification___Badge_Creation_with_QR_Codes___Multi-Channel_Distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10793_Automated_Press_Pass_Verification___Badge_Creation_with_QR_Codes___Multi-Channel_Distribution.json)|
+|12868|[12868_Extract_passport_data_with_OpenAI_OCR_and_generate_QR_codes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12868_Extract_passport_data_with_OpenAI_OCR_and_generate_QR_codes.json)|

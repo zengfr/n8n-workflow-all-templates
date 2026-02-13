@@ -1,4 +1,4 @@
-# import : 31
+# import : 32
 
 |id|file|
 |----|----|
@@ -33,3 +33,4 @@
 |9357|[9357_Daily_Import_Yesterday_s_Forex_Factory_Calendar_to_Google_Sheets_with_Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9357_Daily_Import_Yesterday_s_Forex_Factory_Calendar_to_Google_Sheets_with_Telegram_Alerts.json)|
 |9833|[9833_Import_Products_from_Google_Sheets_to_Shopify_with_Multi-Variant_Support.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9833_Import_Products_from_Google_Sheets_to_Shopify_with_Multi-Variant_Support.json)|
 |9946|[9946_Scrape___Import_Shoe_Products_to_Shopify_with_BrowserAct__with_Variants___Images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9946_Scrape___Import_Shoe_Products_to_Shopify_with_BrowserAct__with_Variants___Images.json)|
+|12358|[12358_Import_Faire_products_to_Shopify_using_BrowserAct__Gemini__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12358_Import_Faire_products_to_Shopify_using_BrowserAct__Gemini__and_Telegram.json)|

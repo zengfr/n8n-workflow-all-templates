@@ -1,4 +1,4 @@
-# bluesky : 10
+# bluesky : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |7074|[7074_Multi-Platform_Source_Discovery_with_SerpAPI__DuckDuckGo__GitHub__Reddit___Bluesky.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7074_Multi-Platform_Source_Discovery_with_SerpAPI__DuckDuckGo__GitHub__Reddit___Bluesky.json)|
 |7755|[7755_Article_to_Threaded_Bluesky_Posts_with_JinaAI_and_Gemini_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7755_Article_to_Threaded_Bluesky_Posts_with_JinaAI_and_Gemini_GPT.json)|
 |8538|[8538_Post_Long-Form_Threads_to_X___Twitter__Threads__and_Bluesky.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8538_Post_Long-Form_Threads_to_X___Twitter__Threads__and_Bluesky.json)|
+|12153|[12153_Schedule_BlueSky_posts_and_threads_using_Google_Sheets_as_content_calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12153_Schedule_BlueSky_posts_and_threads_using_Google_Sheets_as_content_calendar.json)|
+|12156|[12156_Track_BlueSky_post_engagement_metrics_in_Google_Sheets_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12156_Track_BlueSky_post_engagement_metrics_in_Google_Sheets_automatically.json)|
+|12159|[12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json)|
+|12634|[12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json)|

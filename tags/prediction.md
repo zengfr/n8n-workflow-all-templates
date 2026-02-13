@@ -1,4 +1,4 @@
-# prediction : 8
+# prediction : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |10624|[10624_Automate_Singapore_COE_Price_Analysis___Purchase_Timing_with_GLM-4.5_AI_Predictions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10624_Automate_Singapore_COE_Price_Analysis___Purchase_Timing_with_GLM-4.5_AI_Predictions.json)|
 |10888|[10888_Predict_F1_Race_Winners_with_OpenAI_GPT-4o__Historical_Data___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10888_Predict_F1_Race_Winners_with_OpenAI_GPT-4o__Historical_Data___Slack_Alerts.json)|
 |10891|[10891_Predict_and_Forecast_HDB_Flat_Prices_with_GPT-4o_and_Google_Sheets_Analytics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10891_Predict_and_Forecast_HDB_Flat_Prices_with_GPT-4o_and_Google_Sheets_Analytics.json)|
+|11977|[11977_Automate_customer_retention_with_AI_risk_prediction__Stripe_coupons___personalized_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11977_Automate_customer_retention_with_AI_risk_prediction__Stripe_coupons___personalized_Gmail.json)|
+|12195|[12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json)|
+|12197|[12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json)|

@@ -1,4 +1,4 @@
-# curate : 4
+# curate : 9
 
 |id|file|
 |----|----|
@@ -6,3 +6,8 @@
 |9769|[9769_Auto-Curate___Post_LinkedIn_Company_Page_using_RSS___Gemini_AI___Templated.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9769_Auto-Curate___Post_LinkedIn_Company_Page_using_RSS___Gemini_AI___Templated.io.json)|
 |10007|[10007_Curate_Learning_Content_from_Reddit___RSS_with_GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10007_Curate_Learning_Content_from_Reddit___RSS_with_GPT-4.1-mini_and_Google_Sheets.json)|
 |11549|[11549_Curate_Contributor-Friendly_Issues_with_AI_and_Send_GitHub_Newsletter_via_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11549_Curate_Contributor-Friendly_Issues_with_AI_and_Send_GitHub_Newsletter_via_Email.json)|
+|12349|[12349_Curate_daily_tech_news_for_Slack_and_Telegram_using_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12349_Curate_daily_tech_news_for_Slack_and_Telegram_using_BrowserAct_and_OpenRouter.json)|
+|12533|[12533_Curate_and_generate_an_AI_newsletter_from_RSS_feeds_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12533_Curate_and_generate_an_AI_newsletter_from_RSS_feeds_with_OpenAI_and_Slack.json)|
+|12589|[12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json)|
+|12634|[12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json)|
+|12714|[12714_Curate_and_send_weekly_AI_newsletters_with_Tavily__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12714_Curate_and_send_weekly_AI_newsletters_with_Tavily__Gemini__and_Gmail.json)|

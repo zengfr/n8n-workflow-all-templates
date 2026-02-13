@@ -1,4 +1,4 @@
-# newsletters : 12
+# newsletters : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |8266|[8266_Create_AI_Intelligence_Briefs_from_Newsletters_with_Gemini__Slack__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8266_Create_AI_Intelligence_Briefs_from_Newsletters_with_Gemini__Slack__and_Notion.json)|
 |9314|[9314_Create_Financial_Newsletters_with_Perplexity_Research__GPT_Drafting__and_Gmail_Approval_Flow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9314_Create_Financial_Newsletters_with_Perplexity_Research__GPT_Drafting__and_Gmail_Approval_Flow.json)|
 |10293|[10293_Multi-Agent_AI_Content_Creator_for_SEO_Blogs___Newsletters_with_OpenRouter__DALL-E__Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10293_Multi-Agent_AI_Content_Creator_for_SEO_Blogs___Newsletters_with_OpenRouter__DALL-E__Gemini.json)|
+|12714|[12714_Curate_and_send_weekly_AI_newsletters_with_Tavily__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12714_Curate_and_send_weekly_AI_newsletters_with_Tavily__Gemini__and_Gmail.json)|

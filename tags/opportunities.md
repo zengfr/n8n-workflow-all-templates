@@ -1,4 +1,4 @@
-# opportunities : 10
+# opportunities : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |9071|[9071_Find_internal_linking_opportunities_with_SerpAPI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9071_Find_internal_linking_opportunities_with_SerpAPI_and_Google_Sheets.json)|
 |9546|[9546_Generate_Business_Automation_Opportunities___ROI_Reports_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9546_Generate_Business_Automation_Opportunities___ROI_Reports_with_Claude_AI.json)|
 |11216|[11216_Find_low-competition_keyword_opportunities_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11216_Find_low-competition_keyword_opportunities_with_DataForSEO.json)|
+|12102|[12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json)|
+|12273|[12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json)|
+|12809|[12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json)|

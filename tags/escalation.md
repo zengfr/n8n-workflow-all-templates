@@ -1,4 +1,4 @@
-# escalation : 7
+# escalation : 13
 
 |id|file|
 |----|----|
@@ -9,3 +9,9 @@
 |10321|[10321_Facebook_Messenger_Chatbot_with_GPT-4.1___Human_Escalation_Support.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10321_Facebook_Messenger_Chatbot_with_GPT-4.1___Human_Escalation_Support.json)|
 |10539|[10539_Generate_Empathetic_Customer_Replies_with_Claude_AI_and_Auto-Escalation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10539_Generate_Empathetic_Customer_Replies_with_Claude_AI_and_Auto-Escalation.json)|
 |11697|[11697_AI-Powered_Bug_Triage_System_with_OpenAI__Jira_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11697_AI-Powered_Bug_Triage_System_with_OpenAI__Jira_and_Slack_Alerts.json)|
+|12113|[12113_Invoice_management_system_with_Gmail_reminders__Google_Sheets__and_Slack_escalations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12113_Invoice_management_system_with_Gmail_reminders__Google_Sheets__and_Slack_escalations.json)|
+|12205|[12205_Escalate_product_UAT_critical_bugs_with_OpenAI__Jira_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12205_Escalate_product_UAT_critical_bugs_with_OpenAI__Jira_and_Slack.json)|
+|12428|[12428_Triage_tenant_complaints_with_GPT-4.1__Slack__email_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12428_Triage_tenant_complaints_with_GPT-4.1__Slack__email_and_Google_Sheets.json)|
+|12687|[12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json)|
+|13178|[13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json)|
+|13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|

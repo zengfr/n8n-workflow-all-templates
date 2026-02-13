@@ -1,4 +1,4 @@
-# analyzer : 37
+# analyzer : 45
 
 |id|file|
 |----|----|
@@ -39,3 +39,11 @@
 |10826|[10826_Analyze_Social_Media_Sentiment___Trends_from_Twitter___Facebook_using_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10826_Analyze_Social_Media_Sentiment___Trends_from_Twitter___Facebook_using_GPT-4o.json)|
 |10913|[10913_Analyze_Call_Recordings_with_OpenAI_and_Update_Zoho_CRM_Leads_Automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10913_Analyze_Call_Recordings_with_OpenAI_and_Update_Zoho_CRM_Leads_Automatically.json)|
 |11411|[11411_AI-Powered_Viral_Trend_Analysis_for_TikTok_and_Instagram_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11411_AI-Powered_Viral_Trend_Analysis_for_TikTok_and_Instagram_with_GPT-4.json)|
+|12039|[12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json)|
+|12047|[12047_Generate_product_ideas_from_website_content_with_FireCrawl_and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12047_Generate_product_ideas_from_website_content_with_FireCrawl_and_GPT-4.1.json)|
+|12273|[12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json)|
+|12328|[12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json)|
+|12368|[12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json)|
+|12621|[12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json)|
+|12767|[12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json)|
+|12988|[12988_Analyze_global_supply_chain_sustainability_and_risk_with_GPT-4o_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12988_Analyze_global_supply_chain_sustainability_and_risk_with_GPT-4o_and_email_alerts.json)|

@@ -1,4 +1,4 @@
-# first : 18
+# first : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |9407|[9407_Auto-Personalized_First_Touch_for_New_Leads_using_GPT-4o-mini___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9407_Auto-Personalized_First_Touch_for_New_Leads_using_GPT-4o-mini___Google_Sheets.json)|
 |9764|[9764_Fast-track_CV_screening_with_AI_analysis_from_Gmail_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9764_Fast-track_CV_screening_with_AI_analysis_from_Gmail_to_Slack_and_Google_Sheets.json)|
 |10045|[10045_AI_Candidate_Screening_Pipeline__LinkedIn_to_Telegram_with_Gemini___Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10045_AI_Candidate_Screening_Pipeline__LinkedIn_to_Telegram_with_Gemini___Apify.json)|
+|12400|[12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json)|

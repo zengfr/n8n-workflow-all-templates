@@ -1,4 +1,4 @@
-# change : 10
+# change : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |9825|[9825_Automate_Change_Request_Workflow__Monday.com_to_Jira_with_Slack___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9825_Automate_Change_Request_Workflow__Monday.com_to_Jira_with_Slack___Sheets.json)|
 |11569|[11569_Generate_GitHub_Release_Notes_with_AI_Comparison.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11569_Generate_GitHub_Release_Notes_with_AI_Comparison.json)|
 |11606|[11606_Clone_and_change_your_voice____with_Elevenlabs_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11606_Clone_and_change_your_voice____with_Elevenlabs_and_Telegram.json)|
+|11966|[11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json)|
+|12242|[12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json)|
+|12902|[12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json)|

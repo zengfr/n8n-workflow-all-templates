@@ -1,4 +1,4 @@
-# guide : 7
+# guide : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |6323|[6323_Workflow_Error_Notifications_to_Slack_with_Multilingual_Setup_Guide.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6323_Workflow_Error_Notifications_to_Slack_with_Multilingual_Setup_Guide.json)|
 |8942|[8942_Automate_E-commerce_Return_Guides_with_Email_Verification___QR_Codes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8942_Automate_E-commerce_Return_Guides_with_Email_Verification___QR_Codes.json)|
 |9306|[9306_Beginner_s_Guide_to_Workflow_Automation_with_OpenAI__LangChain___API_Integrations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9306_Beginner_s_Guide_to_Workflow_Automation_with_OpenAI__LangChain___API_Integrations.json)|
+|12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|

@@ -1,4 +1,4 @@
-# resume : 42
+# resume : 44
 
 |id|file|
 |----|----|
@@ -44,3 +44,5 @@
 |11215|[11215_Automate_Job_Applications_with_AI_Resume_Tailoring_using_GPT-4o__LinkedIn___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11215_Automate_Job_Applications_with_AI_Resume_Tailoring_using_GPT-4o__LinkedIn___Gmail.json)|
 |11667|[11667_Batch_Resume_Analysis_with_Google_Gemini_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11667_Batch_Resume_Analysis_with_Google_Gemini_AI_and_Google_Sheets.json)|
 |11840|[11840_AI-Powered_Cover_Letter_Generator_with_Resume_Matching___Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11840_AI-Powered_Cover_Letter_Generator_with_Resume_Matching___Google_Docs.json)|
+|11912|[11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json)|
+|12014|[12014_Automate_job_search___resume_matching_with_LinkedIn__Gemini_AI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12014_Automate_job_search___resume_matching_with_LinkedIn__Gemini_AI___Google_Sheets.json)|

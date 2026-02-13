@@ -1,4 +1,4 @@
-# identify : 6
+# identify : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |5033|[5033_Compare_Lists_and_Identify_Common_Items___Differences_Using_Custom_Keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/50/5033_Compare_Lists_and_Identify_Common_Items___Differences_Using_Custom_Keys.json)|
 |5956|[5956_Discover_Trending_Topics_with_Bright_Data_MCP__GPT_Analysis___Trello_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/59/5956_Discover_Trending_Topics_with_Bright_Data_MCP__GPT_Analysis___Trello_Integration.json)|
 |6266|[6266_Fraudulent_Booking_Detector__Identify_Suspicious_Travel_Transactions_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/62/6266_Fraudulent_Booking_Detector__Identify_Suspicious_Travel_Transactions_with_Google_Gemini.json)|
+|11929|[11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json)|
+|12110|[12110_Discover_buying-intent_leads_on_Twitter_and_Instagram_with_GPT-4o-mini_and_send_summaries_to_Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12110_Discover_buying-intent_leads_on_Twitter_and_Instagram_with_GPT-4o-mini_and_send_summaries_to_Slack_and_Notion.json)|
+|12370|[12370_Identify_and_notify_WooCommerce_VIP_customers_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12370_Identify_and_notify_WooCommerce_VIP_customers_with_Airtable_and_Slack.json)|
+|12600|[12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json)|

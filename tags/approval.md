@@ -1,4 +1,4 @@
-# approval : 69
+# approval : 77
 
 |id|file|
 |----|----|
@@ -71,3 +71,11 @@
 |11526|[11526_Analyze_high-priority_tenders_from_Airtable_to_Slack_for_Go_No-Go_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11526_Analyze_high-priority_tenders_from_Airtable_to_Slack_for_Go_No-Go_approval.json)|
 |11638|[11638_Bulk_Auto-Publish_Videos_to_Social_Networks_with_AI_Copy_and_Client_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11638_Bulk_Auto-Publish_Videos_to_Social_Networks_with_AI_Copy_and_Client_Approval.json)|
 |11734|[11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json)|
+|12043|[12043_Schedule_interviews_and_send_GPT-4_reminders_with_Google_Calendar__Gmail__Slack_and_Recrutei.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12043_Schedule_interviews_and_send_GPT-4_reminders_with_Google_Calendar__Gmail__Slack_and_Recrutei.json)|
+|12070|[12070_Automate_employee_leave_approvals_with_GPT__Gmail___Calendar_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12070_Automate_employee_leave_approvals_with_GPT__Gmail___Calendar_integration.json)|
+|12128|[12128_Text-to-video_generator___social_media_publisher_with_Fal.ai_and_Telegram_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12128_Text-to-video_generator___social_media_publisher_with_Fal.ai_and_Telegram_approval.json)|
+|12419|[12419_Schedule_appointments_with_manual_approval_using_Google_Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12419_Schedule_appointments_with_manual_approval_using_Google_Calendar_and_Gmail.json)|
+|12755|[12755_Generate_and_post_Instagram_captions_with_Google_Drive__GPT-4.1-mini__Gmail_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12755_Generate_and_post_Instagram_captions_with_Google_Drive__GPT-4.1-mini__Gmail_and_Blotato.json)|
+|12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|
+|13216|[13216_Post_AI_news_to_Telegram_with_Google_Gemini_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13216_Post_AI_news_to_Telegram_with_Google_Gemini_and_human_approval.json)|
+|13301|[13301_Schedule_Facebook_posts_from_Google_Sheets_with_approval_and_Drive_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13301_Schedule_Facebook_posts_from_Google_Sheets_with_approval_and_Drive_images.json)|

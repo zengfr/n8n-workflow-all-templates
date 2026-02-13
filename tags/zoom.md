@@ -1,4 +1,4 @@
-# zoom : 23
+# zoom : 27
 
 |id|file|
 |----|----|
@@ -25,3 +25,7 @@
 |10104|[10104_Form_to_Meeting__Google_Calendar__Zoom__Gmail___Slack_Booking_Automation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10104_Form_to_Meeting__Google_Calendar__Zoom__Gmail___Slack_Booking_Automation.json)|
 |10747|[10747_Automate_Zoom_User_Onboarding_with_OAuth_Token_Management_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10747_Automate_Zoom_User_Onboarding_with_OAuth_Token_Management_and_Data_Tables.json)|
 |11593|[11593_Sync_Zoom_Webinar_Attendees_to_Mailchimp_with_Double_Opt-in_and_Email_Filtering.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11593_Sync_Zoom_Webinar_Attendees_to_Mailchimp_with_Double_Opt-in_and_Email_Filtering.json)|
+|12050|[12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json)|
+|12267|[12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json)|
+|12271|[12271_Schedule_and_track_interviews_using_Calendly__Zoom__Asana__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12271_Schedule_and_track_interviews_using_Calendly__Zoom__Asana__and_Gmail.json)|
+|12637|[12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json)|

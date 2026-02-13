@@ -1,4 +1,4 @@
-# smtp : 10
+# smtp : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |8173|[8173_Automate_LinkedIn_Job_Alerts_with_J-Search_API_and_SMTP_Email_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8173_Automate_LinkedIn_Job_Alerts_with_J-Search_API_and_SMTP_Email_Notifications.json)|
 |8508|[8508_Send_Personalized_Transactional_Emails_from_KlickTipp_via_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8508_Send_Personalized_Transactional_Emails_from_KlickTipp_via_SMTP.json)|
 |10634|[10634_Instant_CRM_Lead_Notifications_with_Gmail_SMTP_for_Teams___Auto-Responses.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10634_Instant_CRM_Lead_Notifications_with_Gmail_SMTP_for_Teams___Auto-Responses.json)|
+|12607|[12607_Monitor_SSL_certificate_expiry_with_Google_Sheets_and_SMTP_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12607_Monitor_SSL_certificate_expiry_with_Google_Sheets_and_SMTP_email_alerts.json)|
+|12696|[12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json)|
+|12982|[12982_Send_personalized_emails_from_Google_Sheets_via_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12982_Send_personalized_emails_from_Google_Sheets_via_SMTP.json)|

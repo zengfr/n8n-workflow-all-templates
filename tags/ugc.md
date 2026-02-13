@@ -1,4 +1,4 @@
-# ugc : 19
+# ugc : 20
 
 |id|file|
 |----|----|
@@ -21,3 +21,4 @@
 |10393|[10393_Create_UGC_Style_Product_Ad_Video_via_Telegram___Gemini___Kie.ai_s_Veo3.1_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10393_Create_UGC_Style_Product_Ad_Video_via_Telegram___Gemini___Kie.ai_s_Veo3.1_API.json)|
 |10514|[10514_Generate_UGC_Promo_Videos_with_OpenAI__Sora_2_and_Blotato_for_eCommerce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10514_Generate_UGC_Promo_Videos_with_OpenAI__Sora_2_and_Blotato_for_eCommerce.json)|
 |11710|[11710_Extend_and_Merge_UGC_Viral_Videos_Using_Kling_2.1__Then_Publish_on_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11710_Extend_and_Merge_UGC_Viral_Videos_Using_Kling_2.1__Then_Publish_on_Social_Media.json)|
+|12752|[12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json)|

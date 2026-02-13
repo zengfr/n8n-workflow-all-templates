@@ -1,4 +1,4 @@
-# validate : 28
+# validate : 37
 
 |id|file|
 |----|----|
@@ -30,3 +30,12 @@
 |10734|[10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json)|
 |11498|[11498_Validate_and_Score_Email_Addresses_with_ZeroBounce_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11498_Validate_and_Score_Email_Addresses_with_ZeroBounce_AI.json)|
 |11886|[11886_Create___Validate_Digital_Certificates_with_PDF_Generator_API_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11886_Create___Validate_Digital_Certificates_with_PDF_Generator_API_and_Gmail.json)|
+|11902|[11902_Validate___score_leads_with_ZeroBounce_AI_before_sending_Gmail_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11902_Validate___score_leads_with_ZeroBounce_AI_before_sending_Gmail_emails.json)|
+|11913|[11913_Validate_shipments___generate_freight_documents_with_GPT-4o__Google_Sheets___Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11913_Validate_shipments___generate_freight_documents_with_GPT-4o__Google_Sheets___Drive.json)|
+|12366|[12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json)|
+|13137|[13137_Validate_and_orchestrate_lawsuit_responses_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13137_Validate_and_orchestrate_lawsuit_responses_with_OpenAI_and_Google_Sheets.json)|
+|13153|[13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json)|
+|13156|[13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json)|
+|13157|[13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json)|
+|13215|[13215_Extract__validate__and_log_email_invoices_from_Gmail_to_Google_Sheets_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13215_Extract__validate__and_log_email_invoices_from_Gmail_to_Google_Sheets_with_GPT-4.json)|
+|13222|[13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json)|

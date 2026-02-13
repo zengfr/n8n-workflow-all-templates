@@ -1,4 +1,4 @@
-# human : 53
+# human : 58
 
 |id|file|
 |----|----|
@@ -55,3 +55,8 @@
 |11059|[11059_Automate_Lead_Response_with_GPT_and_Human_Approval_to_Airtable_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11059_Automate_Lead_Response_with_GPT_and_Human_Approval_to_Airtable_CRM.json)|
 |11285|[11285_SEO_Blog_Content_Automation_with_GPT-4o-mini_and_Human_Approval_in_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11285_SEO_Blog_Content_Automation_with_GPT-4o-mini_and_Human_Approval_in_Google_Docs.json)|
 |11648|[11648_AI_WhatsApp_Support_with_Human_Handoff_using_Gemini__Twilio__and_Supabase_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11648_AI_WhatsApp_Support_with_Human_Handoff_using_Gemini__Twilio__and_Supabase_RAG.json)|
+|11920|[11920_Smart_human_takeover___auto_pause_AI-powered_Facebook_Messenger_chatbot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11920_Smart_human_takeover___auto_pause_AI-powered_Facebook_Messenger_chatbot.json)|
+|12184|[12184_Multi-agent_LinkedIn_content_creation_with_GPT-4o__Google_Sheets__and_human_review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12184_Multi-agent_LinkedIn_content_creation_with_GPT-4o__Google_Sheets__and_human_review.json)|
+|12362|[12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json)|
+|13216|[13216_Post_AI_news_to_Telegram_with_Google_Gemini_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13216_Post_AI_news_to_Telegram_with_Google_Gemini_and_human_approval.json)|
+|13231|[13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json)|

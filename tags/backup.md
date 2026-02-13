@@ -1,4 +1,4 @@
-# backup : 65
+# backup : 69
 
 |id|file|
 |----|----|
@@ -67,3 +67,7 @@
 |9873|[9873_Automated_Rsync_Backup_with_Password_Auth___Alert_System.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9873_Automated_Rsync_Backup_with_Password_Auth___Alert_System.json)|
 |10725|[10725_Collect_API_User_Data_and_Store_in_Google_Sheets_with_CSV_backup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10725_Collect_API_User_Data_and_Store_in_Google_Sheets_with_CSV_backup.json)|
 |11842|[11842_Automated_Credentials_Backup_to_Google_Drive_via_SSH_and_Docker.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11842_Automated_Credentials_Backup_to_Google_Drive_via_SSH_and_Docker.json)|
+|12242|[12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json)|
+|12880|[12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json)|
+|13245|[13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json)|
+|13260|[13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json)|

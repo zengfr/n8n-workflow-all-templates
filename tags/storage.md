@@ -1,4 +1,4 @@
-# storage : 62
+# storage : 67
 
 |id|file|
 |----|----|
@@ -64,3 +64,8 @@
 |11445|[11445_Create_AI_Diary_Entries_from_LINE_Photos_with_OpenAI_Vision_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11445_Create_AI_Diary_Entries_from_LINE_Photos_with_OpenAI_Vision_and_Google_Drive.json)|
 |11454|[11454_Scrape_Yelp_Business_Data_with_Scrape.do_API___Google_Sheets_Storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11454_Scrape_Yelp_Business_Data_with_Scrape.do_API___Google_Sheets_Storage.json)|
 |11721|[11721_Poll_Multiple_Gmail_Accounts_with_Unified_Data_Table_Storage___Discord_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11721_Poll_Multiple_Gmail_Accounts_with_Unified_Data_Table_Storage___Discord_Notifications.json)|
+|11897|[11897_Convert_blog_posts_to_podcast_episodes_with_GPT-4o__ElevenLabs___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11897_Convert_blog_posts_to_podcast_episodes_with_GPT-4o__ElevenLabs___Google_Drive.json)|
+|12655|[12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json)|
+|12880|[12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json)|
+|13065|[13065_Score_and_route_leads_with_Telegram_alerts_and_Box_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13065_Score_and_route_leads_with_Telegram_alerts_and_Box_storage.json)|
+|13192|[13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json)|

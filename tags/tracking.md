@@ -1,4 +1,4 @@
-# tracking : 137
+# tracking : 149
 
 |id|file|
 |----|----|
@@ -139,3 +139,15 @@
 |11704|[11704_Automate_Stripe_Checkout_Sales_Tracking_in_RD_Station_Marketing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11704_Automate_Stripe_Checkout_Sales_Tracking_in_RD_Station_Marketing.json)|
 |11748|[11748_Generate_AI_Search_Visibility_Datasets_with_Claude_and_GPT_for_Tracking_Platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11748_Generate_AI_Search_Visibility_Datasets_with_Claude_and_GPT_for_Tracking_Platforms.json)|
 |11830|[11830_Auto-upload_Instagram_Videos_to_YouTube_with_GPT-4o_and_Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11830_Auto-upload_Instagram_Videos_to_YouTube_with_GPT-4o_and_Google_Sheets_Tracking.json)|
+|11921|[11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json)|
+|12036|[12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json)|
+|12050|[12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json)|
+|12078|[12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json)|
+|12353|[12353_Repurpose_Instagram_videos_to_YouTube_with_Claude_and_Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12353_Repurpose_Instagram_videos_to_YouTube_with_Claude_and_Google_Sheets_tracking.json)|
+|12524|[12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json)|
+|12687|[12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json)|
+|12688|[12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json)|
+|12741|[12741_Send_Stripe_invoice_reminders_with_GPT-4.1-mini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12741_Send_Stripe_invoice_reminders_with_GPT-4.1-mini__Google_Sheets_and_Slack.json)|
+|12802|[12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json)|
+|13152|[13152_Gamify_fitness_tracking_with_GPT-4o-mini_multi-agents_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13152_Gamify_fitness_tracking_with_GPT-4o-mini_multi-agents_and_Google_Sheets.json)|
+|13163|[13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json)|

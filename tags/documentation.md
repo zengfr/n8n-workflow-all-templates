@@ -1,4 +1,4 @@
-# documentation : 20
+# documentation : 22
 
 |id|file|
 |----|----|
@@ -22,3 +22,5 @@
 |10550|[10550_Score_SDK_Documentation_Localization_Readiness_with_Azure_GPT-4o-mini_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10550_Score_SDK_Documentation_Localization_Readiness_with_Azure_GPT-4o-mini_and_Slack_Alerts.json)|
 |11467|[11467_Automate_n8n_Workflow_Documentation_with_Google_Gemini_AI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11467_Automate_n8n_Workflow_Documentation_with_Google_Gemini_AI_and_Telegram.json)|
 |11780|[11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json)|
+|12173|[12173_Extract___organize_email_invoices_with_Gmail__Drive___OpenAI_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12173_Extract___organize_email_invoices_with_Gmail__Drive___OpenAI_GPT.json)|
+|12641|[12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json)|

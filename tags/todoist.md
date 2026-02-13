@@ -1,4 +1,4 @@
-# todoist : 16
+# todoist : 18
 
 |id|file|
 |----|----|
@@ -18,3 +18,5 @@
 |6133|[6133_Automated_Daily_Briefing_with_Todoist__Google_Calendar___GPT-4o_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6133_Automated_Daily_Briefing_with_Todoist__Google_Calendar___GPT-4o_via_Gmail.json)|
 |7938|[7938_Automatically_Triage___Improve_Todoist_Tasks_with_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7938_Automatically_Triage___Improve_Todoist_Tasks_with_GPT-4.1-mini.json)|
 |9564|[9564_Prioritize_Todoist_Tasks_with_OpenRouter_AI_and_Send_Daily_Summaries_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9564_Prioritize_Todoist_Tasks_with_OpenRouter_AI_and_Send_Daily_Summaries_to_Slack.json)|
+|12010|[12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json)|
+|12018|[12018_AI-powered_productivity_coach_using_Google_Calendar__Todoist__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12018_AI-powered_productivity_coach_using_Google_Calendar__Todoist__Slack_and_Sheets.json)|

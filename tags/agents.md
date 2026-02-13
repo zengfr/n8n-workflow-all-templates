@@ -1,4 +1,4 @@
-# agents : 102
+# agents : 108
 
 |id|file|
 |----|----|
@@ -104,3 +104,9 @@
 |11147|[11147_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11147_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json)|
 |11703|[11703_Google_Docs_MCP_Server___Read___Write_Access_for_Agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11703_Google_Docs_MCP_Server___Read___Write_Access_for_Agents.json)|
 |11728|[11728_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11728_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json)|
+|12504|[12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json)|
+|12508|[12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json)|
+|12651|[12651_Qualify_and_email_literary_agents_with_GPT_4.1__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12651_Qualify_and_email_literary_agents_with_GPT_4.1__Gmail_and_Google_Sheets.json)|
+|12834|[12834_AI_Agents_Generate_Content___Automate_Posting_for_Beauty_Salon_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12834_AI_Agents_Generate_Content___Automate_Posting_for_Beauty_Salon_Social_Media.json)|
+|12841|[12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json)|
+|13152|[13152_Gamify_fitness_tracking_with_GPT-4o-mini_multi-agents_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13152_Gamify_fitness_tracking_with_GPT-4o-mini_multi-agents_and_Google_Sheets.json)|

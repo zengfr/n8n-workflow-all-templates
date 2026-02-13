@@ -1,4 +1,4 @@
-# renewal : 7
+# renewal : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |10038|[10038_Automate_Facebook_Page_Token_Renewal_with_Data_Tables_Storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10038_Automate_Facebook_Page_Token_Renewal_with_Data_Tables_Storage.json)|
 |10147|[10147_Automate_Client_Renewal_Alerts_from_GoHighLevel_to_Gmail__Slack___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10147_Automate_Client_Renewal_Alerts_from_GoHighLevel_to_Gmail__Slack___Google_Sheets.json)|
 |11469|[11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json)|
+|13193|[13193_Send_subscription_renewal_reminders_via_Telegram_with_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13193_Send_subscription_renewal_reminders_via_Telegram_with_Supabase.json)|
+|13259|[13259_Send_subscription_renewal_reminders_with_Email_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13259_Send_subscription_renewal_reminders_with_Email_and_ClickUp.json)|

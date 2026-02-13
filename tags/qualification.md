@@ -1,4 +1,4 @@
-# qualification : 32
+# qualification : 34
 
 |id|file|
 |----|----|
@@ -34,3 +34,5 @@
 |10203|[10203_Smart_Lead_Qualification___Routing_from_Typeform_to_HubSpot_with_Data_Enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10203_Smart_Lead_Qualification___Routing_from_Typeform_to_HubSpot_with_Data_Enrichment.json)|
 |10745|[10745_Typeform_Lead_Qualification_with_Vero__Gmail__Google_Sheets___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10745_Typeform_Lead_Qualification_with_Vero__Gmail__Google_Sheets___Slack_Notifications.json)|
 |11598|[11598_AI-Powered_Lead_Qualification_with_Zoho_CRM__People_Data_Labs_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11598_AI-Powered_Lead_Qualification_with_Zoho_CRM__People_Data_Labs_and_Google_Gemini.json)|
+|12761|[12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json)|
+|12855|[12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json)|

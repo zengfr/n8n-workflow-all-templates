@@ -1,4 +1,4 @@
-# clone : 12
+# clone : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |8918|[8918_Create___Auto-Post_Instagram_Reels_with_AI_Clones__Script-to-Post__Heygen___Submagic___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8918_Create___Auto-Post_Instagram_Reels_with_AI_Clones__Script-to-Post__Heygen___Submagic___Blotato.json)|
 |11326|[11326_Create_AI_Personalized_Video___Voice_Outreach_with_HeyGen__ElevenLabs___Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11326_Create_AI_Personalized_Video___Voice_Outreach_with_HeyGen__ElevenLabs___Perplexity.json)|
 |11606|[11606_Clone_and_change_your_voice____with_Elevenlabs_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11606_Clone_and_change_your_voice____with_Elevenlabs_and_Telegram.json)|
+|13015|[13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json)|

@@ -1,4 +1,4 @@
-# all : 137
+# all : 141
 
 |id|file|
 |----|----|
@@ -139,3 +139,7 @@
 |8305|[8305_Automate_Everhour_Time-off_Sync_to_Google_Calendar_with_All-day_Events.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8305_Automate_Everhour_Time-off_Sync_to_Google_Calendar_with_All-day_Events.json)|
 |10137|[10137_Automate_SEO_Keyword___SERP_Analysis_with_DataForSEO_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10137_Automate_SEO_Keyword___SERP_Analysis_with_DataForSEO_and_Google_Sheets.json)|
 |11141|[11141_Complete_AI_Safety_Suite__Test_9_Guardrail_Layers_with_Groq_LLM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11141_Complete_AI_Safety_Suite__Test_9_Guardrail_Layers_with_Groq_LLM.json)|
+|12097|[12097_Create_an_all-in-one_Discord_assistant_with_Gemini__Llama_Vision___Flux_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12097_Create_an_all-in-one_Discord_assistant_with_Gemini__Llama_Vision___Flux_images.json)|
+|12882|[12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json)|
+|13134|[13134_Extract_Meta_Ads_detailed_targeting_across_all_endpoints_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13134_Extract_Meta_Ads_detailed_targeting_across_all_endpoints_using_Google_Sheets.json)|
+|13234|[13234_Extract_and_analyze___ALL_Facebook_post_comments_with_sentiment_AI_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13234_Extract_and_analyze___ALL_Facebook_post_comments_with_sentiment_AI_using_Gemini.json)|

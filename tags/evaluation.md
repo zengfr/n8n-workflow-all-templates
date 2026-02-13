@@ -1,4 +1,4 @@
-# evaluation : 27
+# evaluation : 29
 
 |id|file|
 |----|----|
@@ -29,3 +29,5 @@
 |10312|[10312_Automate_Peer_Review_Assignments_with_Sonar_Pro_AI___Multi-Channel_Deadline_Reminders.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10312_Automate_Peer_Review_Assignments_with_Sonar_Pro_AI___Multi-Channel_Deadline_Reminders.json)|
 |10501|[10501_Automated_Student_Answer_Sheet_Evaluation_with_Gemini_AI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10501_Automated_Student_Answer_Sheet_Evaluation_with_Gemini_AI_and_Google_Workspace.json)|
 |11618|[11618_Compare_GPT-4__Claude___Gemini_Responses_with_Contextual_AI_s_LMUnit_Evaluation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11618_Compare_GPT-4__Claude___Gemini_Responses_with_Contextual_AI_s_LMUnit_Evaluation.json)|
+|12268|[12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json)|
+|13316|[13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json)|

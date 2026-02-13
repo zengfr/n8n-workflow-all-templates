@@ -1,0 +1,367 @@
+{
+  "id": "m9yW05QYXgU6wi6b",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Moderate Facebook comments with AI and send reports to Slack & Telegram",
+    "wechat": "youandme10086",
+    "id": 12028,
+    "update_time": "2026-02-13"
+  },
+  "name": "Facebook Page Comment Moderation Scoreboard → Telegram Team Report",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "275e5629-a9b6-48bc-9000-b4bace41e843",
+      "name": "Scheduled Workflow Trigger",
+      "type": "n8n-nodes-base.cron",
+      "position": [
+        848,
+        -160
+      ],
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3c144fd8-c4f3-4fa7-8558-a65fa2132647",
+      "name": "Fetch Facebook Page Comments",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1072,
+        -160
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v22.0/{{ Your Page ID}}/comments",
+        "options": {}
+      },
+      "typeVersion": 4,
+      "continueOnFail": true
+    },
+    {
+      "id": "60480f09-55bd-48b6-b7e2-a7e325cd8de3",
+      "name": "Prepare Comment Items for Processing",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1296,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a39975f1-36e6-49cd-87fe-557cd8b60a41",
+      "name": "AI-Based Comment Moderation",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1520,
+        -160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "content": "=Analyze the following Facebook comment.\n\nFacebook comment text:\n\"{{$json.message}}\"\n\nReturn STRICT JSON in this exact format:\n\n{\n  \"comment_text\": \"original comment text exactly as provided\",\n  \"intent\": \"positive | neutral | negative\",\n  \"toxicity_score\": 0-100,\n  \"spam\": true | false,\n  \"bad_words\": true | false,\n  \"summary\": \"short explanation\"\n}\n\nRules:\n- comment_text MUST be exactly the same as the input comment text\n- intent:\n  - positive = praise, support, appreciation\n  - neutral = informational or unclear intent\n  - negative = complaint, hate, abuse, accusation\n- toxicity_score:\n  - 0 = completely safe\n  - 100 = extreme abuse or hate\n- spam = true if promotional, repetitive, scam-like\n- bad_words = true if profanity, hate, or abusive words are present\n"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3888dee5-bfbf-45cf-8bf1-e1ca8edfaa06",
+      "name": "Normalize AI Moderation Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1872,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "function cleanJson(text) {\n  return text\n    .replace(/```json/gi, '')\n    .replace(/```/g, '')\n    .trim();\n}\n\nconst results = [];\n\nfor (const item of items) {\n  const outputBlock = item.json.output?.[0];\n  const aiText = outputBlock?.content?.[0]?.text;\n\n  if (!aiText) continue;\n\n  let ai;\n  try {\n    ai = JSON.parse(cleanJson(aiText));\n  } catch (e) {\n    throw new Error('Invalid AI JSON: ' + aiText);\n  }\n\n  results.push({\n    json: {\n      comment_id: outputBlock.id,                \n      comment_text: ai.comment_text,              \n      intent: ai.intent,\n      toxicity_score: ai.toxicity_score,\n      spam: ai.spam,\n      bad_words: ai.bad_words,\n      flagged:\n        ai.toxicity_score > 60 ||\n        ai.spam === true ||\n        ai.bad_words === true,\n      summary: ai.summary,\n      comment_created_at: new Date().toISOString()\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "75ebefde-22d3-4ad9-8bc6-ecd8e9f4b04c",
+      "name": "Store Moderation Logs in Database",
+      "type": "n8n-nodes-base.supabase",
+      "position": [
+        2096,
+        -160
+      ],
+      "parameters": {
+        "tableId": "facebook_comment_moderation",
+        "dataToSend": "autoMapInputData"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b4016ae0-bf6f-4f2b-b466-a6d1fe726717",
+      "name": "Aggregate Moderation Statistics",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2320,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst stats = {\n  total: items.length,\n  positive: 0,\n  neutral: 0,\n  negative: 0,\n  flagged: 0,\n  spam: 0,\n  toxic: 0,\n  samples: []\n};\n\nfor (const item of items) {\n  const data = item.json;\n\n  if (data.intent === 'positive') stats.positive++;\n  if (data.intent === 'neutral') stats.neutral++;\n  if (data.intent === 'negative') stats.negative++;\n\n  if (data.flagged) {\n    stats.flagged++;\n    if (stats.samples.length < 5) {\n      stats.samples.push(`• ${data.comment_text}`);\n    }\n  }\n\n  if (data.spam) stats.spam++;\n  if (data.toxicity_score > 60) stats.toxic++;\n}\n\n// Build Slack-friendly message (mrkdwn)\nconst slackMessage = `\n *Facebook Comment Moderation Report*\n\n *Last Run Summary*\n\n• *Total Comments:* ${stats.total}\n• *Positive:* ${stats.positive}\n• *Neutral:* ${stats.neutral}\n• *Negative:* ${stats.negative}\n\n *Flags*\n• *Flagged:* ${stats.flagged}\n• *Toxic:* ${stats.toxic}\n• *Spam:* ${stats.spam}\n\n *Flagged Comment Samples*\n${stats.samples.length ? stats.samples.join('\\n') : 'None'}\n`.trim();\n\n// IMPORTANT: Slack node expects ONE item\nreturn [\n  {\n    json: {\n      ...stats,\n      slack_message: slackMessage\n    }\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d06b0dbc-3ae5-47ae-974b-9986dfc116fa",
+      "name": "Send Moderation Reports to Telegarm",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2544,
+        -256
+      ],
+      "webhookId": "20de9c4d-7b9d-4d1f-8cdb-d91f3b3c1625",
+      "parameters": {
+        "text": "={{ $json.slack_message }}",
+        "chatId": "=5758325294",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66638b05-d21a-4fac-be3f-fbef515ef4af",
+      "name": "Send Moderation Reports to Team via Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2544,
+        -64
+      ],
+      "webhookId": "ea2fb3d7-1c32-495a-9b4d-911ef105367c",
+      "parameters": {
+        "text": "={{ $json.slack_message }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C09S57E2JQ2",
+          "cachedResultName": "n8n"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "4333d5c6-d906-4442-b468-49df5a772352",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 480,
+        "content": "# Workflow Trigger & Data Collection\n \n## Description\nThis section automatically triggers the workflow every six hours and fetches recent comments from the Facebook Page. It ensures the workflow runs on a schedule and collects fresh comment data that will be processed and analyzed in the following steps."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d90b1e1a-69d2-4176-b5ee-0d9856355188",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        -448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 544,
+        "height": 480,
+        "content": "# Comment Preparation & AI Moderation\n \n## Description\n### This section prepares Facebook comments into individual items and sends each comment to OpenAI for moderation. The AI analyzes intent, toxicity, spam, and abusive language, returning structured moderation results for further processing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e793df6-0494-44be-87f4-8dfb62429da1",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1808,
+        -464
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 496,
+        "content": "# Normalize, Flag & Store Results\n \n## Description\n### This section cleans and normalizes the AI moderation output, calculates whether a comment should be flagged, and stores the final moderation data in Supabase. It creates a reliable database record for reporting, auditing, and historical analysis."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e57d791f-5e00-486d-b4a5-98007f2974d2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2272,
+        -544
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 656,
+        "content": "# Aggregate Statistics & Team Notifications\n \n## Description\n### This section aggregates all moderated comments into meaningful statistics, including totals, flagged counts, spam, and toxicity. It then sends a clear moderation summary to Slack and Telegram, keeping the team informed without requiring them to access the workflow or database."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "30948ae8-8780-4042-aabc-86ff5886a8b8",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -192,
+        -688
+      ],
+      "parameters": {
+        "width": 928,
+        "height": 720,
+        "content": "# How it works.\n\n### This workflow automatically monitors comments from a Facebook Page and turns them into a clear moderation report for your team. Every six hours, the workflow fetches the latest comments and processes each one individually.\n### Each comment is sent to OpenAI, which analyzes the message to understand its intent (positive, neutral, or negative), detect toxicity, identify spam, and check for abusive language. The AI returns structured moderation results for every comment.\n### These results are then cleaned and standardized, and a “flagged” status is calculated based on toxicity, spam, or bad words. All moderated comments are stored in a Supabase database so you can keep a history of comment behavior over time.\n###  Finally, the workflow aggregates all results into a summary report, showing totals, intent breakdowns, flagged comments, and sample problem messages. This summary is sent to Slack and Telegram so the team can quickly review comment health without opening dashboards or logs.\n\n# Setup Steps \n\n### 1. Configure the **Cron trigger** to control how often the workflow runs.\n### 2. Add your **Facebook Page access token** to the HTTP Request node.\n### 3. Connect an **OpenAI API key** for comment moderation.\n### 4. Set up a **Supabase table** to store moderation results.\n### 5. Configure **Slack and Telegram credentials** and choose the target channels.\n### 6. Activate the workflow and monitor incoming reports.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "853f3fff-aa5f-4a01-847f-62dcecbbc48e",
+  "connections": {
+    "Scheduled Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Facebook Page Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI-Based Comment Moderation": {
+      "main": [
+        [
+          {
+            "node": "Normalize AI Moderation Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Facebook Page Comments": {
+      "main": [
+        [
+          {
+            "node": "Prepare Comment Items for Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Moderation Statistics": {
+      "main": [
+        [
+          {
+            "node": "Send Moderation Reports to Team via Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Moderation Reports to Telegarm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize AI Moderation Results": {
+      "main": [
+        [
+          {
+            "node": "Store Moderation Logs in Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Moderation Logs in Database": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Moderation Statistics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Comment Items for Processing": {
+      "main": [
+        [
+          {
+            "node": "AI-Based Comment Moderation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Moderation Reports to Team via Slack": {
+      "main": [
+        []
+      ]
+    }
+  }
+}

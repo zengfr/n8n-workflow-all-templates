@@ -1,4 +1,4 @@
-# job : 89
+# job : 99
 
 |id|file|
 |----|----|
@@ -91,3 +91,13 @@
 |10256|[10256_Automate_Job_Searching___Resume_Customization_with_Mistral_AI__LinkedIn___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10256_Automate_Job_Searching___Resume_Customization_with_Mistral_AI__LinkedIn___Google_Sheets.json)|
 |11215|[11215_Automate_Job_Applications_with_AI_Resume_Tailoring_using_GPT-4o__LinkedIn___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11215_Automate_Job_Applications_with_AI_Resume_Tailoring_using_GPT-4o__LinkedIn___Gmail.json)|
 |11835|[11835_Track_Certification_Requirement_Changes_with_ScrapeGraphAI__GitHub_and_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11835_Track_Certification_Requirement_Changes_with_ScrapeGraphAI__GitHub_and_Email.json)|
+|12014|[12014_Automate_job_search___resume_matching_with_LinkedIn__Gemini_AI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12014_Automate_job_search___resume_matching_with_LinkedIn__Gemini_AI___Google_Sheets.json)|
+|12040|[12040_Launch_job_vacancies_from_ATS_to_Google_Calendar__ClickUp_and_LinkedIn_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12040_Launch_job_vacancies_from_ATS_to_Google_Calendar__ClickUp_and_LinkedIn_with_GPT-4o.json)|
+|12157|[12157_Automate_job_applicant_screening_with_GPT-4__Gmail___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12157_Automate_job_applicant_screening_with_GPT-4__Gmail___Google_Sheets.json)|
+|12179|[12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json)|
+|12323|[12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json)|
+|12684|[12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json)|
+|12779|[12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json)|
+|12838|[12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json)|
+|13077|[13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json)|
+|13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|

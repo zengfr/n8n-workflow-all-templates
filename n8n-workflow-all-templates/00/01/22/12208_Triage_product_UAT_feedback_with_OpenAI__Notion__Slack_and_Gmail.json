@@ -1,0 +1,714 @@
+{
+  "id": "Zbx84joCbOubzYI3",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Triage product UAT feedback with OpenAI, Notion, Slack and Gmail",
+    "wechat": "youandme10086",
+    "id": 12208,
+    "update_time": "2026-02-13"
+  },
+  "name": "Product UAT Feedback → AI Triage + Notion Upsert + Closed Loop",
+  "tags": [
+    {
+      "id": "bX1tZbypCr5HBJMz",
+      "name": "product management",
+      "createdAt": "2025-11-20T18:06:00.432Z",
+      "updatedAt": "2025-11-20T18:06:00.432Z"
+    },
+    {
+      "id": "rYuINsb3Y1XjrgNv",
+      "name": "Productivity",
+      "createdAt": "2025-08-02T17:36:49.812Z",
+      "updatedAt": "2025-08-02T17:36:49.812Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "0fc12b8d-cdd0-4bdb-bde3-387055f7f6d9",
+      "name": "trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        496,
+        -192
+      ],
+      "webhookId": "0c47919b-ae34-4016-b11b-ff84c49c036e",
+      "parameters": {
+        "path": "0c47919b-ae34-4016-b11b-ff84c49c036e",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "0a104598-da2c-4843-bd69-beae42d58027",
+      "name": "normalize",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const input = $json || {};\n\nconst source = input.source || input.uat?.source || \"webhook\";\nconst testerName = input.tester_name || input.tester?.name || input.uat?.tester_name || \"\";\nconst testerEmail = input.tester_email || input.tester?.email || input.uat?.tester_email || \"\";\nconst messageRaw = input.message || input.text || input.feedback || input.uat?.message_raw || \"\";\nconst buildVersion = input.build_version || input.uat?.build_version || \"unknown\";\nconst pageUrl = input.page_url || input.uat?.page_url || \"\";\nconst screenshotUrl = input.screenshot_url || input.uat?.screenshot_url || \"\";\n\nreturn {\n  uat: {\n    source,\n    tester_name: testerName,\n    tester_email: testerEmail,\n    message_raw: messageRaw,\n    build_version: buildVersion,\n    page_url: pageUrl,\n    screenshot_url: screenshotUrl,\n    received_at: new Date().toISOString(),\n  },\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8d100868-818d-49ea-88ba-9cdad7edf0b2",
+      "name": "parsing and validation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1600,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Try multiple possible fields depending on node output\nconst raw =\n  $json.output ||\n  $json.text ||\n  $json.message ||\n  ($json.response?.text) ||\n  ($json.data?.[0]?.content) ||\n  ($json.response?.[0]?.message?.content) ||\n\n  \"\";\n\nlet triage;\nlet parseOk = true;\n\ntry {\n  triage = JSON.parse(raw);\n} catch (e) {\n  parseOk = false;\n  triage = {\n    sentiment: \"Negative\",\n    type: \"Noise\",\n    severity: \"Minor\",\n    summary: \"AI response could not be parsed as JSON.\",\n    components: [\"other\"],\n    repro_steps: [],\n    suggested_title: \"UAT feedback (manual triage)\",\n    confidence: 0,\n  };\n}\n\n// Normalize + validate\nconst allowedType = [\"CriticalBug\", \"UXImprovement\", \"FeatureRequest\", \"Noise\"];\nif (!allowedType.includes(triage.type)) triage.type = \"Noise\";\n\nconst allowedSeverity = [\"Blocker\", \"Critical\", \"Major\", \"Minor\"];\nif (!allowedSeverity.includes(triage.severity)) triage.severity = \"Minor\";\n\nconst allowedSentiment = [\"Positive\", \"Negative\"];\nif (!allowedSentiment.includes(triage.sentiment)) triage.sentiment = \"Negative\";\n\ntriage.confidence = Math.max(0, Math.min(1, Number(triage.confidence ?? 0)));\n\nreturn {\n  ...$json,\n  triage: {\n    ...triage,\n    parse_ok: parseOk,\n  },\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4fd7632f-c669-4515-aace-a5ac06294387",
+      "name": "double check",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        1856,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $json.triage.suggested_title || $json.triage.summary }}",
+        "options": {},
+        "operation": "search"
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "credential-id",
+          "name": "notionApi Credential"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1cc8d2a9-1d9f-4e1d-ad28-28e97d0e10e1",
+      "name": "tester email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3280,
+        128
+      ],
+      "webhookId": "db680b3f-c183-4905-a23b-595d36a00582",
+      "parameters": {
+        "sendTo": "={{ $json.uat.tester_email }}",
+        "message": "={{ $json.reply.body }}",
+        "options": {},
+        "subject": "={{ $json.reply.subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "gmailOAuth2 Credential"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "77c7b891-56d5-4b69-9072-5abab50994d7",
+      "name": "slack tester",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3280,
+        -96
+      ],
+      "webhookId": "b6fc28b8-8bca-44b5-a9ea-08e8c7cb0904",
+      "parameters": {
+        "text": "={{ $json.reply.body }}",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U09UKKK9R25",
+          "cachedResultName": "analyticsn8n"
+        },
+        "select": "user",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "credential-id",
+          "name": "slackOAuth2Api Credential"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "98f87f71-882a-4503-ba4a-c54f9a8c191e",
+      "name": "clean text",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const msg = $json.uat?.message_raw || \"\";\n\nconst cleaned = msg\n  .replace(/<[^>]*>/g, \" \")\n  .replace(/\\s+/g, \" \")\n  .trim()\n  .slice(0, 3000);\n\nreturn {\n  ...$json,\n  uat: {\n    ...$json.uat,\n    message_clean: cleaned,\n  },\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7f3bddf4-10f7-407c-88ff-b80ded7f81c0",
+      "name": "if found",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2048,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4735e31c-1ba2-4dc7-ade6-3f00759efa49",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "=={{ ($json.results || $json.data || []).length }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e1fb44fa-36db-48ec-9254-7610b6ef00d9",
+      "name": "compose reply branch 2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2704,
+        16
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "64412928-6923-44ac-95bb-9325504b8fa5",
+              "name": "reply.subject",
+              "type": "string",
+              "value": "UAT feedback received — Feature request logged"
+            },
+            {
+              "id": "bff73169-e5d9-4248-bf2c-9aedf09db542",
+              "name": "reply.body",
+              "type": "string",
+              "value": "=Hi {{ $json.uat.tester_name }},\\n\\nThanks for the feature request!\\n\\n\\\"{{ $json.triage.summary }}\\\"\\n\\nWe've added it to our roadmap backlog for the product team to review.\\n\\nBest,\\nThe Team"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2821b3e2-049e-4bb9-92fa-7a6786f9cc61",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -752
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 1328,
+        "content": "## How it works\n\nThis workflow automates Product UAT feature request triage using AI and Notion.\n\nWhen feedback is submitted via a webhook, the workflow normalizes and cleans the input into a consistent, AI-ready structure. An AI model analyzes the feedback to classify its type, generate a short summary and suggested title, and assign a confidence score.\n\nFor feature requests, the workflow searches an existing Notion database to prevent duplicates. If a matching entry exists, it is updated; otherwise, a new roadmap item is created.\n\nFinally, the workflow notifies the tester via Slack or email and responds to the original webhook with a structured status payload, ensuring full traceability."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa17f050-d8e4-4efb-9e0e-396bb3064560",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        -752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 768,
+        "height": 1328,
+        "content": "## Ingestion & Normalization\n\nReceives feedback via webhook and standardizes fields (tester, build, page, message) into a consistent uat.* structure, then cleans the message for AI processing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5b741f6b-b52b-4566-9ad9-fa79a040d744",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        -752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 1328,
+        "content": "## AI Triage\n\nUses an AI model to classify feedback (type, severity, summary, title, confidence) and outputs structured JSON for automation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "54678c3b-9143-4497-a20c-753b0ffbcd23",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1792,
+        -752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1056,
+        "height": 1328,
+        "content": "## Notion Dedupe & Upsert\n\nSearches Notion by suggested title to avoid duplicates. If found → update the existing page. If not → create a new roadmap/backlog entry."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "70bebf34-35cd-4e0a-bd56-196973db9357",
+      "name": "Webhook response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        3584,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "responseKey": "={   \"status\": \"received\",   \"type\": \"{{ $json.triage.type }}\",   \"severity\": \"{{ $json.triage.severity }}\",   \"confidence\": \"{{ $json.triage.confidence }}\" }",
+          "responseCode": 200
+        },
+        "respondWith": "allIncomingItems"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "48d97351-e626-4e38-af1d-7bb0ee515e0e",
+      "name": "how to contact",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2992,
+        16
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8433c8f3-bdaf-4c64-af3c-7c091e51b8cc",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.uat.source }}",
+              "rightValue": "slack"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0ebec36c-a116-4f1d-9530-548dd855ab8e",
+      "name": "update notion database",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        2368,
+        -96
+      ],
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "=youridpage.com"
+        },
+        "options": {},
+        "resource": "databasePage",
+        "operation": "update"
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "credential-id",
+          "name": "notionApi Credential"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c1776c0f-1be6-4b8e-a991-504e67b87001",
+      "name": "create notion database",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        2368,
+        128
+      ],
+      "parameters": {
+        "title": "Add Roadmap Idea",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "=Title = suggested_title\n\nSummary\n\nComponent(s)\n\nBuild version\n\nTester\n\nSource\n\n“Status” = New\n\n“Impact”"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "2b311ca2-096c-8049-a5ab-de07d643edca",
+          "cachedResultUrl": "https://www.notion.so/",
+          "cachedResultName": "2b311ca2-096c-8049-a5ab-de07d643edca"
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "credential-id",
+          "name": "notionApi Credential"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "49b40fff-f358-478e-8b95-6e938125d164",
+      "name": "AI agent",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1296,
+        0
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.2",
+          "cachedResultName": "GPT-5.2"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "content": "=Analyze this UAT feedback and return ONLY JSON.\n\nContext:\n- build_version: {{ $json.uat.build_version }}\n- page_url: {{ $json.uat.page_url }}\n- screenshot_url: {{ $json.uat.screenshot_url }}\n\nFeedback:\n{{ $json.uat.message_clean }}\n\nJSON schema (strict):\n{\n  \"sentiment\": \"Positive|Negative\",\n  \"type\": \"CriticalBug|UXImprovement|FeatureRequest|Noise\",\n  \"severity\": \"Blocker|Critical|Major|Minor\",\n  \"summary\": \"string (max 160 chars)\",\n  \"components\": [\"string\"],\n  \"repro_steps\": [\"string\"],\n  \"suggested_title\": \"string (max 80 chars)\",\n  \"confidence\": 0.0\n}\n\nRules:\n- If the user reports something broken, crash, data loss, payment failure, login failure => type=CriticalBug and severity at least Critical.\n- If unclear or not actionable => type=Noise, confidence <= 0.5\n- repro_steps should be empty array if not inferable.\n- components: choose from [login, onboarding, checkout, search, profile, settings, performance, ui, api, other].\n"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "openAiApi Credential"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "948e4e18-efad-48e9-9be1-dd86d8d640be",
+      "name": "data merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        704,
+        0
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "b27f36b3-c980-4114-99e3-636368065ecf",
+      "name": "data mapping",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        496,
+        192
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0346a94c-9b3c-4317-8085-ea2505521edf",
+              "name": "cfg.jiraProjectKey",
+              "type": "string",
+              "value": "UAT"
+            },
+            {
+              "id": "caf9cd84-2d85-4faa-bd7b-c7e240bf6c7f",
+              "name": "cfg.jiraIssueTypeBug",
+              "type": "string",
+              "value": "Bug"
+            },
+            {
+              "id": "da76905d-3985-4eae-88da-b705580e38c6",
+              "name": "cfg.slackChannelEng",
+              "type": "string",
+              "value": "#eng-uat"
+            },
+            {
+              "id": "c96cb9ed-66db-463d-a7a8-145d1cc3c9d9",
+              "name": "cfg.slackChannelPm",
+              "type": "string",
+              "value": "#product-uat"
+            },
+            {
+              "id": "1c3b1959-e21a-487e-b121-3662b8914819",
+              "name": "cfg.sheetIdDigest",
+              "type": "string",
+              "value": "YourID"
+            },
+            {
+              "id": "059b436b-a29b-4991-a72e-c8bd4b844722",
+              "name": "cfg.manualReviewEmail",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "25dbf28f-db8a-4a49-9cbf-587276851c61",
+              "name": "cfg.confidenceThreshold",
+              "type": "number",
+              "value": 0.6
+            },
+            {
+              "id": "745af86b-f13d-4ead-a322-ab4e2473e3d6",
+              "name": "cfg.dedupeEnabled",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "dd5c4b90-2919-4d15-8768-913c9b5ae62e",
+              "name": "cfg.llmProvider",
+              "type": "string",
+              "value": "openai"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b3605c3d-e2f3-4265-94bd-232caa190e16",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        -752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 1328,
+        "content": "## Closed Loop\n\nSends a confirmation to the tester (Slack DM or email) and responds to the original webhook with status + triage metadata."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8a685080-dee8-44e1-9c88-8fbaea2bb2ee",
+  "connections": {
+    "trigger": {
+      "main": [
+        [
+          {
+            "node": "data merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI agent": {
+      "main": [
+        [
+          {
+            "node": "parsing and validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if found": {
+      "main": [
+        [
+          {
+            "node": "update notion database",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "create notion database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize": {
+      "main": [
+        [
+          {
+            "node": "clean text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "clean text": {
+      "main": [
+        [
+          {
+            "node": "AI agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "data merge": {
+      "main": [
+        [
+          {
+            "node": "normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "data mapping": {
+      "main": [
+        [
+          {
+            "node": "data merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "double check": {
+      "main": [
+        [
+          {
+            "node": "if found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "slack tester": {
+      "main": [
+        [
+          {
+            "node": "Webhook response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tester email": {
+      "main": [
+        [
+          {
+            "node": "Webhook response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "how to contact": {
+      "main": [
+        [
+          {
+            "node": "slack tester",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "tester email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "compose reply branch 2": {
+      "main": [
+        [
+          {
+            "node": "how to contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create notion database": {
+      "main": [
+        [
+          {
+            "node": "compose reply branch 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parsing and validation": {
+      "main": [
+        [
+          {
+            "node": "double check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update notion database": {
+      "main": [
+        [
+          {
+            "node": "compose reply branch 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

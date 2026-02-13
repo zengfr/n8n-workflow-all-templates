@@ -1,4 +1,4 @@
-# academic : 12
+# academic : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |9282|[9282_Extracts_and_organizes_academic_publications_using_GPT-4_Mini__Google_Sheets__Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9282_Extracts_and_organizes_academic_publications_using_GPT-4_Mini__Google_Sheets__Gmail.json)|
 |9966|[9966_Telegram_Research_Assistant_for_Academic_Papers_Using_Gemini_AI_and_Decodo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9966_Telegram_Research_Assistant_for_Academic_Papers_Using_Gemini_AI_and_Decodo.json)|
 |9994|[9994_Automated_Academic_Paper_Metadata___Variable_Extraction_with_Gemini_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9994_Automated_Academic_Paper_Metadata___Variable_Extraction_with_Gemini_to_Google_Sheets.json)|
+|12730|[12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json)|
+|13156|[13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json)|

@@ -1,4 +1,4 @@
-# outreach : 86
+# outreach : 96
 
 |id|file|
 |----|----|
@@ -88,3 +88,13 @@
 |11448|[11448_Automated_B2B_Lead_Management_and_AI_Outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11448_Automated_B2B_Lead_Management_and_AI_Outreach.json)|
 |11517|[11517_Automate_Champion_Migration_Detection___Personalized_Outreach_with_Explorium___Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11517_Automate_Champion_Migration_Detection___Personalized_Outreach_with_Explorium___Claude.json)|
 |11647|[11647_Automated_LinkedIn_Lead_Generation___AI_Personalized_Outreach_with_Apollo___Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11647_Automated_LinkedIn_Lead_Generation___AI_Personalized_Outreach_with_Apollo___Instantly.json)|
+|11921|[11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json)|
+|11965|[11965_Create_personalized_Loom_video_scripts_from_Upwork_jobs_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11965_Create_personalized_Loom_video_scripts_from_Upwork_jobs_with_Claude_AI.json)|
+|12339|[12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json)|
+|12459|[12459_Discover_LinkedIn_leads_and_draft_outreach_using_Apify__Google_Sheets__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12459_Discover_LinkedIn_leads_and_draft_outreach_using_Apify__Google_Sheets__and_Gemini.json)|
+|12810|[12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json)|
+|12855|[12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json)|
+|12915|[12915_Manage_LinkedIn_outreach_sequences_with_Linked_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12915_Manage_LinkedIn_outreach_sequences_with_Linked_API_and_Google_Sheets.json)|
+|13029|[13029_Send_LinkedIn_outreach_messages_using_Google_Sheets_and_SourceGeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13029_Send_LinkedIn_outreach_messages_using_Google_Sheets_and_SourceGeek.json)|
+|13119|[13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json)|
+|13172|[13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json)|

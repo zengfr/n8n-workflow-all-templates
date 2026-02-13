@@ -1,4 +1,4 @@
-# cv : 25
+# cv : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |10101|[10101_AI_Recruiter___Analyze_Multiple_CVs_vs_Job_Description_using_OpenAI_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10101_AI_Recruiter___Analyze_Multiple_CVs_vs_Job_Description_using_OpenAI_GPT.json)|
 |10292|[10292_Automate_Recruitment_with_GPT-4o-mini__CV_Screening_to_Interview_Scheduling_in_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10292_Automate_Recruitment_with_GPT-4o-mini__CV_Screening_to_Interview_Scheduling_in_Airtable.json)|
 |10359|[10359_Automate_CV_Screening_and_Candidate_Scoring_with_Gemini_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10359_Automate_CV_Screening_and_Candidate_Scoring_with_Gemini_AI_and_Google_Sheets.json)|
+|12779|[12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json)|
+|12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|

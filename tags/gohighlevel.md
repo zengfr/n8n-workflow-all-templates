@@ -1,4 +1,4 @@
-# gohighlevel : 16
+# gohighlevel : 18
 
 |id|file|
 |----|----|
@@ -18,3 +18,5 @@
 |10325|[10325_Automate_Inactive_Deal_Cleanup_from_GoHighLevel_to_Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10325_Automate_Inactive_Deal_Cleanup_from_GoHighLevel_to_Slack_and_Sheets.json)|
 |11408|[11408_Lead_Scoring___Auto-Assignment_with_GPT-4_and_GoHighLevel___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11408_Lead_Scoring___Auto-Assignment_with_GPT-4_and_GoHighLevel___Slack_Alerts.json)|
 |11535|[11535_Extract_Meeting_Tasks_from_Google_Docs_to_GoHighLevel_CRM_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11535_Extract_Meeting_Tasks_from_Google_Docs_to_GoHighLevel_CRM_with_GPT-4.json)|
+|12745|[12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json)|
+|13136|[13136_Sync_Fathom_meeting_summaries_and_action_items_with_GoHighLevel_contacts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13136_Sync_Fathom_meeting_summaries_and_action_items_with_GoHighLevel_contacts.json)|

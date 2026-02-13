@@ -1,4 +1,4 @@
-# logging : 36
+# logging : 41
 
 |id|file|
 |----|----|
@@ -38,3 +38,8 @@
 |10602|[10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json)|
 |10993|[10993_Expense_Logging_with_Telegram_to_Google_Sheets_using_AI_Voice___Text_Parsing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10993_Expense_Logging_with_Telegram_to_Google_Sheets_using_AI_Voice___Text_Parsing.json)|
 |11220|[11220_Automated_Failed_Login_Detection_with_Jira_Tasks__Slack_Alerts___Notion_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11220_Automated_Failed_Login_Detection_with_Jira_Tasks__Slack_Alerts___Notion_Logging.json)|
+|11945|[11945_Detect_WooCommerce_return_surges_in_real-time_with_Slack_alerts___Airtable_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11945_Detect_WooCommerce_return_surges_in_real-time_with_Slack_alerts___Airtable_logging.json)|
+|12223|[12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json)|
+|12871|[12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json)|
+|12901|[12901_Send_a_daily_WooCommerce_sales_snapshot_to_Slack_with_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12901_Send_a_daily_WooCommerce_sales_snapshot_to_Slack_with_Google_Sheets_logging.json)|
+|13091|[13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json)|

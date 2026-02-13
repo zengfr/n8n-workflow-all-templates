@@ -1,4 +1,4 @@
-# project : 25
+# project : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |10230|[10230_Add_Project_Tasks_to_Google_Sheets_with_GPT-4.1-mini_Chat_Assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10230_Add_Project_Tasks_to_Google_Sheets_with_GPT-4.1-mini_Chat_Assistant.json)|
 |10713|[10713_Telegram_to_Google_Drive__Auto_Upload___Track_Videos_with_Gemini_AI_Assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10713_Telegram_to_Google_Drive__Auto_Upload___Track_Videos_with_Gemini_AI_Assistant.json)|
 |11863|[11863_Intelligent_Project_Delivery_and_Task_Management_System.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11863_Intelligent_Project_Delivery_and_Task_Management_System.json)|
+|12298|[12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json)|
+|12567|[12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json)|

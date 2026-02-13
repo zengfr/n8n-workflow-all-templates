@@ -1,4 +1,4 @@
-# log : 40
+# log : 51
 
 |id|file|
 |----|----|
@@ -42,3 +42,14 @@
 |10602|[10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json)|
 |11280|[11280_Create_Daily_Trivia_Icebreakers_in_Slack_with_OpenTDB___Google_Sheets_Log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11280_Create_Daily_Trivia_Icebreakers_in_Slack_with_OpenTDB___Google_Sheets_Log.json)|
 |11488|[11488_Monitor_Zoho_CRM_Changes___Alert_on_Suspicious_Activity_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11488_Monitor_Zoho_CRM_Changes___Alert_on_Suspicious_Activity_with_Google_Sheets.json)|
+|12151|[12151_Log_daily_Interactive_Brokers_trades_to_a_Google_Sheets_journal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12151_Log_daily_Interactive_Brokers_trades_to_a_Google_Sheets_journal.json)|
+|12223|[12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json)|
+|12376|[12376_Log_failed_WooCommerce_orders_to_Airtable_and_send_OpenAI-powered_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12376_Log_failed_WooCommerce_orders_to_Airtable_and_send_OpenAI-powered_Slack_alerts.json)|
+|12422|[12422_Add_MailPoet_subscribers_from_WordPress_forms_via_TWZ_plugin_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12422_Add_MailPoet_subscribers_from_WordPress_forms_via_TWZ_plugin_and_log_to_Google_Sheets.json)|
+|12502|[12502_Analyze_failed_workflows_with_Claude_via_OpenRouter_and_log_to_Sheets_with_Slack__Email__Discord_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12502_Analyze_failed_workflows_with_Claude_via_OpenRouter_and_log_to_Sheets_with_Slack__Email__Discord_alerts.json)|
+|12575|[12575_Analyze_contract_risk_from_Google_Drive_with_OpenAI_and_log_to_Gmail___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12575_Analyze_contract_risk_from_Google_Drive_with_OpenAI_and_log_to_Gmail___Sheets.json)|
+|12656|[12656_Log_farm_machinery_operations_from_a_webhook_into_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12656_Log_farm_machinery_operations_from_a_webhook_into_Google_Sheets.json)|
+|12767|[12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json)|
+|12880|[12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json)|
+|13198|[13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json)|
+|13215|[13215_Extract__validate__and_log_email_invoices_from_Gmail_to_Google_Sheets_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13215_Extract__validate__and_log_email_invoices_from_Gmail_to_Google_Sheets_with_GPT-4.json)|

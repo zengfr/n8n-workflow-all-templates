@@ -1,4 +1,4 @@
-# binance : 17
+# binance : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |8614|[8614_Access_Real-time_Binance_Market_Data_with_GPT-4o_Formatting_in_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8614_Access_Real-time_Binance_Market_Data_with_GPT-4o_Formatting_in_Telegram.json)|
 |11396|[11396_Monitor_Bitcoin_Arbitrage_Between_Binance___Upbit_with_GPT_Analysis___Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11396_Monitor_Bitcoin_Arbitrage_Between_Binance___Upbit_with_GPT_Analysis___Email.json)|
 |11426|[11426_Daily_Crypto_Yield_Monitor__Track_Top_Binance_Earn_APY_Rates_with_Earnings_Calculator.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11426_Daily_Crypto_Yield_Monitor__Track_Top_Binance_Earn_APY_Rates_with_Earnings_Calculator.json)|
+|13011|[13011_Analyze_Binance_Futures_markets_with_TA_indicators__OpenAI_news_checks__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13011_Analyze_Binance_Futures_markets_with_TA_indicators__OpenAI_news_checks__and_Telegram_alerts.json)|

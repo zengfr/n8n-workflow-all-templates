@@ -1,4 +1,4 @@
-# ad : 36
+# ad : 42
 
 |id|file|
 |----|----|
@@ -38,3 +38,9 @@
 |10427|[10427_Analyze_Facebook_Ads___Send_Insights_to_Google_Sheets_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10427_Analyze_Facebook_Ads___Send_Insights_to_Google_Sheets_with_Gemini_AI.json)|
 |11163|[11163_Generate_100__Ad_Variations_from_One_Image_with_Fal.AI_Nano_Banana_and_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11163_Generate_100__Ad_Variations_from_One_Image_with_Fal.AI_Nano_Banana_and_GPT-5.json)|
 |11205|[11205_Generate_Marketing_Ad_Banners_with_LINE__Gemini__and_Nano_Banana_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11205_Generate_Marketing_Ad_Banners_with_LINE__Gemini__and_Nano_Banana_Pro.json)|
+|12091|[12091_Monitor_ad_performance_drops_with_Meta___Google_Ads___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12091_Monitor_ad_performance_drops_with_Meta___Google_Ads___multi-channel_alerts.json)|
+|12223|[12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12223_Receive_Meta_Ads_ad_account_webhooks__log_to_Sheets__and_alert_in_Slack.json)|
+|12352|[12352_Monitor_competitor_ad_activity_via_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12352_Monitor_competitor_ad_activity_via_Telegram_with_BrowserAct_and_Gemini.json)|
+|12854|[12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json)|
+|13015|[13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json)|
+|13222|[13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json)|

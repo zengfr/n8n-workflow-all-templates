@@ -1,4 +1,4 @@
-# gitlab : 19
+# gitlab : 24
 
 |id|file|
 |----|----|
@@ -21,3 +21,8 @@
 |7985|[7985_Detect_Unused_Android_Feature_Flags_with_GitLab__LaunchDarkly__Jira___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7985_Detect_Unused_Android_Feature_Flags_with_GitLab__LaunchDarkly__Jira___Slack.json)|
 |8042|[8042_Version_Control_n8n_Workflows_in_GitLab_with_Customer_Tag_Organization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8042_Version_Control_n8n_Workflows_in_GitLab_with_Customer_Tag_Organization.json)|
 |9458|[9458_Daily_Workflow_Backup_to_GitLab_with_Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9458_Daily_Workflow_Backup_to_GitLab_with_Slack_Notifications.json)|
+|11941|[11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json)|
+|12056|[12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json)|
+|12154|[12154_Automatically_track_certification_changes_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12154_Automatically_track_certification_changes_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json)|
+|12234|[12234_Track_certification_requirements_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12234_Track_certification_requirements_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json)|
+|12394|[12394_Generate_your_GitLab_year-in-review_wrapped_report_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12394_Generate_your_GitLab_year-in-review_wrapped_report_automatically.json)|

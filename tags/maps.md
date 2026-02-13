@@ -1,4 +1,4 @@
-# maps : 55
+# maps : 62
 
 |id|file|
 |----|----|
@@ -57,3 +57,10 @@
 |11381|[11381_Monitor_Google_Maps_Reviews_with_GPT-4o_Sentiment_Analysis___Telegram_RAG_Agent_using_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11381_Monitor_Google_Maps_Reviews_with_GPT-4o_Sentiment_Analysis___Telegram_RAG_Agent_using_Pinecone.json)|
 |11456|[11456_Scrape___Track_Dentist_Leads_from_Google_Maps_with_ScrapeOps__Sheets___Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11456_Scrape___Track_Dentist_Leads_from_Google_Maps_with_ScrapeOps__Sheets___Notifications.json)|
 |11622|[11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json)|
+|11924|[11924_Generate_scored_B2B_leads_from_Google_Maps_websites_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11924_Generate_scored_B2B_leads_from_Google_Maps_websites_to_Google_Sheets.json)|
+|12632|[12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json)|
+|12672|[12672_Generate_and_enrich_Google_Maps_leads_with_Apify__Hunter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12672_Generate_and_enrich_Google_Maps_leads_with_Apify__Hunter_and_Google_Sheets.json)|
+|12920|[12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json)|
+|12937|[12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json)|
+|12956|[12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json)|
+|12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|

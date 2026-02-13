@@ -1,4 +1,4 @@
-# booking : 46
+# booking : 49
 
 |id|file|
 |----|----|
@@ -48,3 +48,6 @@
 |11247|[11247_Track_Calendly_Schedule_Changes_with_Google_Sheets___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11247_Track_Calendly_Schedule_Changes_with_Google_Sheets___Slack_Notifications.json)|
 |11253|[11253_Generate_Single-Use_Personalized_Calendly_Links_with_Google_Sheets_Tracking___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11253_Generate_Single-Use_Personalized_Calendly_Links_with_Google_Sheets_Tracking___Slack_Alerts.json)|
 |11672|[11672_Transform_Airbnb_Listings_into_Custom_Direct_Booking_Sites_with_Netlify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11672_Transform_Airbnb_Listings_into_Custom_Direct_Booking_Sites_with_Netlify.json)|
+|12063|[12063_Sync_AI-enriched_TimeRex_bookings_to_Google_Sheets_and_Slack_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12063_Sync_AI-enriched_TimeRex_bookings_to_Google_Sheets_and_Slack_with_Gemini.json)|
+|12745|[12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json)|
+|12831|[12831_Book__manage__and_check_appointments_using_Vapi_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12831_Book__manage__and_check_appointments_using_Vapi_and_Google_Calendar.json)|

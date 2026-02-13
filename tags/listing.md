@@ -1,4 +1,4 @@
-# listing : 8
+# listing : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |5878|[5878_Automate_Real_Estate_Listing_Scraper_with_Scrapeless_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/58/5878_Automate_Real_Estate_Listing_Scraper_with_Scrapeless_and_Google_Sheets.json)|
 |6280|[6280_Revive_Expired_Real_Estate_Listings_with_OpenAI_and_Gmail_Follow-ups.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/62/6280_Revive_Expired_Real_Estate_Listings_with_OpenAI_and_Gmail_Follow-ups.json)|
 |8236|[8236_Crypto_Exchange_Listing___Delisting_Alerts_to_Telegram__X__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8236_Crypto_Exchange_Listing___Delisting_Alerts_to_Telegram__X__and_Discord.json)|
+|11927|[11927_Automate_commercial_real_estate_monitoring_with_ScrapeGraphAI__Notion_and_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11927_Automate_commercial_real_estate_monitoring_with_ScrapeGraphAI__Notion_and_Mailchimp.json)|
+|12233|[12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json)|

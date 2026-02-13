@@ -1,4 +1,4 @@
-# sms : 45
+# sms : 50
 
 |id|file|
 |----|----|
@@ -47,3 +47,8 @@
 |10134|[10134_Get_Daily_Calendar_Summaries_via_SMS_with_Google_Calendar__Twilio_and_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10134_Get_Daily_Calendar_Summaries_via_SMS_with_Google_Calendar__Twilio_and_Claude_AI.json)|
 |11711|[11711_AI-Powered_Multi-Channel_Customer_Journey_with_Email__SMS___Retargeting_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11711_AI-Powered_Multi-Channel_Customer_Journey_with_Email__SMS___Retargeting_using_OpenAI.json)|
 |11805|[11805_Recover_Shopify_Abandoned_Carts_with_Email__SMS__WhatsApp___Facebook_Retargeting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11805_Recover_Shopify_Abandoned_Carts_with_Email__SMS__WhatsApp___Facebook_Retargeting.json)|
+|12083|[12083_Google_Calendar_automated_notifications_with_email__SMS___analytics_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12083_Google_Calendar_automated_notifications_with_email__SMS___analytics_dashboard.json)|
+|12430|[12430_Send_package_and_visitor_alerts_with_Slack__SMS__email__Google_Sheets_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12430_Send_package_and_visitor_alerts_with_Slack__SMS__email__Google_Sheets_and_Claude.json)|
+|12742|[12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json)|
+|13058|[13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json)|
+|13062|[13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json)|

@@ -1,4 +1,4 @@
-# decodo : 25
+# decodo : 31
 
 |id|file|
 |----|----|
@@ -27,3 +27,9 @@
 |11436|[11436_Automated_SEO_SERP_Analysis_with_Decodo___Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11436_Automated_SEO_SERP_Analysis_with_Decodo___Google_Gemini.json)|
 |11632|[11632_Automated_Product_Review_Monitoring_with_Sentiment_Analysis_via_Decodo__Gemini___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11632_Automated_Product_Review_Monitoring_with_Sentiment_Analysis_via_Decodo__Gemini___Telegram.json)|
 |11782|[11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json)|
+|12068|[12068_Aggregate_web_product_reviews_and_sentiment_with_Decodo_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12068_Aggregate_web_product_reviews_and_sentiment_with_Decodo_and_Google_Gemini.json)|
+|12074|[12074_Create_weekly_AI_research_briefings_with_Decodo__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12074_Create_weekly_AI_research_briefings_with_Decodo__OpenAI__and_Gmail.json)|
+|12075|[12075_Compare_product_prices_on_Amazon_and_Jumia_with_Decodo__OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12075_Compare_product_prices_on_Amazon_and_Jumia_with_Decodo__OpenAI_and_Telegram.json)|
+|12146|[12146_Build_a_website-powered_customer_support_chatbot_with_Decodo__Pinecone_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12146_Build_a_website-powered_customer_support_chatbot_with_Decodo__Pinecone_and_Gemini.json)|
+|12304|[12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json)|
+|12437|[12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json)|

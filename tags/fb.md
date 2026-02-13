@@ -1,4 +1,4 @@
-# fb : 8
+# fb : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |9208|[9208_Automate_RSS-to-Social_Media_with_AI_Summaries_and_Image_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9208_Automate_RSS-to-Social_Media_with_AI_Summaries_and_Image_Generation.json)|
 |9374|[9374_Generate_Social_Media_Ad_Images_for_FB_IG_Pinterest_with_Google_Gemini_Imagen.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9374_Generate_Social_Media_Ad_Images_for_FB_IG_Pinterest_with_Google_Gemini_Imagen.json)|
 |9388|[9388_AI-Powered_Social_Media_Ad_Creation_With_Website_Scraping_for_FB__IG___Pinterest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9388_AI-Powered_Social_Media_Ad_Creation_With_Website_Scraping_for_FB__IG___Pinterest.json)|
+|12375|[12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json)|

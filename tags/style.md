@@ -1,4 +1,4 @@
-# style : 11
+# style : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |8887|[8887_Generating_Vintage_Polaroid_Style_Photos_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8887_Generating_Vintage_Polaroid_Style_Photos_with_Gemini_AI.json)|
 |10393|[10393_Create_UGC_Style_Product_Ad_Video_via_Telegram___Gemini___Kie.ai_s_Veo3.1_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10393_Create_UGC_Style_Product_Ad_Video_via_Telegram___Gemini___Kie.ai_s_Veo3.1_API.json)|
 |11268|[11268_Generate_Hollywood-Style_Video_Ads_from_Images_with_GPT-5_Mini_and_Fal.ai_Sora-2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11268_Generate_Hollywood-Style_Video_Ads_from_Images_with_GPT-5_Mini_and_Fal.ai_Sora-2.json)|
+|12752|[12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json)|
+|13117|[13117_Generate_consistent_styled_images_from_references_with_Google_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13117_Generate_consistent_styled_images_from_references_with_Google_Gemini_and_Sheets.json)|

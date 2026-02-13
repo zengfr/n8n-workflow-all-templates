@@ -1,4 +1,4 @@
-# reply : 44
+# reply : 49
 
 |id|file|
 |----|----|
@@ -46,3 +46,8 @@
 |10907|[10907_Multilingual_Email_Auto-Replies_with_DeepL__GPT-4o_and_Slack_Human_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10907_Multilingual_Email_Auto-Replies_with_DeepL__GPT-4o_and_Slack_Human_Approval.json)|
 |11337|[11337_Automated_Lead_Nurturing_with_Gemini_AI__Telegram__and_Gmail_Reply_Detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11337_Automated_Lead_Nurturing_with_Gemini_AI__Telegram__and_Gmail_Reply_Detection.json)|
 |11643|[11643_Manage_Contact_Form_Submissions_with_Google_Sheets__Slack_Alerts___Gmail_Replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11643_Manage_Contact_Form_Submissions_with_Google_Sheets__Slack_Alerts___Gmail_Replies.json)|
+|12159|[12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json)|
+|12167|[12167_Handle_Gmail_reply-based_scheduling_with_Google_Calendar_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12167_Handle_Gmail_reply-based_scheduling_with_Google_Calendar_and_GPT-4o-mini.json)|
+|12359|[12359_Auto-reply_to_Telegram_messages_using_BrowserAct_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12359_Auto-reply_to_Telegram_messages_using_BrowserAct_and_Google_Gemini.json)|
+|12460|[12460_Auto-reply_to_emails_using_Google_Gemini_AI_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12460_Auto-reply_to_emails_using_Google_Gemini_AI_and_SendGrid.json)|
+|12652|[12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json)|

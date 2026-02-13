@@ -1,4 +1,4 @@
-# collect : 22
+# collect : 26
 
 |id|file|
 |----|----|
@@ -24,3 +24,7 @@
 |9840|[9840_Collect_Customer_Testimonials_with_GPT-4_Analysis__Jotform__Gmail___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9840_Collect_Customer_Testimonials_with_GPT-4_Analysis__Jotform__Gmail___Google_Sheets.json)|
 |10725|[10725_Collect_API_User_Data_and_Store_in_Google_Sheets_with_CSV_backup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10725_Collect_API_User_Data_and_Store_in_Google_Sheets_with_CSV_backup.json)|
 |11421|[11421_Collect_Viral_Instagram_AI_Art_with_GPT-4_Analysis_and_Telegram_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11421_Collect_Viral_Instagram_AI_Art_with_GPT-4_Analysis_and_Telegram_Delivery.json)|
+|12766|[12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json)|
+|12823|[12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json)|
+|12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|
+|13250|[13250_Collect_leads_with_a_conversational_GPT-4.1_chatbot_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13250_Collect_leads_with_a_conversational_GPT-4.1_chatbot_and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# odoo : 15
+# odoo : 20
 
 |id|file|
 |----|----|
@@ -17,3 +17,8 @@
 |9148|[9148_Real-time_Sales_Quote_Creation_in_Odoo_via_Telegram_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9148_Real-time_Sales_Quote_Creation_in_Odoo_via_Telegram_with_Google_Gemini_AI.json)|
 |9187|[9187_Manage_Odoo_CRM_with_Natural_Language_using_OpenAI_and_MCP_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9187_Manage_Odoo_CRM_with_Natural_Language_using_OpenAI_and_MCP_Server.json)|
 |10599|[10599_Fetch_Odoo_Customer_Data_and_Export_to_JSON_or_Excel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10599_Fetch_Odoo_Customer_Data_and_Export_to_JSON_or_Excel.json)|
+|11941|[11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json)|
+|12056|[12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json)|
+|12298|[12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json)|
+|12641|[12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json)|
+|13324|[13324_Sync_Gmail_sent_email_contacts_with_Odoo_mailing_lists.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13324_Sync_Gmail_sent_email_contacts_with_Odoo_mailing_lists.json)|

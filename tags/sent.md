@@ -1,4 +1,4 @@
-# sent : 10
+# sent : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |6662|[6662_Automate_Daily_Email_Digest_with_Gmail_and_GPT_Summary_Sent_Every_Afternoon.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/66/6662_Automate_Daily_Email_Digest_with_Gmail_and_GPT_Summary_Sent_Every_Afternoon.json)|
 |7582|[7582_Create_Meeting_Minutes_from_Telegram_Messages_with_GPT-5_to_Airtable_Slack_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7582_Create_Meeting_Minutes_from_Telegram_Messages_with_GPT-5_to_Airtable_Slack_Gmail.json)|
 |7726|[7726_Daily_Stock_Market_Report_with_Twelve_Data_API_Sent_via_WhatsApp_and_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7726_Daily_Stock_Market_Report_with_Twelve_Data_API_Sent_via_WhatsApp_and_Email.json)|
+|13324|[13324_Sync_Gmail_sent_email_contacts_with_Odoo_mailing_lists.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13324_Sync_Gmail_sent_email_contacts_with_Odoo_mailing_lists.json)|

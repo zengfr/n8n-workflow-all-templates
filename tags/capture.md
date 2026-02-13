@@ -1,4 +1,4 @@
-# capture : 32
+# capture : 37
 
 |id|file|
 |----|----|
@@ -34,3 +34,8 @@
 |10339|[10339_Classify_Developer_Questions_with_GPT-4o_from_Slack_to_Notion___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10339_Classify_Developer_Questions_with_GPT-4o_from_Slack_to_Notion___Airtable.json)|
 |11059|[11059_Automate_Lead_Response_with_GPT_and_Human_Approval_to_Airtable_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11059_Automate_Lead_Response_with_GPT_and_Human_Approval_to_Airtable_CRM.json)|
 |11070|[11070_Email_Verification_and_Enrichment_from_Google_Sheets_with_Hunter_and_Dropcontact.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11070_Email_Verification_and_Enrichment_from_Google_Sheets_with_Hunter_and_Dropcontact.json)|
+|12082|[12082_Capture_and_score_multi-channel_leads_with_GPT-4__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12082_Capture_and_score_multi-channel_leads_with_GPT-4__Gmail_and_Google_Sheets.json)|
+|12374|[12374_Capture_website_leads_to_HubSpot_or_Google_Sheets_with_Slack_follow-up.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12374_Capture_website_leads_to_HubSpot_or_Google_Sheets_with_Slack_follow-up.json)|
+|12742|[12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json)|
+|12820|[12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json)|
+|13074|[13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json)|

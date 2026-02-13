@@ -1,4 +1,4 @@
-# xero : 8
+# xero : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |9798|[9798_Automated_Invoice_Creation___Customer_Communication_with_Jotform__Xero__Outlook___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9798_Automated_Invoice_Creation___Customer_Communication_with_Jotform__Xero__Outlook___Telegram.json)|
 |9800|[9800_Generate_Invoices_and_Send_AI-Powered_Reminders_with_Jotform_and_Xero.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9800_Generate_Invoices_and_Send_AI-Powered_Reminders_with_Jotform_and_Xero.json)|
 |9905|[9905_Automate_Invoice_Processing_with_Gmail__OCR.space__Slack___Xero.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9905_Automate_Invoice_Processing_with_Gmail__OCR.space__Slack___Xero.json)|
+|12648|[12648_Send_automated_payment_reminders_for_Xero_invoices_via_Outlook_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12648_Send_automated_payment_reminders_for_Xero_invoices_via_Outlook_email.json)|
+|12662|[12662_Automate_3-way_invoice_matching_from_Gmail_to_Xero_with_Slack_and_Teams_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12662_Automate_3-way_invoice_matching_from_Gmail_to_Xero_with_Slack_and_Teams_alerts.json)|
+|12695|[12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json)|

@@ -1,4 +1,4 @@
-# proposal : 15
+# proposal : 19
 
 |id|file|
 |----|----|
@@ -17,3 +17,7 @@
 |10836|[10836_Automated_Sales_Proposal___Summary_Generator_using_GPT-4o__Sheets__Drive___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10836_Automated_Sales_Proposal___Summary_Generator_using_GPT-4o__Sheets__Drive___Gmail.json)|
 |11123|[11123_Generate_AI_Sales_Proposals_from_Transcripts_using_Azure_OpenAI__PandaDoc___Slack_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11123_Generate_AI_Sales_Proposals_from_Transcripts_using_Azure_OpenAI__PandaDoc___Slack_Approval.json)|
 |11860|[11860_GPT_4.1-mini_Automated_Proposal_to_Payment_Lifecycle_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11860_GPT_4.1-mini_Automated_Proposal_to_Payment_Lifecycle_Management.json)|
+|12032|[12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json)|
+|12211|[12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json)|
+|12530|[12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json)|
+|12959|[12959_Generate_consulting_proposals_and_contracts_with_GPT-4o__Google_Docs__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12959_Generate_consulting_proposals_and_contracts_with_GPT-4o__Google_Docs__Gmail_and_Slack.json)|

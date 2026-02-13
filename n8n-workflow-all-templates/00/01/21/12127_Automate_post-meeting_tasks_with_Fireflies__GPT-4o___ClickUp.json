@@ -1,0 +1,636 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Automate post-meeting tasks with Fireflies, GPT-4o & ClickUp",
+    "wechat": "youandme10086",
+    "id": 12127,
+    "update_time": "2026-02-13"
+  },
+  "nodes": [
+    {
+      "id": "7d2ddcb7-ac2d-4d35-a76a-b1865be9e9ab",
+      "name": "Every Morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        528
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "13a3fd75-1488-41e0-a80f-439b2ace6040",
+      "name": "Fetch Recent Meetings",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        224,
+        528
+      ],
+      "parameters": {
+        "url": "https://api.fireflies.ai/graphql",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"query\": \"query Transcripts($fromDate: DateTime) { transcripts(fromDate: $fromDate) { id title dateString } }\",\n  \"variables\": {\n    \"fromDate\": \"{{ $today.format('YYYY-MM-DD') }}T00:00:00.000Z\"\n  }\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "credential-id",
+          "name": "httpHeaderAuth Credential"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "25e59d64-5314-416d-ac04-6d083f50b20f",
+      "name": "Filter Today's Meetings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        416,
+        528
+      ],
+      "parameters": {
+        "jsCode": "// Get the response data\nconst response = $input.first().json;\n\n// Access the transcripts array from the GraphQL response\n// GraphQL returns data in a 'data' object\nconst meetings = response.data?.transcripts || [];\n\n// Get today's date at midnight in local timezone\nconst today = new Date();\ntoday.setHours(0, 0, 0, 0);\nconst tomorrow = new Date(today);\ntomorrow.setDate(tomorrow.getDate() + 1);\n\n// Filter items to only include today's meetings\nconst todaysMeetings = meetings.filter(meeting => {\n  const dateString = meeting.dateString;\n  if (!dateString) return false;\n  \n  const meetingDate = new Date(dateString);\n  return meetingDate >= today && meetingDate < tomorrow;\n});\n\nreturn todaysMeetings;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d2ba8564-8bd2-473a-ac0a-d415bc351d64",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        640,
+        528
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "0a339e22-725a-4c94-8e5e-a9a96c0212bb",
+      "name": "Get Full Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        912,
+        528
+      ],
+      "parameters": {
+        "url": "https://api.fireflies.ai/graphql",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"query\": \"query Transcript($id: String!) { transcript(id: $id) { id title dateString sentences { text speaker_name } summary { action_items } meeting_attendees { email name } } }\",\n  \"variables\": {\n    \"id\": \"{{ $json.id }}\"\n  }\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "credential-id",
+          "name": "httpHeaderAuth Credential"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "2abdea2a-2274-405d-9f06-ba1db111cf81",
+      "name": "Format Transcript Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1072,
+        528
+      ],
+      "parameters": {
+        "jsCode": "// Get the input data (GraphQL response structure)\nconst item = $input.first();\nconst transcriptData = item.json.data?.transcript;\n\nif (!transcriptData) {\n  return [];\n}\n\n// Build full transcript from sentences array\nlet fullTranscript = '';\nif (transcriptData.sentences && Array.isArray(transcriptData.sentences)) {\n  fullTranscript = transcriptData.sentences\n    .map(s => `${s.speaker_name}: ${s.text}`)\n    .join('\\n');\n}\n\n// Extract details\nconst title = transcriptData.title || 'Unknown Meeting';\nconst dateString = transcriptData.dateString || 'Unknown Date';\nconst attendees = transcriptData.meeting_attendees || [];\nconst summary = transcriptData.summary || {};\n\n// --- CUSTOMIZATION REQUIRED ---\n// Add your own name aliases here to prevent the AI from treating you as the external guest\nconst hostNames = ['Host', 'My Name', 'Me', 'TJ']; \n\n// Identify External Participant (Simple logic: first person who isn't the host)\nconst externalParticipant = attendees\n  .map(a => a.name || a.email)\n  .find(name => name && !hostNames.some(host => name.includes(host))) || 'External Participant';\n\n// Find email (exclude internal domain)\nconst externalEmail = attendees\n  .map(a => a.email)\n  // REPLACE 'yourcompany.com' below with your actual domain\n  .find(email => email && !email.includes('yourcompany.com')) || 'user@example.com';\n\nreturn [{\n  json: {\n    title,\n    dateString,\n    fullTranscript,\n    externalParticipant,\n    externalEmail,\n    actionItems: summary.action_items || '',\n    originalData: transcriptData\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1cf3abb1-dd88-42c1-ae0c-1417d2762f59",
+      "name": "Analyze & Create Tasks",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1392,
+        528
+      ],
+      "parameters": {
+        "text": "=## ROLE\nYou are an Executive Meeting Assistant. Analyze meeting transcripts and create actionable tasks in ClickUp for items assigned to the Meeting Host.\n\n{{ $now }}\n\n## MEETING DATA\n**Meeting Title:** {{ $json.title }}\n**Date:** {{ $json.dateString }}\n**Transcript:** {{ $json.fullTranscript }}\n**AI-Extracted Action Items:** {{ $json.actionItems }}\n\n## INSTRUCTIONS\n1. Use the Think tool to analyze the transcript and identify the Host's action items\n2. For each action item assigned to the Host:\n   - Create a clear, specific task in ClickUp\n   - Set appropriate priority (1=urgent, 2=high, 3=normal, 4=low)\n   - Add context in the description\n   - Set due dates if mentioned\n3. Only create tasks explicitly assigned to the Host or clearly their responsibility\n4. Output a summary of all tasks created\n\n## TOOLS AVAILABLE\n- **Think**: Use this to analyze and plan before creating tasks\n- **Create a task in ClickUp**: Creates individual tasks with title, description, priority, and due date",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4902c639-5706-40af-a802-05cc7e266bf4",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1312,
+        704
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "openai/gpt-4o-mini",
+          "cachedResultName": "openai/gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5d11f72d-d9fd-489d-bc54-dfb6ae7788e6",
+      "name": "Create ClickUp Task",
+      "type": "n8n-nodes-base.clickUpTool",
+      "position": [
+        1488,
+        704
+      ],
+      "parameters": {
+        "name": "={{ $fromAI(\"task_name\") }}",
+        "authentication": "oAuth2",
+        "additionalFields": {
+          "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Content', ``, 'string') }}",
+          "dueDate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Due_Date', ``, 'string') }}",
+          "priority": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Priority', ``, 'number') }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9cd52526-2099-4ed2-ab60-b5cedd030cd2",
+      "name": "Ask Approval (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1904,
+        576
+      ],
+      "webhookId": "d17d85f0-80fe-47d3-9bc5-d3c18ba0aa9d",
+      "parameters": {
+        "message": "=Should I send out the follow-up email?\n\n{{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "operation": "sendAndWait",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "2c9f1e75-832b-4a74-abab-da17b58eea33",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2096,
+        592
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9fe81b6f-50f6-402d-999b-577163682547",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ad756909-2115-4579-911e-ae91c568a326",
+      "name": "Draft Email",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2400,
+        160
+      ],
+      "parameters": {
+        "text": "=## ROLE\nYou are an Email Assistant. Generate a professional follow-up email with subject and body for meeting participants.\n\n{{ $now }}\n\n## MEETING DATA\n**Meeting Title:** {{ $('Format Transcript Data').item.json.title }}\n**Meeting Date:** {{ $('Format Transcript Data').item.json.dateString }}\n**External Participant:** {{ $('Format Transcript Data').item.json.externalParticipant }}\n**Recipient Email:** {{ $('Format Transcript Data').item.json.externalEmail }}\n\n**MEETING TRANSCRIPT:**\n{{ $('Format Transcript Data').item.json.fullTranscript }}\n\n**ACTION ITEMS:**\n{{ $('Format Transcript Data').item.json.actionItems }}\n\n## SENDER DETAILS\n**From:** Meeting Host\n**To:** {{ $('Format Transcript Data').item.json.originalData.host_email }}, {{ $('Format Transcript Data').item.json.originalData.meeting_attendees[1].email }}, {{ $('Format Transcript Data').item.json.originalData.meeting_attendees[0].email }}\n\n## INSTRUCTIONS\n1. Generate a concise subject line (8-12 words max)\n2. Write a professional email body that includes:\n   - Brief thank you for their time\n   - 2-3 key discussion points\n   - Action items for the recipient\n   - Next steps or timeline if mentioned\n3. Keep tone professional but warm\n4. Keep body under 200 words\n5. Sign off as \"Best regards,\" followed by the Host Name\n\n## OUTPUT FORMAT\nYou MUST respond in this exact JSON format:\n\n{\n  \"subject\": \"Your subject line here\",\n  \"body\": \"Your email body here\",\n  \"recipient_email\": \"{{ $('Format Transcript Data').item.json.externalEmail }}\",\n  \"sender_email\": \"{{ $('Format Transcript Data').item.json.originalData.host_email }}\"\n}\n\nIMPORTANT: Return ONLY valid JSON. No additional text before or after.",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "fe4c2018-f674-48c8-ae53-033996bd21b9",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2432,
+        384
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "openai/gpt-4o-mini",
+          "cachedResultName": "openai/gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1270c71b-7fa4-409c-be9b-8d967cb7aa32",
+      "name": "Send Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2768,
+        160
+      ],
+      "webhookId": "e968bf5a-eaa1-4b8d-86d6-6b3185e8db3e",
+      "parameters": {
+        "sendTo": "={{ $json.output.recipient_email }}",
+        "message": "={{ $json.output.body }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.output.subject }}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7bbf135c-9bb5-4849-9e4e-f7c61787b0f6",
+      "name": "Notify Cancellation",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2400,
+        672
+      ],
+      "webhookId": "20a3a901-f860-4d39-8c44-e27f44656086",
+      "parameters": {
+        "text": "Okay I will not send the email out",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "724b9a52-2431-42d8-bccd-06652b3b8cdd",
+      "name": "Notify Success",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2976,
+        160
+      ],
+      "webhookId": "c6252e1c-7eb3-42ad-b271-e444fba4d80f",
+      "parameters": {
+        "text": "=I Have sent the person message out at this adress  {{ $('Draft Email').item.json.output.recipient_email }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "0a91bd84-f15d-451e-8117-6da3f5b12497",
+      "name": "Think",
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "position": [
+        1648,
+        704
+      ],
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d24a421b-b66f-4ab3-ad49-e8895720b308",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        2592,
+        384
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"subject\": \"\",\n  \"body\": \"\",\n  \"recipient_email\": \"\"\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b4a11145-45fa-49a4-9adb-fc0aca40cbe6",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -224
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 393,
+        "height": 914,
+        "content": "### Meeting Intelligence Automation\nThis workflow automates your post-meeting routine by analyzing transcripts to create tasks and draft follow-up emails.\n\n### How it works\n1. **Fetch:** Retrieves meeting transcripts via the Fireflies.ai API.\n2. **Analyze:** AI processes the transcript to extract action items assigned to you.\n3. **Task Creation:** Creates tasks in ClickUp automatically.\n4. **Approval:** Sends a Telegram message asking if you want to send a follow-up email.\n5. **Email:** If approved, drafts and sends a personalized summary email via Gmail.\n\n### Setup Steps\n1. **Credentials:** \n   - Get your API Key from Fireflies.ai (Settings -> Integrations -> Fireflies API).\n   - Create a \"Header Auth\" credential in n8n named `Authorization` with value `Bearer <YOUR_KEY>`.\n2. **Configuration:** \n   - In the 'Format Transcript Data' code node, update the `hostNames` array with your name.\n   - In the Telegram nodes, input your Chat ID.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d4d11f64-e74d-4468-b659-3a2b22843a8f",
+      "name": "Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1256,
+        "height": 224,
+        "content": "## 1. Fetch & Filter Meetings\nGet transcripts from Fireflies and filter for today's date."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0135f35-128c-4b42-979c-b6b50220215b",
+      "name": "Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1264,
+        448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 428,
+        "content": "## 2. Analysis & Task Management\nAI extracts action items and syncs them to ClickUp."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "15461e95-33b3-41ff-b1f3-284e6690c651",
+      "name": "Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1872,
+        448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 380,
+        "content": "## 3. Human Approval\nTelegram bot asks for confirmation before sending emails."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5030ddfb-a86b-47f7-8d61-8b3d2a5d68d0",
+      "name": "Section 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2272,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 576,
+        "content": "## 4. Email Automation\nDrafts and sends follow-ups via Gmail if approved."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Analyze & Create Tasks",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Draft Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Cancellation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Gmail": {
+      "main": [
+        [
+          {
+            "node": "Notify Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Email": {
+      "main": [
+        [
+          {
+            "node": "Send Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Morning": {
+      "main": [
+        [
+          {
+            "node": "Fetch Recent Meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Success": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Full Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze & Create Tasks",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft Email",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create ClickUp Task": {
+      "ai_tool": [
+        [
+          {
+            "node": "Analyze & Create Tasks",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Full Transcript": {
+      "main": [
+        [
+          {
+            "node": "Format Transcript Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Cancellation": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Recent Meetings": {
+      "main": [
+        [
+          {
+            "node": "Filter Today's Meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze & Create Tasks": {
+      "main": [
+        [
+          {
+            "node": "Ask Approval (Telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Transcript Data": {
+      "main": [
+        [
+          {
+            "node": "Analyze & Create Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Approval (Telegram)": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Today's Meetings": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Draft Email",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# checks : 9
+# checks : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |10899|[10899_Order_Processing_with_Google_Sheets_and_Slack__Inventory_Checks_and_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10899_Order_Processing_with_Google_Sheets_and_Slack__Inventory_Checks_and_Alerts.json)|
 |11256|[11256_Monitor_Data_Quality_with_Notion_Rules__SQL_Checks___AI-Powered_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11256_Monitor_Data_Quality_with_Notion_Rules__SQL_Checks___AI-Powered_Alerts.json)|
 |11345|[11345_Daily_Team_Progress_Checks___Reports_with_Slack__ChatGPT_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11345_Daily_Team_Progress_Checks___Reports_with_Slack__ChatGPT_and_Google_Sheets.json)|
+|13009|[13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json)|
+|13011|[13011_Analyze_Binance_Futures_markets_with_TA_indicators__OpenAI_news_checks__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13011_Analyze_Binance_Futures_markets_with_TA_indicators__OpenAI_news_checks__and_Telegram_alerts.json)|
+|13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|
+|13290|[13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json)|

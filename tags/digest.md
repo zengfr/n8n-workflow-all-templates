@@ -1,4 +1,4 @@
-# digest : 57
+# digest : 65
 
 |id|file|
 |----|----|
@@ -59,3 +59,11 @@
 |10977|[10977_Daily_News_Digest___Weekly_Trends_with_AI_Filtering__Slack___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10977_Daily_News_Digest___Weekly_Trends_with_AI_Filtering__Slack___Google_Sheets.json)|
 |11452|[11452_Create_Daily_Google_Alerts_Digest_with_Gemini_AI_Summarization_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11452_Create_Daily_Google_Alerts_Digest_with_Gemini_AI_Summarization_and_Gmail.json)|
 |11724|[11724_Generate_News_Digest_Videos_from_WordPress_Articles_to_YouTube_Shorts_with_Shotstack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11724_Generate_News_Digest_Videos_from_WordPress_Articles_to_YouTube_Shorts_with_Shotstack.json)|
+|12048|[12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json)|
+|12141|[12141_Daily_news_digest_from_RSS_and_YouTube_using_AI_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12141_Daily_news_digest_from_RSS_and_YouTube_using_AI_for_Telegram.json)|
+|12499|[12499_Create_a_founder_digest_and_leads_from_Hacker_News_with_GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12499_Create_a_founder_digest_and_leads_from_Hacker_News_with_GPT-4o_and_Gmail.json)|
+|12696|[12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12696_Send_daily_Reddit_digest_email_with_Google_Sheets_scoring_and_SMTP.json)|
+|12703|[12703_Create_a_daily_AI___automation_content_digest_from_YouTube__Reddit__X_and_Perplexity_with_OpenAI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12703_Create_a_daily_AI___automation_content_digest_from_YouTube__Reddit__X_and_Perplexity_with_OpenAI_and_Airtable.json)|
+|13072|[13072_Get_a_daily_cybersecurity_news_digest_on_Telegram_and_Slack_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13072_Get_a_daily_cybersecurity_news_digest_on_Telegram_and_Slack_with_GPT-4.json)|
+|13124|[13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json)|
+|13126|[13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json)|

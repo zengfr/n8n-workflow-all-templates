@@ -1,4 +1,4 @@
-# podcast : 19
+# podcast : 23
 
 |id|file|
 |----|----|
@@ -21,3 +21,7 @@
 |8143|[8143_Morning_Briefing_Podcast__Generate_Daily_Summaries_with_Gemini_AI__Weather__and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8143_Morning_Briefing_Podcast__Generate_Daily_Summaries_with_Gemini_AI__Weather__and_Calendar.json)|
 |9521|[9521_Convert_PDF_Articles_to_Audio_Podcasts_with_Google_TTS___Cloudflare_R2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9521_Convert_PDF_Articles_to_Audio_Podcasts_with_Google_TTS___Cloudflare_R2.json)|
 |10051|[10051_Automate_Podcast_Creation_with_GPT__Claude___Eleven_Labs_Text-to-Speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10051_Automate_Podcast_Creation_with_GPT__Claude___Eleven_Labs_Text-to-Speech.json)|
+|11897|[11897_Convert_blog_posts_to_podcast_episodes_with_GPT-4o__ElevenLabs___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11897_Convert_blog_posts_to_podcast_episodes_with_GPT-4o__ElevenLabs___Google_Drive.json)|
+|12020|[12020_Automated_podcast_production___publishing_with_OpenAI__Airtable___Buzzsprout.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12020_Automated_podcast_production___publishing_with_OpenAI__Airtable___Buzzsprout.json)|
+|12434|[12434_Create_Telegram_podcast_digests_from_Apple_Podcasts_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12434_Create_Telegram_podcast_digests_from_Apple_Podcasts_with_BrowserAct_and_Gemini.json)|
+|12780|[12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json)|

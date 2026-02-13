@@ -1,4 +1,4 @@
-# kie : 9
+# kie : 16
 
 |id|file|
 |----|----|
@@ -11,3 +11,10 @@
 |10371|[10371_Create_AI_Nature_Videos_with_Sora_2__Kie_AI___Gemini__and_Send_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10371_Create_AI_Nature_Videos_with_Sora_2__Kie_AI___Gemini__and_Send_to_Telegram.json)|
 |10393|[10393_Create_UGC_Style_Product_Ad_Video_via_Telegram___Gemini___Kie.ai_s_Veo3.1_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10393_Create_UGC_Style_Product_Ad_Video_via_Telegram___Gemini___Kie.ai_s_Veo3.1_API.json)|
 |10867|[10867_Auto-Generate_AI_Videos_with_Gemini__KIE_AI_Sora-2___Blotato__Multi-Platform.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10867_Auto-Generate_AI_Videos_with_Gemini__KIE_AI_Sora-2___Blotato__Multi-Platform.json)|
+|12202|[12202_Generate_text-to-video_and_image-to-video_clips_with_Kling_2.6_via_KIE.AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12202_Generate_text-to-video_and_image-to-video_clips_with_Kling_2.6_via_KIE.AI.json)|
+|12203|[12203_Process_audio_with_ElevenLabs_via_KIE.AI__transcribe__TTS__and_isolate_audio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12203_Process_audio_with_ElevenLabs_via_KIE.AI__transcribe__TTS__and_isolate_audio.json)|
+|12250|[12250_Generate_video_from_an_image_with_ByteDance_Seedance_1.5_Pro_via_KIE.AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12250_Generate_video_from_an_image_with_ByteDance_Seedance_1.5_Pro_via_KIE.AI.json)|
+|12253|[12253_Generate_text-__image-__and_video-to-video_clips_with_WAN_2.6_via_KIE.AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12253_Generate_text-__image-__and_video-to-video_clips_with_WAN_2.6_via_KIE.AI.json)|
+|12510|[12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json)|
+|12682|[12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json)|
+|12684|[12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json)|

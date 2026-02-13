@@ -1,4 +1,4 @@
-# records : 16
+# records : 19
 
 |id|file|
 |----|----|
@@ -18,3 +18,6 @@
 |8059|[8059_Auto-Create_Airtable_CRM_Records_for_Zoom_Attendees.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8059_Auto-Create_Airtable_CRM_Records_for_Zoom_Attendees.json)|
 |8230|[8230_Generate_and_Split_Sample_Data_Records_using_JavaScript_and_Python.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8230_Generate_and_Split_Sample_Data_Records_using_JavaScript_and_Python.json)|
 |9135|[9135_Automated_Content_Migration_from_ClickUp_Docs_to_Airtable_Records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9135_Automated_Content_Migration_from_ClickUp_Docs_to_Airtable_Records.json)|
+|12476|[12476_Turn_Gmail_meeting_summaries_into_HubSpot_CRM_records_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12476_Turn_Gmail_meeting_summaries_into_HubSpot_CRM_records_with_OpenAI.json)|
+|12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|
+|13166|[13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json)|

@@ -1,0 +1,495 @@
+{
+  "id": "UGoHsbCLmFm3Rzum",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Generate daily stock buy/sell signals using technical indicators and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 12485,
+    "update_time": "2026-02-13"
+  },
+  "name": "Generate daily buy/sell signals using technical indicators and Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7fcd3413-8b4f-4481-a0b5-76b734d48f6f",
+      "name": "Schedule Trigger – Run Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1936,
+        -16
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "4f5a74b0-95a9-4f5c-8f66-70c07344212f",
+      "name": "Define Stock List",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2128,
+        -16
+      ],
+      "parameters": {
+        "jsCode": "const stocks = [\"AAPL\", \"MSFT\", \"TSLA\", \"NVDA\"];\nreturn stocks.map(stock => ({ json: { stock } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ef71e8d6-c3a2-46c7-a82a-d247c9f21ac4",
+      "name": "Loop Through Stocks",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        2304,
+        -16
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "3377ae52-5493-49b2-9073-e53c2cc3c8ce",
+      "name": "Check Price Data Exists",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3024,
+        -16
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "1cf72e22-a1c4-40b5-bdcf-0658dc15eb19",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.closes.length }}",
+              "rightValue": 20
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f5aec965-5210-4d9d-bba2-4543c3db13a7",
+      "name": "Prepare Price Series",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2800,
+        -16
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extract time series safely\nconst series = $json[\"Time Series (Daily)\"];\n\nif (!series) {\n  return null;\n}\n\n// Sort dates oldest → newest\nconst dates = Object.keys(series).sort(\n  (a, b) => new Date(a) - new Date(b)\n);\n\n// Extract closing prices as numbers\nconst closes = dates.map(date =>\n  Number(series[date][\"4. close\"])\n);\n\n// Keep only last 60 days\nconst last60Closes = closes.slice(-60);\n\nreturn {\n  json: {\n    stock: $json[\"Meta Data\"][\"2. Symbol\"],\n    closes: last60Closes\n  }\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0356cf69-e5ef-4000-9b14-ee644b6bff5e",
+      "name": "Calculate RSI, MA & MACD",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3248,
+        -16
+      ],
+      "parameters": {
+        "jsCode": "const closes = $json.closes;\nconst stock = $json.stock;\n\n// ---------- Helpers ----------\nconst SMA = (arr, n) =>\n  arr.slice(-n).reduce((a, b) => a + b, 0) / n;\n\nconst EMA = (arr, n) => {\n  const k = 2 / (n + 1);\n  let ema = arr[0];\n  for (let i = 1; i < arr.length; i++) {\n    ema = arr[i] * k + ema * (1 - k);\n  }\n  return ema;\n};\n\n// ---------- RSI (14) ----------\nlet gains = 0;\nlet losses = 0;\n\nfor (let i = closes.length - 15; i < closes.length - 1; i++) {\n  const diff = closes[i + 1] - closes[i];\n  if (diff >= 0) gains += diff;\n  else losses -= diff;\n}\n\nconst rs = gains / (losses || 1);\nconst rsi = 100 - 100 / (1 + rs);\n\n// ---------- Moving Averages ----------\nconst sma20 = SMA(closes, 20);\nconst sma50 = SMA(closes, 50);\n\n// ---------- MACD ----------\nconst ema12 = EMA(closes.slice(-26), 12);\nconst ema26 = EMA(closes.slice(-26), 26);\nconst macd = ema12 - ema26;\nconst macdSignal = EMA([macd], 9);\n\n// ---------- Trade Signal ----------\nlet finalSignal = \"Neutral\";\n\nif (rsi < 30 && macd > macdSignal) {\n  finalSignal = \"Buy\";\n} else if (rsi > 70 && macd < macdSignal) {\n  finalSignal = \"Sell\";\n}\n\nreturn {\n  json: {\n    stock,\n    rsi: Number(rsi.toFixed(2)),\n    sma20: Number(sma20.toFixed(2)),\n    sma50: Number(sma50.toFixed(2)),\n    macd: Number(macd.toFixed(2)),\n    macdSignal: Number(macdSignal.toFixed(2)),\n    finalSignal,\n    lastUpdated: new Date().toISOString()\n  }\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ecdadd34-30d8-424b-9e0d-21ae3e59fdb0",
+      "name": "Store Indicator Signals in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3504,
+        -16
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "RSI": "={{ $json.rsi }}",
+            "MACD": "={{ $json.macd }}",
+            "SMA20": "={{ $json.sma20 }}",
+            "SMA50": "={{ $json.sma50 }}",
+            "Stock": "={{ $json.stock }}",
+            "MACD Signal": "={{ $json.macdSignal }}",
+            "Last Updated ": "={{ $json.lastUpdated }}",
+            "FinalSignal (Buy / Sell / Neutral)": "={{ $json.finalSignal }}"
+          },
+          "schema": [
+            {
+              "id": "Stock",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Stock",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RSI",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "RSI",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SMA20",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "SMA20",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SMA50",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "SMA50",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "MACD",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "MACD",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "MACD Signal",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "MACD Signal",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FinalSignal (Buy / Sell / Neutral)",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "FinalSignal (Buy / Sell / Neutral)",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated ",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Last Updated ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Stock"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1507545613,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mz-woYDtXtzF2bA9IqpdYh28IPA76nFx46WHgDJOZoI/edit#gid=1507545613",
+          "cachedResultName": "Technical Indicators"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1Mz-woYDtXtzF2bA9IqpdYh28IPA76nFx46WHgDJOZoI/edit"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "automations@techdome.ai"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "56b4cc06-a538-4d8e-8d33-38e6e1fb51bc",
+      "name": "Fetch Historical Prices (Alpha Vantage)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2560,
+        -16
+      ],
+      "parameters": {
+        "url": "https://www.alphavantage.co/query",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "function",
+              "value": "TIME_SERIES_DAILY"
+            },
+            {
+              "name": "symbol",
+              "value": "={{ $json.stock }}"
+            },
+            {
+              "name": "outputsize",
+              "value": "=compact"
+            },
+            {
+              "name": "apikey",
+              "value": "\"YOUR_ALPHA_VANTAGE_API_KEY\""
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "75ee587e-4ff2-45d5-bca8-112704694a81",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        -944
+      ],
+      "parameters": {
+        "width": 528,
+        "height": 656,
+        "content": "## Workflow Overview\n\n### How it works\n\nThis workflow calculates technical indicators for selected stocks and stores\nthe results in a Google Sheets dashboard.\n\nIt runs once per day and processes each stock individually. For every stock,\nthe workflow fetches recent daily price data from a market data API. Using\nthis data, it calculates common technical indicators such as RSI, Moving\nAverages, and MACD using standard formulas.\n\nAfter the indicators are calculated, simple rule-based logic is applied to\nclassify each stock as Buy, Sell, or Neutral. The final values and signal are\nthen written to Google Sheets, creating a daily-updated technical analysis\ndashboard.\n\nBasic checks are included to ensure enough price data is available before\nperforming calculations. If valid data is not found, the workflow safely\nskips that stock and continues.\n\n### Setup steps\n\n1. Add your market data API key in the HTTP Request node.\n2. Review and update the stock list in the stock list code node.\n3. Create a Google Sheets tab for storing indicator results.\n4. Connect your Google Sheets credentials in the Sheets node.\n5. Save and activate the workflow.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "77b0bd5c-0b48-4eb4-b04c-392886bad77c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2464,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 688,
+        "height": 368,
+        "content": "### Market data retrieval\n\nFetches historical daily price data from Alpha Vantage and prepares clean price series for indicator calculations."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3586ab64-2efb-495d-a569-a3707ec87ddd",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3168,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 528,
+        "height": 368,
+        "content": "### Indicator Calculation and Dashboard Update\n\nCalculates RSI, moving averages, and MACD using standard formulas. Simple rules classify each stock as Buy, Sell, or Neutral. And stores indicator values and signals in Google Sheets."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8dc62eb7-03a9-405d-bd03-45227e3f0432",
+      "name": "Error Handler Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        1280,
+        592
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3e1dda4a-46f7-4246-99c6-bbcb40313998",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        432
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 672,
+        "height": 336,
+        "content": "## 🚨 Error Handling \n\n \nCatches any workflow failure and posts an alert to Email.  \nIncludes node name, error message, and timestamp for quick debugging.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "82046edc-0c18-421e-9c92-f44a438a9d2e",
+      "name": "Send Error Alert",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1600,
+        592
+      ],
+      "webhookId": "ca4c1380-1926-4085-9a4f-1e17811f1dbb",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=❌ Error in  Technical Indicator Engine – Daily Buy/Sell Signal Automation, Node: {{ $json.node.name }} Message: {{ $json.error.message }} Time:{{ $json.timestamp }}",
+        "options": {},
+        "subject": "Error  Alert ⚠️",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail credentials"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1f1fc112-3238-4851-87aa-87bb41b0eeae",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1872,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 336,
+        "content": "### Stock Selection and Scheduling\n\nThis workflow runs daily and defines the list of stock symbols to analyze. Each stock is processed individually to avoid API limits and ensure stable execution.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "54ff48e2-e7d9-4da7-bcbf-f56a6289d2c2",
+  "connections": {
+    "Define Stock List": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Stocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through Stocks": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Fetch Historical Prices (Alpha Vantage)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Price Series": {
+      "main": [
+        [
+          {
+            "node": "Check Price Data Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Handler Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Price Data Exists": {
+      "main": [
+        [
+          {
+            "node": "Calculate RSI, MA & MACD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate RSI, MA & MACD": {
+      "main": [
+        [
+          {
+            "node": "Store Indicator Signals in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger – Run Daily": {
+      "main": [
+        [
+          {
+            "node": "Define Stock List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Historical Prices (Alpha Vantage)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Price Series",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Indicator Signals in Google Sheets": {
+      "main": [
+        []
+      ]
+    }
+  }
+}

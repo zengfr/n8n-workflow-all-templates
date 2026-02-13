@@ -1,4 +1,4 @@
-# budget : 11
+# budget : 14
 
 |id|file|
 |----|----|
@@ -13,3 +13,6 @@
 |10219|[10219_Automate_Event_Planning___Budget_Optimization_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10219_Automate_Event_Planning___Budget_Optimization_with_Claude_AI_and_Google_Sheets.json)|
 |10970|[10970_Track_Expenses_from_Receipt_Photos_with_AI__Google_Sheets___Slack_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10970_Track_Expenses_from_Receipt_Photos_with_AI__Google_Sheets___Slack_Reports.json)|
 |11339|[11339_Record_Transactions___Generate_Budget_Reports_with_Gemini_AI__Telegram___Firefly_III.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11339_Record_Transactions___Generate_Budget_Reports_with_Gemini_AI__Telegram___Firefly_III.json)|
+|12852|[12852_Monitor_company_budgets_with_Bexio__Google_Sheets_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12852_Monitor_company_budgets_with_Bexio__Google_Sheets_and_Gmail_alerts.json)|
+|13115|[13115_Track_invoice_spending_vs_budget_from_Google_Drive_with_GPT-4o_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13115_Track_invoice_spending_vs_budget_from_Google_Drive_with_GPT-4o_and_Telegram_alerts.json)|
+|13313|[13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json)|

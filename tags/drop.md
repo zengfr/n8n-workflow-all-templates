@@ -1,4 +1,4 @@
-# drop : 7
+# drop : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |6676|[6676_Monitor_SEO_Keyword_Rankings_with_SERP_API___Send_Drop_Alerts_via_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/66/6676_Monitor_SEO_Keyword_Rankings_with_SERP_API___Send_Drop_Alerts_via_Slack.json)|
 |10152|[10152_Automated_Sales_Follow-Up_System_Using_HighLevel__Gmail__Slack___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10152_Automated_Sales_Follow-Up_System_Using_HighLevel__Gmail__Slack___Google_Sheets.json)|
 |10390|[10390_Automated_Hotel_Price_Drop_Alerts_with_Email_Notifications_and_Database_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10390_Automated_Hotel_Price_Drop_Alerts_with_Email_Notifications_and_Database_Tracking.json)|
+|12872|[12872_Send_new_WooCommerce_product_notifications_to_Slack__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12872_Send_new_WooCommerce_product_notifications_to_Slack__Gmail_and_Google_Sheets.json)|

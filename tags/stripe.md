@@ -1,4 +1,4 @@
-# stripe : 52
+# stripe : 60
 
 |id|file|
 |----|----|
@@ -54,3 +54,11 @@
 |10384|[10384_Automate_Cancellation_Feedback_Collection_with_Stripe_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10384_Automate_Cancellation_Feedback_Collection_with_Stripe_and_Google_Sheets.json)|
 |10558|[10558_Automate_Stripe_Payment_to_QuickBooks_Sales_Receipt_Sync.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10558_Automate_Stripe_Payment_to_QuickBooks_Sales_Receipt_Sync.json)|
 |11704|[11704_Automate_Stripe_Checkout_Sales_Tracking_in_RD_Station_Marketing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11704_Automate_Stripe_Checkout_Sales_Tracking_in_RD_Station_Marketing.json)|
+|11899|[11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json)|
+|11977|[11977_Automate_customer_retention_with_AI_risk_prediction__Stripe_coupons___personalized_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11977_Automate_customer_retention_with_AI_risk_prediction__Stripe_coupons___personalized_Gmail.json)|
+|12033|[12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json)|
+|12315|[12315_Send_Stripe_expired_charge_recovery_reminders_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12315_Send_Stripe_expired_charge_recovery_reminders_with_OpenAI.json)|
+|12493|[12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json)|
+|12530|[12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json)|
+|12567|[12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json)|
+|12741|[12741_Send_Stripe_invoice_reminders_with_GPT-4.1-mini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12741_Send_Stripe_invoice_reminders_with_GPT-4.1-mini__Google_Sheets_and_Slack.json)|

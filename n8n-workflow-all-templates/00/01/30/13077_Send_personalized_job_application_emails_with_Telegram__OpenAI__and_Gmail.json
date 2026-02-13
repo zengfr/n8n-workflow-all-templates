@@ -1,0 +1,656 @@
+{
+  "id": "m3PR6pVKF4OpMgEr",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Send personalized job application emails with Telegram, OpenAI, and Gmail",
+    "wechat": "youandme10086",
+    "id": 13077,
+    "update_time": "2026-02-13"
+  },
+  "name": "Send job applications with Telegram, OpenAI, and Gmail",
+  "tags": [
+    {
+      "id": "L1ONQkjTRkmEpb1L",
+      "name": "Prod",
+      "createdAt": "2026-01-29T09:38:03.164Z",
+      "updatedAt": "2026-01-29T09:38:03.164Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "b07613f6-04cc-46e2-a105-11190f1c229f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        320
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 520,
+        "content": "## How it works\n\nThis workflow automates job applications through Telegram. Send a screenshot of any job posting to your Telegram bot, and AI will extract the job details, match them to your resume, and generate a personalized application email.\n\nThe bot analyzes the job requirements using OpenAI's vision API, compares them with your resume stored in OpenAI Files, then drafts a tailored email in the job's language. You review and approve the draft before it's sent via Gmail with your resume attached.\n\n## Setup steps\n\n1. Upload your resume to OpenAI Files API and note the file_id\n2. Upload your resume to Google Drive and note the file_id\n3. Create a Telegram bot via @BotFather and save the token\n4. Configure credentials in n8n: Telegram, OpenAI, Redis, Gmail, Google Drive\n5. Update the PayloadForReply node with your OpenAI resume file_id\n6. Update both Download Resume nodes with your Google Drive file_id\n7. Activate the workflow and send a job post screenshot to your bot"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7230dd49-f98e-4659-8562-109582963196",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 347,
+        "height": 220,
+        "content": "## Input routing\n\nReceives job post images or callback confirmations from Telegram and routes to the appropriate path"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0a21348-1d90-406b-bfb2-dcd1329f5121",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        432,
+        256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 492,
+        "height": 140,
+        "content": "## AI analysis and email generation\n\nExtracts job details from image, matches with resume, and generates personalized application email"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bd5b5afa-1233-4223-b10d-f4d3b411513d",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1104,
+        256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 140,
+        "content": "## Draft storage and user confirmation\n\nStores email draft in Redis and sends preview to user with approval button"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a76700c9-8fcb-46d0-8de3-4196a198f273",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -48,
+        624
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "68bcb3ea-c5fa-4618-b5d9-8d1438d61e6c",
+      "name": "Build AI request payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        624,
+        432
+      ],
+      "parameters": {
+        "jsCode": "// ---------- Inputs ----------\n/**\n * Expects a Telegram update upstream.\n * - Image is in binary (first binary key)\n * - Caption (optional) at $.message.caption or $.caption\n * - Optional \"insights\" (tone/length hints) at $.insights\n * Provide your uploaded resume file_id below.\n */\nconst inputItem = $('Telegram Trigger').first();\n\n// Detect first binary (photo)\nconst firstBinaryKey = Object.keys(inputItem.binary || {})[0];\nif (!firstBinaryKey) {\n  throw new Error(\"No binary image found in input. Connect the job post image.\");\n}\nconst jobImageBinary = inputItem.binary[firstBinaryKey].data;\nconst jobImageMime   = inputItem.binary[firstBinaryKey].mimeType || \"image/jpeg\";\nconst jobImageBase64 = `data:${jobImageMime};base64,${jobImageBinary}`;\n\n// Telegram caption (pass through verbatim; do NOT parse or regex)\nconst caption =\n  inputItem.json?.message?.caption ??\n  inputItem.json?.caption ??\n  \"\";\n\n// Optional extra guidance from upstream\nconst insights = (inputItem.json?.insights ?? \"\").toString();\n\n// ---------- Config ----------\nconst MODEL = \"gpt-5.2\";\nconst resumeFileId = \"YOUR_OPENAI_FILE_ID_HERE\"; // <-- replace with your own file_id\nif (!resumeFileId?.startsWith(\"file-\")) {\n  throw new Error(\"Invalid resume file_id. Upload your resume to OpenAI and update the constant.\");\n}\n\n// ---------- Prompts ----------\nconst systemPrompt = `\nYou are a job-application assistant.\n\nOnly pick ONE job offer to process — the one most clearly related to Data roles\n(Data Engineer, Data Analyst, Data Scientist, ML/AI, Analytics, BI, etc.) and best matching the attached resume.\n\nPriority of sources:\nP1) CAPTION (if provided) — treat as highest-priority instructions/hints.\n    If CAPTION says to use a particular email (e.g., \"send to this email ...\"),\n    use that email for recruiter_email even if the image shows a different one.\nP2) Job post IMAGE content.\nP3) Resume.\n\nTasks:\n1) Read the job post IMAGE and extract fields into the provided JSON schema.\n2) Use the CAPTION (P1) to override/guide decisions, including recruiter_email selection.\n3) Read the resume and identify:\n   - The most relevant past experiences,\n   - Concrete achievements,\n   - Technical skills and tools,\n   - Business impact that aligns with the job post.\n4) Using those findings, draft a concise, professional outreach email tailored to the role.\n   - Explicitly highlight a few resume-backed experiences that match the job post.\n   - Integrate them naturally (no lists, no bullet points).\n   - Refine the language for clarity, professionalism, and human tone.\n5) Detect the job language and write the email in that language (FR post → FR email; else EN).\n\nOutput rules:\n- Be concise, warm, confident (no buzzwords, no generic AI clichés).\n- Only claim skills and experiences supported by the resume.\n- If a field is missing, return \"\" for strings or [] for arrays (no hallucination).\n- Email body: ~120–180 words unless INSIGHTS specify otherwise.\n- Emphasize relevance: relate my previous work directly to the job responsibilities.\n- Subject: ~6–10 words.\n- Plain text only (no markdown).\n`;\n\nconst userPrompt = `\nFrom the job image:\n- Extract all fields exactly as defined in the schema.\n- Recruiter email selection order:\n  1) Anything instructed in CAPTION (highest priority).\n  2) Otherwise use the recruiter/application email from the IMAGE.\n  3) Otherwise set recruiter_email to \"\".\n\nThen, using my resume:\n- Identify my most relevant past experiences and skills that match this role.\n- Incorporate those experiences naturally into the outreach email to show clear alignment.\n- Highlight achievements only if they appear in the resume.\n- Refine the email for clarity, flow, and professionalism.\n- Follow INSIGHTS (tone/length). If CAPTION and INSIGHTS conflict, CAPTION wins.\n\nReturn ONLY the JSON according to the schema (no extra text).\n`;\n\n// ---------- Build /v1/responses payload ----------\nconst payload = {\n  model: MODEL,\n  input: [\n    {\n      role: \"system\",\n      content: [{ type: \"input_text\", text: systemPrompt.trim() }]\n    },\n    {\n      role: \"user\",\n      content: [\n        { type: \"input_text\", text: userPrompt.trim() },\n\n        // Provide CAPTION and INSIGHTS verbatim (no parsing)\n        { type: \"input_text\", text: `CAPTION (P1): ${caption || \"(none)\"}` },\n        { type: \"input_text\", text: `INSIGHTS: ${insights || \"(none)\"}` },\n\n        // Image to parse\n        { type: \"input_image\", image_url: jobImageBase64 },\n\n        // Resume file reference\n        { type: \"input_file\", file_id: resumeFileId }\n      ]\n    }\n  ],\n  text: {\n    format: {\n      type: \"json_schema\",\n      name: \"job_apply_payload_v1\",\n      strict: true,\n      schema: {\n        type: \"object\",\n        additionalProperties: false,\n        properties: {\n          job_fields: {\n            type: \"object\",\n            additionalProperties: false,\n            properties: {\n              title:            { type: \"string\" },\n              company:          { type: \"string\" },\n              location:         { type: \"string\" },\n              seniority:        { type: \"string\" },\n              employment_type:  { type: \"string\" },\n              language:         { type: \"string\" },\n              requirements:     { type: \"array\", items: { type: \"string\" } },\n              nice_to_have:     { type: \"array\", items: { type: \"string\" } },\n              salary_range:     { type: \"string\" },\n              posted_date:      { type: \"string\" },\n              recruiter_email:  { type: \"string\" }\n            },\n            required: [\n              \"title\",\n              \"company\",\n              \"location\",\n              \"seniority\",\n              \"employment_type\",\n              \"language\",\n              \"requirements\",\n              \"nice_to_have\",\n              \"salary_range\",\n              \"posted_date\",\n              \"recruiter_email\"\n            ]\n          },\n          email_subject: { type: \"string\" },\n          email_body:    { type: \"string\" }\n        },\n        required: [\"job_fields\", \"email_subject\", \"email_body\"]\n      }\n    }\n  },\n  max_output_tokens: 1000\n};\n\nreturn { json: { payload } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "dda0833a-5fbd-46d1-b36b-34833f30042f",
+      "name": "Call OpenAI API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        848,
+        432
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/responses",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ $json.payload }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "nodeCredentialType": "openAiApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4cc46606-de4f-402f-beb6-76ea7a433e18",
+      "name": "Parse AI response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1072,
+        432
+      ],
+      "parameters": {
+        "jsCode": "const raw = $json.output?.[0]?.content?.[0]?.text || '{}';\nlet parsed;\ntry { parsed = JSON.parse(raw); }\ncatch (e) { throw new Error(\"Failed to parse model JSON: \" + e.message + \"\\nRaw: \" + raw); }\nreturn { json: parsed };\n// -> json.job_fields.*, json.email_subject, json.email_body"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "993f7770-de8b-404a-91f7-8da9f28a6e66",
+      "name": "Store draft in Redis",
+      "type": "n8n-nodes-base.redis",
+      "position": [
+        1296,
+        432
+      ],
+      "parameters": {
+        "key": "={{ $json.job_fields.title.replaceAll(\" \",\"\") }}",
+        "ttl": 900,
+        "value": "={{ JSON.stringify({\n  Offer: $json.job_fields.title,\n  Subject: $json.email_subject,\n  Recruiter: $json.job_fields.recruiter_email,\n  Email: $json.email_body\n}) }}",
+        "expire": true,
+        "keyType": "string",
+        "operation": "set"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f2c1707-3320-4117-acf3-ffb0a90201b7",
+      "name": "Send preview to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1520,
+        432
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "text": "=✨ *Confirm The Job Apply!* ✨\n\n💼 *Offer:* {{ $json.job_fields.title }}\n\n📝 *Subject:* {{ $('Parse AI response').item.json.email_subject }}\n\n📧 *Recruiter:* {{ $json.job_fields.recruiter_email }}\n\n💌 *Email Draft:* --------->\n\n\n{{ $('Parse AI response').item.json.email_body }}",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Send The Email",
+                    "additionalFields": {
+                      "callback_data": "={{ $('Parse AI response').item.json.job_fields.title.replaceAll(\" \",\"\") }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "bc21e92c-3f22-4e2c-bc6d-466fe42c624f",
+      "name": "Retrieve draft from Redis",
+      "type": "n8n-nodes-base.redis",
+      "position": [
+        400,
+        720
+      ],
+      "parameters": {
+        "key": "={{ $json.callback_query.message.reply_markup.inline_keyboard[0][0].callback_data }}",
+        "options": {},
+        "operation": "get"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e490fa8-825f-4cf9-bc6d-17009186db01",
+      "name": "Parse draft data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        624,
+        720
+      ],
+      "parameters": {
+        "jsCode": "return items.map(i => {\n  const p = JSON.parse(i.json.value || i.json.propertyName);\n  return { json: { \n    offer: p.Offer, subject: p.Subject, recruiter: p.Recruiter, email: p.Email \n  }};\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "687dd808-e352-48ef-b1e6-39752e8df277",
+      "name": "Download resume from Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        848,
+        720
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_DRIVE_FILE_ID",
+          "cachedResultUrl": "YOUR_RESUME_URL",
+          "cachedResultName": "Your_Resume.pdf"
+        },
+        "options": {
+          "fileName": "Your_Resume.pdf",
+          "binaryPropertyName": "Resume"
+        },
+        "operation": "download"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "0b57006e-2e50-40dd-b03d-74f7837d89f5",
+      "name": "Notify immediate send",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1072,
+        624
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "text": "=✅ Congratulations, your Email to {{ $json.recruiter }} was sent. Good luck!",
+        "chatId": "={{ $('Telegram Trigger').item.json.callback_query.message.chat.id }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1e37adf5-fa37-4433-9996-2f468bf99efb",
+      "name": "Send email via Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1744,
+        816
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "sendTo": "={{ $json.recruiter }}",
+        "message": "={{ $json.email }}",
+        "options": {},
+        "subject": "={{ $json.subject }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NmRALATtpFzO84x9",
+          "name": "Gmail account ylaf"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "8f5b6d41-3b35-4033-b8f4-bbfc9e19cdc7",
+      "name": "Wait before scheduled send",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1296,
+        816
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "amount": 10
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c98f6140-35b6-4132-b08f-21a8f25ccfb9",
+      "name": "Prepare scheduled send",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1072,
+        816
+      ],
+      "parameters": {
+        "jsCode": "return $input.all();\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "56eb9b23-db15-4f41-9df5-90df54e778ff",
+      "name": "Download resume for scheduled send",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1520,
+        816
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_DRIVE_FILE_ID",
+          "cachedResultUrl": "YOUR_RESUME_URL",
+          "cachedResultName": "Your_Resume.pdf"
+        },
+        "options": {
+          "fileName": "Your_Resume.pdf",
+          "binaryPropertyName": "Resume"
+        },
+        "operation": "download"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "51ccaa4d-c3dc-4cff-b8df-68ff9d2a7214",
+      "name": "Update Telegram status",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1296,
+        624
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "text": "=✨ *Your Email is scheduled to send in 10s...* ✨\n\n💼 *Offer:* {{ $('Parse draft data').item.json.offer }}\n\n📧 *Recruiter:* {{ $('Parse draft data').item.json.recruiter }}",
+        "chatId": "={{ $('Telegram Trigger').item.json.callback_query.message.chat.id }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "6c21800e-3510-43e0-9d2d-48767fb61426",
+      "name": "Notify scheduled send complete",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1968,
+        816
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "text": "=✅ Congratulations, your Email to {{ $('Download resume for scheduled send').item.json.recruiter }} was sent. Good luck!",
+        "chatId": "={{ $('Telegram Trigger').item.json.callback_query.message.chat.id }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e4a80d39-4ec0-4230-9423-4fc5dc965e09",
+      "name": "Route by message type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        176,
+        624
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Job_Post_Image",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fb5bee34-5f87-4e47-8e0d-59b2e5d35c2d",
+                    "operator": {
+                      "type": "array",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message?.photo }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Sending",
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "b65f2e38-c7a3-4e05-ad2c-da10ed0d6a0a",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.callback_query?.message }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "4ba5aaeb-8dc2-4ad4-b3ce-808faa8e16ce",
+      "name": "Show typing indicator",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        400,
+        432
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "operation": "sendChatAction"
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "138a7d1b-3417-4739-a4fb-f7dede102804",
+  "connections": {
+    "Call OpenAI API": {
+      "main": [
+        [
+          {
+            "node": "Parse AI response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse draft data": {
+      "main": [
+        [
+          {
+            "node": "Download resume from Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Route by message type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI response": {
+      "main": [
+        [
+          {
+            "node": "Store draft in Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email via Gmail": {
+      "main": [
+        [
+          {
+            "node": "Notify scheduled send complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store draft in Redis": {
+      "main": [
+        [
+          {
+            "node": "Send preview to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify immediate send": {
+      "main": [
+        [
+          {
+            "node": "Update Telegram status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by message type": {
+      "main": [
+        [
+          {
+            "node": "Show typing indicator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retrieve draft from Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Show typing indicator": {
+      "main": [
+        [
+          {
+            "node": "Build AI request payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare scheduled send": {
+      "main": [
+        [
+          {
+            "node": "Wait before scheduled send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI request payload": {
+      "main": [
+        [
+          {
+            "node": "Call OpenAI API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve draft from Redis": {
+      "main": [
+        [
+          {
+            "node": "Parse draft data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download resume from Drive": {
+      "main": [
+        [
+          {
+            "node": "Notify immediate send",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare scheduled send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait before scheduled send": {
+      "main": [
+        [
+          {
+            "node": "Download resume for scheduled send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download resume for scheduled send": {
+      "main": [
+        [
+          {
+            "node": "Send email via Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# info : 15
+# info : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |9924|[9924_Summarize___Extract_Glassdoor_Company_Info_with_Google_Gemini_and_Decode.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9924_Summarize___Extract_Glassdoor_Company_Info_with_Google_Gemini_and_Decode.json)|
 |11086|[11086_Scrape_Business_Leads_from_Google_Maps_and_Extract_Decision-Maker_Info_with_Olostep.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11086_Scrape_Business_Leads_from_Google_Maps_and_Extract_Decision-Maker_Info_with_Olostep.json)|
 |11131|[11131_Scrape_and_Analyze_Amazon_Product_Info_with_Decodo___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11131_Scrape_and_Analyze_Amazon_Product_Info_with_Decodo___OpenAI.json)|
+|12058|[12058_Automate_business_card_management_with_LINE__AI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12058_Automate_business_card_management_with_LINE__AI__and_Google_Sheets.json)|
+|12078|[12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json)|

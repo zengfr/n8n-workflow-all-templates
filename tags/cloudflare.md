@@ -1,4 +1,4 @@
-# cloudflare : 10
+# cloudflare : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |7151|[7151_Bypass_Cloudflare_Turnstile_for_Web_Scraping_with_2captcha.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/71/7151_Bypass_Cloudflare_Turnstile_for_Web_Scraping_with_2captcha.json)|
 |9521|[9521_Convert_PDF_Articles_to_Audio_Podcasts_with_Google_TTS___Cloudflare_R2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9521_Convert_PDF_Articles_to_Audio_Podcasts_with_Google_TTS___Cloudflare_R2.json)|
 |9776|[9776_Create_LinkedIn_Content_from_Workflows_using_Gemini___Cloudflare_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9776_Create_LinkedIn_Content_from_Workflows_using_Gemini___Cloudflare_AI.json)|
+|12086|[12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json)|

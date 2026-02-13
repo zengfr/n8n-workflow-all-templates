@@ -1,4 +1,4 @@
-# scanner : 6
+# scanner : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |7350|[7350_Extract_and_Verify_Book_Titles_from_Bookshelf_Photos_using_GPT-4o_and_Google_Books.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/73/7350_Extract_and_Verify_Book_Titles_from_Bookshelf_Photos_using_GPT-4o_and_Google_Books.json)|
 |9212|[9212_Extract_Contact_Information_from_Business_Cards_with_Mistral_OCR_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9212_Extract_Contact_Information_from_Business_Cards_with_Mistral_OCR_and_GPT-4o-mini.json)|
 |11007|[11007_Network_Vulnerability_Scanner_with_NMAP_and_Automated_CVE_Reporting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11007_Network_Vulnerability_Scanner_with_NMAP_and_Automated_CVE_Reporting.json)|
+|12024|[12024_Automated_APK_security_scanning___PDF_reporting_with_MobSF__AI___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12024_Automated_APK_security_scanning___PDF_reporting_with_MobSF__AI___Google_Drive.json)|

@@ -1,4 +1,4 @@
-# sequences : 6
+# sequences : 9
 
 |id|file|
 |----|----|
@@ -8,3 +8,6 @@
 |6402|[6402_Automate_Personalized_Cold_Email_Sequences_with_GPT-4__Mailgun_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6402_Automate_Personalized_Cold_Email_Sequences_with_GPT-4__Mailgun_and_Supabase.json)|
 |7149|[7149_Generate_Personalized_Sales_Emails_with_MadKudu_Research___OpenAI_for_Outreach.io_Sequences.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/71/7149_Generate_Personalized_Sales_Emails_with_MadKudu_Research___OpenAI_for_Outreach.io_Sequences.json)|
 |7617|[7617_Generate_Personalized_Email_Sequences_with_Octave__LLM___External_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7617_Generate_Personalized_Email_Sequences_with_Octave__LLM___External_Data.json)|
+|12915|[12915_Manage_LinkedIn_outreach_sequences_with_Linked_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12915_Manage_LinkedIn_outreach_sequences_with_Linked_API_and_Google_Sheets.json)|
+|12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|
+|13274|[13274_Send_post-purchase_email_sequences_with_Postgres__Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13274_Send_post-purchase_email_sequences_with_Postgres__Gmail_and_OpenAI.json)|

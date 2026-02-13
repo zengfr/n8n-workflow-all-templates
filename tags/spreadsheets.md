@@ -1,4 +1,4 @@
-# spreadsheets : 7
+# spreadsheets : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |5479|[5479_AI-Powered_Automated_Outreach_with_Scheduling__Gemini__Gmail___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/54/5479_AI-Powered_Automated_Outreach_with_Scheduling__Gemini__Gmail___Google_Sheets.json)|
 |5858|[5858_Summarize_Documents__Images___Spreadsheets_with_Gemma_3_on_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/58/5858_Summarize_Documents__Images___Spreadsheets_with_Gemma_3_on_Ollama.json)|
 |6624|[6624_Query_and_Answer_Questions_from_Excel_Spreadsheets_with_GPT-4_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/66/6624_Query_and_Answer_Questions_from_Excel_Spreadsheets_with_GPT-4_Mini.json)|
+|13093|[13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json)|

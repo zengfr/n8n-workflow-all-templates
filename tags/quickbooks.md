@@ -1,4 +1,4 @@
-# quickbooks : 34
+# quickbooks : 37
 
 |id|file|
 |----|----|
@@ -36,3 +36,6 @@
 |10486|[10486_Automated_QuickBooks_Sales_Anomaly_Detector_with_Professional_Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10486_Automated_QuickBooks_Sales_Anomaly_Detector_with_Professional_Email_Alerts.json)|
 |10553|[10553_Generate_Custom_Branded_PDF_Invoices_from_QuickBooks___Email_to_Clients.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10553_Generate_Custom_Branded_PDF_Invoices_from_QuickBooks___Email_to_Clients.json)|
 |10558|[10558_Automate_Stripe_Payment_to_QuickBooks_Sales_Receipt_Sync.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10558_Automate_Stripe_Payment_to_QuickBooks_Sales_Receipt_Sync.json)|
+|12013|[12013_Automate_purchase_bill_processing_with_AI_OCR___QuickBooks_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12013_Automate_purchase_bill_processing_with_AI_OCR___QuickBooks_integration.json)|
+|12344|[12344_Post_bank_statement_transactions_to_QuickBooks_Online_using_OpenRouter_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12344_Post_bank_statement_transactions_to_QuickBooks_Online_using_OpenRouter_AI.json)|
+|13092|[13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json)|

@@ -1,4 +1,4 @@
-# dashboard : 25
+# dashboard : 30
 
 |id|file|
 |----|----|
@@ -27,3 +27,8 @@
 |9832|[9832_Track_Jira_Epic_Health_with_Automated_Risk_Alerts_via_Slack__Monday___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9832_Track_Jira_Epic_Health_with_Automated_Risk_Alerts_via_Slack__Monday___Sheets.json)|
 |10283|[10283_Automate_Customer_Support_Triage_with_GPT__Gmail__Slack___Analytics_Dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10283_Automate_Customer_Support_Triage_with_GPT__Gmail__Slack___Analytics_Dashboard.json)|
 |11182|[11182_Reddit_Monitoring_with_AI_Sentiment_Analysis_and_Growth_Insights_Dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11182_Reddit_Monitoring_with_AI_Sentiment_Analysis_and_Growth_Insights_Dashboard.json)|
+|11952|[11952_Automate_B2B_lead_generation_using_Google_Places_API___SendGrid_with_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11952_Automate_B2B_lead_generation_using_Google_Places_API___SendGrid_with_dashboard.json)|
+|12015|[12015_Monitor_cryptocurrency_payments_across_multiple_blockchains_with_AgentGatePay.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12015_Monitor_cryptocurrency_payments_across_multiple_blockchains_with_AgentGatePay.json)|
+|12083|[12083_Google_Calendar_automated_notifications_with_email__SMS___analytics_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12083_Google_Calendar_automated_notifications_with_email__SMS___analytics_dashboard.json)|
+|12092|[12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json)|
+|12579|[12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json)|

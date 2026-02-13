@@ -1,4 +1,4 @@
-# uptime : 10
+# uptime : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |8624|[8624_Automated_Website_Uptime_Monitor_with_Email_Alerts___GitHub_Status_Page_Update.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8624_Automated_Website_Uptime_Monitor_with_Email_Alerts___GitHub_Status_Page_Update.json)|
 |8650|[8650_Server___Network_Monitoring_Alerts_via_WhatsApp_using_HetrixTools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8650_Server___Network_Monitoring_Alerts_via_WhatsApp_using_HetrixTools.json)|
 |11655|[11655_Monitor_Website_Uptime_with_Google_Sheets__Slack__Email___Phone_Call_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11655_Monitor_Website_Uptime_with_Google_Sheets__Slack__Email___Phone_Call_Alerts.json)|
+|12060|[12060_Real-time_uptime_alerts_to_Jira_with_smart_Slack_on-call_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12060_Real-time_uptime_alerts_to_Jira_with_smart_Slack_on-call_routing.json)|

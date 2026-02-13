@@ -1,4 +1,4 @@
-# serpapi : 46
+# serpapi : 52
 
 |id|file|
 |----|----|
@@ -48,3 +48,9 @@
 |11109|[11109_Generate_Complete_SEO_Strategy_Reports_with_SerpAPI_Data_and_GPT-4_Agent_Team.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11109_Generate_Complete_SEO_Strategy_Reports_with_SerpAPI_Data_and_GPT-4_Agent_Team.json)|
 |11195|[11195_Generate_Security_Vulnerability_Reports_with_Google_Dorks__SerpAPI_and_PDF4me.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11195_Generate_Security_Vulnerability_Reports_with_Google_Dorks__SerpAPI_and_PDF4me.json)|
 |11425|[11425_Create_Personalized_News_Digests_with_GPT-5.1__SerpAPI__and_Telegram_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11425_Create_Personalized_News_Digests_with_GPT-5.1__SerpAPI__and_Telegram_Delivery.json)|
+|11893|[11893_Automate_SEO_research___content_gap_analysis_with_GPT-4o__SerpAPI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11893_Automate_SEO_research___content_gap_analysis_with_GPT-4o__SerpAPI__and_Gmail.json)|
+|12057|[12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json)|
+|12101|[12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json)|
+|12780|[12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json)|
+|12971|[12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json)|
+|13151|[13151_Post_daily_tech_news_on_Instagram_with_Gemini_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13151_Post_daily_tech_news_on_Instagram_with_Gemini_and_SerpAPI.json)|

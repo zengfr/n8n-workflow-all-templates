@@ -1,4 +1,4 @@
-# campaigns : 18
+# campaigns : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |10278|[10278_Automated_Cold_Email_Campaigns_with_Random_Templates___Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10278_Automated_Cold_Email_Campaigns_with_Random_Templates___Google_Sheets_Tracking.json)|
 |11734|[11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json)|
 |11857|[11857_Personalized_Customer_Retention_Campaigns_with_GPT-4o_Analytics___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11857_Personalized_Customer_Retention_Campaigns_with_GPT-4o_Analytics___Gmail.json)|
+|12080|[12080_Run_A_B-tested_email_campaigns_using_Gmail__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12080_Run_A_B-tested_email_campaigns_using_Gmail__Google_Sheets__and_Slack.json)|

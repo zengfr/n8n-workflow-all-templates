@@ -1,4 +1,4 @@
-# meetings : 19
+# meetings : 21
 
 |id|file|
 |----|----|
@@ -21,3 +21,5 @@
 |9110|[9110_Automate_Paid_Zoom_Meetings_with_Stripe__Gmail___Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9110_Automate_Paid_Zoom_Meetings_with_Stripe__Gmail___Google_Sheets_Tracking.json)|
 |10262|[10262_Reduce_Meeting_No-Shows_with_Gemini_AI__Email___WhatsApp_Reminders_for_Calendly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10262_Reduce_Meeting_No-Shows_with_Gemini_AI__Email___WhatsApp_Reminders_for_Calendly.json)|
 |10468|[10468_Schedule_Meetings_via_WhatsApp_Using_Natural_Language_with_Gemini_AI___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10468_Schedule_Meetings_via_WhatsApp_Using_Natural_Language_with_Gemini_AI___Google_Suite.json)|
+|12757|[12757_Ask_questions_about_past_meetings_using_voice_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12757_Ask_questions_about_past_meetings_using_voice_with_OpenAI_and_Pinecone.json)|
+|12970|[12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json)|

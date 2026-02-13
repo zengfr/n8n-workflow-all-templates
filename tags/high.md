@@ -1,4 +1,4 @@
-# high : 22
+# high : 26
 
 |id|file|
 |----|----|
@@ -24,3 +24,7 @@
 |10151|[10151_Automate_High-Value_Lead_Alerts_from_GoHighLevel_to_Slack__Sheets_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10151_Automate_High-Value_Lead_Alerts_from_GoHighLevel_to_Slack__Sheets_and_Calendar.json)|
 |11200|[11200_Auto-Schedule_Demos_for_High-Intent_Leads_with_Clearbit__Slack__and_Calendly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11200_Auto-Schedule_Demos_for_High-Intent_Leads_with_Clearbit__Slack__and_Calendly.json)|
 |11526|[11526_Analyze_high-priority_tenders_from_Airtable_to_Slack_for_Go_No-Go_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11526_Analyze_high-priority_tenders_from_Airtable_to_Slack_for_Go_No-Go_approval.json)|
+|12026|[12026_Monitor_high-value_USDT_transfers_on_Ethereum_with_Airtable_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12026_Monitor_high-value_USDT_transfers_on_Ethereum_with_Airtable_and_Slack_alerts.json)|
+|12304|[12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json)|
+|12865|[12865_Scrape_high-engagement_LinkedIn_posts_and_auto-post_with_Gemini_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12865_Scrape_high-engagement_LinkedIn_posts_and_auto-post_with_Gemini_images.json)|
+|12965|[12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json)|

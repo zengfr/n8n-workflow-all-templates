@@ -1,4 +1,4 @@
-# mentions : 14
+# mentions : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |8355|[8355_Monitor_Brand_Mentions_on_X_with_Gemini_AI_Visual_Analysis___Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8355_Monitor_Brand_Mentions_on_X_with_Gemini_AI_Visual_Analysis___Telegram_Alerts.json)|
 |11080|[11080_Track_Daily_Brand_Mentions_from_Hacker_News_to_Slack_with_GPT-4o-mini_Sentiment_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11080_Track_Daily_Brand_Mentions_from_Hacker_News_to_Slack_with_GPT-4o-mini_Sentiment_Analysis.json)|
 |11182|[11182_Reddit_Monitoring_with_AI_Sentiment_Analysis_and_Growth_Insights_Dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11182_Reddit_Monitoring_with_AI_Sentiment_Analysis_and_Growth_Insights_Dashboard.json)|
+|12062|[12062_Control_AI_agent_tool_access_with_Port_RBAC_and_Slack_mentions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12062_Control_AI_agent_tool_access_with_Port_RBAC_and_Slack_mentions.json)|
+|12772|[12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json)|
+|13013|[13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json)|

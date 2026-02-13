@@ -1,4 +1,4 @@
-# translate : 32
+# translate : 40
 
 |id|file|
 |----|----|
@@ -34,3 +34,11 @@
 |10652|[10652_Transcribe__Translate____Summarize_YouTube_Videos_with_Gemini__DeepL____GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10652_Transcribe__Translate____Summarize_YouTube_Videos_with_Gemini__DeepL____GPT.json)|
 |10864|[10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json)|
 |10907|[10907_Multilingual_Email_Auto-Replies_with_DeepL__GPT-4o_and_Slack_Human_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10907_Multilingual_Email_Auto-Replies_with_DeepL__GPT-4o_and_Slack_Human_Approval.json)|
+|11896|[11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json)|
+|11910|[11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json)|
+|12361|[12361_Translate_and_dub_YouTube_videos_using_BrowserAct__Telegram__Gemini___ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12361_Translate_and_dub_YouTube_videos_using_BrowserAct__Telegram__Gemini___ElevenLabs.json)|
+|12381|[12381_Translate_Chinese_audio_into_multilingual_voiceovers_with_GPT-4o_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12381_Translate_Chinese_audio_into_multilingual_voiceovers_with_GPT-4o_and_ElevenLabs.json)|
+|12382|[12382_Translate_Chinese_text_to_multilingual_audio_with_GPT-4o_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12382_Translate_Chinese_text_to_multilingual_audio_with_GPT-4o_and_ElevenLabs.json)|
+|12571|[12571_Generate__translate_and_publish_AI_content_to_WordPress_and_socials_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12571_Generate__translate_and_publish_AI_content_to_WordPress_and_socials_with_GPT-4.1_and_Google_Sheets.json)|
+|12723|[12723_Translate___and_upload_dubbed_YouTube_videos___using_ElevenLabs_AI_Dubbing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12723_Translate___and_upload_dubbed_YouTube_videos___using_ElevenLabs_AI_Dubbing.json)|
+|13171|[13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json)|

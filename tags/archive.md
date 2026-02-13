@@ -1,4 +1,4 @@
-# archive : 14
+# archive : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |7780|[7780_Declutter_Gmail__Archive_Inactive_Emails_with_GPT-4_Classification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7780_Declutter_Gmail__Archive_Inactive_Emails_with_GPT-4_Classification.json)|
 |8955|[8955_Automate_Payment_Receipts__Email__Archive__and_Track_with_Stripe_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8955_Automate_Payment_Receipts__Email__Archive__and_Track_with_Stripe_and_Google_Workspace.json)|
 |10388|[10388_Create_a_Searchable_Document_Archive_with_Telegram__Drive__OCR_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10388_Create_a_Searchable_Document_Archive_with_Telegram__Drive__OCR_and_Airtable.json)|
+|12033|[12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json)|
+|12655|[12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json)|

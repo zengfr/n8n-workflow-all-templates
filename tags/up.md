@@ -1,4 +1,4 @@
-# up : 56
+# up : 70
 
 |id|file|
 |----|----|
@@ -58,3 +58,17 @@
 |11283|[11283_B2B_Lead_Follow-up_Automation_with_Gemini_AI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11283_B2B_Lead_Follow-up_Automation_with_Gemini_AI__Gmail_and_Google_Sheets.json)|
 |11370|[11370_Generate_Branded_Word_Documents_with_Claude_AI_and_Json2Doc__up_to_20_Pages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11370_Generate_Branded_Word_Documents_with_Claude_AI_and_Json2Doc__up_to_20_Pages.json)|
 |11649|[11649_Post-Surgery_Patient_Triage___Follow-up_System_with_Gemini_AI__Telegram___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11649_Post-Surgery_Patient_Triage___Follow-up_System_with_Gemini_AI__Telegram___Google_Suite.json)|
+|12242|[12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json)|
+|12374|[12374_Capture_website_leads_to_HubSpot_or_Google_Sheets_with_Slack_follow-up.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12374_Capture_website_leads_to_HubSpot_or_Google_Sheets_with_Slack_follow-up.json)|
+|12530|[12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json)|
+|12644|[12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json)|
+|12721|[12721_Back_up_and_restore_n8n_workflows_with_GitHub_sync.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12721_Back_up_and_restore_n8n_workflows_with_GitHub_sync.json)|
+|12745|[12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json)|
+|12747|[12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json)|
+|12750|[12750_Warm_up_Gmail_inboxes_with_OpenAI_GPT-4o-mini_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12750_Warm_up_Gmail_inboxes_with_OpenAI_GPT-4o-mini_and_Data_Tables.json)|
+|12823|[12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json)|
+|12960|[12960_Send_AI-prioritized_follow-up_reminders_with_GPT-4.1-mini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12960_Send_AI-prioritized_follow-up_reminders_with_GPT-4.1-mini__Gmail_and_Slack.json)|
+|13058|[13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json)|
+|13245|[13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json)|
+|13260|[13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json)|
+|13317|[13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json)|

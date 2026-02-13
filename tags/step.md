@@ -1,4 +1,4 @@
-# step : 10
+# step : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |8425|[8425_Manage_Recipes_with_AI-Powered_Telegram_Bot_and_Google_Sheets_Database.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8425_Manage_Recipes_with_AI-Powered_Telegram_Bot_and_Google_Sheets_Database.json)|
 |8525|[8525_Automate_Candidate_Rejections_with_Google_Sheets__GPT-4o-mini__Gmail___ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8525_Automate_Candidate_Rejections_with_Google_Sheets__GPT-4o-mini__Gmail___ClickUp.json)|
 |9974|[9974_Automate_HVAC_Service_Scheduling_with_AI_Agent__Google_Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9974_Automate_HVAC_Service_Scheduling_with_AI_Agent__Google_Calendar_and_Gmail.json)|
+|12633|[12633_Automate_multi-step_onboarding_emails_from_Notion_leads_via_Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12633_Automate_multi-step_onboarding_emails_from_Notion_leads_via_Gmail_and_Telegram.json)|
+|12954|[12954_Receipt_Processing_AI_Agent__with_step_by_step_video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12954_Receipt_Processing_AI_Agent__with_step_by_step_video.json)|
+|12955|[12955_Email_AI_Agent__with_step_by_step_video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12955_Email_AI_Agent__with_step_by_step_video.json)|

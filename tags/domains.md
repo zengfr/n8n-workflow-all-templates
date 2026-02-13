@@ -1,4 +1,4 @@
-# domains : 8
+# domains : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |7010|[7010_Automate_SEO_Analysis_for_Multiple_Domains_with_Ahrefs_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7010_Automate_SEO_Analysis_for_Multiple_Domains_with_Ahrefs_and_Google_Sheets.json)|
 |7623|[7623_Enrich_Domains_with_SimilarWeb_Traffic_Analytics_in_Google_Sheets___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7623_Enrich_Domains_with_SimilarWeb_Traffic_Analytics_in_Google_Sheets___Airtable.json)|
 |8923|[8923_Verify_Generic_Business_Emails_across_Multiple_Domains_with_EmailListVerify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8923_Verify_Generic_Business_Emails_across_Multiple_Domains_with_EmailListVerify_and_Google_Sheets.json)|
+|12221|[12221_Monitor_SSL_certificates_for_brand-impersonating_domains_with_crt.sh__Urlscan.io_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12221_Monitor_SSL_certificates_for_brand-impersonating_domains_with_crt.sh__Urlscan.io_and_Slack.json)|
+|12362|[12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json)|
+|12676|[12676_Monitor_.my_domains_with_MYNIC_RDAP_and_send_alerts_via_Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12676_Monitor_.my_domains_with_MYNIC_RDAP_and_send_alerts_via_Gmail_and_Discord.json)|

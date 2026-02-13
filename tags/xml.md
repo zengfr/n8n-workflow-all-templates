@@ -1,4 +1,4 @@
-# xml : 18
+# xml : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |7226|[7226_Automated_Wazuh_Rule_Deployment_Pipeline_with_GitHub__XML_Validation___Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/72/7226_Automated_Wazuh_Rule_Deployment_Pipeline_with_GitHub__XML_Validation___Telegram_Alerts.json)|
 |8460|[8460_Extract_Invoice_Data_from_PDFs_to_JSON_with_Gemini_AI_and_XML_Transformation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8460_Extract_Invoice_Data_from_PDFs_to_JSON_with_Gemini_AI_and_XML_Transformation.json)|
 |8691|[8691_Sitemap.xml_Metadata_Export_to_Google_Sheets__Title__Meta_Description__and_URLs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8691_Sitemap.xml_Metadata_Export_to_Google_Sheets__Title__Meta_Description__and_URLs.json)|
+|11911|[11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json)|

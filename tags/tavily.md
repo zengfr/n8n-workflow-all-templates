@@ -1,4 +1,4 @@
-# tavily : 30
+# tavily : 35
 
 |id|file|
 |----|----|
@@ -32,3 +32,8 @@
 |9998|[9998_Generate_Platform-Specific_Social_Media_Posts_with_ChatGPT__Tavily___G-Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9998_Generate_Platform-Specific_Social_Media_Posts_with_ChatGPT__Tavily___G-Sheets.json)|
 |10009|[10009_Create_Personalized_B2B_Outreach_Emails_with_Tavily_Research___OpenRouter_LLM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10009_Create_Personalized_B2B_Outreach_Emails_with_Tavily_Research___OpenRouter_LLM.json)|
 |11092|[11092_Create_AI-Curated_News_Digests_with_GPT-5.1__NewsAPI__Tavily___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11092_Create_AI-Curated_News_Digests_with_GPT-5.1__NewsAPI__Tavily___Telegram.json)|
+|12477|[12477_Generate_research-backed_blog_articles_from_news_with_OpenAI__Tavily_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12477_Generate_research-backed_blog_articles_from_news_with_OpenAI__Tavily_and_Google_Docs.json)|
+|12699|[12699_Enrich_Google_Sheets_data_with_the_Tavily_Research_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12699_Enrich_Google_Sheets_data_with_the_Tavily_Research_API.json)|
+|12714|[12714_Curate_and_send_weekly_AI_newsletters_with_Tavily__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12714_Curate_and_send_weekly_AI_newsletters_with_Tavily__Gemini__and_Gmail.json)|
+|12858|[12858_Generate_Blog_Posts_on_Autopilot_with_GPT_5__Tavily_and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12858_Generate_Blog_Posts_on_Autopilot_with_GPT_5__Tavily_and_WordPress.json)|
+|13271|[13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json)|

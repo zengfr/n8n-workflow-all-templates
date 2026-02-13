@@ -1,0 +1,743 @@
+{
+  "id": "xBlDjGZwvbjWKlsA",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Automate customer retention with AI risk prediction, Stripe coupons & personalized Gmail",
+    "wechat": "youandme10086",
+    "id": 11977,
+    "update_time": "2026-02-13"
+  },
+  "name": "Predict churn risk from customer data and send retention emails via OpenAI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c6be714c-7c14-4390-a237-fbb53776b807",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 636,
+        "height": 568,
+        "content": "# 📉 Churn Risk Prediction & Retention Automation\n\nThis workflow acts as an intelligent retention system by connecting your data, AI, and communication channels. It proactively identifies at-risk customers and sends personalized offers.\n\n## 🚀 What it does\n1. **Aggregates Data**: Pulls customer profiles from CRM, support tickets, and PostgreSQL usage logs.\n2. **Predicts Risk**: Uses OpenAI to calculate a \"Churn Risk Score\" based on behavior.\n3. **Automates Action**: Generates dynamic Stripe coupons and sends personalized emails via Gmail to high-risk users.\n4. **Tracks Results**: Monitors email opens (SendGrid) and 30-day retention status.\n\n## ⚙️ Setup Steps\n1. **Credentials**: Configure OpenAI, Stripe, Gmail, SendGrid, Postgres, and Google Sheets.\n2. **Google Sheet**: Create a sheet with columns: `customer_id`, `risk_score`, `offer_type`, `email_status`, `retention_result`, etc.\n3. **Configuration**: Update API URLs in HTTP nodes and the SQL query in the Postgres node.\n4. **Activate**: Turn on the Schedule Trigger."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "362566c2-b855-4e8e-b587-9df91232ebd4",
+      "name": "Schedule Trigger - 毎日03:00実行",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        864,
+        784
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "fefc8b12-23ce-42b4-a5f8-5c2bcdc3a885",
+      "name": "Note - Schedule",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1024,
+        512
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1114,
+        "height": 564,
+        "content": "## 1️⃣ Data Aggregation\nCombines data from multiple sources to build a 360° customer profile.\n- **CRM**: Basic info & billing status.\n- **Support**: Ticket volume & sentiment.\n- **Postgres**: Product usage depth & login frequency.\n\n💡 **Tip**: Adjust the SQL query in the Postgres node to match your table schema."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8afa0a02-5798-4c7b-9d63-80b4cb53ff2a",
+      "name": "対象顧客リスト取得 (CRM)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1088,
+        784
+      ],
+      "parameters": {
+        "url": "https://api.your-crm.com/v1/customers",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "active"
+            },
+            {
+              "name": "last_billing_days",
+              "value": "30"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3675add7-bcd4-40d6-aa98-24378fad8614",
+      "name": "サポートチケット情報取得",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1312,
+        784
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.support-tool.com/v1/tickets?customer_id=' + $json.customer_id }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c3cf6f1a-0f2f-4bfc-ab1e-7d5eca3c8139",
+      "name": "サポート指標集計",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1536,
+        784
+      ],
+      "parameters": {
+        "jsCode": "// サポートチケット集計\nfor (const item of $input.all()) {\n  const tickets = item.json.tickets || [];\n  \n  const now = new Date();\n  const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);\n  \n  const recentTickets = tickets.filter(t => new Date(t.created_at) > thirtyDaysAgo);\n  const openTickets = tickets.filter(t => t.status === 'open');\n  \n  item.json.ticket_count_last_30d = recentTickets.length;\n  item.json.open_ticket_count = openTickets.length;\n  item.json.avg_csatscore = tickets.length > 0 ? \n    tickets.reduce((sum, t) => sum + (t.csat_score || 0), 0) / tickets.length : 0;\n  item.json.avg_first_response_time = tickets.length > 0 ?\n    tickets.reduce((sum, t) => sum + (t.first_response_hours || 0), 0) / tickets.length : 0;\n}\n\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "76c16aed-d85f-4238-b42d-94172be38718",
+      "name": "製品利用ログ取得",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1760,
+        880
+      ],
+      "parameters": {
+        "query": "SELECT customer_id, \n       COUNT(DISTINCT DATE(event_date)) as login_days_last_30d,\n       COUNT(CASE WHEN feature = 'feature_a' THEN 1 END) as feature_a_usage_count,\n       COUNT(CASE WHEN feature = 'feature_b' THEN 1 END) as feature_b_usage_count,\n       MAX(event_date) as last_active_date,\n       AVG(session_duration_sec) as session_avg_duration\nFROM product_events\nWHERE customer_id IN ({{ $json.customer_id }})\n  AND event_date >= NOW() - INTERVAL '30 days'\nGROUP BY customer_id",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "2c0fda3b-345e-4a5f-8003-1193e0ad8100",
+      "name": "データ統合 (CRM+サポート)",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1760,
+        688
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "0597dc99-a10b-4314-aa91-b958f71dd59c",
+      "name": "データ統合 (全データ)",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1984,
+        784
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "de98a118-193f-4367-8d79-643cb1f7c9f0",
+      "name": "AI解約リスク予測",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        2208,
+        784
+      ],
+      "parameters": {
+        "resource": "chatCompletion",
+        "requestOptions": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c2fac4bf-2a58-4428-8396-425e12143ba1",
+      "name": "高リスク顧客フィルタ",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2432,
+        784
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.churn_risk_score }}",
+              "rightValue": 0.7
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8f582aa8-f7b0-44d5-bab3-c568d92273ab",
+      "name": "特別オファー生成",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2656,
+        688
+      ],
+      "parameters": {
+        "url": "https://api.stripe.com/v1/coupons",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "percent_off",
+              "value": "={{ $json.mrr > 10000 ? 20 : 10 }}"
+            },
+            {
+              "name": "duration",
+              "value": "repeating"
+            },
+            {
+              "name": "duration_in_months",
+              "value": "3"
+            },
+            {
+              "name": "id",
+              "value": "={{ 'RETAIN_' + $json.customer_id + '_' + Date.now() }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "stripeApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c0c9b403-9f18-4a23-bead-43545b633379",
+      "name": "オファー内容決定",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2880,
+        688
+      ],
+      "parameters": {
+        "jsCode": "// オファータイプの決定\nfor (const item of $input.all()) {\n  const mrr = item.json.mrr || 0;\n  const ticketCount = item.json.open_ticket_count || 0;\n  const loginDays = item.json.login_days_last_30d || 0;\n  \n  let offerType, offerValue;\n  \n  if (mrr > 10000) {\n    offerType = 'premium_package';\n    offerValue = '20% OFF + 優先サポート + 無料アップグレード';\n  } else if (ticketCount > 5) {\n    offerType = 'support_upgrade';\n    offerValue = '優先サポート + 10% OFF';\n  } else if (loginDays < 5) {\n    offerType = 'engagement_boost';\n    offerValue = '個別オンボーディング + 15% OFF';\n  } else {\n    offerType = 'standard_discount';\n    offerValue = '10% OFF for 3 months';\n  }\n  \n  item.json.offer_type = offerType;\n  item.json.offer_value = offerValue;\n  item.json.offer_expire_at = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();\n}\n\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "61b76572-c497-493e-b08d-b127a0cd9afd",
+      "name": "リテンションメール生成",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        3104,
+        688
+      ],
+      "parameters": {
+        "resource": "chatCompletion",
+        "requestOptions": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "43fb7ea5-bae2-40ee-be1c-788113aa8437",
+      "name": "リテンションメール送信",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3328,
+        688
+      ],
+      "webhookId": "cd038156-4ec7-4a50-a704-2bdf37d1f7aa",
+      "parameters": {
+        "message": "={{ $json.email_body_html }}",
+        "options": {
+          "bccList": "user@example.com",
+          "replyTo": "user@example.com"
+        },
+        "subject": "={{ $json.email_subject }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "ff37bbde-5d0e-447a-b0d2-5da483d8bc68",
+      "name": "施策ログ保存",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3552,
+        688
+      ],
+      "parameters": {
+        "operation": "appendPage",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "468ea94d-69f8-4e39-ab8f-61d793fab544",
+      "name": "未更新ログ取得",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2656,
+        880
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "09bdea50-c62f-4c8f-9752-b76e4b78ef32",
+      "name": "メール開封状況取得",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2880,
+        880
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.sendgrid.com/v3/messages?msg_id=' + $json.email_provider_message_id }}",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "sendGridApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d64e0cf7-1324-4797-adcb-00b664bdaec1",
+      "name": "開封データ処理",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3104,
+        880
+      ],
+      "parameters": {
+        "jsCode": "// メール効果測定データの処理\nfor (const item of $input.all()) {\n  const events = item.json.events || [];\n  \n  item.json.email_opened = events.some(e => e.event === 'open');\n  item.json.email_clicked = events.some(e => e.event === 'click');\n  item.json.delivery_status = events.some(e => e.event === 'bounce') ? 'failed' : 'delivered';\n  item.json.metrics_status = 'updated';\n}\n\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6fc33072-8a3e-4608-b6a7-1b96a35b50da",
+      "name": "効果測定データ更新",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3328,
+        880
+      ],
+      "parameters": {
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "fb362f24-190f-43a4-93d2-a1dad8675e71",
+      "name": "30日経過レコード取得",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3552,
+        880
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "3d7735d3-93f4-4b78-a502-0df3e9ba76eb",
+      "name": "顧客ステータス確認",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3776,
+        880
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.your-crm.com/v1/customers/' + $json.customer_id + '/status' }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d962495a-3066-47b6-b842-39c852c01fd1",
+      "name": "継続状況判定",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4000,
+        880
+      ],
+      "parameters": {
+        "jsCode": "// 解約・継続・アップグレード判定\nfor (const item of $input.all()) {\n  const currentStatus = item.json.status;\n  const currentMrr = item.json.current_mrr || 0;\n  const originalMrr = item.json.mrr || 0;\n  \n  if (currentStatus === 'cancelled' || currentStatus === 'churned') {\n    item.json.churned = true;\n    item.json.retained = false;\n    item.json.upgraded = false;\n  } else if (currentMrr > originalMrr) {\n    item.json.churned = false;\n    item.json.retained = true;\n    item.json.upgraded = true;\n  } else {\n    item.json.churned = false;\n    item.json.retained = true;\n    item.json.upgraded = false;\n  }\n  \n  item.json.followup_status = 'done';\n}\n\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8def677b-25fb-4c06-9bae-58638da7cfda",
+      "name": "最終結果更新",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        4224,
+        880
+      ],
+      "parameters": {
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "2601c627-89f7-4925-b5c6-f3af17d94f35",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2160,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 464,
+        "content": "## 2️⃣ AI Risk Analysis\nOpenAI analyzes the aggregated data to predict the likelihood of churn (0.0 - 1.0).\n- **Filter**: Only customers with a risk score **> 0.7** proceed to the retention flow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b5da0a9d-d20c-4dae-91c3-36ab21a627b5",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2640,
+        512
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 576,
+        "content": "## 3️⃣ Personalized Retention Action\n- **Stripe**: Generates a unique coupon code (discount varies by MRR).\n- **OpenAI**: Drafts a highly personalized email based on the user's specific pain points.\n- **Gmail**: Sends the retention offer.\n- **Logging**: Records the attempt in Google Sheets."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "78b48631-1c20-4385-8f6b-9cba6beb212a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3232,
+        544
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1136,
+        "height": 480,
+        "content": "## 4️⃣ Campaign Tracking & Feedback Loop\nThis section measures the ROI of your retention efforts.\n- **Engagement**: Checks email open/click rates via SendGrid API.\n- **Outcome**: Verifies if the customer is still active 30 days after the email was sent.\n- **Update**: Syncs final results back to Google Sheets."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d0c81515-2e02-4a96-8d4a-f9c3cb673e9c",
+  "connections": {
+    "継続状況判定": {
+      "main": [
+        [
+          {
+            "node": "最終結果更新",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "未更新ログ取得": {
+      "main": [
+        [
+          {
+            "node": "メール開封状況取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "開封データ処理": {
+      "main": [
+        [
+          {
+            "node": "効果測定データ更新",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI解約リスク予測": {
+      "main": [
+        [
+          {
+            "node": "高リスク顧客フィルタ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "オファー内容決定": {
+      "main": [
+        [
+          {
+            "node": "リテンションメール生成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "サポート指標集計": {
+      "main": [
+        [
+          {
+            "node": "製品利用ログ取得",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "データ統合 (CRM+サポート)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "特別オファー生成": {
+      "main": [
+        [
+          {
+            "node": "オファー内容決定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "製品利用ログ取得": {
+      "main": [
+        [
+          {
+            "node": "データ統合 (全データ)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "メール開封状況取得": {
+      "main": [
+        [
+          {
+            "node": "開封データ処理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "効果測定データ更新": {
+      "main": [
+        [
+          {
+            "node": "30日経過レコード取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "顧客ステータス確認": {
+      "main": [
+        [
+          {
+            "node": "継続状況判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "30日経過レコード取得": {
+      "main": [
+        [
+          {
+            "node": "顧客ステータス確認",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "データ統合 (全データ)": {
+      "main": [
+        [
+          {
+            "node": "AI解約リスク予測",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "高リスク顧客フィルタ": {
+      "main": [
+        [
+          {
+            "node": "特別オファー生成",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "未更新ログ取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "リテンションメール生成": {
+      "main": [
+        [
+          {
+            "node": "リテンションメール送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "リテンションメール送信": {
+      "main": [
+        [
+          {
+            "node": "施策ログ保存",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "対象顧客リスト取得 (CRM)": {
+      "main": [
+        [
+          {
+            "node": "サポートチケット情報取得",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "データ統合 (CRM+サポート)": {
+      "main": [
+        [
+          {
+            "node": "データ統合 (全データ)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger - 毎日03:00実行": {
+      "main": [
+        [
+          {
+            "node": "対象顧客リスト取得 (CRM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "サポートチケット情報取得": {
+      "main": [
+        [
+          {
+            "node": "サポート指標集計",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

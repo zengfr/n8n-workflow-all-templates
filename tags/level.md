@@ -1,4 +1,4 @@
-# level : 15
+# level : 16
 
 |id|file|
 |----|----|
@@ -17,3 +17,4 @@
 |8174|[8174_Automate_Document_Approvals_with_Multi-Level_Workflows_using_Supabase___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8174_Automate_Document_Approvals_with_Multi-Level_Workflows_using_Supabase___Gmail.json)|
 |8844|[8844_Create_a_Dynamic_Telegram_Bot_Menu_System_with_Multi-Level_Navigation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8844_Create_a_Dynamic_Telegram_Bot_Menu_System_with_Multi-Level_Navigation.json)|
 |10396|[10396_Analyze___Publish_GCE_O-Level_Math_Predictions_with_Perplexity_AI_to_WordPress___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10396_Analyze___Publish_GCE_O-Level_Math_Predictions_with_Perplexity_AI_to_WordPress___Slack.json)|
+|12299|[12299_Generate_5-level_AI_explanations_for_different_audiences_from_Telegram_to_Google_Docs_with_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12299_Generate_5-level_AI_explanations_for_different_audiences_from_Telegram_to_Google_Docs_with_GPT-4.1-mini.json)|

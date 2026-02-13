@@ -1,4 +1,4 @@
-# answer : 15
+# answer : 20
 
 |id|file|
 |----|----|
@@ -17,3 +17,8 @@
 |10331|[10331_Auto-Answer_GitHub_PR_Questions_with_GPT-4o__Notion___Slack_for_Dev_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10331_Auto-Answer_GitHub_PR_Questions_with_GPT-4o__Notion___Slack_for_Dev_Teams.json)|
 |10501|[10501_Automated_Student_Answer_Sheet_Evaluation_with_Gemini_AI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10501_Automated_Student_Answer_Sheet_Evaluation_with_Gemini_AI_and_Google_Workspace.json)|
 |11820|[11820_Answer_Product_Queries_via_WhatsApp_using_OpenAI_GPT-4o_and_PDF_Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11820_Answer_Product_Queries_via_WhatsApp_using_OpenAI_GPT-4o_and_PDF_Knowledge_Base.json)|
+|12246|[12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json)|
+|12289|[12289_Send_sales_forecast_charts_and_answer_Q_A_on_WhatsApp_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12289_Send_sales_forecast_charts_and_answer_Q_A_on_WhatsApp_with_OpenAI.json)|
+|12549|[12549_Evaluate_OMR_answer_sheets_with_Gemini_vision_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12549_Evaluate_OMR_answer_sheets_with_Gemini_vision_AI_and_Google_Sheets.json)|
+|12938|[12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json)|
+|13354|[13354_Question_and_Answer_AI_Agent_Chatbot__2_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13354_Question_and_Answer_AI_Agent_Chatbot__2_2.json)|

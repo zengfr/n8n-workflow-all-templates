@@ -1,4 +1,4 @@
-# repurpose : 10
+# repurpose : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |9780|[9780_Cross-Post_Tiktok_Videos_to_Multiple_Social_Media_Platforms_with_RSS___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9780_Cross-Post_Tiktok_Videos_to_Multiple_Social_Media_Platforms_with_RSS___Blotato.json)|
 |11599|[11599_Repurpose_Blog___YouTube_Content_to_Social_Media_with_GPT-5.1_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11599_Repurpose_Blog___YouTube_Content_to_Social_Media_with_GPT-5.1_and_Google_Docs.json)|
 |11645|[11645_Generate_Short-form_Clips_from_YouTube_Videos_with_GPT-4o__Grok___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11645_Generate_Short-form_Clips_from_YouTube_Videos_with_GPT-4o__Grok___Airtable.json)|
+|12191|[12191_Repurpose_YouTube_videos_and_publish_via_Blotato_with_Telegram__Sheets_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12191_Repurpose_YouTube_videos_and_publish_via_Blotato_with_Telegram__Sheets_and_GPT-4.1-mini.json)|
+|12264|[12264_Repurpose_YouTube_videos_into_blogs_and_social_posts_with_GPT-4o__WordPress__LinkedIn__X_and_Instagram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12264_Repurpose_YouTube_videos_into_blogs_and_social_posts_with_GPT-4o__WordPress__LinkedIn__X_and_Instagram.json)|
+|12353|[12353_Repurpose_Instagram_videos_to_YouTube_with_Claude_and_Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12353_Repurpose_Instagram_videos_to_YouTube_with_Claude_and_Google_Sheets_tracking.json)|
+|12847|[12847_Repurpose_LinkedIn_posts_into_X_tweets_with_Apify__Claude_AI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12847_Repurpose_LinkedIn_posts_into_X_tweets_with_Apify__Claude_AI_and_Airtable.json)|

@@ -1,4 +1,4 @@
-# metrics : 18
+# metrics : 21
 
 |id|file|
 |----|----|
@@ -20,3 +20,6 @@
 |9464|[9464_Sync_KPI_Metrics_from_ClickUp_and_Google_Sheets_to_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9464_Sync_KPI_Metrics_from_ClickUp_and_Google_Sheets_to_Slack_and_Gmail.json)|
 |9497|[9497_AI_Model_Usage_Dashboard__Track_Token_Metrics_and_Costs_for_LLM_Workflows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9497_AI_Model_Usage_Dashboard__Track_Token_Metrics_and_Costs_for_LLM_Workflows.json)|
 |11483|[11483_Generate_Automated_Content_Performance_Reports_from_YouTube__TikTok_and_Skool_with_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11483_Generate_Automated_Content_Performance_Reports_from_YouTube__TikTok_and_Skool_with_AI.json)|
+|12018|[12018_AI-powered_productivity_coach_using_Google_Calendar__Todoist__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12018_AI-powered_productivity_coach_using_Google_Calendar__Todoist__Slack_and_Sheets.json)|
+|12156|[12156_Track_BlueSky_post_engagement_metrics_in_Google_Sheets_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12156_Track_BlueSky_post_engagement_metrics_in_Google_Sheets_automatically.json)|
+|13198|[13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json)|

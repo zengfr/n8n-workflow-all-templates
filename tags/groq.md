@@ -1,4 +1,4 @@
-# groq : 27
+# groq : 29
 
 |id|file|
 |----|----|
@@ -29,3 +29,5 @@
 |11141|[11141_Complete_AI_Safety_Suite__Test_9_Guardrail_Layers_with_Groq_LLM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11141_Complete_AI_Safety_Suite__Test_9_Guardrail_Layers_with_Groq_LLM.json)|
 |11566|[11566_Automated_RSS_to_Telegram_Publisher_with_Groq_AI_Rewriting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11566_Automated_RSS_to_Telegram_Publisher_with_Groq_AI_Rewriting.json)|
 |11787|[11787_Play_RPG_with_Groq_Dungeon_Master_via_Telegram_voice_messages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11787_Play_RPG_with_Groq_Dungeon_Master_via_Telegram_voice_messages.json)|
+|12236|[12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json)|
+|12673|[12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json)|

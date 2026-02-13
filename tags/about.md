@@ -1,4 +1,4 @@
-# about : 20
+# about : 24
 
 |id|file|
 |----|----|
@@ -22,3 +22,7 @@
 |3761|[3761_Email_Assistant__Convert_Natural_Language_to_SQL_Queries_with_Phi4-mini_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/37/3761_Email_Assistant__Convert_Natural_Language_to_SQL_Queries_with_Phi4-mini_and_PostgreSQL.json)|
 |4701|[4701_Notify_on_Discord_about_New_Epic_Games_Free_Game_Releases.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/47/4701_Notify_on_Discord_about_New_Epic_Games_Free_Game_Releases.json)|
 |8220|[8220_Answer_Questions_About_Documentation_with_BigQuery_RAG_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8220_Answer_Questions_About_Documentation_with_BigQuery_RAG_and_OpenAI.json)|
+|12298|[12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json)|
+|12507|[12507_Build_person_OSINT_profiles_using_Humantic_AI__Hunter__CourtListener_and_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12507_Build_person_OSINT_profiles_using_Humantic_AI__Hunter__CourtListener_and_GPT-5.json)|
+|12757|[12757_Ask_questions_about_past_meetings_using_voice_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12757_Ask_questions_about_past_meetings_using_voice_with_OpenAI_and_Pinecone.json)|
+|12841|[12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json)|

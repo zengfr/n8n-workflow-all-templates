@@ -1,4 +1,4 @@
-# comment : 29
+# comment : 31
 
 |id|file|
 |----|----|
@@ -31,3 +31,5 @@
 |10319|[10319_Auto-Moderate_Instagram_Comments_with_Perspective_API___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10319_Auto-Moderate_Instagram_Comments_with_Perspective_API___Slack_Alerts.json)|
 |10320|[10320_AI-Powered_Facebook_Comment_Management__Auto-Reply__Delete__Ban___Notify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10320_AI-Powered_Facebook_Comment_Management__Auto-Reply__Delete__Ban___Notify.json)|
 |10331|[10331_Auto-Answer_GitHub_PR_Questions_with_GPT-4o__Notion___Slack_for_Dev_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10331_Auto-Answer_GitHub_PR_Questions_with_GPT-4o__Notion___Slack_for_Dev_Teams.json)|
+|12028|[12028_Moderate_Facebook_comments_with_AI_and_send_reports_to_Slack___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12028_Moderate_Facebook_comments_with_AI_and_send_reports_to_Slack___Telegram.json)|
+|12375|[12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json)|

@@ -1,4 +1,4 @@
-# cloudinary : 8
+# cloudinary : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |8989|[8989_Auto-Post_Instagram_Carousels_using_Google_Sheets__Drive__Cloudinary___Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8989_Auto-Post_Instagram_Carousels_using_Google_Sheets__Drive__Cloudinary___Graph_API.json)|
 |9312|[9312_Process___Catalog_Dress_Images_with_GPT-4o__Cloudinary__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9312_Process___Catalog_Dress_Images_with_GPT-4o__Cloudinary__and_Google_Sheets.json)|
 |11791|[11791_Automate_RSS_to_Instagram_with_AI-Generated_Content_and_Cloudinary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11791_Automate_RSS_to_Instagram_with_AI-Generated_Content_and_Cloudinary.json)|
+|12590|[12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json)|

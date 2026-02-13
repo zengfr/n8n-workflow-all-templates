@@ -1,4 +1,4 @@
-# dual : 9
+# dual : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |9507|[9507_Insurance_News_Aggregation_Keyword_Analysis___Database_Storage_via_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9507_Insurance_News_Aggregation_Keyword_Analysis___Database_Storage_via_Supabase.json)|
 |9567|[9567_Create_Dual-Source_Expert_Articles_with_Internal_Knowledge_and_Web_Research_using_Lookio__Linkup__and_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9567_Create_Dual-Source_Expert_Articles_with_Internal_Knowledge_and_Web_Research_using_Lookio__Linkup__and_GPT-5.json)|
 |9775|[9775_Dual-Path_Customer_Support_System_with_Google_Sheets__Vectors___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9775_Dual-Path_Customer_Support_System_with_Google_Sheets__Vectors___Gemini.json)|
+|12990|[12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json)|
+|12991|[12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json)|

@@ -1,4 +1,4 @@
-# messages : 88
+# messages : 94
 
 |id|file|
 |----|----|
@@ -90,3 +90,9 @@
 |11397|[11397_Convert_Gmail_Emails_to_Telegram_Voice_Messages_with_GPT-5_and_Inworld_TTS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11397_Convert_Gmail_Emails_to_Telegram_Voice_Messages_with_GPT-5_and_Inworld_TTS.json)|
 |11787|[11787_Play_RPG_with_Groq_Dungeon_Master_via_Telegram_voice_messages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11787_Play_RPG_with_Groq_Dungeon_Master_via_Telegram_voice_messages.json)|
 |11817|[11817_Manage_Notion_To-Do_Tasks_via_Telegram_with_Voice_Messages___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11817_Manage_Notion_To-Do_Tasks_via_Telegram_with_Voice_Messages___OpenAI.json)|
+|12359|[12359_Auto-reply_to_Telegram_messages_using_BrowserAct_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12359_Auto-reply_to_Telegram_messages_using_BrowserAct_and_Google_Gemini.json)|
+|12673|[12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json)|
+|12744|[12744_Sync_Beex_WhatsApp_ticket_messages_with_HubSpot_contact_activities.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12744_Sync_Beex_WhatsApp_ticket_messages_with_HubSpot_contact_activities.json)|
+|12948|[12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json)|
+|13029|[13029_Send_LinkedIn_outreach_messages_using_Google_Sheets_and_SourceGeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13029_Send_LinkedIn_outreach_messages_using_Google_Sheets_and_SourceGeek.json)|
+|13070|[13070_Debounce_Telegram_support_messages_and_aggregate_replies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13070_Debounce_Telegram_support_messages_and_aggregate_replies_with_OpenAI.json)|

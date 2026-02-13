@@ -1,0 +1,700 @@
+{
+  "id": "qWVPl30dEBIDO7HE",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Daily news digest from RSS and YouTube using AI for Telegram",
+    "wechat": "youandme10086",
+    "id": 12141,
+    "update_time": "2026-02-13"
+  },
+  "name": "Daily News Digest: RSS & Youtube to Telegram (Text + Audio) with Gemini & OpenAI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a6b1fbdc-2d05-49b4-bf26-3c1dd6cf2d92",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -496,
+        -96
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "069ba213-9d37-4262-b79f-de447bdcf064",
+      "name": "RSS Feed Read (TechCrunch)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "onError": "continueRegularOutput",
+      "position": [
+        -208,
+        -384
+      ],
+      "parameters": {
+        "url": "https://techcrunch.com/feed/",
+        "options": {
+          "ignoreSSL": true
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4be9bbdd-8e45-4eab-bd19-a9d640730edc",
+      "name": "RSS Feed Read (The Verge)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "onError": "continueRegularOutput",
+      "position": [
+        -208,
+        -192
+      ],
+      "parameters": {
+        "url": "https://www.theverge.com/rss/index.xml",
+        "options": {
+          "ignoreSSL": true
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d699416f-d446-4c93-8cb6-cd3a82aec355",
+      "name": "Merge - Tech (Append)",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        48,
+        -288
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "276f62c2-69a7-4f30-8fc0-c96d187720c5",
+      "name": "Code - Clean & Dedup (newsContext)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        928,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "// ===== CONFIG =====\nconst ONLY_LAST_HOURS = 36;          // Filter news from the last X hours (set null/0 if not filtering)\nconst MAX_ITEMS = 60;    // total number of items included in context\nconst MAX_TOTAL_CHARS = 28000;   // Block token overshoot (optional)\nconst MAX_TITLE_CHARS = 160;\nconst MAX_DESC_CHARS = 260;\n\n// Mix ratio by source type (RSS vs YouTube)\n// Example 70/30 => MAX_ITEMS=60 => RSS ~42, YouTube ~18 (if there's a shortage, it will be automatically compensated)\nconst MIX_RATIO = {\n  rss: 0.7,\n  youtube: 0.3,\n};\n\n// Remove posts that are in the form of deals/prices/where to buy... (less clutter and less length)\nconst EXCLUDE_IF_TEXT_MATCH = [\n  /\\bwhere to buy\\b/i,\n  /\\bdeal\\b/i,\n  /\\bsale\\b/i,\n  /\\bpromo code\\b/i,\n  /\\$\\d/i,\n  /\\bblack friday\\b/i,\n  /\\bcyber monday\\b/i,\n];\n\n// The Verge's signature phrase is often inserted.\nconst STRIP_PHRASES = [\n  /read the full story at the verge\\.?/gi,\n  /read our review\\.?/gi,\n];\n\n// ==================\n\nfunction decodeEntities(str) {\n  str = String(str ?? '');\n\n  const map = {\n    '&nbsp;': ' ',\n    '&amp;': '&',\n    '&quot;': '\"',\n    '&#39;': \"'\",\n    '&apos;': \"'\",\n    '&lt;': '<',\n    '&gt;': '>',\n    '&rsquo;': '’',\n    '&lsquo;': '‘',\n    '&ldquo;': '“',\n    '&rdquo;': '”',\n    '&mdash;': '—',\n    '&ndash;': '–',\n    '&hellip;': '…',\n  };\n\n  str = str.replace(\n    /&nbsp;|&amp;|&quot;|&#39;|&apos;|&lt;|&gt;|&rsquo;|&lsquo;|&ldquo;|&rdquo;|&mdash;|&ndash;|&hellip;/g,\n    (m) => map[m] ?? m\n  );\n\n  // numeric entities: &#8217;  /  &#x2019;\n  str = str.replace(/&#(\\d+);/g, (_, n) => {\n    const code = parseInt(n, 10);\n    return Number.isFinite(code) ? String.fromCodePoint(code) : _;\n  });\n  str = str.replace(/&#x([0-9a-fA-F]+);/g, (_, h) => {\n    const code = parseInt(h, 16);\n    return Number.isFinite(code) ? String.fromCodePoint(code) : _;\n  });\n\n  return str;\n}\n\nfunction stripHtml(s) {\n  return decodeEntities(String(s ?? ''))\n    .replace(/<[^>]*>/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction clip(s, n) {\n  s = String(s ?? '').trim();\n  if (!n || s.length <= n) return s;\n  return s.slice(0, n - 1).trimEnd() + '…';\n}\n\nfunction normTitle(s) {\n  return stripHtml(s).toLowerCase().replace(/\\s+/g, ' ').trim();\n}\n\nfunction inferPublication(link, feedTitle) {\n  const l = String(link ?? '');\n  const ft = String(feedTitle ?? '');\n  if (/techcrunch\\.com/i.test(l)) return 'TechCrunch';\n  if (/theverge\\.com/i.test(l)) return 'The Verge';\n  if (/vnexpress\\.net/i.test(l)) return 'VNExpress';\n  if (/youtube\\.com|youtu\\.be/i.test(l)) return 'YouTube';\n  if (/trends\\.google\\.com/i.test(l)) return 'Google Trends';\n  if (ft) return stripHtml(ft);\n  return 'RSS';\n}\n\nfunction inferSourceType(j) {\n  // Prioritize fields set from upstream.\n  if (j?.sourceType) return String(j.sourceType);\n\n  const link = String(j?.link || j?.url || '');\n  if (/youtube\\.com|youtu\\.be/i.test(link)) return 'youtube';\n  if (/trends\\.google\\.com/i.test(link)) return 'trends';\n\n  return 'rss';\n}\n\nfunction parseDateMaybe(v) {\n  if (!v) return null;\n  const d = new Date(v);\n  return Number.isNaN(d.getTime()) ? null : d;\n}\n\nfunction matchesAny(reList, text) {\n  const t = String(text ?? '');\n  return reList.some((re) => re.test(t));\n}\n\nfunction getTs(a) {\n  const d = a.publishedAt ? new Date(a.publishedAt) : null;\n  const t = d && !Number.isNaN(d.getTime()) ? d.getTime() : 0;\n  return t;\n}\n\n// time cutoff\nconst now = new Date();\nconst cutoff = ONLY_LAST_HOURS ? new Date(now.getTime() - ONLY_LAST_HOURS * 3600 * 1000) : null;\n\n// main\nconst seen = new Set();\nconst candidates = [];\n\nlet droppedDup = 0;\nlet droppedByTime = 0;\nlet droppedByExclude = 0;\n\nfor (const it of $input.all()) {\n  const j = it.json || {};\n\n  const title = stripHtml(j.title || j.Title || '');\n  if (!title) continue;\n\n  const link = stripHtml(j.link || j.url || '');\n  const descRaw = stripHtml(j.description || j.content || j.snippet || '');\n  const author = stripHtml(j.creator || j.author || j.dcCreator || '');\n\n  // PublishedAt can be pubDate/isoDate/publishedAt...\n  const publishedAtRaw =\n    j.isoDate || j.pubDate || j.publishedAt || j.publishTime || j.date || '';\n  const publishedAt = parseDateMaybe(publishedAtRaw);\n\n  if (cutoff && publishedAt && publishedAt < cutoff) {\n    droppedByTime++;\n    continue;\n  }\n\n  // Filter out \"deals/junk\" based on aggregated text.\n  const haystack = `${title}\\n${descRaw}\\n${link}`;\n  if (matchesAny(EXCLUDE_IF_TEXT_MATCH, haystack)) {\n    droppedByExclude++;\n    continue;\n  }\n\n  // key dedup\n  const key = link ? `L:${link}` : `T:${normTitle(title)}`;\n  if (seen.has(key)) {\n    droppedDup++;\n    continue;\n  }\n  seen.add(key);\n\n  // clean desc\n  let desc = descRaw;\n  for (const re of STRIP_PHRASES) desc = desc.replace(re, '').trim();\n  desc = clip(desc, MAX_DESC_CHARS);\n\n  const publication = inferPublication(link, j.feedTitle);\n  const sourceType = inferSourceType(j);\n  const titleClipped = clip(title, MAX_TITLE_CHARS);\n\n  candidates.push({\n    title: titleClipped,\n    description: desc,\n    link,\n    publication,\n    author,\n    publishedAt: publishedAt\n      ? publishedAt.toISOString()\n      : (publishedAtRaw ? String(publishedAtRaw) : ''),\n    sourceType,\n  });\n}\n\n// ===== MIX by ratio (70/30) =====\n\n// Group by sourceType\nconst rssList = [];\nconst ytList = [];\nconst otherList = [];\n\nfor (const a of candidates) {\n  if (a.sourceType === 'youtube') ytList.push(a);\n  else if (a.sourceType === 'rss') rssList.push(a);\n  else otherList.push(a);\n}\n\n// Sort each group from newest to first (this is up to you; if you want to keep the input order, remove the sort).\nrssList.sort((a, b) => getTs(b) - getTs(a));\nytList.sort((a, b) => getTs(b) - getTs(a));\notherList.sort((a, b) => getTs(b) - getTs(a));\n\n// Quotas\nlet rssQuota = Math.round(MAX_ITEMS * (MIX_RATIO.rss ?? 0.7));\nrssQuota = Math.max(0, Math.min(MAX_ITEMS, rssQuota));\nlet ytQuota = MAX_ITEMS - rssQuota;\n\n// Pick quota\nlet pickedRss = rssList.slice(0, rssQuota);\nlet pickedYt = ytList.slice(0, ytQuota);\n\n// Fill nếu 1 bên thiếu\nif (pickedYt.length < ytQuota) {\n  const need = ytQuota - pickedYt.length;\n  pickedRss = pickedRss.concat(rssList.slice(rssQuota, rssQuota + need));\n}\nif (pickedRss.length < rssQuota) {\n  const need = rssQuota - pickedRss.length;\n  pickedYt = pickedYt.concat(ytList.slice(ytQuota, ytQuota + need));\n}\n\n// Alternate mixing according to the 70/30 pattern (7 RSS, 3 YT).\nconst w = 10;\nconst wR = Math.max(0, Math.min(10, Math.round((MIX_RATIO.rss ?? 0.7) * w)));\nconst wY = w - wR;\nconst pattern = [\n  ...Array(wR).fill('rss'),\n  ...Array(wY).fill('youtube'),\n];\n\nconst queueR = [...pickedRss];\nconst queueY = [...pickedYt];\n\nconst articles = [];\nlet pi = 0;\n\nwhile (articles.length < MAX_ITEMS && (queueR.length || queueY.length)) {\n  const want = pattern[pi % pattern.length];\n  pi++;\n\n  if (want === 'youtube' && queueY.length) articles.push(queueY.shift());\n  else if (want === 'rss' && queueR.length) articles.push(queueR.shift());\n  else if (queueR.length) articles.push(queueR.shift());\n  else if (queueY.length) articles.push(queueY.shift());\n}\n\n// (Optional) If still missing, fill with otherList\nif (articles.length < MAX_ITEMS && otherList.length) {\n  articles.push(...otherList.slice(0, MAX_ITEMS - articles.length));\n}\n\n// ===== build newsContext (for Gemini) =====\nlet newsContext = '';\nfor (const a of articles) {\n  // format: [Publication | Author | sourceType] Title: Desc (Link)\n  // (You can remove sourceType from the head if you don't want it to be visible)\n  const headParts = [a.publication];\n  if (a.author) headParts.push(a.author);\n  if (a.sourceType) headParts.push(a.sourceType);\n\n  const head = `[${headParts.join(' | ')}]`;\n\n  const line =\n    `${head} ${a.title}` +\n    `${a.description ? `: ${a.description}` : ''}` +\n    `${a.link ? ` (${a.link})` : ''}\\n`;\n\n  if ((newsContext.length + line.length) > MAX_TOTAL_CHARS) break;\n  newsContext += line;\n}\n\nreturn [{\n  json: {\n    newsContext: newsContext.trim(),\n    articles,\n    stats: {\n      inputCount: $input.all().length,\n      candidatesCount: candidates.length,\n      rssCount: rssList.length,\n      youtubeCount: ytList.length,\n      outputCount: articles.length,\n      droppedDup,\n      droppedByTime,\n      droppedByExclude,\n      cutoffISO: cutoff ? cutoff.toISOString() : null,\n      ratio: MIX_RATIO,\n      quota: {\n        rssQuota,\n        ytQuota,\n        pickedRss: pickedRss.length,\n        pickedYt: pickedYt.length,\n      }\n    }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fab7cfbf-1b3f-4579-9111-239af2f8da4e",
+      "name": "YouTube - Search (Latest 24h)",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        -208,
+        224
+      ],
+      "parameters": {
+        "limit": 15,
+        "filters": {
+          "q": "AI, Tech News, Artificial Intelligence",
+          "regionCode": "US",
+          "publishedAfter": "={{ $now.setZone('America/New_York').minus({ hours: 24 }).toISO() }}"
+        },
+        "options": {
+          "order": "date"
+        },
+        "resource": "video"
+      },
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "credential-id",
+          "name": "youTubeOAuth2Api Credential"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2531e648-ab2a-4dc7-b130-7f30872843ac",
+      "name": "Merge - Add YouTube (Append)",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        720,
+        -96
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "cef6ff91-7995-4e39-8a65-1ec9b38a3b1a",
+      "name": "Code - YouTube Normalize + Filter",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        272,
+        224
+      ],
+      "parameters": {
+        "jsCode": "// ====== CONFIG ======\nconst ONLY_LAST_HOURS = 24;\n\n// Keyword \"Positive\" (Must match at least one)\nconst INCLUDE_REGEX = [\n  /\\bai\\b/i,\n  /\\bartificial intelligence\\b/i,\n  /\\btech\\b/i,\n  /\\bllm\\b/i,\n  /\\bchatgpt\\b/i,\n  /\\bgemini\\b/i,\n  /\\bopenai\\b/i,\n  /\\bautomation\\b/i,\n  /\\brobotics\\b/i,\n  /\\bmachine learning\\b/i,\n];\n\n// Keyword \"Negative\" (If matched, exclude item)\nconst EXCLUDE_REGEX = [\n  /\\bcrypto\\b/i,\n  /\\bbitcoin\\b/i,\n  /\\bcoin\\b/i,\n  /\\binvestment\\b/i,\n  /\\bprice prediction\\b/i,\n  /\\bxrp\\b/i,\n  /\\bgiveaway\\b/i,\n  /\\blive stream\\b/i, // Often low quality or just looping music\n];\n\n// ======================================\n\nconst now = new Date();\nconst cutoff = new Date(now.getTime() - ONLY_LAST_HOURS * 60 * 60 * 1000);\n\nfunction pickThumb(snippet) {\n  return (\n    snippet?.thumbnails?.high?.url ||\n    snippet?.thumbnails?.medium?.url ||\n    snippet?.thumbnails?.default?.url ||\n    ''\n  );\n}\n\nfunction matchAny(regexList, text) {\n  return regexList.some((re) => re.test(text));\n}\n\nconst out = [];\n\nfor (const item of $input.all()) {\n  const j = item.json;\n\n  const videoId = j?.id?.videoId || '';\n  const snippet = j?.snippet || {};\n\n  const title = snippet?.title || '';\n  const description = snippet?.description || '';\n  const channelTitle = snippet?.channelTitle || '';\n  const publishedAt = snippet?.publishedAt || snippet?.publishTime || '';\n\n  if (!videoId || !title) continue;\n\n  // Time filter (if publishedAt parse is possible)\n  if (publishedAt) {\n    const d = new Date(publishedAt);\n    if (!Number.isNaN(d.getTime()) && d < cutoff) continue;\n  }\n\n  // Content filter\n  const haystack = `${title}\\n${description}\\n${channelTitle}`;\n  if (!matchAny(INCLUDE_REGEX, haystack)) continue;\n  if (matchAny(EXCLUDE_REGEX, haystack)) continue;\n\n  out.push({\n    json: {\n      title,\n      link: `https://www.youtube.com/watch?v=${videoId}`,\n      description,\n      source: `YouTube - ${channelTitle || 'Unknown'}`,\n      publishedAt,\n      thumbnail: pickThumb(snippet),\n      channelTitle,\n      videoId,\n    }\n  });\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1c33a22a-aa9f-4cd2-bc01-6c033e15ea05",
+      "name": "Set - Mark RSS",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        480,
+        -112
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ef4eb06-d6fb-4ccb-a5c7-24e10fd4734e",
+              "name": "sourceType",
+              "type": "string",
+              "value": "=rss"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "27f323b2-af06-4321-a498-fbe4e46fe432",
+      "name": "Set - Mark YouTube",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        496,
+        224
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7fddd203-3144-4d14-af88-6608b0b5778c",
+              "name": "sourceType",
+              "type": "string",
+              "value": "=youtube"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a84e7155-1591-4000-94a2-2982a116f3c3",
+      "name": "Google Gemini Chat (AI Analysis)",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "position": [
+        1168,
+        -96
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-2.5-flash",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "options": {
+          "temperature": 0.3,
+          "systemMessage": "=You are a professional News Editor. You must follow instructions exactly."
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Return ONLY valid JSON. No markdown fences. No extra text.\nRead this context:\n{{$json.newsContext}}\n\nTasks:\n1) Select top 10 most important stories (mix of Tech & Global News).\n2) Write a morning briefing in English.\n\nOutput strict JSON (no markdown fences, no extra text):\n{\n  \"title\": \"{{$now.setZone('America/New_York').toFormat('yyyy-LL-dd')}} Morning Briefing\",\n  \"telegram_body\": \"Use ONLY HTML: <b>, <i>, <a href='url'>. NO Markdown symbols (*, _, [). Keep under 4000 chars.\",\n  \"audio_script\": \"Natural, energetic English text for speech. No special chars like < > [ ] * _. Avoid URLs.\"\n}\n\nRules:\n- telegram_body must be valid Telegram HTML.\n- Use bullet points with '•' not '-' if you want lists.\n- Always include links via <a href='...'>...</a>."
+            }
+          ]
+        },
+        "simplify": false,
+        "jsonOutput": true
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "credential-id",
+          "name": "googlePalmApi Credential"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b5e21b3a-2f50-4437-aeb9-297d685319e1",
+      "name": "Code - Robust Parser (Gemini JSON)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1488,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\n// 1) Get raw text from Gemini\nconst raw = (item?.candidates?.[0]?.content?.parts || [])\n  .map(p => p?.text ?? '')\n  .join('')\n  .trim();\n\nif (!raw) throw new Error('Gemini output error: candidates[0].content.parts[].text not found');\n\n// 2) Cut JSON objects (to avoid any extra text).\nconst first = raw.indexOf('{');\nconst last = raw.lastIndexOf('}');\nif (first === -1 || last === -1 || last <= first) {\n  throw new Error('Not found JSON object in output Gemini');\n}\nconst jsonStr = raw.slice(first, last + 1);\n\n// 3) parse\nlet parsed;\ntry {\n  parsed = JSON.parse(jsonStr);\n} catch (e) {\n  throw new Error('JSON.parse failed. JSON string was:\\n' + jsonStr);\n}\n\n// 4) CLEAN HTML FOR TELEGRAM\nlet telegram_body = String(parsed.telegram_body ?? '').trim();\n\n// Fix 1: Replace the tags <br>, <br/>, <br /> with the newline character \\n\ntelegram_body = telegram_body.replace(/<br\\s*\\/?>/gi, '\\n');\n\n// Fix 2: Replace the <p> tag with a blank line and </p> with a line break (as a precaution).\ntelegram_body = telegram_body.replace(/<p>/gi, '').replace(/<\\/p>/gi, '\\n');\n\n// Fix 3: Normalize href (change ' to \" if applicable)\ntelegram_body = telegram_body.replace(/href='([^']+)'/g, 'href=\"$1\"');\n\nconst audio_script = String(parsed.audio_script ?? '').trim();\nconst title = String(parsed.title ?? '').trim();\n\nif (!telegram_body) throw new Error('Missing telegram_body');\nif (!audio_script) throw new Error('Missing audio_script');\n\nreturn [{\n  json: { title, telegram_body, audio_script }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "acecf9dc-e3f6-4e55-b69c-9f45b6b6dbcd",
+      "name": "Telegram - Send Briefing Text",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2016,
+        -96
+      ],
+      "webhookId": "25fe2177-437e-4692-8589-0b49b777597f",
+      "parameters": {
+        "text": "={{ $json.telegram_body }}",
+        "chatId": "INPUT YOUR CHAT ID WITH BOT",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "credential-id",
+          "name": "telegramApi Credential"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a8477a99-b8a2-412b-8413-2ab509743f06",
+      "name": "HTTP - OpenAI TTS (speech)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1248,
+        224
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/audio/speech",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "audio"
+            }
+          }
+        },
+        "jsonBody": "={{ $json.tts }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "openAiApi Credential"
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "98377e3d-ec07-4b77-ad1a-fc7dc3106ffe",
+      "name": "Telegram - Send Briefing Audio",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2016,
+        224
+      ],
+      "webhookId": "a5717da9-c0e1-4129-84f1-ad085c443542",
+      "parameters": {
+        "chatId": "INPUT YOUR CHAT ID WITH BOT",
+        "operation": "sendAudio",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "={{ $json.title }}"
+        },
+        "binaryPropertyName": "audio"
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "credential-id",
+          "name": "telegramApi Credential"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e6b67eae-8d2f-45e4-aab3-c7f3e1d29dfc",
+      "name": "Code - Fix Audio Meta (filename + mime)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1744,
+        224
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first();\nif (!item.binary?.audio) {\n  throw new Error('Not found binary.audio from node HTTP TTS');\n}\n\nconst desiredNameFromJson = item.json.fileName || item.json.filename || item.json.audioFileName;\nlet desiredName = desiredNameFromJson || 'morning_briefing.mp3';\n\n// Make sure to add the .mp3 extension.\nif (!desiredName.toLowerCase().endsWith('.mp3')) desiredName += '.mp3';\n\n// Reset metadata for the binary.\nitem.binary.audio.fileName = desiredName;\n\n// mimeType: OpenAI usually returns audio/mpeg (correct). Telegram is also OK.\n// But if you want \"standard mp3\", then audio/mpeg is still the best option.\nitem.binary.audio.mimeType = 'audio/mpeg';\n\n// (Optional) some flows/nodes can read file extensions.\nitem.binary.audio.fileExtension = 'mp3';\n\nreturn [item];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "62b3256d-d14b-43c8-a9d5-a0daa724d841",
+      "name": "Code - Build TTS Payload (OpenAI)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1744,
+        32
+      ],
+      "parameters": {
+        "jsCode": "const { title, telegram_body, audio_script } = $input.first().json;\n\n// Guard + API-based restrictions (safe)\nlet input = String(audio_script || '').trim();\nif (!input) throw new Error('audio_script rỗng');\n\n// OpenAI TTS input is limited to 4096 characters -> temporarily truncated to avoid failure.\nif (input.length > 4096) {\n  input = input.slice(0, 4050).trimEnd() + '...';\n}\n\nconst now = new Date();\nconst yyyy = now.getFullYear();\nconst mm = String(now.getMonth() + 1).padStart(2, '0');\nconst dd = String(now.getDate()).padStart(2, '0');\n\nreturn [{\n  json: {\n    title,\n    telegram_body,\n    fileName: `morning_briefing_${yyyy}-${mm}-${dd}.mp3`,\n    tts: {\n      model: 'gpt-4o-mini-tts',\n      voice: 'alloy',\n      input,\n      instructions: 'Clear, professional English broadcast voice.',\n      response_format: 'mp3',\n      speed: 1.05,\n    },\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6fb4d594-8bbb-42b8-aff2-24e74dec3f96",
+      "name": "RSS Feed Read (BBC World)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "onError": "continueRegularOutput",
+      "position": [
+        -208,
+        32
+      ],
+      "parameters": {
+        "url": "http://feeds.bbci.co.uk/news/world/rss.xml",
+        "options": {
+          "ignoreSSL": true
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d4caa68b-01fd-4c6c-8c0c-841c49ab99db",
+      "name": "Merge - Add BBC World (Append)",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        272,
+        -112
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "c8afa7c8-7490-4e81-9a81-0192884b1459",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1088,
+        -304
+      ],
+      "parameters": {
+        "width": 512,
+        "height": 704,
+        "content": "## Daily News Digest: Text & Audio Briefing\nThis workflow automates your morning news routine by aggregating content from RSS feeds and YouTube, curating it with AI, and delivering a text summary plus a podcast-style audio file to Telegram.\n\n### How it works\n1. **Aggregates:** Fetches latest news from your chosen RSS sources (e.g., BBC, TechCrunch) and YouTube video transcripts.\n2. **Processes:** Cleans HTML, deduplicates stories, and filters irrelevant content via Code.\n3. **Analyzes:** Google Gemini acts as an Editor-in-Chief to select the most important stories and rewrite them into a briefing.\n4. **Delivers:** Generates a professional audio file using OpenAI TTS and sends it to Telegram along with an HTML-formatted text summary.\n\n### Setup steps\n1. **Credentials:** Configure credentials for **Google Gemini**, **OpenAI**, **Telegram API**, and **YouTube Data API**.\n2. **Environment Variables:** Define `TELEGRAM_CHAT_ID` in your n8n variables (or hardcode it in the Telegram nodes for testing).\n3. **Run:** Activate the Schedule Trigger to run daily at 7:00 AM \n\n### Customization tips\n* **Input Sources:** The provided RSS feeds are examples. Feel free to replace them with your favorite news sources in the **Input Section**.\n* **AI Logic:** Open the **Google Gemini** node to adjust the prompt. You can change the number of stories (e.g., from 10 to 15), the summary length, or the personality of the audio script.\n* **YouTube Filters:** Modify keywords in the **YouTube - Search (Latest 24h)** node to track specific topics like \"AI\", \"Finance\", or \"Sports\"."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3eb9ba99-6666-4969-8237-e3bf9b1d24e5",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -544,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 496,
+        "height": 896,
+        "content": "## 1. Input Sources\nFetches data from multiple sources.\n*Tip: Replace these RSS URLs and YouTube keywords to match your personal interests.*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f7c33d4b-2d2a-45c5-94db-db784daff802",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        -400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 816,
+        "content": "## 2. Data Preparation\nCleans HTML tags, deduplicates repeated articles, and mixes sources based on a defined ratio."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "48ba11b1-9cc6-4aba-8f30-846bafd213de",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        -224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 512,
+        "height": 640,
+        "content": "## 3. AI Analysis\nGemini curates the top stories.\n*Tip: Edit the Prompt in the Gemini node to change the item count (e.g., 10 vs 20) or max character limit.*"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a59bebf-0f1b-479f-a594-e8301d51fd42",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1696,
+        -224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 512,
+        "height": 640,
+        "content": "## 4. Audio Generation & Delivery\nConverts the script to speech (MP3) via OpenAI and delivers the full briefing to Telegram."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "623a44a1-7ef5-4465-b789-a9f34d54fbab",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1968,
+        80
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 208,
+        "height": 128,
+        "content": "### ⚠️ Check Chat ID\nEnsure `TELEGRAM_CHAT_ID` is set in your Global Variables, or the message will fail to send."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "Asia/Ho_Chi_Minh",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timeSavedMode": "fixed",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "4f4ad20c-a577-4d6a-8cac-3c76b4b517c5",
+  "connections": {
+    "Set - Mark RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge - Add YouTube (Append)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Feed Read (TechCrunch)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Feed Read (The Verge)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Feed Read (BBC World)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "YouTube - Search (Latest 24h)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Mark YouTube": {
+      "main": [
+        [
+          {
+            "node": "Merge - Add YouTube (Append)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge - Tech (Append)": {
+      "main": [
+        [
+          {
+            "node": "Merge - Add BBC World (Append)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed Read (BBC World)": {
+      "main": [
+        [
+          {
+            "node": "Merge - Add BBC World (Append)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RSS Feed Read (The Verge)": {
+      "main": [
+        [
+          {
+            "node": "Merge - Tech (Append)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP - OpenAI TTS (speech)": {
+      "main": [
+        [
+          {
+            "node": "Code - Fix Audio Meta (filename + mime)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed Read (TechCrunch)": {
+      "main": [
+        [
+          {
+            "node": "Merge - Tech (Append)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Add YouTube (Append)": {
+      "main": [
+        [
+          {
+            "node": "Code - Clean & Dedup (newsContext)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Send Briefing Text": {
+      "main": [
+        []
+      ]
+    },
+    "YouTube - Search (Latest 24h)": {
+      "main": [
+        [
+          {
+            "node": "Code - YouTube Normalize + Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Add BBC World (Append)": {
+      "main": [
+        [
+          {
+            "node": "Set - Mark RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat (AI Analysis)": {
+      "main": [
+        [
+          {
+            "node": "Code - Robust Parser (Gemini JSON)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Build TTS Payload (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "HTTP - OpenAI TTS (speech)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - YouTube Normalize + Filter": {
+      "main": [
+        [
+          {
+            "node": "Set - Mark YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Clean & Dedup (newsContext)": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini Chat (AI Analysis)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Robust Parser (Gemini JSON)": {
+      "main": [
+        [
+          {
+            "node": "Code - Build TTS Payload (OpenAI)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram - Send Briefing Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Fix Audio Meta (filename + mime)": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Send Briefing Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

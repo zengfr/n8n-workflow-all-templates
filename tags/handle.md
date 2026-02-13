@@ -1,4 +1,4 @@
-# handle : 9
+# handle : 14
 
 |id|file|
 |----|----|
@@ -11,3 +11,8 @@
 |6735|[6735_Automate_IT_Support__Convert_Emails_to_Jira_Tickets_with_AI_Resolution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/67/6735_Automate_IT_Support__Convert_Emails_to_Jira_Tickets_with_AI_Resolution.json)|
 |10240|[10240_Handle_WhatsApp_Customer_Inquiries_with_AI_and_Intent_Routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10240_Handle_WhatsApp_Customer_Inquiries_with_AI_and_Intent_Routing.json)|
 |11601|[11601_Handle_Failed_Payment_Renewals_with_AI_Analysis__Jira_Tickets_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11601_Handle_Failed_Payment_Renewals_with_AI_Analysis__Jira_Tickets_and_Slack_Alerts.json)|
+|12079|[12079_Handle_Calendly_bookings__cancellations_and_reschedules_with_Gmail__Google_Calendar__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12079_Handle_Calendly_bookings__cancellations_and_reschedules_with_Gmail__Google_Calendar__Sheets_and_Slack.json)|
+|12167|[12167_Handle_Gmail_reply-based_scheduling_with_Google_Calendar_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12167_Handle_Gmail_reply-based_scheduling_with_Google_Calendar_and_GPT-4o-mini.json)|
+|12400|[12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json)|
+|12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|
+|13220|[13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json)|

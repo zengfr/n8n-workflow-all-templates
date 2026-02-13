@@ -1,4 +1,4 @@
-# optimize : 15
+# optimize : 21
 
 |id|file|
 |----|----|
@@ -17,3 +17,9 @@
 |10201|[10201_Optimize_Resumes___Generate_Cover_Letters_with_Gemini_AI_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10201_Optimize_Resumes___Generate_Cover_Letters_with_Gemini_AI_and_PDF.co.json)|
 |10832|[10832_AI-Powered_SEO_Content_Optimization_with_SERP_Analysis___Slack_Approval_Workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10832_AI-Powered_SEO_Content_Optimization_with_SERP_Analysis___Slack_Approval_Workflow.json)|
 |11495|[11495_Automatically_Optimize_AI_Prompts_with_OpenAI_Using_OPRO___DSPy_Methodology.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11495_Automatically_Optimize_AI_Prompts_with_OpenAI_Using_OPRO___DSPy_Methodology.json)|
+|11969|[11969_Schedule_and_optimize_Twitter_and_LinkedIn_posts_from_Google_Sheets_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11969_Schedule_and_optimize_Twitter_and_LinkedIn_posts_from_Google_Sheets_with_OpenAI_GPT-4o-mini.json)|
+|11994|[11994_Optimize_Instagram_hashtags_with_GPT-4o___real_engagement_data_via_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11994_Optimize_Instagram_hashtags_with_GPT-4o___real_engagement_data_via_Graph_API.json)|
+|12496|[12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json)|
+|12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|
+|12792|[12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json)|
+|13319|[13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json)|

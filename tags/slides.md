@@ -1,4 +1,4 @@
-# slides : 18
+# slides : 22
 
 |id|file|
 |----|----|
@@ -20,3 +20,7 @@
 |10777|[10777_Client_Proposal_Generator_with_GPT-4o__Tally.so__and_Google_Slides_for_Agencies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10777_Client_Proposal_Generator_with_GPT-4o__Tally.so__and_Google_Slides_for_Agencies.json)|
 |10869|[10869_Transform_Voice_Notes_into_Business_Reviews_with_Groq_Whisper___GPT-5_to_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10869_Transform_Voice_Notes_into_Business_Reviews_with_Groq_Whisper___GPT-5_to_Google_Slides.json)|
 |11252|[11252_Automate_LinkedIn_Content_Creation_with_OpenAI__Notion__and_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11252_Automate_LinkedIn_Content_Creation_with_OpenAI__Notion__and_Google_Slides.json)|
+|12211|[12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json)|
+|12413|[12413_Generate_and_publish_Instagram_carousels_with_Gemini_and_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12413_Generate_and_publish_Instagram_carousels_with_Gemini_and_Google_Slides.json)|
+|12728|[12728_Create_AI_screencast_videos_with_Claude__VEED__OpenAI_and_automated_slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12728_Create_AI_screencast_videos_with_Claude__VEED__OpenAI_and_automated_slides.json)|
+|13219|[13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json)|

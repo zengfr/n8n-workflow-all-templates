@@ -1,0 +1,488 @@
+{
+  "id": "GFBqW8XnZ0ht1c2B",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Create a daily market brief from Google Sheets, Alpha Vantage, Reddit, OpenAI, and Slack",
+    "wechat": "youandme10086",
+    "id": 12944,
+    "update_time": "2026-02-13"
+  },
+  "name": "Turn Stock Data and News Into a Daily Market Decision Using AI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "44e7b5b2-e04d-4af4-ba3e-310598a246dd",
+      "name": "Stock Price (Alpha Vantage)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "url": "https://www.alphavantage.co/query",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "function",
+              "value": "TIME_SERIES_DAILY"
+            },
+            {
+              "name": "symbol",
+              "value": "={{ $json.Stock }}"
+            },
+            {
+              "name": "outputsize",
+              "value": "compact"
+            },
+            {
+              "name": "apikey",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "e7681549-a80c-40e7-8849-6d03c111d814",
+      "name": "Normalize Stock Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        208,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const data = $json[\"Time Series (Daily)\"];\n\nconst dates = Object.keys(data).sort((a, b) => b.localeCompare(a));\n\nconst latestDate = dates[0];\nconst previousDate = dates[1];\n\nconst latest = data[latestDate];\nconst previous = data[previousDate];\n\nconst latestClose = parseFloat(latest[\"4. close\"]);\nconst previousClose = parseFloat(previous[\"4. close\"]);\n\nconst changePercent =\n  ((latestClose - previousClose) / previousClose) * 100;\n\nreturn [\n  {\n    symbol: $json[\"Meta Data\"][\"2. Symbol\"],\n    date: latestDate,\n    close: latestClose,\n    previousClose,\n    changePercent: changePercent.toFixed(2),\n    trend:\n      changePercent > 0\n        ? \"Bullish\"\n        : changePercent < 0\n        ? \"Bearish\"\n        : \"Neutral\"\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bda89b6c-889d-4c6d-a9ce-cf25e35f7029",
+      "name": "RSS Read",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        416,
+        0
+      ],
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=stock+market+OR+earnings+OR+inflation+OR+interest+rates",
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "703783ba-833e-44bd-a6cd-2c6304e7940a",
+      "name": "Normalize Market News",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        624,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst last24h = 24 * 60 * 60 * 1000;\n\nreturn items\n  .map(item => {\n    const published = new Date(item.json.pubDate);\n    return {\n      headline: item.json.title,\n      summary: item.json.contentSnippet || \"\",\n      source: \"Google News\",\n      publishedAt: published,\n      ageHours: Math.round((now - published) / (1000 * 60 * 60))\n    };\n  })\n  .filter(news => now - news.publishedAt <= last24h);\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5a4bcbe4-3fd6-4ec1-9911-58294a01cd4c",
+      "name": "Reddit Sentiment – RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        864,
+        0
+      ],
+      "parameters": {
+        "url": "https://www.reddit.com/r/stocks/.rss",
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "50f03297-9a7c-416b-a98d-7275d0ef54c6",
+      "name": "Parse AI Market Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1920,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const rawText =\n  $json.output?.[0]?.content?.[0]?.text || \"\";\n\n// Normalize text to reduce markdown edge cases\nconst text = rawText\n  .replace(/\\r/g, \"\")\n  .replace(/[ ]{2,}\\n/g, \"\\n\")\n  .trim();\n\n// Clean bullet prefixes like \"-\", \"•\", extra spaces\nfunction cleanBullets(section) {\n  return section\n    .split(\"\\n\")\n    .map(line =>\n      line\n        .replace(/^[-•]\\s*/g, \"\") // remove leading dash or bullet\n        .trim()\n    )\n    .filter(Boolean)\n    .join(\"\\n\");\n}\n\n// Generic extractor that supports:\n// ### Title\n// **Title**\nfunction extractSection(title, body) {\n  const patterns = [\n    // ### Market Summary\n    new RegExp(\n      `###\\\\s*${title}\\\\s*\\\\n([\\\\s\\\\S]*?)(?=\\\\n###\\\\s*|\\\\n\\\\*\\\\*|$)`,\n      \"i\"\n    ),\n    // **Market Summary**\n    new RegExp(\n      `\\\\*\\\\*${title}\\\\*\\\\*\\\\s*\\\\n([\\\\s\\\\S]*?)(?=\\\\n\\\\*\\\\*|\\\\n###\\\\s*|$)`,\n      \"i\"\n    )\n  ];\n\n  for (const pattern of patterns) {\n    const match = body.match(pattern);\n    if (match && match[1]) {\n      return cleanBullets(match[1].trim());\n    }\n  }\n\n  return \"\";\n}\n\nconst marketSummary = extractSection(\"Market Summary\", text);\nconst sentiment = extractSection(\"Sentiment\", text);\nconst keyDrivers = extractSection(\"Key Drivers\", text);\nconst risks = extractSection(\"Risks\", text);\nconst actionableInsight = extractSection(\"Actionable Insight\", text);\n\nreturn [\n  {\n    marketSummary,\n    sentiment,\n    keyDrivers,\n    risks,\n    actionableInsight,\n    fullText: rawText\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ab75c719-1342-44ab-a5de-22ecd67d97e9",
+      "name": "Normalize Reddit News",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1072,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return items.map(item => ({\n  platform: \"Reddit\",\n  source: \"r/stocks\",\n  text:\n    (item.json.title || \"\") +\n    \" \" +\n    (item.json.contentSnippet || \"\"),\n  publishedAt: item.json.pubDate\n}));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ad386d29-12b0-444b-accd-2aa2b81bcfb7",
+      "name": "Prepare AI Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1312,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return [{\n  stock: $items(\"Normalize Stock Data\")[0]?.json,\n  news: $items(\"Normalize Market News\").map(i => i.json),\n  reddit: $items(\"Normalize Reddit News\").map(i => i.json)\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1ac46a65-85f7-45a2-bc08-9cb8a600807d",
+      "name": "Read portfolio holdings",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -512,
+        -16
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1013617369,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mz-woYDtXtzF2bA9IqpdYh28IPA76nFx46WHgDJOZoI/edit#gid=1013617369",
+          "cachedResultName": "Portfolio Performance"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/1Mz-woYDtXtzF2bA9IqpdYh28IPA76nFx46WHgDJOZoI/edit"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "kpPEOLCGn963qpoh",
+          "name": "automations@techdome.ai"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "5483adea-b7d3-4f30-bf08-55cb6dacffa4",
+      "name": "Process each stock",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -272,
+        -16
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "9005dc2a-8ef5-4a91-b1e6-07ca096993eb",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1456,
+        -1008
+      ],
+      "parameters": {
+        "width": 368,
+        "height": 848,
+        "content": "## Workflow overview\n\nThis workflow creates a daily market intelligence summary that helps you understand what is happening in the market without reading multiple sources. It automatically combines stock performance, market news, and social sentiment into one clear and actionable daily brief.\n\n### How it works:\n\nEvery day at a scheduled time, the workflow reads your list of stocks from a spreadsheet. Each stock is analysed to understand its latest price movement and overall trend. At the same time, the workflow collects important market news from reliable public sources and gathers investor sentiment from online discussions.\n\nAll collected data is combined and sent to an AI model. The AI removes noise, ignores repeated information, and focuses only on signals that can move the market. It then generates a clear summary including overall market direction, key drivers, risks, and one practical action for the day.\n\nThe AI response is structured into clear sections so it can be reused for alerts, reporting, or dashboards. Finally, the daily market brief is delivered to Slack as a clean, easy-to-read message.\n\n### Setup \n\nAdd your stock symbols in the Google Sheet.\n\nAdd your Alpha Vantage API key.\n\nConnect your OpenAI and Slack accounts.\n\nSet the schedule time \n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a15bd978-e3b0-4c81-a242-ed336e60464b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -768,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 656,
+        "height": 384,
+        "content": "### Data Collection \n\nThis is the starting point of the workflow. It reads the stock list from a spreadsheet and controls how each stock is processed, ensuring the workflow runs smoothly for multiple stocks without overloading external data sources."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd55269a-1e3f-42c8-9a86-1adccc70a833",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1296,
+        "height": 384,
+        "content": "### Market data collection\n\nThis section collects all external market information. It gathers daily stock prices, recent market news, and investor sentiment from public feeds, ensuring the workflow has a complete and current view of market conditions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6d76f81-12e9-4503-ad25-01758fe6d5b5",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1264,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 384,
+        "content": "### Data preparation and analysis\n\nThis section cleans and combines all collected data before sending it to AI. The AI analyses the information, removes noise, identifies market-moving signals, and generates a clear daily market summary with risks and actions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8edf013c-a0ea-4615-b328-22c5221e65ff",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1856,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 384,
+        "content": "### Output structuring and delivery \n\nThis section organises the AI response into clear sections and delivers the final market brief. The output is structured, readable, and shared as a single daily message in Slack for quick decision-making."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c98460e3-70a5-470d-9592-514ea57bd8f5",
+      "name": "Daily Market Brief Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -720,
+        -16
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "dc7c0550-90a3-4983-a8a0-245e2799056e",
+      "name": "Ai Analysis",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1536,
+        0
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a professional market intelligence analyst.\n\n{{ JSON.stringify($json.stock, null, 2) }}\n\n{{ JSON.stringify($json.news, null, 2) }}\n\n{{ JSON.stringify($json.reddit, null, 2) }}\n\n\n\n\n\nYou are given:\n- Stock price movement and trend\n- Market news headlines\n- Retail investor sentiment from Reddit\n\nYour task:\n1. Ignore noise, hype, and repeated information\n2. Identify only market-moving signals\n3. Detect overall market sentiment (Bullish / Neutral / Bearish)\n4. Highlight key risks and opportunities\n5. Mention specific stocks if relevant\n6. Provide a clear actionable takeaway for today\n\nOutput format (STRICT):\n- Market Summary (2–3 bullets)\n- Sentiment\n- Key Drivers\n- Risks\n- Actionable Insight (1–2 lines only)\n\nBe concise. No disclaimers. No generic advice. \n\nAlways format section headers using:\n**Market Summary**\n**Sentiment**\n**Key Drivers**\n**Risks**\n**Actionable Insight**\n\n\n"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "fcc0YsAnyxvK2gD4",
+          "name": "OpenAi account 3"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1b61c149-dede-4ded-97b3-6b594a309481",
+      "name": "Send actionable daily brief message",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2144,
+        0
+      ],
+      "webhookId": "6ecc8af3-415f-4790-a710-2c83c7ac6d21",
+      "parameters": {
+        "text": "=📊 Daily Market Intelligence\n\nSummary :\n{{ $json.marketSummary }}\n\nSentiment :\n{{ $json.sentiment }}\n\nAction :\n{{ $json.actionableInsight }}\n\nKey Drivers :\n{{ $json.keyDrivers }}\n\nRisks : \n{{ $json.risks }}\n\n",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "USLACKBOT",
+          "cachedResultName": "slackbot"
+        },
+        "select": "user",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "5G5jP9B8MQgtNUqp",
+          "name": "Slack account 5"
+        }
+      },
+      "typeVersion": 2.4
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7d6fda88-fa9e-4b0e-92d7-a1011fe00490",
+  "connections": {
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Normalize Market News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ai Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Market Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Context": {
+      "main": [
+        [
+          {
+            "node": "Ai Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process each stock": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Stock Price (Alpha Vantage)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Stock Data": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Market News": {
+      "main": [
+        [
+          {
+            "node": "Reddit Sentiment – RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Reddit News": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Market Output": {
+      "main": [
+        [
+          {
+            "node": "Send actionable daily brief message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read portfolio holdings": {
+      "main": [
+        [
+          {
+            "node": "Process each stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reddit Sentiment – RSS": {
+      "main": [
+        [
+          {
+            "node": "Normalize Reddit News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Market Brief Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read portfolio holdings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stock Price (Alpha Vantage)": {
+      "main": [
+        [
+          {
+            "node": "Normalize Stock Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

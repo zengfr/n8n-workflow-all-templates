@@ -1,4 +1,4 @@
-# term : 8
+# term : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |4096|[4096_Tesla_15min_Indicators_Tool__Short-Term_AI_Technical_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/40/4096_Tesla_15min_Indicators_Tool__Short-Term_AI_Technical_Analysis.json)|
 |4097|[4097_Tesla_1hour_Indicators_Tool__Mid-Term_Technical_Analysis_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/40/4097_Tesla_1hour_Indicators_Tool__Mid-Term_Technical_Analysis_AI.json)|
 |10718|[10718_Automate_Google_Ads_Search_Term_Analysis_with_Gemini_AI_and_Send_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10718_Automate_Google_Ads_Search_Term_Analysis_with_Gemini_AI_and_Send_to_Slack.json)|
+|12478|[12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json)|

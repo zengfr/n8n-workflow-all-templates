@@ -1,4 +1,4 @@
-# recovery : 13
+# recovery : 15
 
 |id|file|
 |----|----|
@@ -15,3 +15,5 @@
 |9811|[9811_Transform_Hotel_Guest_Feedback_with_GPT-4_Sentiment_Analysis___Service_Recovery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9811_Transform_Hotel_Guest_Feedback_with_GPT-4_Sentiment_Analysis___Service_Recovery.json)|
 |10146|[10146_Recover_No-Show_Appointments_with_Calendly__Telegram___Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10146_Recover_No-Show_Appointments_with_Calendly__Telegram___Email_Alerts.json)|
 |11129|[11129_Automated_Shopify_Abandoned_Cart_Recovery_with_WhatsApp_Messages___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11129_Automated_Shopify_Abandoned_Cart_Recovery_with_WhatsApp_Messages___Google_Sheets.json)|
+|12069|[12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json)|
+|12315|[12315_Send_Stripe_expired_charge_recovery_reminders_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12315_Send_Stripe_expired_charge_recovery_reminders_with_OpenAI.json)|

@@ -1,4 +1,4 @@
-# jina : 13
+# jina : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |8182|[8182_Generate_and_Research_Sales_Leads_with_Jina_AI___OpenAI_Email_Automation_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8182_Generate_and_Research_Sales_Leads_with_Jina_AI___OpenAI_Email_Automation_via_Gmail.json)|
 |8406|[8406_Generate_B2B_Leads_from_Any_City___Business_Type_using_GMaps__Jina.ai___GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8406_Generate_B2B_Leads_from_Any_City___Business_Type_using_GMaps__Jina.ai___GPT-5.json)|
 |9599|[9599_Monitor_RSS_Feeds__Extract_Full_Articles_with_Jina_AI__and_Save_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9599_Monitor_RSS_Feeds__Extract_Full_Articles_with_Jina_AI__and_Save_to_Supabase.json)|
+|12504|[12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json)|

@@ -1,4 +1,4 @@
-# virtual : 11
+# virtual : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |8022|[8022_Auto-Generate_Virtual_AI_Try-On_Images_for_WooCommerce_with_Gemini_Nano_Banana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8022_Auto-Generate_Virtual_AI_Try-On_Images_for_WooCommerce_with_Gemini_Nano_Banana.json)|
 |8326|[8326_Create_an_AI-Powered_Virtual_Receptionist_with_Google_Calendar___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8326_Create_an_AI-Powered_Virtual_Receptionist_with_Google_Calendar___Sheets.json)|
 |10033|[10033_WhatsApp_Virtual_Receptionist_with_Gemini_AI_-_Handles_Text___Voice_with_Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10033_WhatsApp_Virtual_Receptionist_with_Gemini_AI_-_Handles_Text___Voice_with_Knowledge_Base.json)|
+|12115|[12115_AI_Virtual_Try-On_Image__Video_Generation_for_Telegram__Discord___YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12115_AI_Virtual_Try-On_Image__Video_Generation_for_Telegram__Discord___YouTube.json)|

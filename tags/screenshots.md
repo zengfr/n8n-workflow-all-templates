@@ -1,4 +1,4 @@
-# screenshots : 9
+# screenshots : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |4594|[4594_Generate_Website_Screenshots_On-Demand_with_ScreenshotMachine_API_via_Webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/45/4594_Generate_Website_Screenshots_On-Demand_with_ScreenshotMachine_API_via_Webhooks.json)|
 |5169|[5169_Extract_Product_Info_from_Website_Screenshots_with_Dumpling_AI___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/51/5169_Extract_Product_Info_from_Website_Screenshots_with_Dumpling_AI___Sheets.json)|
 |6949|[6949_Capture_and_Store_Website_Screenshots_from_Google_Sheets_to_Drive_using_Dumpling_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/69/6949_Capture_and_Store_Website_Screenshots_from_Google_Sheets_to_Drive_using_Dumpling_AI.json)|
+|12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|

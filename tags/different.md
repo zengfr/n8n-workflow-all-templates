@@ -1,4 +1,4 @@
-# different : 7
+# different : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |2992|[2992_Split_Test_Different_Agent_Prompts_with_Supabase_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/29/2992_Split_Test_Different_Agent_Prompts_with_Supabase_and_OpenAI.json)|
 |3276|[3276_Daylight_Saving_Time_Notification_For_Different_Timezones.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/32/3276_Daylight_Saving_Time_Notification_For_Different_Timezones.json)|
 |3711|[3711_Compare_Different_LLM_Responses_Side-by-Side_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/37/3711_Compare_Different_LLM_Responses_Side-by-Side_with_Google_Sheets.json)|
+|12299|[12299_Generate_5-level_AI_explanations_for_different_audiences_from_Telegram_to_Google_Docs_with_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12299_Generate_5-level_AI_explanations_for_different_audiences_from_Telegram_to_Google_Docs_with_GPT-4.1-mini.json)|

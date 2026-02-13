@@ -1,4 +1,4 @@
-# monthly : 21
+# monthly : 24
 
 |id|file|
 |----|----|
@@ -23,3 +23,6 @@
 |10062|[10062_Automate_Monthly_Google_Ads_Performance_Analysis_with_GPT-4o__Sheets___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10062_Automate_Monthly_Google_Ads_Performance_Analysis_with_GPT-4o__Sheets___Slack.json)|
 |10715|[10715_Marketing_Analytics_Reports_with_Google_Analytics__Sheets__Slides___Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10715_Marketing_Analytics_Reports_with_Google_Analytics__Sheets__Slides___Email_Alerts.json)|
 |11625|[11625_Automated_Employee_Attendance___Salary_Deduction_with_Google_Sheets_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11625_Automated_Employee_Attendance___Salary_Deduction_with_Google_Sheets_and_GPT-4.json)|
+|12034|[12034_Automate_monthly_payroll_tax_compliance_with_GPT-4__Google_Sheets_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12034_Automate_monthly_payroll_tax_compliance_with_GPT-4__Google_Sheets_and_Drive.json)|
+|12544|[12544_Consolidate_and_report_monthly_financial_PDFs_with_Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12544_Consolidate_and_report_monthly_financial_PDFs_with_Google_Drive_and_Slack.json)|
+|12646|[12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json)|

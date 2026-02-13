@@ -1,4 +1,4 @@
-# bot : 218
+# bot : 229
 
 |id|file|
 |----|----|
@@ -220,3 +220,14 @@
 |11546|[11546_Telegram_Bot__Extract___Store_TikTok_and_LinkedIn_Data_to_Google_Sheets_with_Dumpling_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11546_Telegram_Bot__Extract___Store_TikTok_and_LinkedIn_Data_to_Google_Sheets_with_Dumpling_AI.json)|
 |11650|[11650_Automate_Lead_Processing_from_Landing_Pages_with_Zoho_CRM__Jira___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11650_Automate_Lead_Processing_from_Landing_Pages_with_Zoho_CRM__Jira___Slack.json)|
 |11888|[11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11888_Audio_Transcription___Chat_Bot_with_AssemblyAI__Gemini__and_Pinecone_RAG.json)|
+|12003|[12003_Build_a_voice___text_Telegram_Bot_with_GPT-4.1-Mini_and_Gemini_transcription.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12003_Build_a_voice___text_Telegram_Bot_with_GPT-4.1-Mini_and_Gemini_transcription.json)|
+|12005|[12005_Movie_release_calendar__Add_TMDB_films_to_Google_Calendar_via_Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12005_Movie_release_calendar__Add_TMDB_films_to_Google_Calendar_via_Telegram_Bot.json)|
+|12176|[12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json)|
+|12228|[12228_Create_an_AI_Telegram_bot_using_Google_Drive__Qdrant__and_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12228_Create_an_AI_Telegram_bot_using_Google_Drive__Qdrant__and_OpenAI_GPT-4.1.json)|
+|12296|[12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12296_Manage_your_Shopify_store_via_AI_assistant_with_OpenAI_and_MCP_server.json)|
+|12326|[12326_Create_WooCommerce_products_via_Telegram_bot_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12326_Create_WooCommerce_products_via_Telegram_bot_with_Google_Gemini_AI.json)|
+|12354|[12354_Create_an_AI_image_remix_and_design_bot_for_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12354_Create_an_AI_image_remix_and_design_bot_for_Telegram_with_BrowserAct_and_Gemini.json)|
+|12722|[12722_Create_an_AI_chatbot_for_WhatsApp_with_Whapi.Cloud_and_OpenAI_GPT-3.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12722_Create_an_AI_chatbot_for_WhatsApp_with_Whapi.Cloud_and_OpenAI_GPT-3.5.json)|
+|13042|[13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json)|
+|13166|[13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json)|
+|13224|[13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json)|

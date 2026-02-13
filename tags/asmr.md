@@ -1,4 +1,4 @@
-# asmr : 8
+# asmr : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |8439|[8439_Create_Custom_ASMR_Sound_Effects_with_ElevenLabs_API_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8439_Create_Custom_ASMR_Sound_Effects_with_ElevenLabs_API_and_Google_Drive.json)|
 |10175|[10175_Automate_ASMR_Glass_Fruit_Video_Creation___Publishing_with_Veo__Shotstack___Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10175_Automate_ASMR_Glass_Fruit_Video_Creation___Publishing_with_Veo__Shotstack___Postiz.json)|
 |10433|[10433_Generate_ASMR_Rainforest_Videos_from_Text_with_Seedream___Seedance_on_fal.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10433_Generate_ASMR_Rainforest_Videos_from_Text_with_Seedream___Seedance_on_fal.ai.json)|
+|12590|[12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json)|

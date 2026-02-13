@@ -1,4 +1,4 @@
-# competitor : 59
+# competitor : 67
 
 |id|file|
 |----|----|
@@ -61,3 +61,11 @@
 |11063|[11063_AI-Powered_Price_Watchdog__Competitor_Monitoring___Alerting__Decodo___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11063_AI-Powered_Price_Watchdog__Competitor_Monitoring___Alerting__Decodo___Gemini.json)|
 |11573|[11573_Analyze_competitor_visual_content_across_Instagram_and_TikTok_with_GPT-4o_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11573_Analyze_competitor_visual_content_across_Instagram_and_TikTok_with_GPT-4o_Vision.json)|
 |11783|[11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json)|
+|11929|[11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json)|
+|12161|[12161_Analyze_competitor_strategy_from_YouTube___RSS_with_Gemini_AI_to_Notion___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12161_Analyze_competitor_strategy_from_YouTube___RSS_with_Gemini_AI_to_Notion___Telegram.json)|
+|12246|[12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json)|
+|12352|[12352_Monitor_competitor_ad_activity_via_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12352_Monitor_competitor_ad_activity_via_Telegram_with_BrowserAct_and_Gemini.json)|
+|12581|[12581_Generate_AI_market_research_reports_from_NewsAPI_and_competitor_sites_to_Notion__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12581_Generate_AI_market_research_reports_from_NewsAPI_and_competitor_sites_to_Notion__Sheets_and_Slack.json)|
+|12809|[12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json)|
+|13094|[13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json)|
+|13096|[13096_Monitor_and_analyze_competitor_Facebook_ads_with_Apify__GPT-4o__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13096_Monitor_and_analyze_competitor_Facebook_ads_with_Apify__GPT-4o__Gemini__and_Google_Sheets.json)|

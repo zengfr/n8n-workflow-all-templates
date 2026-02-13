@@ -1,4 +1,4 @@
-# operations : 124
+# operations : 129
 
 |id|file|
 |----|----|
@@ -126,3 +126,8 @@
 |8818|[8818_Automate_PPOB_Business_Operations_with_Telegram_Bot___Digiflazz_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8818_Automate_PPOB_Business_Operations_with_Telegram_Bot___Digiflazz_API.json)|
 |10137|[10137_Automate_SEO_Keyword___SERP_Analysis_with_DataForSEO_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10137_Automate_SEO_Keyword___SERP_Analysis_with_DataForSEO_and_Google_Sheets.json)|
 |11859|[11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json)|
+|12656|[12656_Log_farm_machinery_operations_from_a_webhook_into_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12656_Log_farm_machinery_operations_from_a_webhook_into_Google_Sheets.json)|
+|12734|[12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json)|
+|12794|[12794_Manage_healthcare_resource_allocation_and_conflicts_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12794_Manage_healthcare_resource_allocation_and_conflicts_with_Anthropic_Claude.json)|
+|12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|
+|13308|[13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json)|

@@ -1,4 +1,4 @@
-# deals : 12
+# deals : 17
 
 |id|file|
 |----|----|
@@ -14,3 +14,8 @@
 |9096|[9096_Automatically_Close_Cold_HubSpot_Deals_with_Gmail_Feedback___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9096_Automatically_Close_Cold_HubSpot_Deals_with_Gmail_Feedback___Slack_Notifications.json)|
 |9143|[9143_Analyze_Pipeline_Velocity___Alert_Stuck_Deals_with_GoHighLevel__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9143_Analyze_Pipeline_Velocity___Alert_Stuck_Deals_with_GoHighLevel__Gmail___Slack.json)|
 |9275|[9275_Stripe___Pipedrive__Auto_Create_Contacts_and_Deals_from_Payments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9275_Stripe___Pipedrive__Auto_Create_Contacts_and_Deals_from_Payments.json)|
+|12025|[12025_Monitor_and_alert_stalled_deals_in_Zoho_CRM_with_Gemini_AI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12025_Monitor_and_alert_stalled_deals_in_Zoho_CRM_with_Gemini_AI_and_Gmail.json)|
+|12027|[12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12027_Forecast_Zoho_CRM_deals_with_AlphaVantage_market_data__GPT_4_and_Slack_alerts.json)|
+|12227|[12227_Turn_closed-won_HubSpot_deals_into_lookalike_prospects_with_CompanyEnrich.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12227_Turn_closed-won_HubSpot_deals_into_lookalike_prospects_with_CompanyEnrich.json)|
+|12328|[12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json)|
+|12435|[12435_Find_cheap_flight_deals_using_Google_Gemini__GPT-4__Telegram_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12435_Find_cheap_flight_deals_using_Google_Gemini__GPT-4__Telegram_and_BrowserAct.json)|

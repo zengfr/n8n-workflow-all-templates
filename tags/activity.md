@@ -1,4 +1,4 @@
-# activity : 21
+# activity : 22
 
 |id|file|
 |----|----|
@@ -23,3 +23,4 @@
 |10400|[10400_Monitor_Cryptocurrency_Trading_Activity_with_CoinGecko_and_Send_Alerts_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10400_Monitor_Cryptocurrency_Trading_Activity_with_CoinGecko_and_Send_Alerts_to_Discord.json)|
 |11052|[11052_Generate_LinkedIn_Activity_Reports_via_Slack_Commands_with_GPT-4.1_and_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11052_Generate_LinkedIn_Activity_Reports_via_Slack_Commands_with_GPT-4.1_and_Email.json)|
 |11488|[11488_Monitor_Zoho_CRM_Changes___Alert_on_Suspicious_Activity_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11488_Monitor_Zoho_CRM_Changes___Alert_on_Suspicious_Activity_with_Google_Sheets.json)|
+|12352|[12352_Monitor_competitor_ad_activity_via_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12352_Monitor_competitor_ad_activity_via_Telegram_with_BrowserAct_and_Gemini.json)|

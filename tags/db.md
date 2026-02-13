@@ -1,4 +1,4 @@
-# db : 39
+# db : 40
 
 |id|file|
 |----|----|
@@ -41,3 +41,4 @@
 |8490|[8490_Automated_Email_Management_System_with_GPT-5__Multi-Agent_AI___Pinecone_DB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8490_Automated_Email_Management_System_with_GPT-5__Multi-Agent_AI___Pinecone_DB.json)|
 |8916|[8916_Build_Multi-Client_Agentic_RAG_Document_Processing_Pipeline_with_Supabase_Vector_DB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8916_Build_Multi-Client_Agentic_RAG_Document_Processing_Pipeline_with_Supabase_Vector_DB.json)|
 |9934|[9934_Keep_RAG_System_Updated_with_Google_Drive_File_Changes_to_Supabase_Vector_DB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9934_Keep_RAG_System_Updated_with_Google_Drive_File_Changes_to_Supabase_Vector_DB.json)|
+|11951|[11951_Send_AI-curated_weekly_news_digests_with_RSS__Vector_DB___GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11951_Send_AI-curated_weekly_news_digests_with_RSS__Vector_DB___GPT-4o.json)|

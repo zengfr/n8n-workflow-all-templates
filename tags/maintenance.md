@@ -1,4 +1,4 @@
-# maintenance : 7
+# maintenance : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |9649|[9649_Automate_Property_Maintenance_Requests_with_GPT-4o-mini__Jotform_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9649_Automate_Property_Maintenance_Requests_with_GPT-4o-mini__Jotform_and_Gmail.json)|
 |9659|[9659_Automate_Vehicle_Inspections___Maintenance_Workflows_with_OpenAI___Jotform.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9659_Automate_Vehicle_Inspections___Maintenance_Workflows_with_OpenAI___Jotform.json)|
 |10268|[10268_Magento_Maintenance_via_Natural_Language_with_GPT_and_Telegram_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10268_Magento_Maintenance_via_Natural_Language_with_GPT_and_Telegram_WhatsApp.json)|
+|12687|[12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json)|
+|12991|[12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json)|

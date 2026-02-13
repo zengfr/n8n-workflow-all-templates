@@ -1,4 +1,4 @@
-# azure : 38
+# azure : 46
 
 |id|file|
 |----|----|
@@ -40,3 +40,11 @@
 |11072|[11072_Automate_GDPR_Consent_Management_with_Azure_OpenAI_Emails_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11072_Automate_GDPR_Consent_Management_with_Azure_OpenAI_Emails_and_Slack_Alerts.json)|
 |11123|[11123_Generate_AI_Sales_Proposals_from_Transcripts_using_Azure_OpenAI__PandaDoc___Slack_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11123_Generate_AI_Sales_Proposals_from_Transcripts_using_Azure_OpenAI__PandaDoc___Slack_Approval.json)|
 |11258|[11258_Enrich___Qualify_Leads_with_Azure_OpenAI__Bright_Data_MCP___HubSpot_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11258_Enrich___Qualify_Leads_with_Azure_OpenAI__Bright_Data_MCP___HubSpot_CRM.json)|
+|12101|[12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json)|
+|12758|[12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json)|
+|12802|[12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json)|
+|12803|[12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json)|
+|13172|[13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json)|
+|13178|[13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json)|
+|13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|
+|13264|[13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json)|

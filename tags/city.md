@@ -1,4 +1,4 @@
-# city : 7
+# city : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |8406|[8406_Generate_B2B_Leads_from_Any_City___Business_Type_using_GMaps__Jina.ai___GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8406_Generate_B2B_Leads_from_Any_City___Business_Type_using_GMaps__Jina.ai___GPT-5.json)|
 |9708|[9708_Create_Personalized_City_Trip_Itineraries_with_Telegram_Bot___GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9708_Create_Personalized_City_Trip_Itineraries_with_Telegram_Bot___GPT-4o.json)|
 |9909|[9909_Send_Multi-City_Weather_Forecasts_with_AI-Enhanced_Formatting_from_OpenWeatherMap_to_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9909_Send_Multi-City_Weather_Forecasts_with_AI-Enhanced_Formatting_from_OpenWeatherMap_to_Gmail.json)|
+|12653|[12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json)|

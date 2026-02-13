@@ -1,0 +1,910 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Generate and enrich Google Maps leads with Apify, Hunter and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 12672,
+    "update_time": "2026-02-13"
+  },
+  "nodes": [
+    {
+      "id": "55c1f689-8754-4e0e-8edd-f27d01633153",
+      "name": "Schedule Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1616,
+        2112
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "3117fc69-cee0-4162-b0fc-ec19beb02bb0",
+      "name": "Check Existing Leads1",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        2256,
+        2080
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "google-sheet-url",
+          "cachedResultName": "google-sheet-name"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "google-sheets-document-id",
+          "cachedResultUrl": "google-sheet-url",
+          "cachedResultName": "google-sheet-name"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "cd1b6504-e882-4f6a-952a-4a32e86b5356",
+      "name": "Deduplicate Leads1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2480,
+        2080
+      ],
+      "parameters": {
+        "jsCode": "// Deduplicate leads against existing Google Sheets data\nconst newLeads = $items(\"Format & Validate Data\");\nconst existingLeads = $items(\"Check Existing Leads1\") || [];\n\n// Create a Set of existing business identifiers\nconst existingBusinesses = new Set(\n  existingLeads\n    .map(item => {\n      const business = item.json.business || item.json.Business || \"\";\n      const website = item.json.website || item.json.Website || \"\";\n      return `${business.toLowerCase()}|${website.toLowerCase()}`;\n    })\n    .filter(id => id !== \"|\")\n);\n\n// Filter out duplicates\nconst uniqueLeads = newLeads.filter(lead => {\n  const business = (lead.json.business_name || \"\").toLowerCase();\n  const website = (lead.json.website || \"\").toLowerCase();\n  const identifier = `${business}|${website}`;\n  \n  return !existingBusinesses.has(identifier);\n});\n\nif (uniqueLeads.length === 0) {\n  return [{ json: { \n    message: \"No new unique leads found\",\n    total_scraped: newLeads.length,\n    duplicates_filtered: newLeads.length\n  }}];\n}\n\nreturn uniqueLeads;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "46d29568-b67e-4ec9-9659-ee2ad9358120",
+      "name": "Has New Leads?1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2688,
+        2080
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-new-leads",
+              "operator": {
+                "name": "filter.operator.notEquals",
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.message }}",
+              "rightValue": "No new unique leads found"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "432aa161-a06c-4598-91af-a6856b49facd",
+      "name": "Batch for AI Processing1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        2928,
+        2064
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 5
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "bc54b297-24b5-420f-b85e-7d3f0ebcfeea",
+      "name": "High Confidence Leads?1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3600,
+        2192
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "high-confidence",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.email_confidence }}",
+              "rightValue": "High"
+            },
+            {
+              "id": "has-email",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "null"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f415402a-ee16-4acb-a0e2-e679c439d6ea",
+      "name": "Build Email Report1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3824,
+        2064
+      ],
+      "parameters": {
+        "jsCode": "// Prepare comprehensive summary with analytics\nconst allLeads = $items(\"Merge & Validate Results\");\nconst highConfLeads = $items(\"High Confidence Leads?1\", 0) || [];\nconst medLowLeads = $items(\"High Confidence Leads?1\", 1) || [];\n\nlet total = allLeads.length;\nlet withEmail = 0;\nlet high = 0, medium = 0, low = 0;\nlet withWebsite = 0;\nlet avgQuality = 0;\nlet highRows = \"\";\nlet medLowRows = \"\";\nlet errors = allLeads[0]?.json._errors || [];\n\nallLeads.forEach((item, i) => {\n  const d = item.json;\n  \n  if (d.email) withEmail++;\n  if (d.website) withWebsite++;\n  avgQuality += d.data_quality_score || 0;\n  \n  if (d.email_confidence === \"High\") high++;\n  else if (d.email_confidence === \"Medium\") medium++;\n  else low++;\n  \n  const row = `\n    <tr style=\"${d.email_confidence === 'High' ? 'background-color: #e8f5e9;' : ''}\">\n      <td style=\"padding: 12px; border: 1px solid #ddd;\">${i + 1}</td>\n      <td style=\"padding: 12px; border: 1px solid #ddd;\"><strong>${d.business_name || \"N/A\"}</strong></td>\n      <td style=\"padding: 12px; border: 1px solid #ddd;\">${d.email || \"<span style='color: #999;'>Not Available</span>\"}</td>\n      <td style=\"padding: 12px; border: 1px solid #ddd;\">${d.phone || \"N/A\"}</td>\n      <td style=\"padding: 12px; border: 1px solid #ddd;\">${d.website ? `<a href=\"${d.website}\" target=\"_blank\" style=\"color: #1976d2;\">Visit</a>` : \"N/A\"}</td>\n      <td style=\"padding: 12px; border: 1px solid #ddd;\">${d.category || \"N/A\"}</td>\n      <td style=\"padding: 12px; border: 1px solid #ddd;\">\n        <span style=\"padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; \n          background-color: ${d.email_confidence === 'High' ? '#4caf50' : d.email_confidence === 'Medium' ? '#ff9800' : '#f44336'}; \n          color: white;\">\n          ${d.email_confidence}\n        </span>\n      </td>\n      <td style=\"padding: 12px; border: 1px solid #ddd; font-size: 12px;\">${d.data_quality_score}%</td>\n    </tr>\n  `;\n  \n  if (d.email_confidence === \"High\") {\n    highRows += row;\n  } else {\n    medLowRows += row;\n  }\n});\n\navgQuality = total ? Math.round(avgQuality / total) : 0;\nconst successRate = total ? Math.round((withEmail / total) * 100) : 0;\nconst websiteRate = total ? Math.round((withWebsite / total) * 100) : 0;\n\n// Build HTML email\nconst emailHTML = `\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 1200px; margin: 0 auto; padding: 20px; }\n    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; }\n    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }\n    .stat-card { background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; }\n    .stat-number { font-size: 32px; font-weight: bold; color: #667eea; }\n    .stat-label { font-size: 14px; color: #666; text-transform: uppercase; }\n    table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }\n    th { background: #667eea; color: white; padding: 15px; text-align: left; font-weight: 600; }\n    .section { margin: 40px 0; }\n    .section-title { font-size: 22px; color: #333; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #667eea; }\n    .error-box { background: #ffebee; border-left: 4px solid #f44336; padding: 15px; margin: 20px 0; border-radius: 4px; }\n    .footer { text-align: center; margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px; color: #666; }\n  </style>\n</head>\n<body>\n  <div class=\"header\">\n    <h1 style=\"margin: 0; font-size: 28px;\">🎯 Daily Lead Generation Report</h1>\n    <p style=\"margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;\">${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>\n  </div>\n  \n  <div class=\"stats\">\n    <div class=\"stat-card\">\n      <div class=\"stat-number\">${total}</div>\n      <div class=\"stat-label\">Total Leads</div>\n    </div>\n    <div class=\"stat-card\">\n      <div class=\"stat-number\">${withEmail}</div>\n      <div class=\"stat-label\">With Email (${successRate}%)</div>\n    </div>\n    <div class=\"stat-card\">\n      <div class=\"stat-number\">${high}</div>\n      <div class=\"stat-label\">High Confidence</div>\n    </div>\n    <div class=\"stat-card\">\n      <div class=\"stat-number\">${avgQuality}%</div>\n      <div class=\"stat-label\">Avg Data Quality</div>\n    </div>\n  </div>\n  \n  <div class=\"section\">\n    <div class=\"section-title\">📊 Quality Breakdown</div>\n    <p><strong>High Confidence:</strong> ${high} leads | <strong>Medium:</strong> ${medium} leads | <strong>Low:</strong> ${low} leads</p>\n    <p><strong>Leads with Website:</strong> ${withWebsite} (${websiteRate}%)</p>\n    <p><strong>Search Query:</strong> digital marketing agency in Mumbai, India</p>\n  </div>\n  \n  ${highRows ? `\n  <div class=\"section\">\n    <div class=\"section-title\">⭐ High Confidence Leads (Ready for Outreach)</div>\n    <table>\n      <thead>\n        <tr>\n          <th>#</th>\n          <th>Business</th>\n          <th>Email</th>\n          <th>Phone</th>\n          <th>Website</th>\n          <th>Category</th>\n          <th>Confidence</th>\n          <th>Quality</th>\n        </tr>\n      </thead>\n      <tbody>\n        ${highRows}\n      </tbody>\n    </table>\n  </div>\n  ` : ''}\n  \n  ${medLowRows ? `\n  <div class=\"section\">\n    <div class=\"section-title\">📋 Medium/Low Confidence Leads (Needs Verification)</div>\n    <table>\n      <thead>\n        <tr>\n          <th>#</th>\n          <th>Business</th>\n          <th>Email</th>\n          <th>Phone</th>\n          <th>Website</th>\n          <th>Category</th>\n          <th>Confidence</th>\n          <th>Quality</th>\n        </tr>\n      </thead>\n      <tbody>\n        ${medLowRows}\n      </tbody>\n    </table>\n  </div>\n  ` : ''}\n  \n  ${errors.length > 0 ? `\n  <div class=\"error-box\">\n    <strong>⚠️ Processing Errors (${errors.length}):</strong>\n    <ul>\n      ${errors.map(e => `<li>${e.business}: ${e.error}</li>`).join('')}\n    </ul>\n  </div>\n  ` : ''}\n  \n  <div class=\"footer\">\n    <p><strong>Workflow:</strong> Google Maps Lead Scraper v2.0 | <strong>Powered by:</strong> n8n + OpenAI</p>\n    <p style=\"font-size: 12px; margin-top: 10px;\">This report was automatically generated. All leads have been saved to Google Sheets.</p>\n  </div>\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    total_leads: total,\n    leads_with_email: withEmail,\n    success_rate: successRate,\n    high_confidence: high,\n    medium_confidence: medium,\n    low_confidence: low,\n    avg_quality_score: avgQuality,\n    website_coverage: websiteRate,\n    email_html: emailHTML,\n    errors_count: errors.length,\n    search_query: \"digital marketing agency\",\n    search_location: \"Mumbai, India\",\n    report_date: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "94ae26d3-9678-4359-9d75-b9ccbacd7152",
+      "name": "Send Email Report1",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        4048,
+        2064
+      ],
+      "webhookId": "your-gmail-id",
+      "parameters": {
+        "sendTo": "your-email",
+        "message": "={{ $json.email_html }}",
+        "options": {},
+        "subject": "=🎯 Lead Report - {{ $json.total_leads }} Leads ({{ $json.high_confidence }} High Priority) - {{ $now.format('MMM DD, YYYY') }}"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ebdcc92f-3024-4552-ab49-9970d785341e",
+      "name": "Prepare Sheet Data1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3824,
+        2304
+      ],
+      "parameters": {
+        "jsCode": "// Prepare structured data for Google Sheets with all enrichment metadata\nconst leads = $items(\"Merge & Validate Results\");\n\nreturn leads.map(item => {\n  const d = item.json;\n  \n  return {\n    json: {\n      // Core business data\n      business: d.business_name || \"\",\n      email: d.email || \"\",\n      phone: d.phone || \"\",\n      website: d.website || \"\",\n      location: d.address || \"\",\n      industry: d.category || \"\",\n      \n      // Enrichment metadata\n      email_confidence: d.email_confidence || \"Low\",\n      email_source: d.email_source || \"unavailable\",\n      alternative_emails: d.alternative_emails || \"\",\n      data_quality_score: d.data_quality_score || 0,\n      \n      // Business metrics\n      rating: d.rating || \"\",\n      reviews_count: d.reviews_count || 0,\n      \n      // Geographic data\n      latitude: d.latitude || \"\",\n      longitude: d.longitude || \"\",\n      \n      // Source & tracking\n      source: \"Google Maps\",\n      google_maps_url: d.google_maps_url || \"\",\n      scraped_date: new Date().toISOString().split(\"T\")[0],\n      processed_timestamp: d.processed_date || new Date().toISOString(),\n      workflow_version: \"2.0\"\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b8409e14-5207-4703-ba47-fc3f2bfa8a0b",
+      "name": "Error Notification1",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2480,
+        2256
+      ],
+      "webhookId": "gmail-webhook-id",
+      "parameters": {
+        "sendTo": "your-email",
+        "message": "=The lead scraping workflow encountered an error:\n\nError Type: {{ $json.error_type }}\nError Message: {{ $json.error_message }}\nNode: {{ $json.failed_node }}\n\nTimestamp: {{ $json.timestamp }}\n\nPlease check the workflow execution in n8n.",
+        "options": {},
+        "subject": "=⚠️ Workflow Error - Lead Scraper - {{ $now.format('MMM DD, YYYY HH:mm') }}"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1c52a82e-7920-4130-8e1e-02dce69b8b30",
+      "name": "Format Error Data1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2256,
+        2256
+      ],
+      "parameters": {
+        "jsCode": "// Handle workflow errors and prepare error report\nconst errorItems = $input.all();\n\nif (errorItems.length === 0) {\n  return [];\n}\n\nconst errors = errorItems.map(item => {\n  const error = item.json.error || {};\n  return {\n    error_type: error.name || \"Unknown Error\",\n    error_message: error.message || \"No error message available\",\n    failed_node: item.json.node || \"Unknown Node\",\n    timestamp: new Date().toISOString(),\n    stack_trace: error.stack || \"\"\n  };\n});\n\nreturn [{ json: errors[0] }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cac998e5-0833-4cde-af12-a6c11bba7c8c",
+      "name": "No New Leads Notification1",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2944,
+        2240
+      ],
+      "webhookId": "gmail-webhook-id",
+      "parameters": {
+        "sendTo": "your-email-id",
+        "message": "=The daily lead scraping workflow ran successfully, but no new unique leads were found.\n\nSummary:\n- Total businesses scraped: {{ $json.total_scraped }}\n- Duplicates filtered: {{ $json.duplicates_filtered }}\n- Search Query: digital marketing agency in Mumbai, India\n\nAll scraped businesses already exist in your Google Sheets database.\n\nThe workflow will run again tomorrow at 9:00 AM.",
+        "options": {},
+        "subject": "=ℹ️ No New Leads Found - {{ $now.format('MMM DD, YYYY') }}"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b8fec60e-f259-425b-89c9-0cda80f60e9a",
+      "name": "Google Maps Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        1824,
+        2112
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/account-id/run-sync-get-dataset-items",
+        "method": "POST",
+        "options": {
+          "timeout": 300000
+        },
+        "jsonBody": "{ \"searchStringsArray\": [ { \"searchString\": \"digital marketing agency\", \"location\": \"Mumbai, India\" } ], \"maxCrawledPlacesPerSearch\": 20 }",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "79777419-e672-418b-b212-ab10b00054aa",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueErrorOutput",
+      "position": [
+        4048,
+        2304
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "email": "={{ $json.email }}",
+            "phone": "={{ $json.phone }}",
+            "rating": "={{ $json.rating }}",
+            "source": "={{ $json.source }}",
+            "website": "={{ $json.website }}",
+            "Business": "={{ $json.business }}",
+            "industry": "={{ $json.industry }}",
+            "latitude": "={{ $json.latitude }}",
+            "location": "={{ $json.location }}",
+            "longitude": "={{ $json.longitude }}",
+            "email_source": "={{ $json.email_source }}",
+            "review_counts": "={{ $json.reviews_count }}",
+            "scrapped_date": "={{ $json.scraped_date }}",
+            "google_maps_url": "={{ $json.google_maps_url }}",
+            "email_confidence": "={{ $json.email_confidence }}",
+            "workflow_version": "={{ $json.workflow_version }}",
+            "alternative_emails": "={{ $json.alternative_emails }}",
+            "data_quality_score": "={{ $json.data_quality_score }}",
+            "processed_timestamp": "={{ $json.processed_timestamp }}"
+          },
+          "schema": [
+            {
+              "id": "Business",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Business",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "location",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "industry",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "industry",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_confidence",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "email_confidence",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_source",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "email_source",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alternative_emails",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "alternative_emails",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data_quality_score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "data_quality_score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rating",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "rating",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_counts",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "review_counts",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "latitude",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "latitude",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "longitude",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "longitude",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "source",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "google_maps_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "google_maps_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "scrapped_date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "scrapped_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processed_timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "processed_timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workflow_version",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "workflow_version",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Business"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 2133476898,
+          "cachedResultUrl": "google-sheet-url",
+          "cachedResultName": "google-sheet-name"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "google-sheets-document-id",
+          "cachedResultUrl": "google-sheet-url",
+          "cachedResultName": "google-sheet-name"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "6bd27424-c52b-404d-bc04-19cb2df24f66",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        4304,
+        2272
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "855d644f-ec7e-495d-a40c-cf8d4acbfa6b",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        4512,
+        2272
+      ],
+      "webhookId": "78e2249f-131e-4602-b4dd-364f66e25704",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "868478ce-bf78-4891-8614-a79f5e938bb6",
+      "name": "Merge & Validate Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3392,
+        2192
+      ],
+      "parameters": {
+        "jsCode": "// Normalize & merge Hunter.io response with original scraped data\nconst originalItems = $items(\"Format & Validate Data\");\nconst hunterItems = $input.all();\nconst errors = [];\n\nconst merged = hunterItems.map((hunterItem, index) => {\n  const original = originalItems[index]?.json || {};\n\n  // Default email data\n  let emailData = {\n    email: null,\n    email_confidence: \"Low\",\n    email_source: \"hunter_not_found\",\n    email_reasoning: \"Hunter did not return a valid email\",\n    alternative_emails: \"\"\n  };\n\n  try {\n    // Handle Hunter API error\n    if (hunterItem.json?.errors || hunterItem.json?.error) {\n      errors.push({\n        business: original.business_name,\n        error: hunterItem.json.errors || hunterItem.json.error\n      });\n    } else {\n      const emails = hunterItem.json?.data?.emails || [];\n\n      if (Array.isArray(emails) && emails.length > 0) {\n        // Sort by confidence (highest first)\n        emails.sort((a, b) => (b.confidence || 0) - (a.confidence || 0));\n        const best = emails[0];\n\n        // Confidence mapping\n        const confidence =\n          best.confidence >= 85 ? \"High\" :\n          best.confidence >= 65 ? \"Medium\" : \"Low\";\n\n        emailData.email = best.value || null;\n        emailData.email_confidence = confidence;\n        emailData.email_source = \"hunter.io\";\n        emailData.email_reasoning = `Found via Hunter domain search (${best.confidence || 0}% confidence)`;\n        emailData.alternative_emails = emails\n          .slice(1)\n          .map(e => e.value)\n          .filter(Boolean)\n          .join(\", \");\n\n        // Email format validation\n        if (emailData.email) {\n          const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n          if (!emailRegex.test(emailData.email)) {\n            emailData.email = null;\n            emailData.email_confidence = \"Low\";\n            emailData.email_source = \"invalid_format\";\n            emailData.email_reasoning = \"Invalid email format returned by Hunter\";\n          }\n        }\n      }\n    }\n  } catch (e) {\n    errors.push({\n      business: original.business_name,\n      error: `Hunter parse error: ${e.message}`\n    });\n  }\n\n  // ✅ FINAL OUTPUT — MATCHES YOUR REQUIRED FIELDS EXACTLY\n  return {\n    json: {\n      business_name: original.business_name || \"\",\n      address: original.address || \"\",\n      phone: original.phone || \"\",\n      website: original.website || \"\",\n      google_maps_url: original.google_maps_url || \"\",\n      category: original.category || \"\",\n      rating: original.rating ?? null,\n      reviews_count: original.reviews_count ?? 0,\n      latitude: original.latitude ?? null,\n      longitude: original.longitude ?? null,\n      data_quality_score: original.data_quality_score ?? 0,\n\n      email: emailData.email,\n      email_confidence: emailData.email_confidence,\n      email_source: emailData.email_source,\n      email_reasoning: emailData.email_reasoning,\n      alternative_emails: emailData.alternative_emails,\n\n      processed_date: new Date().toISOString(),\n      workflow_version: \"2.0\"\n    }\n  };\n});\n\n// Attach errors (if any) to first item\nif (errors.length > 0 && merged.length > 0) {\n  merged[0].json._errors = errors;\n}\n\nreturn merged;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e2198f9f-49eb-4c31-ab3a-53bc94915efa",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        3168,
+        2208
+      ],
+      "parameters": {
+        "url": "https://api.hunter.io/v2/domain-search",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "domain",
+              "value": "={{ $json.website.replace(/^https?:\\/\\//,'').replace(/\\/.*$/,'') }}"
+            },
+            {
+              "name": "limit",
+              "value": "5"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "your-api-key"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "7ce2505d-803a-4f47-9117-fb4186520ad1",
+      "name": "Format & Validate Data",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueErrorOutput",
+      "position": [
+        2032,
+        2096
+      ],
+      "parameters": {
+        "jsCode": "// ===============================\n// STEP 1: Validate Scraper Response\n// ===============================\nconst inputItems = $input.all();\n\nif (!inputItems || inputItems.length === 0) {\n  throw new Error('No data received from Google Maps Scraper');\n}\n\n// Normalize raw input\nconst rawJson = inputItems.map(i => i.json).flat();\n\n// Detect businesses array\nlet businesses = [];\n\nif (rawJson[0]?.items && Array.isArray(rawJson[0].items)) {\n  businesses = rawJson[0].items;\n} else if (Array.isArray(rawJson)) {\n  businesses = rawJson;\n} else {\n  throw new Error('Invalid response format from scraper');\n}\n\nif (!businesses || businesses.length === 0) {\n  throw new Error('No businesses found in scraper results');\n}\n\n// ===============================\n// STEP 2: Clean, Format & Score Data\n// ===============================\nconst cleanedBusinesses = businesses.map(b => {\n  const business = {\n    business_name: (b.title || b.name || \"\").trim(),\n    address: (b.address || b.formattedAddress || \"\").trim(),\n    phone: (b.phone || b.phoneNumber || \"\").trim(),\n    website: (b.website || b.websiteUrl || \"\").trim(),\n    google_maps_url: (b.url || b.placeUrl || \"\").trim(),\n    category: Array.isArray(b.categories)\n      ? b.categories.join(\", \")\n      : (b.category || \"\"),\n    rating: b.rating || b.totalScore || null,\n    reviews_count: b.reviewsCount || b.reviews || 0,\n    latitude: b.latitude || b.lat || null,\n    longitude: b.longitude || b.lng || null,\n    raw_data: JSON.stringify(b)\n  };\n\n  // ===============================\n  // STEP 3: Data Quality Scoring (0–100)\n  // ===============================\n  let qualityScore = 0;\n  if (business.business_name) qualityScore += 25;\n  if (business.phone) qualityScore += 20;\n  if (business.website) qualityScore += 30;\n  if (business.address) qualityScore += 15;\n  if (business.rating && business.rating >= 3.5) qualityScore += 10;\n\n  business.data_quality_score = qualityScore;\n\n  return business;\n});\n\n// ===============================\n// STEP 4: Filter Low-Quality Leads\n// ===============================\nconst finalLeads = cleanedBusinesses.filter(b =>\n  b.business_name &&\n  b.google_maps_url &&\n  b.data_quality_score >= 40\n);\n\nif (finalLeads.length === 0) {\n  throw new Error('No valid businesses after quality filtering');\n}\n\n// ===============================\n// STEP 5: Return Final Output\n// ===============================\nreturn finalLeads.map(b => ({\n  json: b\n}));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "72aa0265-471d-4ef8-9c00-435a899f54dd",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1008,
+        1824
+      ],
+      "parameters": {
+        "width": 544,
+        "height": 736,
+        "content": "## Google Maps Lead Scraper with Enrichment & Email Reporting\nThis workflow is an automated lead generation system that scrapes businesses from Google Maps, enriches them with verified emails, and delivers a daily lead report while saving everything to Google Sheets.\n\n### How it works\nStep 1: The workflow runs on a daily schedule and scrapes businesses from Google Maps using a search query and location. The data is cleaned, normalized, scored for quality, and deduplicated against existing Google Sheets records.\n\nStep 2: New leads are processed in small batches and enriched using Hunter domain search to find verified business emails. Emails are classified as High, Medium, or Low confidence.\n\nStep 3: Leads are grouped by confidence level, a detailed HTML report is generated, and the results are emailed to you. All enriched leads are saved to Google Sheets for tracking.\n\n### Setup steps\n1. Connect Google Sheets and select the document for storing leads  \n2. Add your Apify API key in the Google Maps Scraper node  \n3. Add your Hunter API key for email enrichment  \n4. Connect Gmail for reports and notifications  \n5. Update the search query and location if needed  \n6. Turn the workflow ON and run once to test\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4115017c-26d7-429f-a31d-c33a5571238e",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1584,
+        1824
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1024,
+        "height": 736,
+        "content": "## Step 1 – Scrape & Deduplicate\nRuns on schedule, scrapes Google Maps businesses, cleans and scores data, and removes duplicates already stored in Google Sheets.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8644ab9c-a89d-4373-aee3-11f21f9a5e26",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2656,
+        1824
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 736,
+        "content": "## Step 2 – Enrich Emails\nNew leads are processed in batches and enriched using Hunter domain search to find and verify business emails.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e1a1460-42e6-47e0-b177-9a6d8e0b1a3d",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3568,
+        1824
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1120,
+        "height": 736,
+        "content": "## Step 3 – Report & Store\nLeads are classified by confidence, emailed as a daily report, and saved to Google Sheets for long-term tracking.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Batch for AI Processing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Merge & Validate Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Error Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has New Leads?1": {
+      "main": [
+        [
+          {
+            "node": "Batch for AI Processing1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No New Leads Notification1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Google Maps Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate Leads1": {
+      "main": [
+        [
+          {
+            "node": "Has New Leads?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error Data1": {
+      "main": [
+        [
+          {
+            "node": "Error Notification1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Report1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email Report1": {
+      "main": [
+        [
+          {
+            "node": "Send Email Report1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Maps Scraper": {
+      "main": [
+        [
+          {
+            "node": "Format & Validate Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Error Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Sheet Data1": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Leads1": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate Leads1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Format Error Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format & Validate Data": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Leads1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Error Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "High Confidence Leads?1": {
+      "main": [
+        [
+          {
+            "node": "Build Email Report1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Sheet Data1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Sheet Data1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Email Report1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch for AI Processing1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge & Validate Results": {
+      "main": [
+        [
+          {
+            "node": "High Confidence Leads?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

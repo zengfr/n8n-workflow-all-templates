@@ -1,4 +1,4 @@
-# us : 7
+# us : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |5687|[5687_Automated_US_Stock_Portfolio_Analysis_with_Telegram__Perplexity_AI___PDF_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/56/5687_Automated_US_Stock_Portfolio_Analysis_with_Telegram__Perplexity_AI___PDF_Reports.json)|
 |7024|[7024_Automate_Weekly_US_Trademark_Reports_with_USPTO_API_and_Google_Drive_CSV_Export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7024_Automate_Weekly_US_Trademark_Reports_with_USPTO_API_and_Google_Drive_CSV_Export.json)|
 |7701|[7701_Real-Time_Stock_Monitor_with_Smart_Alerts_for_Indian___US_Markets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7701_Real-Time_Stock_Monitor_with_Smart_Alerts_for_Indian___US_Markets.json)|
+|12508|[12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json)|

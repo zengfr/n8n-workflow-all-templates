@@ -1,4 +1,4 @@
-# extraction : 52
+# extraction : 53
 
 |id|file|
 |----|----|
@@ -54,3 +54,4 @@
 |11637|[11637_Automate_Data_Extraction_with_Zyte_AI__Products__Jobs__Articles___More.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11637_Automate_Data_Extraction_with_Zyte_AI__Products__Jobs__Articles___More.json)|
 |11682|[11682_Extract_Company_Data_from_Websites_with_Gemini_AI_through_Chat_Conversation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11682_Extract_Company_Data_from_Websites_with_Gemini_AI_through_Chat_Conversation.json)|
 |11782|[11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json)|
+|12961|[12961_Extract_data_from_PDF_reports_with_Gmail__OCR__Google_Sheets_and_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12961_Extract_data_from_PDF_reports_with_Gmail__OCR__Google_Sheets_and_OpenAI_GPT-4.1-mini.json)|

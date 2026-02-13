@@ -1,0 +1,499 @@
+{
+  "id": "qqvINBclM2f9cJ4o",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Automated APK security scanning & PDF reporting with MobSF, AI & Google Drive",
+    "wechat": "youandme10086",
+    "id": 12024,
+    "update_time": "2026-02-13"
+  },
+  "name": "APK Security Scanner & PDF Report Generator",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ca02a215-1b80-4bbd-a88a-c782769bde52",
+      "name": "Watch APK Uploads",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        -16,
+        64
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1Rcs1PQWaE2dP1IV5d-Nv1ZsdunIkTUyL",
+          "cachedResultUrl": "",
+          "cachedResultName": "APK Uploads Folder"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e2240db4-4931-44b5-befc-1da5cdde45db",
+      "name": "Download APK File",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        208,
+        64
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $json.webViewLink }}"
+        },
+        "options": {},
+        "operation": "download"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "abcb38fb-0a0d-4ee8-950a-5e8aa99b2ccc",
+      "name": "Upload APK to Analyzer",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        432,
+        64
+      ],
+      "parameters": {
+        "url": "http://localhost:8000/api/v1/upload",
+        "method": "POST",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "8680bb4e-0ed1-4c01-b135-3ca5336f8d9b",
+      "name": "Summarize MobSF Report1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        64
+      ],
+      "parameters": {
+        "jsCode": "// This script processes a MobSF JSON report to extract key security findings for a developer report.\n// It replaces the full JSON with a summarized version.\n\nfor (const item of $input.all()) {\n  // The MobSF report is expected in item.json.\n  // This line handles cases where the full JSON is nested.\n  const mobsfReport = item.json.json || item.json;\n\n  const report = {};\n\n  // 1. Basic App Info for context\n  report.appInfo = {\n    appName: mobsfReport.app_name,\n    versionName: mobsfReport.version_name,\n    packageName: mobsfReport.package_name,\n    md5: mobsfReport.md5,\n    minSdk: mobsfReport.min_sdk,\n    targetSdk: mobsfReport.target_sdk,\n  };\n\n  // 2. Manifest Analysis: Focus on high/warning severity issues\n  if (mobsfReport.manifest_analysis && mobsfReport.manifest_analysis.manifest_findings) {\n    const importantFindings = mobsfReport.manifest_analysis.manifest_findings.filter(finding =>\n      finding.severity === 'high' || finding.severity === 'warning'\n    );\n    if (importantFindings.length > 0) {\n        report.manifestAnalysis = {\n            summary: mobsfReport.manifest_analysis.manifest_summary,\n            findings: importantFindings\n        };\n    }\n  }\n\n  // 3. Code Analysis: Focus on Medium/High severity vulnerabilities (Corrected Logic)\n  if (mobsfReport.code_analysis && mobsfReport.code_analysis.findings) {\n    const importantCodeFindings = [];\n    // Iterate over the keys (e.g., \"insecure_data_storage\", \"android_logging\") of the findings object\n    for (const key of Object.keys(mobsfReport.code_analysis.findings)) {\n        const finding = mobsfReport.code_analysis.findings[key];\n        // Check if the finding has metadata and a relevant severity\n        if (finding.metadata && (finding.metadata.severity === 'High' || finding.metadata.severity === 'Medium')) {\n            const finding_report = { ...finding.metadata }; // create a copy\n            finding_report.type = key; // Add the type of finding (e.g., \"insecure_data_storage\")\n            finding_report.affected_files_count = Object.keys(finding.files).length;\n            importantCodeFindings.push(finding_report);\n        }\n    }\n    if (importantCodeFindings.length > 0) {\n        report.codeAnalysis = {\n            summary: mobsfReport.code_analysis.summary,\n            findings: importantCodeFindings\n        };\n    }\n  }\n\n  // 4. Dangerous Permissions: List all permissions that can expose sensitive data\n  if (mobsfReport.permissions) {\n    const dangerousPermissions = [];\n    for (const permissionName in mobsfReport.permissions) {\n      const permissionDetails = mobsfReport.permissions[permissionName];\n      if (permissionDetails.status === 'dangerous') {\n        dangerousPermissions.push({\n          permission: permissionName,\n          info: permissionDetails.info,\n          description: permissionDetails.description\n        });\n      }\n    }\n    if (dangerousPermissions.length > 0) {\n        report.dangerousPermissions = dangerousPermissions;\n    }\n  }\n\n  // 5. Security Highlights: Include good news and other points of interest\n  report.securityHighlights = {};\n\n  // Network Security Summary\n  if (mobsfReport.network_security) {\n      if (mobsfReport.network_security.network_findings && mobsfReport.network_security.network_findings.length === 0) {\n          report.securityHighlights.network = \"OK: No network security issues found.\";\n      } else {\n          report.securityHighlights.network = mobsfReport.network_security.network_findings;\n      }\n  }\n\n  // Firebase Database Summary\n  if (mobsfReport.firebase) {\n      if (mobsfReport.firebase.urls && mobsfReport.firebase.urls.length === 0) {\n          report.securityHighlights.firebase = \"OK: No insecure Firebase databases found.\";\n      } else {\n          report.securityHighlights.firebase = {\n              message: \"Potential insecure Firebase databases found. Please review.\",\n              urls: mobsfReport.firebase.urls\n          };\n      }\n  }\n\n  // Trackers Summary\n  if (mobsfReport.trackers && mobsfReport.trackers.trackers && mobsfReport.trackers.trackers.length > 0) {\n      report.trackers = {\n          count: mobsfReport.trackers.trackers.length,\n          // Just list the names for brevity in the summary\n          detected: mobsfReport.trackers.trackers.map(t => t.name)\n      };\n  }\n\n  // Overwrite the original json with the new, summarized report\n  item.json = report;\n}\n\n// Return the modified items\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1e0fb8a-66cd-461c-86c5-64e1fb7b8b15",
+      "name": "Generate HTML Report",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1104,
+        64
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a reporting engine. Convert the following JSON into a structured HTML report.\n\nRules:\n\nOutput pure HTML only.\n\nNo Markdown.\n\nNo code blocks.\n\nNo scripts.\n\nUse only clean semantic HTML (<h1>, <h2>, <p>, <ul>, <li>, <strong>, etc.)\n\nMake the report readable and well-formatted.\n\nStructure:\n\n<h1>Android App Security & Performance Report</h1> <h2>1. App Information</h2> Include: - App Name - Version - Package - Min SDK - Target SDK - MD5 <h2>2. Manifest Warnings</h2> For each warning, include: - Component - Permission involved - Severity - Description - Risk Level - Recommended Fix <h2>3. Dangerous Permissions</h2> For every dangerous permission, include: - Permission name - Why it is risky - Impact - Play Store policy relevance - How to reduce risk <h2>4. Trackers Found</h2> - Count - List of trackers - GDPR impact - Whether privacy policy updates are needed <h2>5. App Size / Optimization Notes</h2> Provide recommendations based on: - Libraries - Assets - Native modules - Images/videos - Packaging issues <h2>6. Play Store Rejection Risks</h2> List any potential policy violations based on the JSON. <h2>7. Final Recommendations</h2> Provide 7–12 meaningful developer action points.\n\nHere is the JSON to analyze:\n{{JSON.stringify($json)}}"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d66ac7a7-e25e-4e92-8c95-707250753b75",
+      "name": "Clean HTML Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1456,
+        64
+      ],
+      "parameters": {
+        "jsCode": "// Get the actual HTML text from your JSON structure\nlet html = $json[\"output\"][0][\"content\"][0][\"text\"];\n\n// 1. Remove newlines and tabs\nhtml = html.replace(/\\n/g, \"\").replace(/\\t/g, \"\");\n\n// 2. Remove backslashes before quotes (if any)\nhtml = html.replace(/\\\\\"/g, '\"');\n\n// 3. Remove double backslashes (if any)\nhtml = html.replace(/\\\\\\\\/g, \"\\\\\");\n\n// 4. Trim unnecessary spaces\nhtml = html.trim();\n\nreturn {\n  cleaned_html: html\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b32e4384-a177-473a-b934-c2c44b92535c",
+      "name": "Generate PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1680,
+        64
+      ],
+      "parameters": {
+        "url": "https://api.pdf.co/v1/pdf/convert/from/html",
+        "method": "POST",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "html",
+              "value": "={{ $json.cleaned_html }}"
+            },
+            {
+              "name": "printbackground",
+              "value": "true"
+            },
+            {
+              "name": "name",
+              "value": "={{ $('Summarize MobSF Report1').item.json.appInfo.appName }}.pdf"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "24fe6ab7-9793-4470-820b-987dc8a217df",
+      "name": "Download Generated PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1904,
+        64
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "35df904a-7f82-41a3-9375-4b2a2b77a7f8",
+      "name": "Upload PDF to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2128,
+        64
+      ],
+      "parameters": {
+        "name": "={{ $('Summarize MobSF Report1').item.json.appInfo.appName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultUrl": "",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": "N8n workflow"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "c16d6ad5-5f4c-4858-85c2-45723c995aa8",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -272
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 544,
+        "content": "## Detect APK Upload & Fetch File\n### This part waits for a new APK file uploaded to Google Drive. When a new file appears, it automatically downloads it for security analysis. It ensures the workflow triggers only when a fresh APK is available for scanning."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9307140e-5aaa-4cd8-be7b-8140e20130fd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        -272
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 544,
+        "content": "## Upload & Scan the APK for Security Issues\n### The downloaded APK is uploaded to the MobSF analyzer. A new scan is triggered to check for potential security risks, including permissions, vulnerabilities, trackers, and privacy issues. This section collects the raw JSON results from the analyzer."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ccc0bd44-b3e1-4513-9081-c191bb9ad07d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        864,
+        -272
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 704,
+        "height": 528,
+        "content": "## Create a Clean Security Report\n### The workflow processes the MobSF data and extracts important findings. Then the AI converts this summary into a clean and readable HTML format. The HTML is cleaned to prepare for PDF generation while keeping the report easy to understand."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "24cd8881-7c84-4163-aaa2-42934b704a91",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1632,
+        -272
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 656,
+        "height": 528,
+        "content": "## Convert to PDF & Save to Drive\n### The formatted HTML is sent to a PDF API service, which generates a professional PDF report. The final PDF file is downloaded and stored back into Google Drive so users can easily access or share the security scan results."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f35cef7c-94ca-4a9d-8bea-32bab38c35f5",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -704,
+        -1248
+      ],
+      "parameters": {
+        "width": 512,
+        "height": 1328,
+        "content": "## How It Works\n### This workflow automatically analyzes newly uploaded APK files and generates a complete security report. When an APK is added to a specific Google Drive folder, the workflow downloads it and sends it to the MobSF analyzer. MobSF scans the app for vulnerabilities, permissions, trackers, and security issues, returning a detailed JSON report. The workflow then summarizes the key findings and uses an AI model to convert them into a clean and readable HTML report. After cleaning and formatting the HTML, the workflow sends it to PDF.co to generate a professional PDF report. Finally, the generated PDF is downloaded and saved back into Google Drive for access or sharing.\n\n## Setup Steps\n\n### Prepare Google Drive\n\nCreate a dedicated folder where APK files will be uploaded. The workflow will monitor this folder and trigger automatically when a new file appears.\n\n### Set Up MobSF Using Docker\n\nInstall Docker, pull the MobSF image, and run it locally on port 8000. Open MobSF in your browser, go to Settings, and copy your API key.\n\n### Connect Accounts in n8n\n\nAdd credentials for Google Drive, MobSF (API key), OpenAI, and PDF.co.\n\n### Add Trigger\n\nUse the Google Drive Trigger node to detect a new APK uploaded into your designated folder.\n\n### Upload & Scan APK in MobSF\n\nUse two HTTP nodes: one to upload the APK to MobSF and another to trigger the scan using the returned hash.\n\n### Summarize Scan Results\n\nUse a Code node to extract important findings, then send the summary to an AI model to generate a structured HTML report.\n\n### Generate PDF Report\n\nClean the HTML using a small code snippet, then convert it to PDF using PDF.co’s HTML-to-PDF API.\n\n### Save Final PDF\n\nDownload the generated PDF and upload it back to your Google Drive folder for access and sharing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8c97216c-75cb-46b8-8fb2-02b22af9efa1",
+      "name": "Start Security Scan",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        656,
+        64
+      ],
+      "parameters": {
+        "url": "http://localhost:8000/api/v1/scan",
+        "method": "POST",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "hash",
+              "value": "={{ $json.hash }}"
+            },
+            {
+              "name": "re_scan",
+              "value": "1"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "f"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "62ec3cae-1a0e-41c1-90b6-38327e1a94b2",
+  "connections": {
+    "Generate PDF": {
+      "main": [
+        [
+          {
+            "node": "Download Generated PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean HTML Output": {
+      "main": [
+        [
+          {
+            "node": "Generate PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download APK File": {
+      "main": [
+        [
+          {
+            "node": "Upload APK to Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch APK Uploads": {
+      "main": [
+        [
+          {
+            "node": "Download APK File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Security Scan": {
+      "main": [
+        [
+          {
+            "node": "Summarize MobSF Report1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate HTML Report": {
+      "main": [
+        [
+          {
+            "node": "Clean HTML Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Generated PDF": {
+      "main": [
+        [
+          {
+            "node": "Upload PDF to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload APK to Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Start Security Scan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize MobSF Report1": {
+      "main": [
+        [
+          {
+            "node": "Generate HTML Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

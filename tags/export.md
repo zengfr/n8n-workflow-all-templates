@@ -1,4 +1,4 @@
-# export : 63
+# export : 67
 
 |id|file|
 |----|----|
@@ -65,3 +65,7 @@
 |10599|[10599_Fetch_Odoo_Customer_Data_and_Export_to_JSON_or_Excel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10599_Fetch_Odoo_Customer_Data_and_Export_to_JSON_or_Excel.json)|
 |10768|[10768_Generate_Verified_Gym_Trial_Passes_with_QR_Code__Email___PDF_Export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10768_Generate_Verified_Gym_Trial_Passes_with_QR_Code__Email___PDF_Export.json)|
 |11189|[11189_Find___Score_LinkedIn_Leads_with_GPT-4_AI_and_Export_to_Google_Sheets_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11189_Find___Score_LinkedIn_Leads_with_GPT-4_AI_and_Export_to_Google_Sheets_CRM.json)|
+|11911|[11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json)|
+|12084|[12084_Research_content_keywords_with_SE_Ranking_and_export_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12084_Research_content_keywords_with_SE_Ranking_and_export_to_Google_Sheets.json)|
+|12085|[12085_Monitor_backlink_profile_with_SE_Ranking_and_export_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12085_Monitor_backlink_profile_with_SE_Ranking_and_export_to_Google_Sheets.json)|
+|12293|[12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json)|

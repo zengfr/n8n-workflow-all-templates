@@ -1,4 +1,4 @@
-# faq : 19
+# faq : 21
 
 |id|file|
 |----|----|
@@ -21,3 +21,5 @@
 |10340|[10340_Transform_Support_Emails_into_FAQs_with_GPT-4o__Gmail__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10340_Transform_Support_Emails_into_FAQs_with_GPT-4o__Gmail__Notion__and_Slack.json)|
 |10382|[10382_Automate_Airlines_Customer_Support_with_GPT-4_and_Question_Classification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10382_Automate_Airlines_Customer_Support_with_GPT-4_and_Question_Classification.json)|
 |10665|[10665_University_FAQ___Calendar_Assistant_with_Telegram__MongoDB_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10665_University_FAQ___Calendar_Assistant_with_Telegram__MongoDB_and_Gemini_AI.json)|
+|12019|[12019_Create_AI_FAQ_articles_from_Slack_threads_into_Notion_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12019_Create_AI_FAQ_articles_from_Slack_threads_into_Notion_and_Zendesk.json)|
+|12441|[12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12441_Generate_AI_search_driven_FAQ_insights_for_SEO_with_SE_Ranking_and_OpenAI_GPT-4.1-mini.json)|

@@ -1,4 +1,4 @@
-# inbox : 27
+# inbox : 29
 
 |id|file|
 |----|----|
@@ -29,3 +29,5 @@
 |9583|[9583_Automate_Gmail_Email_Categorization_with_GPT-4o_AI_and_Reasoning.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9583_Automate_Gmail_Email_Categorization_with_GPT-4o_AI_and_Reasoning.json)|
 |10340|[10340_Transform_Support_Emails_into_FAQs_with_GPT-4o__Gmail__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10340_Transform_Support_Emails_into_FAQs_with_GPT-4o__Gmail__Notion__and_Slack.json)|
 |10664|[10664_Smart_Gmail_Inbox_Management_with_Gemini__Auto-label_and_Draft_Replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10664_Smart_Gmail_Inbox_Management_with_Gemini__Auto-label_and_Draft_Replies.json)|
+|12826|[12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json)|
+|13203|[13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json)|

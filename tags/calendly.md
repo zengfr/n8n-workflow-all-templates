@@ -1,4 +1,4 @@
-# calendly : 27
+# calendly : 30
 
 |id|file|
 |----|----|
@@ -29,3 +29,6 @@
 |11247|[11247_Track_Calendly_Schedule_Changes_with_Google_Sheets___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11247_Track_Calendly_Schedule_Changes_with_Google_Sheets___Slack_Notifications.json)|
 |11253|[11253_Generate_Single-Use_Personalized_Calendly_Links_with_Google_Sheets_Tracking___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11253_Generate_Single-Use_Personalized_Calendly_Links_with_Google_Sheets_Tracking___Slack_Alerts.json)|
 |11254|[11254_Create_a_Calendly_Availability_API_Endpoint_for_Real-time_Scheduling_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11254_Create_a_Calendly_Availability_API_Endpoint_for_Real-time_Scheduling_Data.json)|
+|12079|[12079_Handle_Calendly_bookings__cancellations_and_reschedules_with_Gmail__Google_Calendar__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12079_Handle_Calendly_bookings__cancellations_and_reschedules_with_Gmail__Google_Calendar__Sheets_and_Slack.json)|
+|12271|[12271_Schedule_and_track_interviews_using_Calendly__Zoom__Asana__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12271_Schedule_and_track_interviews_using_Calendly__Zoom__Asana__and_Gmail.json)|
+|12530|[12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json)|

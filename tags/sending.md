@@ -1,4 +1,4 @@
-# sending : 10
+# sending : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |9686|[9686_Monitoring_Team_Capacity_in_Jira_and_Sending_Alerts_for_Over-Allocation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9686_Monitoring_Team_Capacity_in_Jira_and_Sending_Alerts_for_Over-Allocation.json)|
 |10730|[10730_Automated_Weekly_Product_Promotion_Emails_for_E-commerce_with_Algolia_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10730_Automated_Weekly_Product_Promotion_Emails_for_E-commerce_with_Algolia_and_Gmail.json)|
 |10734|[10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json)|
+|11902|[11902_Validate___score_leads_with_ZeroBounce_AI_before_sending_Gmail_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11902_Validate___score_leads_with_ZeroBounce_AI_before_sending_Gmail_emails.json)|

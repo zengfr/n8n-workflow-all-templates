@@ -1,4 +1,4 @@
-# mapping : 9
+# mapping : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |8446|[8446_Analyze_Competitor_Content_Gaps_with_Gemini_AI__Apify___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8446_Analyze_Competitor_Content_Gaps_with_Gemini_AI__Apify___Google_Sheets.json)|
 |10740|[10740_Automate_External_Attack_Surface_Mapping_with_Shodan_API_and_DNS_Lookups.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10740_Automate_External_Attack_Surface_Mapping_with_Shodan_API_and_DNS_Lookups.json)|
 |11136|[11136_Auto-Generate_WordPress_Blog_Tags_with_GPT-4.1-mini_and_Smart_Tag_Mapping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11136_Auto-Generate_WordPress_Blog_Tags_with_GPT-4.1-mini_and_Smart_Tag_Mapping.json)|
+|11904|[11904_Automate_cross-border_tax_compliance_with_Google_Sheets__PostgreSQL_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11904_Automate_cross-border_tax_compliance_with_Google_Sheets__PostgreSQL_and_Slack_alerts.json)|

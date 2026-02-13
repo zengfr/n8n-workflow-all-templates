@@ -1,4 +1,4 @@
-# restaurant : 22
+# restaurant : 23
 
 |id|file|
 |----|----|
@@ -24,3 +24,4 @@
 |8221|[8221_Generate_Custom_Recipes_and_Restaurant-Style_Food_Images_with_Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8221_Generate_Custom_Recipes_and_Restaurant-Style_Food_Images_with_Telegram_Bot.json)|
 |9850|[9850_Automated_Property___Restaurant_Bookings_with_AI_Voice_Calls_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9850_Automated_Property___Restaurant_Bookings_with_AI_Voice_Calls_via_Telegram.json)|
 |10211|[10211_Food_Photo_Analysis_to_Restaurant___Book_Recommendations_with_GPT_Vision_and_Google_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10211_Food_Photo_Analysis_to_Restaurant___Book_Recommendations_with_GPT_Vision_and_Google_APIs.json)|
+|12004|[12004_Restaurant_GPT-4_receptionist_for_bookings___delivery_using_Vapi__Telegram__Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12004_Restaurant_GPT-4_receptionist_for_bookings___delivery_using_Vapi__Telegram__Airtable.json)|

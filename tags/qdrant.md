@@ -1,4 +1,4 @@
-# qdrant : 43
+# qdrant : 45
 
 |id|file|
 |----|----|
@@ -45,3 +45,5 @@
 |10924|[10924_Voice_AI_Chatbot_with_OpenAI__RAG__Qdrant____Guardrails_for_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10924_Voice_AI_Chatbot_with_OpenAI__RAG__Qdrant____Guardrails_for_WordPress.json)|
 |11468|[11468_Build_a_RAG_Agent_with_n8n__Qdrant___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11468_Build_a_RAG_Agent_with_n8n__Qdrant___OpenAI.json)|
 |11525|[11525_Build_a_Multi-Agent_system_with_n8n__Qdrant__Gmail___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11525_Build_a_Multi-Agent_system_with_n8n__Qdrant__Gmail___OpenAI.json)|
+|12228|[12228_Create_an_AI_Telegram_bot_using_Google_Drive__Qdrant__and_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12228_Create_an_AI_Telegram_bot_using_Google_Drive__Qdrant__and_OpenAI_GPT-4.1.json)|
+|12827|[12827_Automate_systematic_literature_reviews_with_Google_Drive__GPT-4__Gemini__Qdrant_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12827_Automate_systematic_literature_reviews_with_Google_Drive__GPT-4__Gemini__Qdrant_and_Airtable.json)|

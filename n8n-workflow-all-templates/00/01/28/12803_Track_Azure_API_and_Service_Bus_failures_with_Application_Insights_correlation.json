@@ -1,0 +1,432 @@
+{
+  "name": "Track API failures with Application Insights correlation",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "sticky-main-overview",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 480,
+        "height": 460,
+        "content": "## How it works\n\nThis workflow queries Azure Application Insights to track failed API calls across APIM, Service Bus, and exceptions. It makes three KQL queries to the Application Insights API, then correlates the results using operationId to show which API calls failed, what exceptions occurred, and which Service Bus messages were involved.\n\n## Setup steps\n\n1. **Create service principal**: Run `az ad sp create-for-rbac --name \"n8n-appinsights\" --role \"Monitoring Reader\" --scopes /subscriptions/{subscription-id}`\n\n2. **Configure workflow**: Update 'Set Configuration' with your Application Insights Application ID and Azure AD tenant ID.\n\n3. **Add credentials**: The workflow uses Azure credentials which must be configured in your n8n instance."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-config",
+      "name": "Sticky Note - Config",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 180,
+        "content": "## Configuration\n\nSet your Application Insights Application ID and time range filter. Ensure OAuth2 credentials are configured in n8n. Time range options: 24h, 7d, 30d."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-processing",
+      "name": "Sticky Note - Processing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1660,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 180,
+        "content": "## Processing & Reporting\n\nCorrelates data using operationId, calculates statistics, identifies top errors and slow requests, then generates Markdown and HTML reports."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "trigger-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        780,
+        460
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "config-settings",
+      "name": "Set Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1000,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "appInsightsAppId",
+              "name": "appInsightsAppId",
+              "type": "string",
+              "value": "YOUR_APP_INSIGHTS_APP_ID"
+            },
+            {
+              "id": "tenantId",
+              "name": "tenantId",
+              "type": "string",
+              "value": "YOUR_TENANT_ID"
+            },
+            {
+              "id": "clientId",
+              "name": "clientId",
+              "type": "string",
+              "value": "YOUR_CLIENT_ID"
+            },
+            {
+              "id": "clientSecret",
+              "name": "clientSecret",
+              "type": "string",
+              "value": "YOUR_CLIENT_SECRET"
+            },
+            {
+              "id": "timeRange",
+              "name": "timeRange",
+              "type": "string",
+              "value": "24h"
+            },
+            {
+              "id": "includeSuccessful",
+              "name": "includeSuccessful",
+              "type": "boolean",
+              "value": false
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "sticky-data-collection",
+      "name": "Sticky Note - Data Collection",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1220,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 180,
+        "content": "## Data Collection\n\nMakes three Application Insights API calls in one node: APIM requests, Service Bus traces, and exceptions. Handles OAuth2 authentication internally."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "query-all-data",
+      "name": "Query Application Insights",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1220,
+        460
+      ],
+      "parameters": {
+        "jsCode": "const config = $input.item.json;\nconst appId = config.appInsightsAppId;\nconst tenantId = config.tenantId;\nconst clientId = config.clientId;\nconst clientSecret = config.clientSecret;\nconst timeRange = config.timeRange;\nconst includeSuccessful = config.includeSuccessful;\n\n// Get OAuth2 token\nconst tokenResponse = await fetch(\n  `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,\n  {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },\n    body: new URLSearchParams({\n      client_id: clientId,\n      client_secret: clientSecret,\n      scope: 'https://api.applicationinsights.io/.default',\n      grant_type: 'client_credentials'\n    })\n  }\n);\n\nconst tokenData = await tokenResponse.json();\nconst accessToken = tokenData.access_token;\n\nif (!accessToken) {\n  throw new Error('Failed to obtain access token: ' + JSON.stringify(tokenData));\n}\n\nconst headers = {\n  'Authorization': `Bearer ${accessToken}`,\n  'Content-Type': 'application/json'\n};\n\nconst baseUrl = `https://api.applicationinsights.io/v1/apps/${appId}/query`;\n\n// Query 1: APIM Requests\nconst apimQuery = `requests\n| where timestamp > ago(${timeRange})\n${includeSuccessful ? '' : '| where resultCode >= 400'}\n| extend operationId = tostring(operation_Id)\n| extend apimServiceName = tostring(customDimensions['apim-service-name'])\n| extend apimOperationName = tostring(customDimensions['apim-operation-name'])\n| extend apimSubscriptionId = tostring(customDimensions['apim-subscription-id'])\n| project timestamp, name, url, resultCode, duration, operationId, apimServiceName, apimOperationName, apimSubscriptionId, customDimensions, client_Type, client_City, client_CountryOrRegion\n| order by timestamp desc\n| take 500`;\n\nconst apimResponse = await fetch(baseUrl, {\n  method: 'POST',\n  headers,\n  body: JSON.stringify({ query: apimQuery })\n});\nconst apimData = await apimResponse.json();\n\n// Query 2: Service Bus Traces  \nconst sbQuery = `traces\n| where timestamp > ago(${timeRange})\n| where message contains 'ServiceBus' or customDimensions has 'MessageId'\n| extend operationId = tostring(operation_Id)\n| extend messageId = tostring(customDimensions['MessageId'])\n| extend entityName = tostring(customDimensions['EntityName'])\n| extend endpoint = tostring(customDimensions['Endpoint'])\n| project timestamp, message, severityLevel, operationId, messageId, entityName, endpoint, customDimensions\n| order by timestamp desc\n| take 500`;\n\nconst sbResponse = await fetch(baseUrl, {\n  method: 'POST',\n  headers,\n  body: JSON.stringify({ query: sbQuery })\n});\nconst sbData = await sbResponse.json();\n\n// Query 3: Exceptions\nconst exceptionsQuery = `exceptions\n| where timestamp > ago(${timeRange})\n| extend operationId = tostring(operation_Id)\n| project timestamp, type, outerMessage, innermostMessage, outerMethod, innermostMethod, operationId, problemId, severityLevel, customDimensions, details\n| order by timestamp desc\n| take 500`;\n\nconst exceptionsResponse = await fetch(baseUrl, {\n  method: 'POST',\n  headers,\n  body: JSON.stringify({ query: exceptionsQuery })\n});\nconst exceptionsData = await exceptionsResponse.json();\n\nreturn [{\n  json: {\n    apimData: apimData.tables?.[0] || {},\n    sbData: sbData.tables?.[0] || {},\n    exceptionsData: exceptionsData.tables?.[0] || {}\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "correlate-data",
+      "name": "Correlate and Analyze Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1440,
+        460
+      ],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst apimData = data.apimData;\nconst sbData = data.sbData;\nconst exceptionsData = data.exceptionsData;\n\nfunction parseAppInsightsTable(table) {\n  if (!table || !table.columns || !table.rows) return [];\n  const columns = table.columns.map(c => c.name);\n  return table.rows.map(row => {\n    const obj = {};\n    columns.forEach((col, idx) => { obj[col] = row[idx]; });\n    return obj;\n  });\n}\n\nconst apimRequests = parseAppInsightsTable(apimData);\nconst sbTraces = parseAppInsightsTable(sbData);\nconst exceptions = parseAppInsightsTable(exceptionsData);\n\nconst sbByOperationId = {};\nsbTraces.forEach(trace => {\n  if (trace.operationId) {\n    if (!sbByOperationId[trace.operationId]) sbByOperationId[trace.operationId] = [];\n    sbByOperationId[trace.operationId].push(trace);\n  }\n});\n\nconst exceptionsByOperationId = {};\nexceptions.forEach(ex => {\n  if (ex.operationId) {\n    if (!exceptionsByOperationId[ex.operationId]) exceptionsByOperationId[ex.operationId] = [];\n    exceptionsByOperationId[ex.operationId].push(ex);\n  }\n});\n\nconst correlatedData = apimRequests.map(request => ({\n  timestamp: request.timestamp,\n  apiName: request.name,\n  url: request.url,\n  resultCode: request.resultCode,\n  duration: request.duration,\n  operationId: request.operationId,\n  apimServiceName: request.apimServiceName,\n  apimOperationName: request.apimOperationName,\n  apimSubscriptionId: request.apimSubscriptionId,\n  clientType: request.client_Type,\n  clientCity: request.client_City,\n  clientCountry: request.client_CountryOrRegion,\n  serviceBusTraces: sbByOperationId[request.operationId] || [],\n  serviceBusMessageIds: (sbByOperationId[request.operationId] || []).map(t => t.messageId).filter(Boolean),\n  exceptions: exceptionsByOperationId[request.operationId] || [],\n  exceptionMessages: (exceptionsByOperationId[request.operationId] || []).map(e => e.outerMessage).filter(Boolean),\n  hasException: !!exceptionsByOperationId[request.operationId],\n  hasServiceBusTrace: !!sbByOperationId[request.operationId],\n  isFailure: request.resultCode >= 400\n}));\n\nconst summary = {\n  totalRequests: correlatedData.length,\n  failedRequests: correlatedData.filter(r => r.isFailure).length,\n  successfulRequests: correlatedData.filter(r => !r.isFailure).length,\n  requestsWithExceptions: correlatedData.filter(r => r.hasException).length,\n  requestsWithServiceBus: correlatedData.filter(r => r.hasServiceBusTrace).length,\n  averageDuration: correlatedData.reduce((sum, r) => sum + (r.duration || 0), 0) / correlatedData.length,\n  timeRange: $('Set Configuration').item.json.timeRange,\n  analysisTimestamp: new Date().toISOString()\n};\n\nconst errorCounts = {};\ncorrelatedData.filter(r => r.isFailure).forEach(r => {\n  const key = `${r.resultCode} - ${r.apiName}`;\n  errorCounts[key] = (errorCounts[key] || 0) + 1;\n});\n\nconst topErrors = Object.entries(errorCounts)\n  .map(([error, count]) => ({ error, count }))\n  .sort((a, b) => b.count - a.count)\n  .slice(0, 10);\n\nconst topSlowRequests = [...correlatedData]\n  .sort((a, b) => (b.duration || 0) - (a.duration || 0))\n  .slice(0, 10)\n  .map(r => ({ apiName: r.apiName, duration: r.duration, resultCode: r.resultCode, timestamp: r.timestamp, operationId: r.operationId }));\n\nreturn [{ json: { summary, topErrors, topSlowRequests, correlatedData, rawData: { apimRequestCount: apimRequests.length, serviceBusTraceCount: sbTraces.length, exceptionCount: exceptions.length } } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "generate-report",
+      "name": "Generate Report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1660,
+        560
+      ],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst summary = data.summary;\nconst topErrors = data.topErrors;\nconst topSlowRequests = data.topSlowRequests;\n\nconst markdownReport = `# Azure API Failure Analysis Report\\n\\n**Analysis Period:** ${summary.timeRange}\\n**Generated:** ${new Date(summary.analysisTimestamp).toLocaleString()}\\n\\n---\\n\\n## Summary\\n\\n- **Total Requests:** ${summary.totalRequests}\\n- **Failed Requests:** ${summary.failedRequests} (${((summary.failedRequests/summary.totalRequests)*100).toFixed(1)}%)\\n- **Successful Requests:** ${summary.successfulRequests}\\n- **Requests with Exceptions:** ${summary.requestsWithExceptions}\\n- **Requests with Service Bus Traces:** ${summary.requestsWithServiceBus}\\n- **Average Duration:** ${summary.averageDuration.toFixed(2)}ms\\n\\n---\\n\\n## Top 10 Errors\\n\\n${topErrors.length > 0 ? topErrors.map((e, i) => `${i + 1}. **${e.error}** - ${e.count} occurrences`).join('\\\\n') : '_No errors found_'}\\n\\n---\\n\\n## Top 10 Slowest Requests\\n\\n${topSlowRequests.length > 0 ? topSlowRequests.map((r, i) => `${i + 1}. **${r.apiName}** - ${r.duration.toFixed(2)}ms - Status ${r.resultCode}`).join('\\\\n') : '_No slow requests identified_'}\\n\\n---\\n\\n_Report generated by n8n Azure App Insights Tracker_\\n`;\n\nconst htmlReport = `<!DOCTYPE html>\\n<html>\\n<head>\\n  <title>Azure API Failure Analysis</title>\\n  <style>\\n    body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 20px; background: #f5f5f5; }\\n    .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }\\n    h1 { color: #0078D4; border-bottom: 3px solid #0078D4; padding-bottom: 10px; }\\n    h2 { color: #106EBE; margin-top: 30px; }\\n    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }\\n    .summary-card { background: #f0f6ff; padding: 15px; border-radius: 6px; border-left: 4px solid #0078D4; }\\n    .summary-card .label { font-size: 12px; color: #666; text-transform: uppercase; }\\n    .summary-card .value { font-size: 24px; font-weight: bold; color: #0078D4; margin-top: 5px; }\\n    .error-item, .slow-item { background: #fff4f4; padding: 10px; margin: 8px 0; border-left: 4px solid #d13438; border-radius: 4px; }\\n    .slow-item { background: #fff8e1; border-left-color: #f9a825; }\\n    table { width: 100%; border-collapse: collapse; margin: 20px 0; }\\n    th { background: #0078D4; color: white; padding: 12px; text-align: left; }\\n    td { padding: 10px; border-bottom: 1px solid #ddd; }\\n    tr:hover { background: #f5f5f5; }\\n    .failure { color: #d13438; font-weight: bold; }\\n  </style>\\n</head>\\n<body>\\n  <div class=\\\"container\\\">\\n    <h1>Azure API Failure Analysis Report</h1>\\n    <p><strong>Analysis Period:</strong> ${summary.timeRange} | <strong>Generated:</strong> ${new Date(summary.analysisTimestamp).toLocaleString()}</p>\\n    <div class=\\\"summary-grid\\\">\\n      <div class=\\\"summary-card\\\"><div class=\\\"label\\\">Total Requests</div><div class=\\\"value\\\">${summary.totalRequests}</div></div>\\n      <div class=\\\"summary-card\\\"><div class=\\\"label\\\">Failed</div><div class=\\\"value\\\" style=\\\"color: #d13438;\\\">${summary.failedRequests}</div></div>\\n      <div class=\\\"summary-card\\\"><div class=\\\"label\\\">Success Rate</div><div class=\\\"value\\\" style=\\\"color: #107c10;\\\">${((summary.successfulRequests/summary.totalRequests)*100).toFixed(1)}%</div></div>\\n      <div class=\\\"summary-card\\\"><div class=\\\"label\\\">Avg Duration</div><div class=\\\"value\\\">${summary.averageDuration.toFixed(0)}ms</div></div>\\n    </div>\\n    <h2>Top Errors</h2>\\n    ${topErrors.map(e => `<div class=\\\"error-item\\\"><strong>${e.error}</strong> - ${e.count} occurrences</div>`).join('')}\\n    <h2>Top Slowest Requests</h2>\\n    ${topSlowRequests.map(r => `<div class=\\\"slow-item\\\"><strong>${r.apiName}</strong> - ${r.duration.toFixed(0)}ms - Status ${r.resultCode}</div>`).join('')}\\n  </div>\\n</body>\\n</html>`;\n\nreturn [{ json: { ...data, markdownReport, htmlReport } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "check-has-data",
+      "name": "Check If Data Exists",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1880,
+        560
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-data",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.correlatedData.length }}",
+              "rightValue": "0"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "output-report",
+      "name": "Output Report",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2100,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "report",
+              "name": "report",
+              "type": "string",
+              "value": "={{ $json.markdownReport }}"
+            },
+            {
+              "id": "htmlReport",
+              "name": "htmlReport",
+              "type": "string",
+              "value": "={{ $json.htmlReport }}"
+            },
+            {
+              "id": "summary",
+              "name": "summary",
+              "type": "object",
+              "value": "={{ $json.summary }}"
+            },
+            {
+              "id": "topErrors",
+              "name": "topErrors",
+              "type": "array",
+              "value": "={{ $json.topErrors }}"
+            },
+            {
+              "id": "failedRequests",
+              "name": "failedRequests",
+              "type": "array",
+              "value": "={{ $json.correlatedData.filter(r => r.isFailure) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "no-data-found",
+      "name": "No Data Found",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2100,
+        660
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "message",
+              "name": "message",
+              "type": "string",
+              "value": "No data found for the specified time range and filters. Check your App Insights configuration."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "export-excel",
+      "name": "Export to Excel",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "disabled": true,
+      "position": [
+        2320,
+        360
+      ],
+      "parameters": {
+        "options": {
+          "fileName": "=azure-api-failures-{{ $now.format('yyyy-MM-dd-HHmmss') }}.xlsx",
+          "headerRow": true
+        },
+        "operation": "toFile",
+        "fileFormat": "xlsx"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "disabled": true,
+      "position": [
+        2320,
+        560
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'success', data: { summary: $json.summary, topErrors: $json.topErrors, failedRequests: $json.failedRequests, report: $json.report }, timestamp: $now.toISO() } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "sticky-outputs",
+      "name": "Sticky Note - Outputs",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2100,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 180,
+        "content": "## Output Options\n\nExport to Excel or return JSON via webhook. Both nodes are disabled by default—enable as needed."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "updatedAt": "2026-01-19T00:00:00.000Z",
+  "versionId": "2",
+  "staticData": null,
+  "connections": {
+    "Output Report": {
+      "main": [
+        [
+          {
+            "node": "Export to Excel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          {
+            "node": "Check If Data Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Configuration": {
+      "main": [
+        [
+          {
+            "node": "Query Application Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Data Exists": {
+      "main": [
+        [
+          {
+            "node": "Output Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Data Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Correlate and Analyze Data": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Application Insights": {
+      "main": [
+        [
+          {
+            "node": "Correlate and Analyze Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0,
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Track Azure API and Service Bus failures with Application Insights correlation",
+    "wechat": "youandme10086",
+    "id": 12803,
+    "update_time": "2026-02-13"
+  }
+}

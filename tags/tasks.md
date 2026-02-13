@@ -1,4 +1,4 @@
-# tasks : 90
+# tasks : 100
 
 |id|file|
 |----|----|
@@ -92,3 +92,13 @@
 |11743|[11743_Generate_Multi-Channel_Release_Notes_from_ClickUp_Tasks_with_GPT-4o__Notion___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11743_Generate_Multi-Channel_Release_Notes_from_ClickUp_Tasks_with_GPT-4o__Notion___Slack.json)|
 |11786|[11786_Daily_Google_Analytics_Report_with_GPT-4_Mini_Summaries__WhatsApp_Alerts___ClickUp_Tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11786_Daily_Google_Analytics_Report_with_GPT-4_Mini_Summaries__WhatsApp_Alerts___ClickUp_Tasks.json)|
 |11817|[11817_Manage_Notion_To-Do_Tasks_via_Telegram_with_Voice_Messages___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11817_Manage_Notion_To-Do_Tasks_via_Telegram_with_Voice_Messages___OpenAI.json)|
+|12017|[12017_Prevent_employee_burnout_with_AI_analysis_of_Slack_and_tasks_data_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12017_Prevent_employee_burnout_with_AI_analysis_of_Slack_and_tasks_data_to_Google_Sheets.json)|
+|12076|[12076_Manage_recruitment_tasks_in_Slack_with_Recrutei_ATS___GPT-4_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12076_Manage_recruitment_tasks_in_Slack_with_Recrutei_ATS___GPT-4_Agent.json)|
+|12102|[12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json)|
+|12127|[12127_Automate_post-meeting_tasks_with_Fireflies__GPT-4o___ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12127_Automate_post-meeting_tasks_with_Fireflies__GPT-4o___ClickUp.json)|
+|12429|[12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json)|
+|12480|[12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json)|
+|12498|[12498_Analyze_stock_sentiment_with_GPT-4o_and_create_Asana_tasks_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12498_Analyze_stock_sentiment_with_GPT-4o_and_create_Asana_tasks_with_Slack_alerts.json)|
+|12739|[12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json)|
+|13124|[13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json)|
+|13160|[13160_Manage_finances__tasks__tweets_and_Gmail_with_GPT_4.1_on_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13160_Manage_finances__tasks__tweets_and_Gmail_with_GPT_4.1_on_WhatsApp.json)|

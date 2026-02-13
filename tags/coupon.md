@@ -1,4 +1,4 @@
-# coupon : 7
+# coupon : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |7400|[7400_Automated_Order_Confirmations_with_Abacate_Pay__First-Buyer_Coupon_Rewards_via_Email___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/74/7400_Automated_Order_Confirmations_with_Abacate_Pay__First-Buyer_Coupon_Rewards_via_Email___Slack.json)|
 |9292|[9292_Auto_Send_Thank-You_Messages___Loyalty_Coupons_via_WhatsApp_from_Shopify_using_Rapiwa.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9292_Auto_Send_Thank-You_Messages___Loyalty_Coupons_via_WhatsApp_from_Shopify_using_Rapiwa.json)|
 |9900|[9900_Track_Coupon_Points_with_Google_Sheets__Drive_Storage__and_Gmail_Weekly_Summary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9900_Track_Coupon_Points_with_Google_Sheets__Drive_Storage__and_Gmail_Weekly_Summary.json)|
+|12461|[12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json)|

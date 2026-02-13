@@ -1,4 +1,4 @@
-# verify : 24
+# verify : 28
 
 |id|file|
 |----|----|
@@ -26,3 +26,7 @@
 |8923|[8923_Verify_Generic_Business_Emails_across_Multiple_Domains_with_EmailListVerify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8923_Verify_Generic_Business_Emails_across_Multiple_Domains_with_EmailListVerify_and_Google_Sheets.json)|
 |9732|[9732_Qualify___Verify_Leads_with_Google_Gemini_and_Sync_to_HubSpot_from_Jotform.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9732_Qualify___Verify_Leads_with_Google_Gemini_and_Sync_to_HubSpot_from_Jotform.json)|
 |10133|[10133_Verify_Emails___Generate_Resume_Cards_with_VerifiEmail__HTML_CSS_to_Image___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10133_Verify_Emails___Generate_Resume_Cards_with_VerifiEmail__HTML_CSS_to_Image___Gmail.json)|
+|12036|[12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json)|
+|12276|[12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json)|
+|12432|[12432_Verify_service_providers_via_Telegram_using_BrowserAct_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12432_Verify_service_providers_via_Telegram_using_BrowserAct_and_Google_Gemini.json)|
+|12725|[12725_Verify_AI_draft_answers_with_Pearl_Hybrid_Intelligence_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12725_Verify_AI_draft_answers_with_Pearl_Hybrid_Intelligence_and_OpenAI.json)|

@@ -1,4 +1,4 @@
-# flight : 11
+# flight : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |9788|[9788_Compare_Flight_Prices_Across_Multiple_Booking_Platforms_with_Email_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9788_Compare_Flight_Prices_Across_Multiple_Booking_Platforms_with_Email_Reports.json)|
 |10621|[10621_Flight_Deal_Analyzer_with_Weather_Data_using_GPT__Google_Flights___WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10621_Flight_Deal_Analyzer_with_Weather_Data_using_GPT__Google_Flights___WordPress.json)|
 |10886|[10886_Monitor_Japan_Flight_Prices___Generate_Booking_Alerts_with_GPT-4o___Multi-Source_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10886_Monitor_Japan_Flight_Prices___Generate_Booking_Alerts_with_GPT-4o___Multi-Source_Analysis.json)|
+|12435|[12435_Find_cheap_flight_deals_using_Google_Gemini__GPT-4__Telegram_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12435_Find_cheap_flight_deals_using_Google_Gemini__GPT-4__Telegram_and_BrowserAct.json)|

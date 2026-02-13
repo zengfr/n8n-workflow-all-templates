@@ -1,4 +1,4 @@
-# structured : 39
+# structured : 41
 
 |id|file|
 |----|----|
@@ -41,3 +41,5 @@
 |10086|[10086_How_to_Transform_Unstructured_Email_Data_into_Structured_Format_with_AI_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10086_How_to_Transform_Unstructured_Email_Data_into_Structured_Format_with_AI_Agent.json)|
 |11361|[11361_Interactive_Structured_Prompt_Builder_with_GPT-4.1-mini_and_Guided_Questions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11361_Interactive_Structured_Prompt_Builder_with_GPT-4.1-mini_and_Guided_Questions.json)|
 |11736|[11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json)|
+|12799|[12799_Generate_AI_SOPs_from_Google_Drive_with_GPT_4o__Google_Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12799_Generate_AI_SOPs_from_Google_Drive_with_GPT_4o__Google_Docs_and_Sheets.json)|
+|13004|[13004_Extract_structured_data_from_Gmail_attachments_to_Google_Sheets__GPT_vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13004_Extract_structured_data_from_Gmail_attachments_to_Google_Sheets__GPT_vision.json)|

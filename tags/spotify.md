@@ -1,4 +1,4 @@
-# spotify : 22
+# spotify : 23
 
 |id|file|
 |----|----|
@@ -24,3 +24,4 @@
 |9888|[9888_Automated_Spotify_Playlist_Organizer_-_Sort_and_Queue_Tracks_by_Popularity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9888_Automated_Spotify_Playlist_Organizer_-_Sort_and_Queue_Tracks_by_Popularity.json)|
 |10267|[10267_Generate_News_Cards_from_Spotify_Emotions_with_LLM__Google_News_and_APITemplate.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10267_Generate_News_Cards_from_Spotify_Emotions_with_LLM__Google_News_and_APITemplate.io.json)|
 |11300|[11300_Turn_NASA_Astronomy_Pictures_into_Matching_Spotify_Tracks_using_GPT-4o_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11300_Turn_NASA_Astronomy_Pictures_into_Matching_Spotify_Tracks_using_GPT-4o_Vision.json)|
+|12736|[12736_Create_lyric_posters_from_Spotify_tracks_with_Musixmatch_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12736_Create_lyric_posters_from_Spotify_tracks_with_Musixmatch_and_OpenAI.json)|

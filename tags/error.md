@@ -1,4 +1,4 @@
-# error : 39
+# error : 42
 
 |id|file|
 |----|----|
@@ -41,3 +41,6 @@
 |10755|[10755_Simple_error_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10755_Simple_error_workflow.json)|
 |11219|[11219_Error_Monitor__AI-Powered_Resolution__Context7__Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11219_Error_Monitor__AI-Powered_Resolution__Context7__Supabase.json)|
 |11507|[11507_Automated_Error_Notifications_with_Optional_GPT-4o_Diagnostics_via_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11507_Automated_Error_Notifications_with_Optional_GPT-4o_Diagnostics_via_Email.json)|
+|12724|[12724_Automated_error_monitoring_and_reporting_system_using_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12724_Automated_error_monitoring_and_reporting_system_using_data_tables.json)|
+|12890|[12890_Send_severity-based_error_alerts_using_Telegram__email_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12890_Send_severity-based_error_alerts_using_Telegram__email_and_Google_Sheets.json)|
+|12989|[12989_Aggregate_error_alerts_and_send_consolidated_reports_via_Email_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12989_Aggregate_error_alerts_and_send_consolidated_reports_via_Email_and_Jira.json)|

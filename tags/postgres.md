@@ -1,4 +1,4 @@
-# postgres : 38
+# postgres : 45
 
 |id|file|
 |----|----|
@@ -40,3 +40,10 @@
 |8457|[8457_Synchronize_Excel_or_Google_Sheets_with_Postgres__bi-directional.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8457_Synchronize_Excel_or_Google_Sheets_with_Postgres__bi-directional.json)|
 |8789|[8789_Lightweight_Support_Desk_with_Telegram_and_Postgres_Database_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8789_Lightweight_Support_Desk_with_Telegram_and_Postgres_Database_Tracking.json)|
 |9039|[9039_Create_Secure_Human-in-the-Loop_Approval_Flows_with_Postgres_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9039_Create_Secure_Human-in-the-Loop_Approval_Flows_with_Postgres_and_Telegram.json)|
+|12069|[12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json)|
+|12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|
+|12792|[12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json)|
+|12810|[12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json)|
+|12963|[12963_Evaluate_organizational_data_maturity_and_email_HTML_reports_with_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12963_Evaluate_organizational_data_maturity_and_email_HTML_reports_with_Postgres.json)|
+|13238|[13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json)|
+|13274|[13274_Send_post-purchase_email_sequences_with_Postgres__Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13274_Send_post-purchase_email_sequences_with_Postgres__Gmail_and_OpenAI.json)|

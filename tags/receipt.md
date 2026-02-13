@@ -1,4 +1,4 @@
-# receipt : 22
+# receipt : 25
 
 |id|file|
 |----|----|
@@ -24,3 +24,6 @@
 |9417|[9417_Automated_Receipt_Processing_for_Cashback_with_Jotform__Gemini_2.5___Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9417_Automated_Receipt_Processing_for_Cashback_with_Jotform__Gemini_2.5___Notion.json)|
 |10558|[10558_Automate_Stripe_Payment_to_QuickBooks_Sales_Receipt_Sync.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10558_Automate_Stripe_Payment_to_QuickBooks_Sales_Receipt_Sync.json)|
 |10970|[10970_Track_Expenses_from_Receipt_Photos_with_AI__Google_Sheets___Slack_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10970_Track_Expenses_from_Receipt_Photos_with_AI__Google_Sheets___Slack_Reports.json)|
+|12030|[12030_Automate_tax_deduction_processing_with_GPT-4_receipt_analysis_and_Gmail_reporting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12030_Automate_tax_deduction_processing_with_GPT-4_receipt_analysis_and_Gmail_reporting.json)|
+|12680|[12680_Track_receipt_expenses_via_LINE_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12680_Track_receipt_expenses_via_LINE_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json)|
+|12954|[12954_Receipt_Processing_AI_Agent__with_step_by_step_video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12954_Receipt_Processing_AI_Agent__with_step_by_step_video.json)|

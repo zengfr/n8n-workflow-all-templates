@@ -1,4 +1,4 @@
-# trustpilot : 10
+# trustpilot : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |6112|[6112_Shopify_Review_Aggregator__Trustpilot__Google__Facebook_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6112_Shopify_Review_Aggregator__Trustpilot__Google__Facebook_to_Google_Sheets.json)|
 |9985|[9985_Analyze_Trustpilot___Sitejabber_sentiment_with_Decodo___Gemini_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9985_Analyze_Trustpilot___Sitejabber_sentiment_with_Decodo___Gemini_to_Sheets.json)|
 |11410|[11410_Review_Aggregator_and_AI_Alerts_for_Google__Facebook__Trustpilot__and_Yelp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11410_Review_Aggregator_and_AI_Alerts_for_Google__Facebook__Trustpilot__and_Yelp.json)|
+|12654|[12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json)|

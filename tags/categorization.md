@@ -1,4 +1,4 @@
-# categorization : 16
+# categorization : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |9529|[9529_Outlook_Inbox_Tamer__GPT-4.1_Powered_Categorization__Auto_Replies___Team_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9529_Outlook_Inbox_Tamer__GPT-4.1_Powered_Categorization__Auto_Replies___Team_Alerts.json)|
 |9583|[9583_Automate_Gmail_Email_Categorization_with_GPT-4o_AI_and_Reasoning.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9583_Automate_Gmail_Email_Categorization_with_GPT-4o_AI_and_Reasoning.json)|
 |10118|[10118_Gmail_Email_Categorization___Auto_Reply_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10118_Gmail_Email_Categorization___Auto_Reply_with_GPT-4o_and_Google_Sheets.json)|
+|13005|[13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json)|

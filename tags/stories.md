@@ -1,4 +1,4 @@
-# stories : 9
+# stories : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |7161|[7161_Transform_Travel_Photos_into_Narrative_Stories_with_GPT-4O_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/71/7161_Transform_Travel_Photos_into_Narrative_Stories_with_GPT-4O_Vision.json)|
 |8158|[8158_Create_Emotional_Stories_with_Gemini_AI__Generate_Images_and_Veo3_JSON_Prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8158_Create_Emotional_Stories_with_Gemini_AI__Generate_Images_and_Veo3_JSON_Prompts.json)|
 |8785|[8785_Automate_Instagram_Stories_Publishing_from_Google_Sheets_with_Meta_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8785_Automate_Instagram_Stories_Publishing_from_Google_Sheets_with_Meta_Graph_API.json)|
+|12048|[12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json)|
+|12263|[12263_Generate_illustrated_stories_with_GPT-4__DALL-E_3_and_Firebase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12263_Generate_illustrated_stories_with_GPT-4__DALL-E_3_and_Firebase.json)|
+|13093|[13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json)|

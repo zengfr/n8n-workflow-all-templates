@@ -1,4 +1,4 @@
-# companies : 21
+# companies : 24
 
 |id|file|
 |----|----|
@@ -23,3 +23,6 @@
 |11709|[11709_Generate_Ideal_Customer_Profiles___Find_Lookalike_Companies_in_Germany.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11709_Generate_Ideal_Customer_Profiles___Find_Lookalike_Companies_in_Germany.json)|
 |11749|[11749_Monitor_German_Company_Register___Financial_Events_with_Implisense_API___Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11749_Monitor_German_Company_Register___Financial_Events_with_Implisense_API___Notifications.json)|
 |11750|[11750_Regional_Prospecting_for_registered_Companies_in_Germany.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11750_Regional_Prospecting_for_registered_Companies_in_Germany.json)|
+|11928|[11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json)|
+|11937|[11937_Automate_company_data_enrichment_with_HubSpot__Sona__OpenAI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11937_Automate_company_data_enrichment_with_HubSpot__Sona__OpenAI___Google_Sheets.json)|
+|12300|[12300_Find_similar_B2B_companies_to_your_best_customers_with_Google_Sheets_and_CompanyEnrich.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12300_Find_similar_B2B_companies_to_your_best_customers_with_Google_Sheets_and_CompanyEnrich.json)|

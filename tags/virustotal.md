@@ -1,4 +1,4 @@
-# virustotal : 7
+# virustotal : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |6037|[6037_IP_Reputation_Check___SOC_Alerts_with_Splunk__VirusTotal_and_AlienVault.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/60/6037_IP_Reputation_Check___SOC_Alerts_with_Splunk__VirusTotal_and_AlienVault.json)|
 |6296|[6296_Automated_Security_Alert_Analysis_with_Sophos__Gemini_AI__and_VirusTotal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/62/6296_Automated_Security_Alert_Analysis_with_Sophos__Gemini_AI__and_VirusTotal.json)|
 |7926|[7926_Check_Suspicious_Links_via_Telegram_with_GPT-4_Analysis_of_VirusTotal___urlscan.io_Results.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7926_Check_Suspicious_Links_via_Telegram_with_GPT-4_Analysis_of_VirusTotal___urlscan.io_Results.json)|
+|13229|[13229_Check_file_hash_reputation_with_VirusTotal_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13229_Check_file_hash_reputation_with_VirusTotal_and_Slack_alerts.json)|

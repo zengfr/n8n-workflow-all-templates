@@ -1,0 +1,797 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Detect and score refund risk with Webhook, OpenAI and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 12576,
+    "update_time": "2026-02-13"
+  },
+  "nodes": [
+    {
+      "id": "2d5f7114-7492-4cdb-8ebd-1f87e28a5004",
+      "name": "Normalize Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2544,
+        3184
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Handle both single-item and bulk webhook payloads\nconst d = Array.isArray($json.body)\n  ? $json.body[$itemIndex]\n  : $json.body ?? $json;\n\n// Hard validation\nif (!d || !d.order_id) {\n  throw new Error('Invalid input: order data missing');\n}\n\nreturn {\n  order_id: d.order_id,\n  customer_email: d.customer_email,\n  order_value: Number(d.order_value ?? 0),\n  currency: d.currency,\n  refund_count_30d: Number(d.refund_count_30d ?? 0),\n  refund_count_lifetime: Number(d.refund_count_lifetime ?? 0),\n  account_age_days: Number(d.account_age_days ?? 0),\n  billing_country: d.billing_country,\n  shipping_country: d.shipping_country,\n  country_mismatch: d.billing_country !== d.shipping_country,\n  risk_processed: d.risk_processed,\n  rowNumber: Number(d.rowNumber),\n  source: d.source,\n  triggeredAt: d.triggeredAt\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "24c94632-0ff1-4dbb-9016-8cb3a443a08b",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3296,
+        3184
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let aiRaw;\nlet ai;\n\n// 1️⃣ Extract AI response\nconst aiText = $json.output?.[0]?.content?.[0]?.text;\nif (!aiText) {\n  throw new Error('AI response missing');\n}\n\naiRaw = aiText\n  .replace(/```json/gi, '')\n  .replace(/```/g, '')\n  .trim();\n\nai = JSON.parse(aiRaw);\n\n// 2️⃣ Normalize AI fields\nconst riskLevel = (\n  ai.risk_level ||\n  ai.risk_class ||\n  ai.risk_classification ||\n  ''\n).toUpperCase();\n\nconst drivers =\n  ai.key_risk_drivers ||\n  ai.drivers ||\n  [];\n\n// 3️⃣ Get ORIGINAL item using paired index\nconst original = $items(\"Normalize Data\")[0].json;\n\n// 4️⃣ Return merged object\nreturn {\n  // 🔹 ORIGINAL DATA\n  order_id: original.order_id,\n  customer_email: original.customer_email,\n  rowNumber: original.rowNumber,\n  order_value: `${original.order_value} ${original.currency}`,\n\n  // 🔹 AI OUTPUT\n  risk_score: Number(ai.risk_score ?? 0),\n  risk_level: riskLevel,\n  risk_drivers: Array.isArray(drivers) ? drivers.join(', ') : '',\n  recommendation_action:\n    ai.recommended_action ||\n    ai.recommended_preventive_action ||\n    '',\n\n  // 🔹 META\n  ai_model_used: 'openai'\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9e86dafa-f911-471d-aceb-4bc771583208",
+      "name": "IF High Risk",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4032,
+        3168
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "64952035-93fa-459a-9478-08b851767e4d",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{$json.risk_level}}",
+              "rightValue": "HIGH"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "11299f52-3b08-4dfd-914d-8f1b66aab0f9",
+      "name": "Email Finance",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        4464,
+        3072
+      ],
+      "parameters": {
+        "message": "=<p><strong>High Refund / Chargeback Risk Detected</strong></p>  <p> The following transaction has been flagged as <strong>HIGH RISK</strong> by the Smart Refund Risk Detector. </p>  <hr>  <p> <strong>Order ID:</strong> {{ $('Log Result').item.json.order_id }}<br> <strong>Customer Email:</strong> {{ $('Log Result').item.json.customer_email }}<br> <strong>Order Value:</strong> {{ $('Normalize Data').item.json.order_value }}{{ $('Normalize Data').item.json.currency }}<br> <strong>Risk Score:</strong> {{ $('IF High Risk').item.json.risk_score }} / 100<br> <strong>Risk Level:</strong> {{ $('IF High Risk').item.json.risk_level }} </p>  <p> <strong>Key Risk Drivers:</strong><br> {{ $('IF High Risk').item.json.risk_drivers }}</p>  <p> <strong>Recommended Action:</strong><br> {{ $('IF High Risk').item.json.recommendation_action }} </p>  <hr>  <p style=\"color: #6b7280; font-size: 12px;\"> Generated automatically by Smart Refund Risk Detector (n8n)<br> Evaluated at {{new Date().toISOString()}} </p>",
+        "subject": "=🚨 High Refund / Chargeback Risk – Order {{ $('Parse AI Output').item.json.order_id }}",
+        "additionalFields": {
+          "ccList": [
+            "user@example.com"
+          ],
+          "toList": [
+            "user@example.com"
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "346181e4-83cf-4298-a52b-2d0a059ab2b6",
+      "name": "Log Result",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3664,
+        3056
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "order_id": "={{ $json.order_id }}",
+            "logged_at": "={{ (() => { const d = new Date(Date.now() + (5*60+30)*60000); const p = n => String(n).padStart(2,'0'); return `${p(d.getDate())}-${p(d.getMonth()+1)}-${String(d.getFullYear()).slice(-2)} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())} IST`; })() }}\n",
+            "risk_level": "={{ $json.risk_level }}",
+            "risk_score": "={{ $json.risk_score }}",
+            "risk_drivers": "={{ $json.risk_drivers }}",
+            "customer_email": "={{ $json.customer_email }}",
+            "recommendation_action": "={{ $json.recommendation_action }}"
+          },
+          "schema": [
+            {
+              "id": "log_id",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "log_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "logged_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "logged_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "order_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "order_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "customer_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "risk_score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "risk_score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "risk_level",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "risk_level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "risk_drivers",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "risk_drivers",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommendation_action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "recommendation_action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_model_used",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "ai_model_used",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1528462871,
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "7c520ebd-ec1f-4a68-8b78-d1244b2167f2",
+      "name": "Update row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        4864,
+        3184
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "row_number": "={{ $('Normalize Data').item.json.rowNumber }}",
+            "risk_processed": "TRUE"
+          },
+          "schema": [
+            {
+              "id": "order_id",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "order_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_email",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "customer_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "order_value",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "order_value",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "currency",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "currency",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "refund_count_30d",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "refund_count_30d",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "refund_count_lifetime",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "refund_count_lifetime",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_age_days",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "account_age_days",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "billing_country",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "billing_country",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "shipping_country",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "shipping_country",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "created_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "risk_processed",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "risk_processed",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "your-sheet-value",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "9e40a771-ab28-46d8-aceb-b85631594d85",
+      "name": "DEDUPE CHECK",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2240,
+        3184
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "fc6221f6-d207-477f-9883-747f46bdad7c",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ String($json.risk_processed).toUpperCase() }}",
+              "rightValue": "FALSE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "34cb1516-8de5-458d-9e12-09857222a2e3",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1936,
+        3168
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "2849660f-3a62-4b38-89f5-0448132a87ab",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1616,
+        3168
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "=body"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e7d38b40-569b-4adf-b6f0-87747e7823ea",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3168,
+        2768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 304,
+        "height": 928,
+        "content": "### Step 5 – Parse AI Output\n\nCleans and parses the AI response.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e833e245-eb25-4978-b201-b8344158e4b8",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2752,
+        2768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 928,
+        "content": "### Step 4 – Message a model (OpenAI)\n\nSends normalized transaction data to OpenAI.\n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e25bb684-034f-449e-8fb5-b4cc03fd3a47",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1248,
+        2768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 864,
+        "height": 928,
+        "content": "### Step 1 - Ingest & Prepare Data\n\n**Webhook + Split Out + Loop Over Items**\nReceives order data (single or bulk), splits arrays, and processes each transaction individually."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "144840ed-0076-4485-8a46-89da035116d2",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2176,
+        2768
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 928,
+        "content": "### Step 2 – DEDUPE CHECK\n\nChecks whether the transaction has already been processed.\nOrders marked as `risk_processed = TRUE` are skipped."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8fba03a3-3e9d-4709-865b-04669818ddaf",
+      "name": "Sticky Note17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4688,
+        2768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 944,
+        "content": "### Step 8 – Mark as Processed\n\nUpdates the source row to ensure the transaction is not reprocessed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8ae1d958-892c-409c-9d93-5f27351f1876",
+      "name": "Message a model2",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2832,
+        3184
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chatgpt-4o-latest",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a senior Risk Analytics Specialist supporting an enterprise e-commerce platform.\n\nYour responsibility is to assess refund and chargeback risk using transaction-level data, customer behavior patterns, and conservative professional judgment.\n\nYou must:\n- Apply risk assessment practices consistent with large-scale e-commerce and payment operations\n- Avoid over-flagging legitimate customer activity\n- Ensure decisions are explainable, proportional, and consistent\n- Follow the requested JSON schema strictly\n- Always return valid, machine-readable JSON suitable for automated downstream processing\n"
+            },
+            {
+              "content": "=Assess the refund or chargeback risk for the transaction described below.\n\nEvaluation standards:\n- Assign a numeric risk score as an INTEGER between 0 and 100 (digits only, no words, no decimals)\n- Classify risk strictly as one of: LOW, MEDIUM, HIGH (uppercase only)\n- Use conservative scoring aligned with enterprise fraud, refunds, and chargeback policies\n- A single refund event alone must NOT result in a HIGH risk classification\n- Country mismatch alone must NOT result in a HIGH risk classification\n- Assign HIGH risk ONLY when multiple strong indicators are present\n- Recommend ONE clear, concise, actionable preventive step suitable for operations or finance teams\n\nTransaction details:\nOrder ID: {{$json.order_id}}\nOrder Value: {{$json.order_value}} {{$json.currency}}\nRefunds in last 30 days: {{$json.refund_count_30d}}\nRefunds lifetime: {{$json.refund_count_lifetime}}\nAccount age (days): {{$json.account_age_days}}\nBilling country: {{$json.billing_country}}\nShipping country: {{$json.shipping_country}}\nCountry mismatch: {{$json.billing_country !== $json.shipping_country}}\n\nSTRICT OUTPUT RULES (MANDATORY):\n- Output ONLY a valid JSON object\n- Do NOT include markdown, code fences, comments, or explanatory text\n- Do NOT spell numbers using words (e.g., \"forty five\" is INVALID)\n- All numeric fields MUST be numbers (e.g., 45)\n- Use double quotes for all keys and string values\n- Use the exact structure below with NO extra fields\n\nRequired JSON structure:\n{\n  \"risk_score\": 45,\n  \"risk_level\": \"LOW\",\n  \"key_risk_drivers\": [\"example driver\"],\n  \"recommended_preventive_action\": \"example action\"\n}\n"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "25df1e67-074a-45ac-ae71-2ab7e9a9402d",
+      "name": "Discord1",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        4256,
+        3072
+      ],
+      "webhookId": "c89aa5b1-6551-4f58-9c39-e6c54da653a9",
+      "parameters": {
+        "content": "=🚨 HIGH REFUND / CHARGEBACK RISK DETECTED\n\n🧾 Order ID: {{ $json.order_id }}\n📧 Customer: {{ $json.customer_email }}\n💰 Order Value: {{ $json.order_value }}\n📊 Risk Score: {{$json.risk_score}} / 100\n⚠️ Risk Level: {{$json.risk_level}}\n\n🧠 Key Risk Drivers:\n{{$json.risk_drivers}}\n\n✅ Recommended Action:\n{{ $json.recommendation_action }}\n\n⏱️ Evaluated at: {{new Date().toISOString()}}\n",
+        "options": {},
+        "authentication": "webhook"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2f882148-e21e-4bf1-9b80-a2afc9f0b412",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1296,
+        3168
+      ],
+      "webhookId": "503b0737-a79d-455c-9f5c-8ba9a0f22225",
+      "parameters": {
+        "path": "refund-risk",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "b06fc2b7-7cc2-4934-b0fb-43c476f4acc3",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3936,
+        2768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 944,
+        "content": "### Step 7 - Risk Decision & Alerts\n\nTriggers alerts only when risk level is HIGH and notifies relevant teams.\n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dc13b34f-b522-4eb9-b93d-6f0a4616bb58",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        2768
+      ],
+      "parameters": {
+        "width": 736,
+        "height": 928,
+        "content": "## Smart Refund Risk Detector\n\n### How it works\nThis workflow automatically evaluates refund and chargeback risk for incoming e-commerce orders. Orders are received via webhook, processed individually, and checked to avoid duplicate analysis. Each transaction is normalized and sent to OpenAI for structured risk assessment. The AI returns a numeric risk score, risk level (LOW, MEDIUM, HIGH), key drivers, and a recommended preventive action.\n\nAll results are logged to Google Sheets for auditing and reporting. When a transaction is classified as HIGH risk, the workflow sends real-time alerts to Discord and email so finance or operations teams can act immediately. Finally, the source record is updated to ensure the order is not reprocessed.\n\n### Setup steps\n1. Configure the Webhook node and connect your data source.\n2. Connect OpenAI, Google Sheets, Gmail, and Discord credentials.\n3. Map sheet columns correctly (including row_number and risk_processed).\n4. Activate the workflow and send a test order payload.\n\n### Customization tips\n- Adjust alert channels or risk thresholds as needed.\n- Extend logging fields for analytics or dashboards.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9140beeb-7e4f-4f06-8aa7-0296aa8a930b",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3520,
+        2768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 944,
+        "content": "### Step 6 – Log Result (Google Sheets)\n\nAppends the evaluation result to a logging sheet.\nIncludes timestamp, order details, risk level, drivers, and recommended action."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "80819930-db40-4f30-8b78-13f4613e1720",
+      "name": "Sticky Note16",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2464,
+        2768
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 928,
+        "content": "\n### Step 3 – Normalize Data\n\nValidates required fields and normalizes incoming data:\n\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Discord1": {
+      "main": [
+        [
+          {
+            "node": "Email Finance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Result": {
+      "main": [
+        [
+          {
+            "node": "IF High Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DEDUPE CHECK": {
+      "main": [
+        [
+          {
+            "node": "Normalize Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF High Risk": {
+      "main": [
+        [
+          {
+            "node": "Discord1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Finance": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Data": {
+      "main": [
+        [
+          {
+            "node": "Message a model2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "DEDUPE CHECK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "Log Result",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF High Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model2": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

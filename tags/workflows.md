@@ -1,4 +1,4 @@
-# workflows : 92
+# workflows : 101
 
 |id|file|
 |----|----|
@@ -94,3 +94,12 @@
 |9645|[9645_Backup___Restore_n8n_Workflows_with_Telegram__Google_Drive_and_Form_Upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9645_Backup___Restore_n8n_Workflows_with_Telegram__Google_Drive_and_Form_Upload.json)|
 |9659|[9659_Automate_Vehicle_Inspections___Maintenance_Workflows_with_OpenAI___Jotform.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9659_Automate_Vehicle_Inspections___Maintenance_Workflows_with_OpenAI___Jotform.json)|
 |9776|[9776_Create_LinkedIn_Content_from_Workflows_using_Gemini___Cloudflare_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9776_Create_LinkedIn_Content_from_Workflows_using_Gemini___Cloudflare_AI.json)|
+|12064|[12064_Generate_workflows_from_natural_language_using_GPT-4o_Mini_and_n8nBuilder_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12064_Generate_workflows_from_natural_language_using_GPT-4o_Mini_and_n8nBuilder_API.json)|
+|12236|[12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json)|
+|12242|[12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json)|
+|12502|[12502_Analyze_failed_workflows_with_Claude_via_OpenRouter_and_log_to_Sheets_with_Slack__Email__Discord_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12502_Analyze_failed_workflows_with_Claude_via_OpenRouter_and_log_to_Sheets_with_Slack__Email__Discord_alerts.json)|
+|12644|[12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json)|
+|12721|[12721_Back_up_and_restore_n8n_workflows_with_GitHub_sync.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12721_Back_up_and_restore_n8n_workflows_with_GitHub_sync.json)|
+|12747|[12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json)|
+|12890|[12890_Send_severity-based_error_alerts_using_Telegram__email_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12890_Send_severity-based_error_alerts_using_Telegram__email_and_Google_Sheets.json)|
+|13245|[13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json)|

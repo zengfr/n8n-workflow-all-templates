@@ -1,4 +1,4 @@
-# enhanced : 16
+# enhanced : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |10671|[10671_AI-Enhanced_Telegram_to_WordPress_Publishing_with_GPT-4_Rewriting_and_Media_Upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10671_AI-Enhanced_Telegram_to_WordPress_Publishing_with_GPT-4_Rewriting_and_Media_Upload.json)|
 |11459|[11459_AI-Enhanced_Image_Generation_with_GPT-4.1__Google_Drive___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11459_AI-Enhanced_Image_Generation_with_GPT-4.1__Google_Drive___Slack_Notifications.json)|
 |11755|[11755_Mistral_OCR__GPT-4o-mini__and_Google_Sheets_Integration_for_Enhanced_Data_Processing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11755_Mistral_OCR__GPT-4o-mini__and_Google_Sheets_Integration_for_Enhanced_Data_Processing.json)|
+|12032|[12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json)|

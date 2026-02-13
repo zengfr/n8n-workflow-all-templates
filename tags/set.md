@@ -1,4 +1,4 @@
-# set : 12
+# set : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |6131|[6131_Set_Up_Complete_MERN_Stack_Development_Environment_on_Linux_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6131_Set_Up_Complete_MERN_Stack_Development_Environment_on_Linux_Server.json)|
 |6140|[6140_Set_DevOps_Infrastructure_with_Docker__K3s__Jenkins___Grafana_for_Linux_Servers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6140_Set_DevOps_Infrastructure_with_Docker__K3s__Jenkins___Grafana_for_Linux_Servers.json)|
 |6292|[6292_Master_Data_Transformation_with_the_Complete_Set_Node_Guide.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/62/6292_Master_Data_Transformation_with_the_Complete_Set_Node_Guide.json)|
+|12371|[12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json)|
+|12644|[12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json)|

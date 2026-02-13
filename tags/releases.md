@@ -1,4 +1,4 @@
-# releases : 10
+# releases : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |8491|[8491_Track_Forex_Factory_News_Releases_with_MyFxBook__Telegram___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8491_Track_Forex_Factory_News_Releases_with_MyFxBook__Telegram___Google_Sheets.json)|
 |11005|[11005_Automatic_Email_Notifications_for_n8n_Version_Releases_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11005_Automatic_Email_Notifications_for_n8n_Version_Releases_with_Gmail.json)|
 |11126|[11126_Sync_Upcoming_Anime_Releases_from_Jikan_API_to_Google_Calendar_with_Rate_Limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11126_Sync_Upcoming_Anime_Releases_from_Jikan_API_to_Google_Calendar_with_Rate_Limiting.json)|
+|12350|[12350_Track_new_box_office_releases_with_BrowserAct__Google_Sheets__OpenRouter_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12350_Track_new_box_office_releases_with_BrowserAct__Google_Sheets__OpenRouter_and_Telegram.json)|

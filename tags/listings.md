@@ -1,4 +1,4 @@
-# listings : 17
+# listings : 19
 
 |id|file|
 |----|----|
@@ -19,3 +19,5 @@
 |10074|[10074_Extract_Business_Emails_from_Google_Maps_Listings_for_Lead_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10074_Extract_Business_Emails_from_Google_Maps_Listings_for_Lead_Generation.json)|
 |11130|[11130_Scrape_Property_Listings_from_Zillow_with_Olostep_API_and_Store_in_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11130_Scrape_Property_Listings_from_Zillow_with_Olostep_API_and_Store_in_Data_Tables.json)|
 |11672|[11672_Transform_Airbnb_Listings_into_Custom_Direct_Booking_Sites_with_Netlify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11672_Transform_Airbnb_Listings_into_Custom_Direct_Booking_Sites_with_Netlify.json)|
+|11997|[11997_Fetch_property_listings_from_99Acres___MagicBricks_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11997_Fetch_property_listings_from_99Acres___MagicBricks_with_Apify_and_Google_Sheets.json)|
+|12233|[12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12233_Aggregate_commercial_property_listings_with_ScrapeGraphAI__Baserow_and_Teams.json)|

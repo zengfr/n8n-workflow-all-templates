@@ -1,4 +1,4 @@
-# full : 30
+# full : 34
 
 |id|file|
 |----|----|
@@ -32,3 +32,7 @@
 |9599|[9599_Monitor_RSS_Feeds__Extract_Full_Articles_with_Jina_AI__and_Save_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9599_Monitor_RSS_Feeds__Extract_Full_Articles_with_Jina_AI__and_Save_to_Supabase.json)|
 |9925|[9925_Automate_Full_Agreement_Lifecycle_with_JotForm__Approvals__Signwell_E-Signatures___Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9925_Automate_Full_Agreement_Lifecycle_with_JotForm__Approvals__Signwell_E-Signatures___Tracking.json)|
 |11370|[11370_Generate_Branded_Word_Documents_with_Claude_AI_and_Json2Doc__up_to_20_Pages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11370_Generate_Branded_Word_Documents_with_Claude_AI_and_Json2Doc__up_to_20_Pages.json)|
+|12078|[12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json)|
+|12339|[12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json)|
+|12343|[12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json)|
+|12789|[12789_Build_a_full_REST-API_with_n8n_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12789_Build_a_full_REST-API_with_n8n_webhooks.json)|

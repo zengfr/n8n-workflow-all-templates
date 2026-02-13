@@ -1,4 +1,4 @@
-# orders : 46
+# orders : 51
 
 |id|file|
 |----|----|
@@ -48,3 +48,8 @@
 |9969|[9969_Automate_Review_Requests_via_WhatsApp_for_Completed_WooCommerce_Orders_with_Rapiwa.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9969_Automate_Review_Requests_via_WhatsApp_for_Completed_WooCommerce_Orders_with_Rapiwa.json)|
 |10024|[10024_Sync_Eventbrite_Orders___Refunds_to_KlickTipp_for_Automated_Event_Marketing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10024_Sync_Eventbrite_Orders___Refunds_to_KlickTipp_for_Automated_Event_Marketing.json)|
 |10531|[10531_AI-Driven_Inventory_Management_with_OpenAI_Forecasting___ERP_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10531_AI-Driven_Inventory_Management_with_OpenAI_Forecasting___ERP_Integration.json)|
+|11968|[11968_Sync_WooCommerce_orders_and_inventory_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11968_Sync_WooCommerce_orders_and_inventory_with_Google_Sheets_and_Slack.json)|
+|12376|[12376_Log_failed_WooCommerce_orders_to_Airtable_and_send_OpenAI-powered_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12376_Log_failed_WooCommerce_orders_to_Airtable_and_send_OpenAI-powered_Slack_alerts.json)|
+|12641|[12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json)|
+|12906|[12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json)|
+|13197|[13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json)|

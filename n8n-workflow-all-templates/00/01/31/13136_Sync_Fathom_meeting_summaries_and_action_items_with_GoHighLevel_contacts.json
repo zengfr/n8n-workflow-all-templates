@@ -1,0 +1,770 @@
+{
+  "id": "1MvjsPpyfzHsSFX5",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Sync Fathom meeting summaries and action items with GoHighLevel contacts",
+    "wechat": "youandme10086",
+    "id": 13136,
+    "update_time": "2026-02-13"
+  },
+  "name": "Sync Fathom meeting summaries to GoHighLevel contacts",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "13184757-4feb-4461-8b2c-043402257e27",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        -16
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 736,
+        "content": "## Sync Fathom meeting summaries to GoHighLevel contacts\n\n### How it works\n1. Fathom sends webhook when meeting ends with summary and action items\n2. Workflow extracts external attendees from calendar invitees\n3. Searches GoHighLevel for matching contacts by email\n4. Creates internal conversation comment with brief summary + recording link\n5. Adds detailed meeting note to contact record\n6. Converts action items into GHL tasks (due 7 days from meeting)\n\n### Setup\n- [ ] Set your `ghl_location_id` in the **Config** node\n- [ ] Connect GoHighLevel OAuth2 credentials to the HTTP Request nodes\n- [ ] Copy the webhook URL to Fathom: Settings → API → Webhooks → \"New meeting content ready\"\n- [ ] Activate the workflow\n\n### Requirements\n- Fathom account with API/webhook access\n- GoHighLevel account with Private Integration Token or OAuth app\n- Required GHL scopes: `contacts.readonly`, `contacts.write`, `conversations.readonly`, `conversations.write`, `conversations/message.write`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e41e2181-2f95-4e01-a0b9-98bdbda252df",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        432,
+        368
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 664,
+        "height": 352,
+        "content": "## 1. Webhook & Data Prep\nReceive Fathom payload and extract external meeting attendees"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "853686be-0d4b-41a0-89cd-2541d49ecfb7",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 504,
+        "height": 264,
+        "content": "## 2. Contact Matching\nLoop over attendees and search for existing GHL contacts"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0c640fdf-2762-41df-8419-e030857c07e9",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1760,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1320,
+        "height": 448,
+        "content": "## 3. Conversation & Notes\nFind or create conversation, add internal comment, create detailed note"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cfad77ce-fe39-4003-b352-8c5724661e2c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3120,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 904,
+        "height": 552,
+        "content": "## 4. Task Creation\nConvert Fathom action items into GHL tasks"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2ec60447-82d6-438a-b480-8aba481267ee",
+      "name": "Fathom Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        496,
+        496
+      ],
+      "webhookId": "fathom-webhook",
+      "parameters": {
+        "path": "fathom-webhook",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "378a05c3-f504-4fb1-a370-10c37bca937d",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        720,
+        496
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "={\n  \"ghl_location_id\": \"YOUR_LOCATION_ID_HERE\",\n  \"webhookData\": {{ JSON.stringify($json.body || $json) }}\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "27d10b49-9247-4fc1-a89a-7632b47a2d67",
+      "name": "Parse External Attendees",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        944,
+        496
+      ],
+      "parameters": {
+        "jsCode": "// Extract external attendees and prepare meeting data\nconst input = $input.first().json;\nconst webhookData = input.webhookData || input.body || input;\n\n// Get external attendees only\nconst externalAttendees = (webhookData.calendar_invitees || []).filter(\n  invitee => invitee.is_external === true\n);\n\nif (externalAttendees.length === 0) {\n  return [];\n}\n\n// Helper: Format date as DD/MM/YYYY\nfunction formatDate(isoString) {\n  if (!isoString) return new Date().toLocaleDateString('en-GB');\n  const date = new Date(isoString);\n  return date.toLocaleDateString('en-GB');\n}\n\n// Helper: Strip markdown links but keep text\nfunction stripLinks(text) {\n  if (!text) return '';\n  return text.replace(/\\[([^\\]]+)\\]\\([^)]+\\)/g, '$1');\n}\n\n// Helper: Get brief summary (just the meeting purpose - first paragraph)\nfunction getBriefSummary(markdown) {\n  if (!markdown) return 'Meeting recorded';\n  let cleaned = stripLinks(markdown);\n  // Find content after \"## Meeting Purpose\" header\n  const purposeMatch = cleaned.match(/## Meeting Purpose\\s*\\n+([^#]+)/i);\n  if (purposeMatch) {\n    // Get first non-empty line\n    const firstLine = purposeMatch[1].trim().split('\\n')[0].trim();\n    return firstLine || 'Meeting recorded';\n  }\n  // Fallback: get first non-header line\n  const lines = cleaned.split('\\n').filter(line => !line.startsWith('#') && line.trim());\n  return lines[0]?.trim() || 'Meeting recorded';\n}\n\n// Helper: Convert markdown to HTML and clean up (for notes)\nfunction cleanSummaryHtml(markdown) {\n  if (!markdown) return 'No summary available';\n  let cleaned = stripLinks(markdown);\n  // Remove \"## Meeting Purpose\" header\n  cleaned = cleaned.replace(/^## Meeting Purpose\\s*\\n+/i, '');\n  // Convert ## headers to bold\n  cleaned = cleaned.replace(/^##+ (.+)$/gm, '<b>$1</b>');\n  // Convert **bold** to <b>bold</b>\n  cleaned = cleaned.replace(/\\*\\*([^*]+)\\*\\*/g, '<b>$1</b>');\n  // Convert *italic* to <i>italic</i>\n  cleaned = cleaned.replace(/\\*([^*]+)\\*/g, '<i>$1</i>');\n  // Clean up excessive newlines\n  cleaned = cleaned.replace(/\\n{3,}/g, '\\n\\n');\n  return cleaned.trim();\n}\n\n// Build the note content with HTML formatting (detailed)\nconst noteBody = `<b>Meeting ${formatDate(webhookData.scheduled_start_time)}</b>\\n\\n<b>Summary</b>\\n${cleanSummaryHtml(webhookData.default_summary?.markdown_formatted)}\\n\\nMeeting recording: ${webhookData.share_url || 'N/A'}`;\n\n// Build the comment content (SHORT version for conversation history)\nconst commentBody = `Meeting ${formatDate(webhookData.scheduled_start_time)}\\n\\nSummary: ${getBriefSummary(webhookData.default_summary?.markdown_formatted)}\\n\\nRecording: ${webhookData.share_url || 'N/A'}`;\n\n// Return one item per external attendee\nreturn externalAttendees.map(attendee => ({\n  json: {\n    attendee_email: attendee.email,\n    attendee_name: attendee.name,\n    meeting_title: webhookData.title,\n    share_url: webhookData.share_url,\n    note_body: noteBody,\n    comment_body: commentBody,\n    action_items: webhookData.action_items || [],\n    meeting_date: webhookData.scheduled_start_time\n  }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6563db62-372a-45a9-bb44-bca52e202932",
+      "name": "Loop Over Attendees",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1168,
+        496
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "89de2bd3-b06b-4844-b53c-b57322c0d843",
+      "name": "Search GHL Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1392,
+        208
+      ],
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/contacts/search",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"locationId\": \"{{ $('Config').item.json.ghl_location_id }}\",\n  \"query\": \"{{ $json.attendee_email }}\",\n  \"pageLimit\": 1\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "nodeCredentialType": "highLevelOAuth2Api"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "dee69363-ee52-49ce-a51b-8f9283cb8474",
+      "name": "Contact Found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1616,
+        208
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "condition-contact-found",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.contacts.length }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0ec1373a-9a83-4007-9e57-892a817a574b",
+      "name": "Create GHL Note",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        2960,
+        112
+      ],
+      "parameters": {
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $('Search GHL Contact').item.json.contacts[0].id }}/notes",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"body\": {{ JSON.stringify($('Parse External Attendees').item.json.note_body) }}\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "nodeCredentialType": "highLevelOAuth2Api"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "d971b5d2-0a61-4b9d-b6cd-483e5a0a0371",
+      "name": "No Contact - Skip",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1840,
+        304
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "14cebc05-7642-42bb-bd5f-5cb0600a8f3d",
+      "name": "Search Conversation",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1840,
+        112
+      ],
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/conversations/search",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locationId",
+              "value": "={{ $('Config').item.json.ghl_location_id }}"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Search GHL Contact').item.json.contacts[0].id }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-04-15"
+            }
+          ]
+        },
+        "nodeCredentialType": "highLevelOAuth2Api"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "1fbc6508-284b-4ce7-a5e0-486e0bb64303",
+      "name": "Conversation Exists?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2064,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "condition-convo-exists",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.conversations?.length || 0 }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0fafe401-c031-4624-be41-fd23385d514b",
+      "name": "Create Conversation",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        2288,
+        208
+      ],
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/conversations/",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"locationId\": \"{{ $('Config').item.json.ghl_location_id }}\",\n  \"contactId\": \"{{ $('Search GHL Contact').item.json.contacts[0].id }}\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-04-15"
+            }
+          ]
+        },
+        "nodeCredentialType": "highLevelOAuth2Api"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "45565fbc-0d8a-4da2-9c60-747408f53722",
+      "name": "Use Existing Conversation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2512,
+        16
+      ],
+      "parameters": {
+        "jsCode": "// Extract conversationId from search results (existing conversation)\nconst conversations = $('Search Conversation').item.json.conversations;\nif (conversations && conversations.length > 0) {\n  return [{ json: { conversationId: conversations[0].id } }];\n}\nthrow new Error('No conversation found');"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ac74a3ed-7e12-4bb7-b297-5315e97e1767",
+      "name": "Extract New Conversation ID",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2512,
+        208
+      ],
+      "parameters": {
+        "jsCode": "// Extract conversationId from newly created conversation\nconst item = $input.first().json;\nconst conversationId = item.conversation?.id || item.id;\nif (!conversationId) {\n  throw new Error('Could not get conversationId from create response');\n}\nreturn [{ json: { conversationId } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b6dc951c-92bf-4279-8d37-7b5ac86a3735",
+      "name": "Create Internal Comment",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        2736,
+        112
+      ],
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/conversations/messages/",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"type\": \"InternalComment\",\n  \"conversationId\": \"{{ $json.conversationId }}\",\n  \"contactId\": \"{{ $('Search GHL Contact').item.json.contacts[0].id }}\",\n  \"message\": {{ JSON.stringify($('Parse External Attendees').item.json.comment_body) }}\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-04-15"
+            }
+          ]
+        },
+        "nodeCredentialType": "highLevelOAuth2Api"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "b443095c-cfbf-4a8f-981c-0f6e2cbca6a4",
+      "name": "Has Action Items?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3184,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "condition-has-action-items",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $('Parse External Attendees').item.json.action_items.length }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "21964090-b53a-40e8-9b65-d83b572f66b9",
+      "name": "No Action Items - Skip",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        3408,
+        208
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "43f0a677-20af-4877-8125-94dbf5dde216",
+      "name": "Prepare Action Items",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3408,
+        16
+      ],
+      "parameters": {
+        "jsCode": "const contactId = $('Search GHL Contact').item.json.contacts[0].id;\nconst actionItems = $('Parse External Attendees').item.json.action_items || [];\nconst meetingTitle = $('Parse External Attendees').item.json.meeting_title;\n\n// Calculate due date (7 days from now at 17:00)\nconst dueDate = new Date();\ndueDate.setDate(dueDate.getDate() + 7);\ndueDate.setHours(17, 0, 0, 0);\n\nreturn actionItems.map(item => ({\n  json: {\n    contactId: contactId,\n    title: item.description,\n    completed: item.completed || false,\n    dueDate: dueDate.toISOString(),\n    body: `<b>From meeting:</b> ${meetingTitle}`\n  }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "330549a0-e39d-4b9b-a055-ffc8d2df0113",
+      "name": "Loop Over Action Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        3632,
+        272
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "90f8f4eb-64b1-4afe-9deb-3c432acd3166",
+      "name": "Create GHL Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        3856,
+        272
+      ],
+      "parameters": {
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $json.contactId }}/tasks",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"title\": {{ JSON.stringify($json.title) }},\n  \"dueDate\": \"{{ $json.dueDate }}\",\n  \"completed\": {{ $json.completed }},\n  \"body\": {{ JSON.stringify($json.body) }}\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "nodeCredentialType": "highLevelOAuth2Api"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "36d06667-fa12-41ef-b7e7-f8ede9bb8f3b",
+  "connections": {
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Parse External Attendees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Found?": {
+      "main": [
+        [
+          {
+            "node": "Search Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Contact - Skip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fathom Webhook": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create GHL Note": {
+      "main": [
+        [
+          {
+            "node": "Has Action Items?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create GHL Task": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Action Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Action Items?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Action Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Action Items - Skip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Contact - Skip": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Attendees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search GHL Contact": {
+      "main": [
+        [
+          {
+            "node": "Contact Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Conversation": {
+      "main": [
+        [
+          {
+            "node": "Extract New Conversation ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Attendees": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Search GHL Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Conversation": {
+      "main": [
+        [
+          {
+            "node": "Conversation Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Exists?": {
+      "main": [
+        [
+          {
+            "node": "Use Existing Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Action Items": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Action Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Action Items": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Attendees",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create GHL Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Action Items - Skip": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Attendees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Internal Comment": {
+      "main": [
+        [
+          {
+            "node": "Create GHL Note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse External Attendees": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Attendees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Existing Conversation": {
+      "main": [
+        [
+          {
+            "node": "Create Internal Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract New Conversation ID": {
+      "main": [
+        [
+          {
+            "node": "Create Internal Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

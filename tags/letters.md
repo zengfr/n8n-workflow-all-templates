@@ -1,4 +1,4 @@
-# letters : 9
+# letters : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |8589|[8589_Automate_Job_Search_with_AI_Cover_Letters_using_Google_Jobs__RemoteOK___GPT-3.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8589_Automate_Job_Search_with_AI_Cover_Letters_using_Google_Jobs__RemoteOK___GPT-3.5.json)|
 |10201|[10201_Optimize_Resumes___Generate_Cover_Letters_with_Gemini_AI_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10201_Optimize_Resumes___Generate_Cover_Letters_with_Gemini_AI_and_PDF.co.json)|
 |10242|[10242_Personalize_Resumes___Cover_Letters_with_AI__GitHub_Pages_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10242_Personalize_Resumes___Cover_Letters_with_AI__GitHub_Pages_and_Google_Drive.json)|
+|11916|[11916_Automate_offer_letters___notifications_with_Google_Sheets__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11916_Automate_offer_letters___notifications_with_Google_Sheets__Gmail___Slack.json)|
+|13241|[13241_Generate_HR_offer_letters_and_contracts_with_GPT-4.1-mini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13241_Generate_HR_offer_letters_and_contracts_with_GPT-4.1-mini_and_Google_Docs.json)|
+|13278|[13278_Generate_and_track_offer_letters_with_Google_Sheets__Docs__Drive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13278_Generate_and_track_offer_letters_with_Google_Sheets__Docs__Drive_and_Gmail.json)|

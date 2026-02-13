@@ -1,4 +1,4 @@
-# analyst : 17
+# analyst : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |10751|[10751_Analyze_Sales_Call_Objections_with_Fireflies_Transcripts__GPT-4o__and_Slack_Feedback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10751_Analyze_Sales_Call_Objections_with_Fireflies_Transcripts__GPT-4o__and_Slack_Feedback.json)|
 |11159|[11159_Analyze_food_ingredients_from_Telegram_photos_using_Gemini_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11159_Analyze_food_ingredients_from_Telegram_photos_using_Gemini_and_Airtable.json)|
 |11198|[11198_Analyze_Sales_Calls___Route_Leads_with_GPT-4o__Airtable_and_Trello.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11198_Analyze_Sales_Calls___Route_Leads_with_GPT-4o__Airtable_and_Trello.json)|
+|12288|[12288_Send_weekly_Google_Ads_performance_reports_with_GPT-5.1_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12288_Send_weekly_Google_Ads_performance_reports_with_GPT-5.1_and_Gmail.json)|

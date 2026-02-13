@@ -1,4 +1,4 @@
-# specific : 21
+# specific : 22
 
 |id|file|
 |----|----|
@@ -23,3 +23,4 @@
 |9774|[9774_Generate_AI_Summaries_from_Hacker_News_to_Slack_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9774_Generate_AI_Summaries_from_Hacker_News_to_Slack_with_OpenRouter.json)|
 |9998|[9998_Generate_Platform-Specific_Social_Media_Posts_with_ChatGPT__Tavily___G-Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9998_Generate_Platform-Specific_Social_Media_Posts_with_ChatGPT__Tavily___G-Sheets.json)|
 |11652|[11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json)|
+|12355|[12355_Find_jobs_on_Indeed_via_Telegram_using_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12355_Find_jobs_on_Indeed_via_Telegram_using_BrowserAct_and_Gemini.json)|

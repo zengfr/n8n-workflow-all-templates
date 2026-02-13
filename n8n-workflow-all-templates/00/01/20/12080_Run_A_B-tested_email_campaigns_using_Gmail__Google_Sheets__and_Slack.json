@@ -1,0 +1,953 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Run A/B-tested email campaigns using Gmail, Google Sheets, and Slack",
+    "wechat": "youandme10086",
+    "id": 12080,
+    "update_time": "2026-02-13"
+  },
+  "nodes": [
+    {
+      "id": "a44f48be-93ff-41cc-afdf-2b43e6605334",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1456,
+        -1136
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "04e236ab-786c-47d8-8bb6-6765e78e2a79",
+      "name": "Scheduled Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1456,
+        -928
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "f0d78564-b3c3-4739-9313-285fbbb019a0",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1456,
+        -736
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "parameters": {
+        "path": "email-campaign",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8a5d6585-c5a0-4bbb-98c5-c988744356dc",
+      "name": "Configure Campaign",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1120,
+        -944
+      ],
+      "parameters": {
+        "jsCode": "// CONFIG - Edit these values for your campaign\nconst CONFIG = {\n  // Company info\n  companyName: 'Your Company',\n  senderEmail: 'user@example.com',\n  primaryColor: '#667eea',\n  secondaryColor: '#764ba2',\n  logoUrl: '', // Optional: Your logo URL\n  \n  // Send settings\n  batchSize: 10, // Emails per batch\n  delayBetweenEmails: 2, // Seconds between emails\n  delayBetweenBatches: 10, // Seconds between batches\n  maxRetries: 3, // Retries per failed email\n  \n  // Current campaign\n  campaignName: 'December 2024 Newsletter',\n  emailSubject: 'December Updates - {{name}}',\n  alternativeSubject: 'Something special for you, {{name}}', // For A/B testing\n  enableABTest: true, // 50% receives each subject\n  \n  // Segmentation (filter by 'segment' column in Sheet)\n  targetSegment: '', // Empty for all, or 'premium', 'new', etc.\n  \n  // Tracking\n  trackOpens: true,\n  trackClicks: true\n};\n\n// Generate unique campaign ID\nconst campaignId = `CAMP-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;\n\nreturn {\n  json: {\n    ...CONFIG,\n    campaignId: campaignId,\n    startedAt: new Date().toISOString(),\n    startedBy: $input.item.json.body?.user || 'manual'\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e525ffa4-ed51-439a-aff5-79f1909656af",
+      "name": "Read Contacts",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -880,
+        -944
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Contacts"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DOCUMENT_ID"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "745aa533-3a91-4f2d-9bec-42e717b31cd7",
+      "name": "Filter and Validate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -640,
+        -944
+      ],
+      "parameters": {
+        "jsCode": "const config = $('Configure Campaign').first().json;\nconst contacts = $input.all();\n\n// Email validation regex\nconst emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\nconst results = {\n  valid: [],\n  invalid: [],\n  alreadySent: [],\n  unsubscribed: [],\n  otherSegment: []\n};\n\nfor (const item of contacts) {\n  const c = item.json;\n  const email = (c.email || '').trim().toLowerCase();\n  const sent = (c.sent || '').toLowerCase();\n  const unsub = (c.unsubscribed || '').toLowerCase();\n  const segment = (c.segment || '').toLowerCase();\n  \n  // Validations\n  if (!emailRegex.test(email)) {\n    results.invalid.push({ ...c, reason: 'Invalid email' });\n  } else if (sent === 'yes' || sent === 'true') {\n    results.alreadySent.push(c);\n  } else if (unsub === 'yes' || unsub === 'true') {\n    results.unsubscribed.push(c);\n  } else if (config.targetSegment && segment !== config.targetSegment.toLowerCase()) {\n    results.otherSegment.push(c);\n  } else {\n    // Assign A/B variant\n    const variant = config.enableABTest ? (Math.random() < 0.5 ? 'A' : 'B') : 'A';\n    results.valid.push({\n      ...c,\n      email: email,\n      abVariant: variant,\n      subject: variant === 'A' ? config.emailSubject : config.alternativeSubject\n    });\n  }\n}\n\n// Return stats and valid contacts\nreturn {\n  json: {\n    campaignId: config.campaignId,\n    stats: {\n      totalContacts: contacts.length,\n      valid: results.valid.length,\n      invalid: results.invalid.length,\n      alreadySent: results.alreadySent.length,\n      unsubscribed: results.unsubscribed.length,\n      otherSegment: results.otherSegment.length,\n      variantA: results.valid.filter(c => c.abVariant === 'A').length,\n      variantB: results.valid.filter(c => c.abVariant === 'B').length\n    },\n    validContacts: results.valid,\n    invalidContacts: results.invalid\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "18947fc1-e4f3-40c1-ac25-6a23b52950bb",
+      "name": "Log Campaign Start",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -320,
+        -1072
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Name": "={{ $('Configure Campaign').item.json.campaignName }}",
+            "Valid": "={{ $json.stats.valid }}",
+            "Status": "In Progress",
+            "Invalid": "={{ $json.stats.invalid }}",
+            "Variant A": "={{ $json.stats.variantA }}",
+            "Variant B": "={{ $json.stats.variantB }}",
+            "Start Date": "={{ $('Configure Campaign').item.json.startedAt }}",
+            "Campaign ID": "={{ $('Configure Campaign').item.json.campaignId }}",
+            "Already Sent": "={{ $json.stats.alreadySent }}",
+            "Unsubscribed": "={{ $json.stats.unsubscribed }}",
+            "Total Contacts": "={{ $json.stats.totalContacts }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Campaigns"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DOCUMENT_ID"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "0475ab01-0a9c-44c7-ad91-d56f13e5b3cc",
+      "name": "Slack - Campaign Started",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -320,
+        -864
+      ],
+      "webhookId": "5977bd80-1567-42c1-99f4-2f4a0f9576b7",
+      "parameters": {
+        "text": ":rocket: *Email campaign started*",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5a4cecc7-024d-4816-8e0c-8c6b442d84e8",
+      "name": "Has Contacts?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        0,
+        -912
+      ],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.stats.valid }}",
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9ce81cbd-f277-4456-9d53-3ca04871b7b6",
+      "name": "Extract Contacts",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        304,
+        -1104
+      ],
+      "parameters": {
+        "jsCode": "const data = $('Filter and Validate').first().json;\nreturn data.validContacts.map(c => ({ json: c }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "45b1abf9-44e9-4555-beb6-3af669c66f44",
+      "name": "Process in Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        544,
+        -1104
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": "={{ $('Configure Campaign').first().json.batchSize }}"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "e37f2133-00ab-4b35-a35c-313d7b7d25a7",
+      "name": "Prepare Email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        784,
+        -1104
+      ],
+      "parameters": {
+        "jsCode": "const config = $('Configure Campaign').first().json;\nconst contact = $input.item.json;\n\n// Variables to replace\nconst variables = {\n  '{{name}}': contact.name || 'User',\n  '{{email}}': contact.email,\n  '{{company}}': config.companyName,\n  '{{date}}': new Date().toLocaleDateString('en-US'),\n  '{{campaignId}}': config.campaignId\n};\n\n// Replace variables in subject\nlet subject = contact.subject;\nfor (const [key, value] of Object.entries(variables)) {\n  subject = subject.replace(new RegExp(key.replace(/[{}]/g, '\\\\$&'), 'g'), value);\n}\n\n// EMAIL CONTENT - Customize here\nlet content = `\n  <h2 style=\"color:#2d3748;margin:0 0 20px;\">Hi {{name}}!</h2>\n  <p style=\"color:#4a5568;font-size:16px;line-height:1.8;\">\n    We hope you're having a great day. We're reaching out from <strong>{{company}}</strong> \n    to share our latest updates with you.\n  </p>\n  \n  <div style=\"background:linear-gradient(135deg, ${config.primaryColor}15, ${config.secondaryColor}15);border-radius:12px;padding:25px;margin:25px 0;\">\n    <h3 style=\"color:${config.primaryColor};margin:0 0 15px;\">Highlights</h3>\n    <ul style=\"color:#4a5568;font-size:15px;line-height:1.8;margin:0;padding-left:20px;\">\n      <li>New features available</li>\n      <li>Performance improvements</li>\n      <li>Exclusive content for you</li>\n    </ul>\n  </div>\n  \n  <div style=\"text-align:center;margin:30px 0;\">\n    <a href=\"https://yourcompany.com?utm_campaign={{campaignId}}&utm_source=email\" \n       style=\"display:inline-block;background:linear-gradient(135deg, ${config.primaryColor}, ${config.secondaryColor});color:#fff;text-decoration:none;padding:16px 40px;border-radius:10px;font-size:16px;font-weight:600;box-shadow:0 4px 15px ${config.primaryColor}40;\">\n      Learn More\n    </a>\n  </div>\n  \n  <p style=\"color:#4a5568;font-size:16px;line-height:1.8;\">\n    If you have any questions, just reply to this email. We're here to help!\n  </p>\n  \n  <p style=\"color:#4a5568;font-size:16px;line-height:1.8;margin-top:25px;\">\n    Best regards,<br>\n    <strong>The {{company}} Team</strong>\n  </p>\n`;\n\n// Replace variables in content\nfor (const [key, value] of Object.entries(variables)) {\n  content = content.replace(new RegExp(key.replace(/[{}]/g, '\\\\$&'), 'g'), value);\n}\n\n// Complete HTML template\nconst emailHtml = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n</head>\n<body style=\"margin:0;padding:0;font-family:'Segoe UI',Roboto,Arial,sans-serif;background:#f4f7fa;\">\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f4f7fa;padding:40px 20px;\">\n    <tr>\n      <td align=\"center\">\n        <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#ffffff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08);overflow:hidden;\">\n          \n          <!-- Header -->\n          <tr>\n            <td style=\"background:linear-gradient(135deg, ${config.primaryColor} 0%, ${config.secondaryColor} 100%);padding:40px 30px;text-align:center;\">\n              ${config.logoUrl ? `<img src=\"${config.logoUrl}\" alt=\"Logo\" style=\"max-height:50px;margin-bottom:15px;\">` : ''}\n              <h1 style=\"margin:0;color:#ffffff;font-size:26px;font-weight:600;\">${config.companyName}</h1>\n            </td>\n          </tr>\n          \n          <!-- Content -->\n          <tr>\n            <td style=\"padding:40px 30px;\">\n              ${content}\n            </td>\n          </tr>\n          \n          <!-- Footer -->\n          <tr>\n            <td style=\"background:#f7fafc;padding:30px;text-align:center;border-top:1px solid #e2e8f0;\">\n              <p style=\"margin:0 0 15px;color:#718096;font-size:13px;\">You received this email because you're subscribed to our newsletter.</p>\n              <p style=\"margin:0 0 15px;\">\n                <a href=\"https://yourcompany.com/unsubscribe?email={{email}}&campaign={{campaignId}}\" style=\"color:#e53e3e;font-size:12px;text-decoration:none;\">Unsubscribe</a>\n                <span style=\"color:#cbd5e0;margin:0 10px;\">|</span>\n                <a href=\"https://yourcompany.com/preferences?email={{email}}\" style=\"color:${config.primaryColor};font-size:12px;text-decoration:none;\">Preferences</a>\n              </p>\n              <p style=\"margin:0;color:#a0aec0;font-size:11px;\">${new Date().getFullYear()} ${config.companyName}. All rights reserved.</p>\n            </td>\n          </tr>\n          \n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>\n`.replace(/\\{\\{email\\}\\}/g, contact.email).replace(/\\{\\{campaignId\\}\\}/g, config.campaignId);\n\nreturn {\n  json: {\n    // Contact info\n    rowNumber: contact.row_number,\n    to: contact.email,\n    name: contact.name,\n    abVariant: contact.abVariant,\n    \n    // Email\n    subject: subject,\n    htmlContent: emailHtml,\n    \n    // Tracking\n    campaignId: config.campaignId,\n    sentAt: new Date().toISOString()\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3f827ce6-859a-4e38-93d3-3c6eeba08678",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueErrorOutput",
+      "position": [
+        1024,
+        -1104
+      ],
+      "webhookId": "289c5b81-5b7a-4ac6-964f-f26195b8d0d0",
+      "parameters": {
+        "sendTo": "={{ $json.to }}",
+        "message": "={{ $json.htmlContent }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.subject }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c56b051b-1983-4cfd-8df0-456617318e3e",
+      "name": "Mark as Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1328,
+        -1120
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "sent": "yes",
+            "variant": "={{ $json.abVariant }}",
+            "campaign": "={{ $json.campaignId }}",
+            "sent_date": "={{ $json.sentAt }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Contacts"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DOCUMENT_ID"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "edbd1dbb-af35-49bd-90b9-f69078271eb8",
+      "name": "Mark as Error",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1328,
+        -912
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "sent": "error",
+            "error_msg": "={{ $json.error?.message || 'Send error' }}",
+            "sent_date": "={{ new Date().toISOString() }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Contacts"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DOCUMENT_ID"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "713d5010-4403-4697-88d6-7d8eeeeb5a69",
+      "name": "Log Success",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1568,
+        -1120
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.to }}",
+            "Status": "Sent",
+            "Subject": "={{ $json.subject }}",
+            "Variant": "={{ $json.abVariant }}",
+            "Timestamp": "={{ $json.sentAt }}",
+            "Campaign ID": "={{ $json.campaignId }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Send Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DOCUMENT_ID"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "da20478c-52fc-4fcc-a9cc-a41a82fafe9d",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1568,
+        -912
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.to }}",
+            "Status": "Error",
+            "Subject": "={{ $json.subject }}",
+            "Variant": "={{ $json.abVariant }}",
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Campaign ID": "={{ $('Configure Campaign').item.json.campaignId }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Send Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DOCUMENT_ID"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "80c70256-8229-4859-ac47-64500c69fa1a",
+      "name": "Anti-Spam Delay",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1808,
+        -1008
+      ],
+      "webhookId": "75fd2c8d-d086-4bcf-a88c-41f4a7260839",
+      "parameters": {
+        "amount": "={{ $('Configure Campaign').first().json.delayBetweenEmails }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "59fee3b4-a166-4c1a-b412-7d9ff4fc7e3e",
+      "name": "Calculate Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        -528
+      ],
+      "parameters": {
+        "jsCode": "// Runs when there are no valid contacts\nconst stats = $('Filter and Validate').first().json.stats;\n\nreturn {\n  json: {\n    message: 'No valid contacts to send',\n    stats: stats\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1ff96564-189f-4d05-9109-2ffb14637013",
+      "name": "Final Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        528,
+        -528
+      ],
+      "parameters": {
+        "jsCode": "const config = $('Configure Campaign').first().json;\nconst initialStats = $('Filter and Validate').first().json.stats;\n\n// Calculate duration\nconst start = new Date(config.startedAt);\nconst end = new Date();\nconst durationMs = end - start;\nconst durationMin = Math.round(durationMs / 60000);\n\nreturn {\n  json: {\n    campaignId: config.campaignId,\n    campaignName: config.campaignName,\n    \n    // Times\n    startedAt: config.startedAt,\n    finishedAt: end.toISOString(),\n    duration: durationMin < 1 ? 'Less than 1 minute' : `${durationMin} minutes`,\n    \n    // Statistics\n    totalProcessed: initialStats.valid,\n    variantA: initialStats.variantA,\n    variantB: initialStats.variantB,\n    \n    // Summary text\n    summary: `Campaign \"${config.campaignName}\" completed. ${initialStats.valid} emails processed in ${durationMin < 1 ? '<1' : durationMin} min.`\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "10643128-6bc0-4f07-b46d-e1c828b0c022",
+      "name": "Update Campaign",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        768,
+        -528
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "Completed",
+            "Duration": "={{ $json.duration }}",
+            "End Date": "={{ $json.finishedAt }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Campaigns"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DOCUMENT_ID"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "d5d81e23-862d-49da-8125-c7ca2c3b5e41",
+      "name": "Slack - Campaign Completed",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1008,
+        -528
+      ],
+      "webhookId": "4d6a9111-3aed-49bb-a69d-297161318050",
+      "parameters": {
+        "text": ":white_check_mark: *Campaign completed*",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "735a8545-39b3-40ac-b802-053df70c389d",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        -1424,
+        -320
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "2d208af5-d723-43ee-9638-1aa983e2ad02",
+      "name": "Format Error",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1184,
+        -320
+      ],
+      "parameters": {
+        "jsCode": "const error = $input.item.json;\nreturn {\n  json: {\n    errorTime: new Date().toISOString(),\n    errorMessage: error.message || 'Unknown error',\n    errorNode: error.node?.name || 'Unknown',\n    workflow: 'Email Marketing PRO'\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2b9b3a5-31ef-4ed6-87a9-811ce1fa0bdb",
+      "name": "Slack - Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -944,
+        -320
+      ],
+      "webhookId": "464a021c-106f-4372-a805-4d48cf13b8d8",
+      "parameters": {
+        "text": ":rotating_light: *Workflow Error*",
+        "otherOptions": {
+          "includeLinkToWorkflow": true
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ae4a28d6-c710-4ed7-83ef-cf88684f371d",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1248,
+        -528
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "dcc3f379-be58-475e-8468-29c2b65b1e72",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1936,
+        -1232
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 632,
+        "content": "## Send email campaigns with A/B testing using Gmail and Google Sheets\n\nEmail marketing with contact management, delivery tracking, and analytics.\n\n### How it works\n\n1. **Trigger** - Start manually, scheduled, or via webhook\n2. **Load** - Reads contacts from Google Sheets\n3. **Validate** - Filters invalid emails and duplicates\n4. **Send** - Delivers in batches with anti-spam delay\n5. **Track** - Logs successes and errors to Sheets\n6. **Report** - Sends Slack summary with stats\n\n### Setup steps\n\n1. **Connect:** Gmail, Google Sheets, Slack\n2. **Create Sheet:** Tabs for Contacts, Campaigns, Logs\n3. **Update IDs:** Replace YOUR_DOCUMENT_ID\n4. **Slack:** #marketing and #errors channels\n5. **Test:** Run with test contacts first"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "07b54d1e-133f-4af1-b58e-c65cd1fa1a35",
+      "name": "Triggers",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1504,
+        -1248
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 260,
+        "height": 664,
+        "content": "## Campaign triggers\n\nManual, scheduled, or webhook."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a461723-6ef2-471b-bc20-7f8cd3b56732",
+      "name": "Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1152,
+        -1248
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 720,
+        "height": 664,
+        "content": "## Campaign setup\n\nLoads and validates contacts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2a7db96c-c091-46de-ade1-4aad06de0a85",
+      "name": "Logging",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        -1232
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 280,
+        "height": 650,
+        "content": "## Logging\n\nLogs start to Sheets and Slack."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2b841651-80d5-43b4-9c3e-01253da48310",
+      "name": "Validation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -1232
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 260,
+        "height": 648,
+        "content": "## Validation\n\nChecks for valid contacts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a64e4fe2-f8fb-4cd9-af8e-e2d905b26cb5",
+      "name": "Delivery",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        288,
+        -1232
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 920,
+        "height": 488,
+        "content": "## Email delivery\n\nSends in batches with delays."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c5eb0ea-2eff-4947-a03a-6871c423d6c9",
+      "name": "Tracking",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1296,
+        -1232
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 776,
+        "height": 490,
+        "content": "## Send tracking\n\nTracks results and handles delays."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b11a7e14-f45c-429b-aaf4-9a1644a4d828",
+      "name": "Completion",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        288,
+        -720
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1240,
+        "height": 400,
+        "content": "## Campaign completion\n\nCalculates stats and notifies team."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2035cf03-f7df-4580-89a4-3c3412f2683d",
+      "name": "Errors",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1456,
+        -432
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 744,
+        "height": 264,
+        "content": "## Error handling\n\nAlerts team on Slack."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Log Error": {
+      "main": [
+        [
+          {
+            "node": "Anti-Spam Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Mark as Sent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark as Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Success": {
+      "main": [
+        [
+          {
+            "node": "Anti-Spam Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error": {
+      "main": [
+        [
+          {
+            "node": "Slack - Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Sent": {
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Format Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Summary": {
+      "main": [
+        [
+          {
+            "node": "Update Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Contacts?": {
+      "main": [
+        [
+          {
+            "node": "Extract Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Calculate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Error": {
+      "main": [
+        [
+          {
+            "node": "Log Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Contacts": {
+      "main": [
+        [
+          {
+            "node": "Filter and Validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Configure Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anti-Spam Delay": {
+      "main": [
+        [
+          {
+            "node": "Process in Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Campaign": {
+      "main": [
+        [
+          {
+            "node": "Slack - Campaign Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Configure Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Contacts": {
+      "main": [
+        [
+          {
+            "node": "Process in Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Results": {
+      "main": [
+        [
+          {
+            "node": "Final Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scheduled Trigger": {
+      "main": [
+        [
+          {
+            "node": "Configure Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure Campaign": {
+      "main": [
+        [
+          {
+            "node": "Read Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Campaign Start": {
+      "main": [
+        [
+          {
+            "node": "Slack - Campaign Started",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process in Batches": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Final Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter and Validate": {
+      "main": [
+        [
+          {
+            "node": "Log Campaign Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Campaign Started": {
+      "main": [
+        [
+          {
+            "node": "Has Contacts?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Campaign Completed": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# finance : 20
+# finance : 22
 
 |id|file|
 |----|----|
@@ -22,3 +22,5 @@
 |10109|[10109_Daily_Cash_Flow_Reports_with_Google_Sheets__Slack___Email_for_Finance_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10109_Daily_Cash_Flow_Reports_with_Google_Sheets__Slack___Email_for_Finance_Teams.json)|
 |10111|[10111_AI-Powered_Invoice_Reminder___Payment_Tracker_for_Finance___Accounting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10111_AI-Powered_Invoice_Reminder___Payment_Tracker_for_Finance___Accounting.json)|
 |10776|[10776_Daily_Finance___Stock_Market_News_Analysis_with_OpenAI__Groq___Email_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10776_Daily_Finance___Stock_Market_News_Analysis_with_OpenAI__Groq___Email_Reports.json)|
+|12547|[12547_Route_and_review_finance_documents_from_Google_Drive_with_AI__Notion__Gmail__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12547_Route_and_review_finance_documents_from_Google_Drive_with_AI__Notion__Gmail__Slack__and_Google_Sheets.json)|
+|13272|[13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json)|

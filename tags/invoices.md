@@ -1,4 +1,4 @@
-# invoices : 46
+# invoices : 55
 
 |id|file|
 |----|----|
@@ -48,3 +48,12 @@
 |10274|[10274_Process_Sales_CSVs_into_Invoices_with_Data_Tables_and_Email_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10274_Process_Sales_CSVs_into_Invoices_with_Data_Tables_and_Email_Notifications.json)|
 |10387|[10387_Generate__Encrypt__and_Send_Invoices_with_PDF_Generator_API___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10387_Generate__Encrypt__and_Send_Invoices_with_PDF_Generator_API___Google_Suite.json)|
 |10553|[10553_Generate_Custom_Branded_PDF_Invoices_from_QuickBooks___Email_to_Clients.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10553_Generate_Custom_Branded_PDF_Invoices_from_QuickBooks___Email_to_Clients.json)|
+|12113|[12113_Invoice_management_system_with_Gmail_reminders__Google_Sheets__and_Slack_escalations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12113_Invoice_management_system_with_Gmail_reminders__Google_Sheets__and_Slack_escalations.json)|
+|12173|[12173_Extract___organize_email_invoices_with_Gmail__Drive___OpenAI_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12173_Extract___organize_email_invoices_with_Gmail__Drive___OpenAI_GPT.json)|
+|12524|[12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json)|
+|12641|[12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json)|
+|12648|[12648_Send_automated_payment_reminders_for_Xero_invoices_via_Outlook_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12648_Send_automated_payment_reminders_for_Xero_invoices_via_Outlook_email.json)|
+|12695|[12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json)|
+|13071|[13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json)|
+|13092|[13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json)|
+|13215|[13215_Extract__validate__and_log_email_invoices_from_Gmail_to_Google_Sheets_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13215_Extract__validate__and_log_email_invoices_from_Gmail_to_Google_Sheets_with_GPT-4.json)|

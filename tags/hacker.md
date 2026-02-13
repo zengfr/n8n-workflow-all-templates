@@ -1,4 +1,4 @@
-# hacker : 12
+# hacker : 15
 
 |id|file|
 |----|----|
@@ -14,3 +14,6 @@
 |9384|[9384_Daily_AI_News_Digest_from_Hacker_News_with_GPT-5_Summaries_and_Email_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9384_Daily_AI_News_Digest_from_Hacker_News_with_GPT-5_Summaries_and_Email_Delivery.json)|
 |9774|[9774_Generate_AI_Summaries_from_Hacker_News_to_Slack_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9774_Generate_AI_Summaries_from_Hacker_News_to_Slack_with_OpenRouter.json)|
 |11080|[11080_Track_Daily_Brand_Mentions_from_Hacker_News_to_Slack_with_GPT-4o-mini_Sentiment_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11080_Track_Daily_Brand_Mentions_from_Hacker_News_to_Slack_with_GPT-4o-mini_Sentiment_Analysis.json)|
+|12105|[12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json)|
+|12499|[12499_Create_a_founder_digest_and_leads_from_Hacker_News_with_GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12499_Create_a_founder_digest_and_leads_from_Hacker_News_with_GPT-4o_and_Gmail.json)|
+|12748|[12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json)|

@@ -1,4 +1,4 @@
-# bank : 11
+# bank : 16
 
 |id|file|
 |----|----|
@@ -13,3 +13,8 @@
 |9988|[9988_Sync_Multi-Bank_Balance_Data_to_BigQuery_using_Plaid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9988_Sync_Multi-Bank_Balance_Data_to_BigQuery_using_Plaid.json)|
 |10110|[10110_Monitor_Bank_Transactions_with_Multi-Channel_Alerts_for_Accounting_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10110_Monitor_Bank_Transactions_with_Multi-Channel_Alerts_for_Accounting_Teams.json)|
 |10581|[10581_Automate_Bank_Statement_and_Invoice_Reconciliation_with_GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10581_Automate_Bank_Statement_and_Invoice_Reconciliation_with_GPT-4.1-mini_and_Google_Sheets.json)|
+|11899|[11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json)|
+|12033|[12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12033_Multi-platform_revenue_reconciliation_across_Stripe__PayPal___bank_with_tax_archive.json)|
+|12344|[12344_Post_bank_statement_transactions_to_QuickBooks_Online_using_OpenRouter_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12344_Post_bank_statement_transactions_to_QuickBooks_Online_using_OpenRouter_AI.json)|
+|12377|[12377_Reconcile_bank_transactions_and_generate_reports_with_GPT-4_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12377_Reconcile_bank_transactions_and_generate_reports_with_GPT-4_and_Gmail.json)|
+|12493|[12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json)|

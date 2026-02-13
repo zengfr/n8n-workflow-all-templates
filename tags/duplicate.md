@@ -1,4 +1,4 @@
-# duplicate : 14
+# duplicate : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |9053|[9053_Sync_Companies_from_Google_Sheets_to_Salesforce_with_Smart_Duplicate_Prevention.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9053_Sync_Companies_from_Google_Sheets_to_Salesforce_with_Smart_Duplicate_Prevention.json)|
 |9506|[9506_Detect_Duplicate_Form_Submissions___Send_AI_Responses_with_Jotform_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9506_Detect_Duplicate_Form_Submissions___Send_AI_Responses_with_Jotform_and_Gemini.json)|
 |9830|[9830_Sync_Monday.com_Items_to_Jira_with_Smart_Duplicate_Detection___Feedback_Loop.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9830_Sync_Monday.com_Items_to_Jira_with_Smart_Duplicate_Detection___Feedback_Loop.json)|
+|12652|[12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json)|
+|13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|

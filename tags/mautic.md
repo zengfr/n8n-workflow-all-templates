@@ -1,4 +1,4 @@
-# mautic : 13
+# mautic : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |2184|[2184_Validate_email_format_from_a_Wordpress_form_and_save_a_contact_in_Mautic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/21/2184_Validate_email_format_from_a_Wordpress_form_and_save_a_contact_in_Mautic.json)|
 |2241|[2241_Unsubscribe_Mautic_contacts_from_automated_unsubscribe_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/22/2241_Unsubscribe_Mautic_contacts_from_automated_unsubscribe_emails.json)|
 |5184|[5184_Mautic_Tool_MCP_Server___all_20_operations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/51/5184_Mautic_Tool_MCP_Server___all_20_operations.json)|
+|13095|[13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json)|

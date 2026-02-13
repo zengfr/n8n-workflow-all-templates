@@ -1,4 +1,4 @@
-# deepseek : 40
+# deepseek : 41
 
 |id|file|
 |----|----|
@@ -42,3 +42,4 @@
 |9869|[9869_Bulk_YouTube_Channel_Content_Analysis_with_Apify___DeepSeek_AI_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9869_Bulk_YouTube_Channel_Content_Analysis_with_Apify___DeepSeek_AI_to_Google_Sheets.json)|
 |10522|[10522_Automate_Conference_Travel_Approvals_with_Deepseek_AI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10522_Automate_Conference_Travel_Approvals_with_Deepseek_AI__Gmail_and_Google_Sheets.json)|
 |11394|[11394_Transform_Shopify_Products_into_SEO_Blog_Content_with_DeepSeek_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11394_Transform_Shopify_Products_into_SEO_Blog_Content_with_DeepSeek_AI_and_Google_Sheets.json)|
+|13028|[13028_Create_SEO_blog_posts_with_Gemini__DeepSeek_and_publish_to_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13028_Create_SEO_blog_posts_with_Gemini__DeepSeek_and_publish_to_WordPress.json)|

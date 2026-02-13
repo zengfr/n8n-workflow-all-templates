@@ -1,4 +1,4 @@
-# scheduled : 30
+# scheduled : 34
 
 |id|file|
 |----|----|
@@ -32,3 +32,7 @@
 |10180|[10180_AI_Blog_Post_Generator_with_Scheduled_or_Prompt-based_Content_for_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10180_AI_Blog_Post_Generator_with_Scheduled_or_Prompt-based_Content_for_WordPress.json)|
 |10236|[10236_AI-Powered_n8n_Release_Notes_Summary_Notifications_via_Gmail_with_GPT-5-Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10236_AI-Powered_n8n_Release_Notes_Summary_Notifications_via_Gmail_with_GPT-5-Mini.json)|
 |10781|[10781_Scheduled_Auto-replies_to_Targeted_Tweets_Using_X__Twitter__API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10781_Scheduled_Auto-replies_to_Targeted_Tweets_Using_X__Twitter__API.json)|
+|12773|[12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json)|
+|12920|[12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json)|
+|13260|[13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json)|
+|13290|[13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json)|

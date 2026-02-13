@@ -1,4 +1,4 @@
-# openweathermap : 10
+# openweathermap : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |6465|[6465_Send_Daily_Weather_Reports_to_Email_with_OpenWeatherMap_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6465_Send_Daily_Weather_Reports_to_Email_with_OpenWeatherMap_and_Gmail.json)|
 |8162|[8162_Daily_Weather_Reports_with_OpenWeatherMap_and_Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8162_Daily_Weather_Reports_with_OpenWeatherMap_and_Telegram_Bot.json)|
 |9909|[9909_Send_Multi-City_Weather_Forecasts_with_AI-Enhanced_Formatting_from_OpenWeatherMap_to_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9909_Send_Multi-City_Weather_Forecasts_with_AI-Enhanced_Formatting_from_OpenWeatherMap_to_Gmail.json)|
+|12653|[12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json)|

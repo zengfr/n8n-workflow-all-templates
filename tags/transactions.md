@@ -1,4 +1,4 @@
-# transactions : 9
+# transactions : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |8807|[8807_Categorize_Revolut_Transactions_Automatically_with_GPT-4_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8807_Categorize_Revolut_Transactions_Automatically_with_GPT-4_and_Supabase.json)|
 |10110|[10110_Monitor_Bank_Transactions_with_Multi-Channel_Alerts_for_Accounting_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10110_Monitor_Bank_Transactions_with_Multi-Channel_Alerts_for_Accounting_Teams.json)|
 |11339|[11339_Record_Transactions___Generate_Budget_Reports_with_Gemini_AI__Telegram___Firefly_III.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11339_Record_Transactions___Generate_Budget_Reports_with_Gemini_AI__Telegram___Firefly_III.json)|
+|12344|[12344_Post_bank_statement_transactions_to_QuickBooks_Online_using_OpenRouter_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12344_Post_bank_statement_transactions_to_QuickBooks_Online_using_OpenRouter_AI.json)|
+|12377|[12377_Reconcile_bank_transactions_and_generate_reports_with_GPT-4_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12377_Reconcile_bank_transactions_and_generate_reports_with_GPT-4_and_Gmail.json)|

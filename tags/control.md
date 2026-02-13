@@ -1,4 +1,4 @@
-# control : 30
+# control : 35
 
 |id|file|
 |----|----|
@@ -32,3 +32,8 @@
 |9733|[9733_Proxmox_System_Monitor_-_VM_Status__Host_Resources___Temperature_Alerts_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9733_Proxmox_System_Monitor_-_VM_Status__Host_Resources___Temperature_Alerts_via_Telegram.json)|
 |9761|[9761_Automate_Manufacturing_QC_Documentation___Compliance_with_Jotform.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9761_Automate_Manufacturing_QC_Documentation___Compliance_with_Jotform.json)|
 |10171|[10171_Role-Based_Access_Control__RBAC__for_Telegram_Automations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10171_Role-Based_Access_Control__RBAC__for_Telegram_Automations.json)|
+|11910|[11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11910_Translate_multilingual_content_with_DeepL__GPT-4__WordPress__Slack_and_Sheets.json)|
+|12062|[12062_Control_AI_agent_tool_access_with_Port_RBAC_and_Slack_mentions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12062_Control_AI_agent_tool_access_with_Port_RBAC_and_Slack_mentions.json)|
+|12378|[12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json)|
+|12734|[12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json)|
+|13003|[13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json)|

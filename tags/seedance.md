@@ -1,4 +1,4 @@
-# seedance : 8
+# seedance : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |7098|[7098_Generate_Text-to-Video___Image-to-Video_Content_with_Seedance_1_Lite_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7098_Generate_Text-to-Video___Image-to-Video_Content_with_Seedance_1_Lite_AI.json)|
 |8428|[8428_Create_Viral_Ads_with_AI__NanoBanana___publish_on_socials_via_upload-post.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8428_Create_Viral_Ads_with_AI__NanoBanana___publish_on_socials_via_upload-post.json)|
 |10433|[10433_Generate_ASMR_Rainforest_Videos_from_Text_with_Seedream___Seedance_on_fal.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10433_Generate_ASMR_Rainforest_Videos_from_Text_with_Seedream___Seedance_on_fal.ai.json)|
+|12250|[12250_Generate_video_from_an_image_with_ByteDance_Seedance_1.5_Pro_via_KIE.AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12250_Generate_video_from_an_image_with_ByteDance_Seedance_1.5_Pro_via_KIE.AI.json)|

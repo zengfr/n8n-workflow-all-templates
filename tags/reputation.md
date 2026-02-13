@@ -1,4 +1,4 @@
-# reputation : 6
+# reputation : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |6478|[6478_Monitor___Respond_to_Shopify_Reviews_with_GPT-4__Slack__Trello___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6478_Monitor___Respond_to_Shopify_Reviews_with_GPT-4__Slack__Trello___Google_Sheets.json)|
 |7473|[7473_Monitor_Brand_Reputation_for_Negative_PR_on_Reddit_with_Gemini___LangChain___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/74/7473_Monitor_Brand_Reputation_for_Negative_PR_on_Reddit_with_Gemini___LangChain___Sheets.json)|
 |8776|[8776_Track_Brand_Reputation_with_Gemini_AI___Google_News_Sentiment_Analysis_to_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8776_Track_Brand_Reputation_with_Gemini_AI___Google_News_Sentiment_Analysis_to_Email.json)|
+|12101|[12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12101_Monitor_brand_reputation_with_SerpAPI__Azure_OpenAI___Asana_crisis_alerts.json)|
+|12283|[12283_Monitor_brand_reputation_and_detect_crises_with_GPT-4__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12283_Monitor_brand_reputation_and_detect_crises_with_GPT-4__Slack_and_Gmail.json)|
+|12654|[12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json)|
+|13229|[13229_Check_file_hash_reputation_with_VirusTotal_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13229_Check_file_hash_reputation_with_VirusTotal_and_Slack_alerts.json)|

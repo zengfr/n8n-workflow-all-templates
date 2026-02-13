@@ -1,4 +1,4 @@
-# postiz : 10
+# postiz : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |8115|[8115_Automate_UGC_video_creation_with_Gemini_and_Google_Veo_3___upload_to_Instagram_via_Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8115_Automate_UGC_video_creation_with_Gemini_and_Google_Veo_3___upload_to_Instagram_via_Postiz.json)|
 |9316|[9316_Auto-Summarize_Blog_Posts_to_Social_Media_with_Gemma_and_Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9316_Auto-Summarize_Blog_Posts_to_Social_Media_with_Gemma_and_Postiz.json)|
 |10175|[10175_Automate_ASMR_Glass_Fruit_Video_Creation___Publishing_with_Veo__Shotstack___Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10175_Automate_ASMR_Glass_Fruit_Video_Creation___Publishing_with_Veo__Shotstack___Postiz.json)|
+|12318|[12318_Generate_and_schedule_themed_social_posts_with_Notion__OpenAI__Fal.ai_and_Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12318_Generate_and_schedule_themed_social_posts_with_Notion__OpenAI__Fal.ai_and_Postiz.json)|

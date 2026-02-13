@@ -1,4 +1,4 @@
-# projects : 9
+# projects : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |7559|[7559_Manage_Asana_Projects_with_Natural_Language_AI_Assistant_via_Chat___Webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7559_Manage_Asana_Projects_with_Natural_Language_AI_Assistant_via_Chat___Webhook.json)|
 |7649|[7649_Convert_Revit_Projects_to_Database_with_Drawings___Specifications_using_DDC.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7649_Convert_Revit_Projects_to_Database_with_Drawings___Specifications_using_DDC.json)|
 |9864|[9864_Send_Monthly_Toggl_Time_Tracking_Summary_via_Resend_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9864_Send_Monthly_Toggl_Time_Tracking_Summary_via_Resend_Email.json)|
+|12479|[12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json)|
+|12567|[12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json)|
+|13269|[13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json)|

@@ -1,4 +1,4 @@
-# jotform : 79
+# jotform : 80
 
 |id|file|
 |----|----|
@@ -81,3 +81,4 @@
 |10127|[10127_Classify___Process_IT_Requests_with_Jotform__Gemini_AI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10127_Classify___Process_IT_Requests_with_Jotform__Gemini_AI_and_Google_Workspace.json)|
 |10397|[10397_Automated_Workshop_Certificate_System_with_JotForm__Email_Verification___Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10397_Automated_Workshop_Certificate_System_with_JotForm__Email_Verification___Google_Workspace.json)|
 |10617|[10617_Brand_DNA_Generator_Using_JotForm__Google_Search__Gemini_AI___Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10617_Brand_DNA_Generator_Using_JotForm__Google_Search__Gemini_AI___Notion.json)|
+|13018|[13018_Vet_Jotform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_ActiveCampaign.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13018_Vet_Jotform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_ActiveCampaign.json)|

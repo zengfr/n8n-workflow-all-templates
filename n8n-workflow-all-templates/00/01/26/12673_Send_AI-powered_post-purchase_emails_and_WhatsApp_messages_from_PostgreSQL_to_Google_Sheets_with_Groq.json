@@ -1,0 +1,596 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Send AI-powered post-purchase emails and WhatsApp messages from PostgreSQL to Google Sheets with Groq",
+    "wechat": "youandme10086",
+    "id": 12673,
+    "update_time": "2026-02-13"
+  },
+  "nodes": [
+    {
+      "id": "63be4def-1ce6-43e6-a6de-4b1283fd1dae",
+      "name": "Postgres Trigger1",
+      "type": "n8n-nodes-base.postgresTrigger",
+      "position": [
+        13040,
+        4528
+      ],
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "options": {},
+        "tableName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "orders",
+          "cachedResultName": "orders"
+        },
+        "additionalFields": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "89ce4316-a1b8-45b4-823b-c184d6acff19",
+      "name": "Execute a SQL query2",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        13264,
+        4528
+      ],
+      "parameters": {
+        "query": "SELECT id\nFROM orders\nWHERE order_status = 'completed'\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "fa93aa96-d0fb-4b0d-b766-fe95411e5743",
+      "name": "Loop Over Items1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        13472,
+        4528
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "3f1cee2b-d3f2-4ad3-bf50-c115a467d3ea",
+      "name": "Execute a SQL query3",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        13680,
+        4624
+      ],
+      "parameters": {
+        "query": "SELECT \n  o.id AS order_id,\n  o.ordered_at,\n  o.order_status,\n  u.id AS user_id,\n  u.name,\n  u.email,\n  u.phone,\n  p.id AS product_id,\n  p.product_name,\n  ph.payment_status\nFROM orders o\nJOIN products p ON o.product_id = p.id\nJOIN users u ON p.user_id = u.id\nLEFT JOIN payment_history ph ON ph.order_id = o.id\nWHERE o.id = {{$json[\"id\"]}};\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "3643ff66-e420-4868-8893-f8040b3714a8",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        13920,
+        4480
+      ],
+      "parameters": {
+        "text": "=Customer Details:\n- Name: {{$json[\"name\"]}}\n- Email: {{$json[\"email\"]}}\n- Phone: {{$json[\"phone\"]}}\n\nOrder Details:\n- Product Name: {{$json[\"product_name\"]}}\n- Order Status: {{$json[\"order_status\"]}}\n- Payment Status: {{$json[\"payment_status\"]}}\n\nGenerate a post-purchase message using the above data.\n",
+        "options": {
+          "systemMessage": "=You are a professional customer communication assistant for a SaaS company.\n\nYour task is to generate clear, friendly, and professional post-purchase messages\nusing ONLY the customer and order data provided in the user message.\n\nRules you must follow:\n- Always personalize the message using the customer's name.\n- Adapt the message tone based on payment status.\n- If payment is \"paid\":\n  - Thank the customer.\n  - Provide reassurance and helpful next steps.\n  - Suggest one relevant product or action (soft upsell).\n- If payment is \"unpaid\" or \"pending\":\n  - Send a polite and respectful reminder.\n  - Do NOT upsell.\n- Do NOT invent or assume any data.\n- Keep the message concise, professional, and human-sounding.\n- Output ONLY the final message text (no explanations, no labels).\n"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "b92f6fd8-98f8-4242-9ec7-e4f183f7ecb7",
+      "name": "Groq Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "position": [
+        13872,
+        4752
+      ],
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c6fc472c-f9c6-4a3b-a20b-95859a0630a1",
+      "name": "Format AI response1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        14448,
+        4608
+      ],
+      "parameters": {
+        "jsCode": "// Get all incoming items from Merge node\nconst items = $input.all();\n\n// Item 0 = AI Agent output\n// Item 1 = Database (Postgres) data\nconst aiItem = items.find(i => i.json.output);\nconst dataItem = items.find(i => i.json.name);\n\n// Safely extract values\nconst aiText = (aiItem?.json.output || '').trim();\nconst cleanText = aiText.replace(/\\n{3,}/g, '\\n\\n');\n\nconst customerName = dataItem?.json.name || '';\nconst productName = dataItem?.json.product_name || '';\nconst email = dataItem?.json.email || '';\nconst phone = dataItem?.json.phone || '';\nconst paymentStatus = dataItem?.json.payment_status || '';\nconst orderStatus = dataItem?.json.order_status || '';\n\n// -------- EMAIL FORMAT --------\nconst emailMessage = `\nHi ${customerName},\n\n${cleanText}\n\nIf you need any help, feel free to reply to this email and our support team will assist you.\n\nWarm regards,  \nSupport Team\n`.trim();\n\n// -------- WHATSAPP FORMAT --------\nconst whatsappMessage = `\nHi ${customerName} 👋\n\n${cleanText}\n\nIf you need help, just reply here 👍\n`.trim();\n\n// Return SINGLE clean item\nreturn [\n  {\n    customer_name: customerName,\n    product_name: productName,\n    email: email,\n    phone: phone,\n    payment_status: paymentStatus,\n    order_status: orderStatus,\n    email_message: emailMessage,\n    whatsapp_message: whatsappMessage\n  }\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bc784680-1b27-42bd-b553-6ad60ada94fb",
+      "name": "Send a message1",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        14688,
+        4496
+      ],
+      "webhookId": "YOUR_GMAIL_WEBHOOK_ID",
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "message": "={{ $json.email_message }}",
+        "options": {},
+        "subject": "Product Purchase Completion"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5d01369c-4182-41f4-b091-ba615c696eca",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        14256,
+        4608
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "a4b2e316-6580-4407-b72e-4b21107cb36c",
+      "name": "Send message1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        14688,
+        4736
+      ],
+      "webhookId": "your-webhook-id",
+      "parameters": {
+        "textBody": "={{ $json.whatsapp_message }}",
+        "operation": "send",
+        "additionalFields": {},
+        "recipientPhoneNumber": "={{ $json.phone }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ed63fad4-21f7-46bd-a69a-f07eb00013ee",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        14912,
+        4608
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "979ca82d-f993-4ba5-8983-aceecd7fc97e",
+              "name": "customer_name",
+              "type": "string",
+              "value": "={{ $('Format AI response1').item.json.customer_name }}"
+            },
+            {
+              "id": "33f9c8b7-69a9-4d73-b8ad-1fb24c44d166",
+              "name": "product_name",
+              "type": "string",
+              "value": "={{ $('Format AI response1').item.json.product_name }}"
+            },
+            {
+              "id": "6e7a6468-1f00-40b3-a1ef-771a9c0752ed",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $('Format AI response1').item.json.email }}"
+            },
+            {
+              "id": "ca036f46-3f02-4505-aae8-81c313d28849",
+              "name": "phone",
+              "type": "string",
+              "value": "={{ $('Format AI response1').item.json.phone }}"
+            },
+            {
+              "id": "bf92046b-f54a-4fed-8d95-7a1615b448ea",
+              "name": "payment_status",
+              "type": "string",
+              "value": "={{ $('Format AI response1').item.json.payment_status }}"
+            },
+            {
+              "id": "6dc3cf5c-9487-4466-b68e-c341755ca05a",
+              "name": "order_status",
+              "type": "string",
+              "value": "={{ $('Format AI response1').item.json.order_status }}"
+            },
+            {
+              "id": "149a6992-cad6-4738-937b-d7d73e737d1a",
+              "name": "Email_Send",
+              "type": "string",
+              "value": "True"
+            },
+            {
+              "id": "5503e69d-0529-47b6-814e-543776b853a4",
+              "name": "Whatsapp_Message_Send",
+              "type": "string",
+              "value": "True"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d345eaf3-d79a-4fde-b3a2-9b9f94e6ff28",
+      "name": "Append row in sheet1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        15136,
+        4736
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "customer_id",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "customer_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_name",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "customer_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product_name",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "product_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "payment_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "complaint_count",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "complaint_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "risk_level",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "risk_level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "action_required",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "action_required",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_feedback",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "ai_feedback",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "feedback_generated_at",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "feedback_generated_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 2092498842,
+          "cachedResultUrl": "sheet-url",
+          "cachedResultName": "sheet-name"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEETS_DOCUMENT_ID",
+          "cachedResultUrl": "sheet-url",
+          "cachedResultName": "sheet-name"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "30e7d44b-1300-4796-9218-b0015298978e",
+      "name": "Wait1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        15392,
+        4736
+      ],
+      "webhookId": "f66c4b89-ee72-487d-b7be-9166b33fd09b",
+      "parameters": {},
+      "typeVersion": 1.1
+    },
+    {
+      "id": "fdd7b7cf-7f9c-4760-a539-4cb3231d05e5",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        12368,
+        4032
+      ],
+      "parameters": {
+        "width": 656,
+        "height": 928,
+        "content": "## AI-Powered Post-Purchase Journey (Email + WhatsApp Automation)\n\nAutomatically sends AI-generated post-purchase messages when an order is marked **completed**. The workflow personalizes communication, delivers it via Email and WhatsApp, and logs results for tracking.\n\n### How it works\n- Triggers on completed orders in the `orders` table  \n- Fetches customer, product, and payment data  \n- Generates a personalized AI message  \n- Sends Email and WhatsApp notifications  \n- Logs communication in Google Sheets  \n\n### Setup steps\n1. Connect PostgreSQL  \n2. Configure the Postgres Trigger  \n3. Connect AI model (Groq / LLM)  \n4. Connect Gmail and WhatsApp  \n5. Configure Google Sheets logging  \n6. Activate and test the workflow\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fd7bdb5-95b8-45da-8977-61a187f5399c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        13040,
+        4032
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1360,
+        "height": 928,
+        "content": "## Step 1: Fetch & Prepare Orders\nDetect completed orders, loop safely through them, and retrieve full customer, product, and payment details. Send structured data to the AI Agent.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e395e6ae-bd6a-4621-9867-d7096776c6e1",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        14416,
+        4032
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1200,
+        "height": 928,
+        "content": "## Step 2: Send Messages & Log Data\nFormat AI output for Email and WhatsApp, send messages via connected channels, flag delivery status, and log post-purchase communication into Google Sheets.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Format AI response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Execute a SQL query3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format AI response1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# interview : 23
+# interview : 26
 
 |id|file|
 |----|----|
@@ -25,3 +25,6 @@
 |10080|[10080_AI-powered_Candidate_Screening___Interview_Scheduling_with_OpenAI_GPT___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10080_AI-powered_Candidate_Screening___Interview_Scheduling_with_OpenAI_GPT___Google_Suite.json)|
 |10081|[10081_Automated_Interview_Tracker_with_Google_Calendar__Sheets___Gmail_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10081_Automated_Interview_Tracker_with_Google_Calendar__Sheets___Gmail_Alerts.json)|
 |10292|[10292_Automate_Recruitment_with_GPT-4o-mini__CV_Screening_to_Interview_Scheduling_in_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10292_Automate_Recruitment_with_GPT-4o-mini__CV_Screening_to_Interview_Scheduling_in_Airtable.json)|
+|11912|[11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json)|
+|12043|[12043_Schedule_interviews_and_send_GPT-4_reminders_with_Google_Calendar__Gmail__Slack_and_Recrutei.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12043_Schedule_interviews_and_send_GPT-4_reminders_with_Google_Calendar__Gmail__Slack_and_Recrutei.json)|
+|13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|

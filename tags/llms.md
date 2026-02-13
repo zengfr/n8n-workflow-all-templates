@@ -1,4 +1,4 @@
-# llms : 12
+# llms : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |4765|[4765_Generate___Optimize_Brand_Stories_with_Ollama_LLMs_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/47/4765_Generate___Optimize_Brand_Stories_with_Ollama_LLMs_and_Google_Sheets.json)|
 |7563|[7563_Create_a_Company_Policy_Chatbot_with_RAG__Pinecone_Vector_Database__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7563_Create_a_Company_Policy_Chatbot_with_RAG__Pinecone_Vector_Database__and_OpenAI.json)|
 |7696|[7696_Generate_AI_System_Prompts_for_LLMs_with_Unli.dev.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7696_Generate_AI_System_Prompts_for_LLMs_with_Unli.dev.json)|
+|12339|[12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json)|

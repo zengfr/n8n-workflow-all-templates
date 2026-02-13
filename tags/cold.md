@@ -1,4 +1,4 @@
-# cold : 52
+# cold : 60
 
 |id|file|
 |----|----|
@@ -54,3 +54,11 @@
 |10328|[10328_Personalized_Cold_Lead_Re-Engagement_with_Zoho_CRM_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10328_Personalized_Cold_Lead_Re-Engagement_with_Zoho_CRM_and_GPT-4o-mini.json)|
 |11222|[11222_Generate_Weekly_Cold_Email_Performance_Reports_with_ManyReach__GPT-4.1___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11222_Generate_Weekly_Cold_Email_Performance_Reports_with_ManyReach__GPT-4.1___Slack.json)|
 |11333|[11333_Generate_Cold_Outreach_Drafts_from_Google_Sheets_with_GPT-4o-mini___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11333_Generate_Cold_Outreach_Drafts_from_Google_Sheets_with_GPT-4o-mini___Gmail.json)|
+|12342|[12342_Write_personalized_cold_emails_from_LinkedIn_leads_with_Wiza.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12342_Write_personalized_cold_emails_from_LinkedIn_leads_with_Wiza.json)|
+|12655|[12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json)|
+|12778|[12778_Generate_personalized_cold_email_icebreakers_with_Apify__Baserow_and_OpenRouter_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12778_Generate_personalized_cold_email_icebreakers_with_Apify__Baserow_and_OpenRouter_GPT-4.1.json)|
+|12810|[12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json)|
+|12837|[12837_Generate_personalized_cold_email_icebreakers_from_LinkedIn_or_website_data_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12837_Generate_personalized_cold_email_icebreakers_from_LinkedIn_or_website_data_with_GPT-4.json)|
+|12855|[12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json)|
+|12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|
+|13282|[13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json)|

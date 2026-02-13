@@ -1,4 +1,4 @@
-# demand : 6
+# demand : 9
 
 |id|file|
 |----|----|
@@ -8,3 +8,6 @@
 |6980|[6980_Dynamic_Media_Library_with_On-demand_Downloads_for_Radarr_Sonarr_and_Plex.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/69/6980_Dynamic_Media_Library_with_On-demand_Downloads_for_Radarr_Sonarr_and_Plex.json)|
 |7254|[7254_On-Demand_Email_Newsletter_Summaries_from_Gmail_to_Telegram_with_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/72/7254_On-Demand_Email_Newsletter_Summaries_from_Gmail_to_Telegram_with_GPT-4.1-mini.json)|
 |11181|[11181_Automate_Print-on-Demand__Design_to_Shopify_with_AI__Mockups___Social_Promotion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11181_Automate_Print-on-Demand__Design_to_Shopify_with_AI__Mockups___Social_Promotion.json)|
+|12158|[12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json)|
+|12599|[12599_Analyze_market_demand_using_GPT-4o__XPOZ_MCP__Notion_and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12599_Analyze_market_demand_using_GPT-4o__XPOZ_MCP__Notion_and_email_reports.json)|
+|12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|

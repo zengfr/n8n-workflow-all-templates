@@ -1,4 +1,4 @@
-# hosted : 11
+# hosted : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |7364|[7364_Create_a_Self-Hosted_Blockchain_Payment_Processor_with_x402_and_1Shot_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/73/7364_Create_a_Self-Hosted_Blockchain_Payment_Processor_with_x402_and_1Shot_API.json)|
 |8118|[8118_Automatic_Self-Hosted_Application_Updates_with_Coolify_Deployments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8118_Automatic_Self-Hosted_Application_Updates_with_Coolify_Deployments.json)|
 |9154|[9154_Automated_Workflow___Credential_Restoration_System_for_Self-Hosted_Environments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9154_Automated_Workflow___Credential_Restoration_System_for_Self-Hosted_Environments.json)|
+|12242|[12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json)|

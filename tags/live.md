@@ -1,4 +1,4 @@
-# live : 15
+# live : 16
 
 |id|file|
 |----|----|
@@ -17,3 +17,4 @@
 |8015|[8015_Automate_AI_Upwork_Proposal_Generation_with_Apify__Google_Gemini___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8015_Automate_AI_Upwork_Proposal_Generation_with_Apify__Google_Gemini___Sheets.json)|
 |8244|[8244_Log_E-commerce_Orders_in_Google_Sheets_with_Monthly_Tabs___Status_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8244_Log_E-commerce_Orders_in_Google_Sheets_with_Monthly_Tabs___Status_Tracking.json)|
 |8404|[8404_Automate_AI_Video_Creation___Multi-Platform_Publishing_with_Gemini___Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8404_Automate_AI_Video_Creation___Multi-Platform_Publishing_with_Gemini___Creatomate.json)|
+|12553|[12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json)|

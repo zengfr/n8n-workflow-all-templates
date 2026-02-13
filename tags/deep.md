@@ -1,4 +1,4 @@
-# deep : 14
+# deep : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |7519|[7519_Extract___Summarize_LinkedIn_Profiles_with_Bright_Data__Google_Gemini___Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7519_Extract___Summarize_LinkedIn_Profiles_with_Bright_Data__Google_Gemini___Supabase.json)|
 |7939|[7939_Deep_Research_Assistant_with_Perplexity_AI_and_Telegram_Citations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7939_Deep_Research_Assistant_with_Perplexity_AI_and_Telegram_Citations.json)|
 |10945|[10945_Discord_to_Google_Sheets_Task_Manager_with_GPT_Prioritization_and_Deep_Work_Focus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10945_Discord_to_Google_Sheets_Task_Manager_with_GPT_Prioritization_and_Deep_Work_Focus.json)|
+|13282|[13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json)|

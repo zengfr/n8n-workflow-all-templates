@@ -1,4 +1,4 @@
-# rest : 11
+# rest : 15
 
 |id|file|
 |----|----|
@@ -13,3 +13,7 @@
 |8156|[8156_Create_Jira_Tickets_from_Streamlit_Forms_with_Webhook___REST_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8156_Create_Jira_Tickets_from_Streamlit_Forms_with_Webhook___REST_API.json)|
 |8635|[8635_Complete_Booking_System_with_Google_Calendar__Business_Hours___REST_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8635_Complete_Booking_System_with_Google_Calendar__Business_Hours___REST_API.json)|
 |10031|[10031_Export_WordPress_Posts_with_Categories_and_Tags_to_Google_Sheets_for_SEO_Audits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10031_Export_WordPress_Posts_with_Categories_and_Tags_to_Google_Sheets_for_SEO_Audits.json)|
+|12237|[12237_Generate_stale_page_reports_for_Confluence_spaces_with_REST_API_v1_and_v2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12237_Generate_stale_page_reports_for_Confluence_spaces_with_REST_API_v1_and_v2.json)|
+|12238|[12238_Scan_Confluence_pages_with_the_REST_API_for_inactive_page_owners.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12238_Scan_Confluence_pages_with_the_REST_API_for_inactive_page_owners.json)|
+|12789|[12789_Build_a_full_REST-API_with_n8n_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12789_Build_a_full_REST-API_with_n8n_webhooks.json)|
+|13198|[13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json)|

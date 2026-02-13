@@ -1,4 +1,4 @@
-# quote : 6
+# quote : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |5492|[5492_Generate___Send_Spare_Parts_Price_Quotes_with_Gmail__Sheets_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/54/5492_Generate___Send_Spare_Parts_Price_Quotes_with_Gmail__Sheets_and_Gemini_AI.json)|
 |8239|[8239_Automated_Request-to-Quote_with_OpenAI__Google_Sheets___CraftMyPDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8239_Automated_Request-to-Quote_with_OpenAI__Google_Sheets___CraftMyPDF.json)|
 |9148|[9148_Real-time_Sales_Quote_Creation_in_Odoo_via_Telegram_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9148_Real-time_Sales_Quote_Creation_in_Odoo_via_Telegram_with_Google_Gemini_AI.json)|
+|12285|[12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json)|
+|12638|[12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json)|

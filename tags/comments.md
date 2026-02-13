@@ -1,4 +1,4 @@
-# comments : 39
+# comments : 46
 
 |id|file|
 |----|----|
@@ -41,3 +41,10 @@
 |9947|[9947_Convert_Instagram_Comments_to_Leads_with_KlickTipp___Custom_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9947_Convert_Instagram_Comments_to_Leads_with_KlickTipp___Custom_DMs.json)|
 |10319|[10319_Auto-Moderate_Instagram_Comments_with_Perspective_API___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10319_Auto-Moderate_Instagram_Comments_with_Perspective_API___Slack_Alerts.json)|
 |10370|[10370_Automated_Facebook_Group_Scraper__Posts__Comments__and_Sub-comments_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10370_Automated_Facebook_Group_Scraper__Posts__Comments__and_Sub-comments_to_Supabase.json)|
+|11950|[11950_Generate_YouTube_video_ideas_from_comments_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11950_Generate_YouTube_video_ideas_from_comments_with_GPT-4o-mini_and_Google_Sheets.json)|
+|12028|[12028_Moderate_Facebook_comments_with_AI_and_send_reports_to_Slack___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12028_Moderate_Facebook_comments_with_AI_and_send_reports_to_Slack___Telegram.json)|
+|12375|[12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json)|
+|12642|[12642_Extract_ICP-targeted_LinkedIn_leads_from_post_comments_using_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12642_Extract_ICP-targeted_LinkedIn_leads_from_post_comments_using_Apify.json)|
+|13064|[13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json)|
+|13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|
+|13234|[13234_Extract_and_analyze___ALL_Facebook_post_comments_with_sentiment_AI_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13234_Extract_and_analyze___ALL_Facebook_post_comments_with_sentiment_AI_using_Gemini.json)|

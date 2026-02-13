@@ -1,4 +1,4 @@
-# tags : 11
+# tags : 14
 
 |id|file|
 |----|----|
@@ -13,3 +13,6 @@
 |9983|[9983_Auto-Categorize_Blog_Posts_with_OpenAI_GPT-4__GitHub__and_Google_Sheets_for_Astro_Next.js.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9983_Auto-Categorize_Blog_Posts_with_OpenAI_GPT-4__GitHub__and_Google_Sheets_for_Astro_Next.js.json)|
 |10031|[10031_Export_WordPress_Posts_with_Categories_and_Tags_to_Google_Sheets_for_SEO_Audits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10031_Export_WordPress_Posts_with_Categories_and_Tags_to_Google_Sheets_for_SEO_Audits.json)|
 |11136|[11136_Auto-Generate_WordPress_Blog_Tags_with_GPT-4.1-mini_and_Smart_Tag_Mapping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11136_Auto-Generate_WordPress_Blog_Tags_with_GPT-4.1-mini_and_Smart_Tag_Mapping.json)|
+|12425|[12425_Generate_highly_expressive_audio____using_ElevenLabs_v3_TTS_Audio_Tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12425_Generate_highly_expressive_audio____using_ElevenLabs_v3_TTS_Audio_Tags.json)|
+|13005|[13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json)|
+|13127|[13127_Publish_WordPress_posts_from_Google_Sheets_with_images_and_tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13127_Publish_WordPress_posts_from_Google_Sheets_with_images_and_tags.json)|

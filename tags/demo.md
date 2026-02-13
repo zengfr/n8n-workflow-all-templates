@@ -1,4 +1,4 @@
-# demo : 25
+# demo : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |10143|[10143_Create_Personalized_Email_Outreach_with_AI__Telegram_Bot___Website_Scraping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10143_Create_Personalized_Email_Outreach_with_AI__Telegram_Bot___Website_Scraping.json)|
 |11141|[11141_Complete_AI_Safety_Suite__Test_9_Guardrail_Layers_with_Groq_LLM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11141_Complete_AI_Safety_Suite__Test_9_Guardrail_Layers_with_Groq_LLM.json)|
 |11200|[11200_Auto-Schedule_Demos_for_High-Intent_Leads_with_Clearbit__Slack__and_Calendly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11200_Auto-Schedule_Demos_for_High-Intent_Leads_with_Clearbit__Slack__and_Calendly.json)|
+|12270|[12270_Create_AI_sci_fi_book_review_videos_with_ChatGPT__Fal.ai_and_Nexrender.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12270_Create_AI_sci_fi_book_review_videos_with_ChatGPT__Fal.ai_and_Nexrender.json)|
+|12722|[12722_Create_an_AI_chatbot_for_WhatsApp_with_Whapi.Cloud_and_OpenAI_GPT-3.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12722_Create_an_AI_chatbot_for_WhatsApp_with_Whapi.Cloud_and_OpenAI_GPT-3.5.json)|

@@ -1,4 +1,4 @@
-# billing : 8
+# billing : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |9837|[9837_Auto-Generate_Developer_Invoices___Compliance_Reminders_with_Jira_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9837_Auto-Generate_Developer_Invoices___Compliance_Reminders_with_Jira_and_Gmail.json)|
 |11257|[11257_Automate_Assignee_Payroll_Calculations_with_Dart__Gemini_AI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11257_Automate_Assignee_Payroll_Calculations_with_Dart__Gemini_AI__and_Google_Sheets.json)|
 |11859|[11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json)|
+|12524|[12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json)|

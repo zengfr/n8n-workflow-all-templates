@@ -1,4 +1,4 @@
-# reviews : 36
+# reviews : 44
 
 |id|file|
 |----|----|
@@ -38,3 +38,11 @@
 |11053|[11053_Monitor___Respond_to_Google_Maps_Reviews_using_AI__Apify__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11053_Monitor___Respond_to_Google_Maps_Reviews_using_AI__Apify__Slack__and_Sheets.json)|
 |11076|[11076_Analyze_Customer_Reviews_from_5_Platforms_with_Thordata_Scraping___GPT-4.1_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11076_Analyze_Customer_Reviews_from_5_Platforms_with_Thordata_Scraping___GPT-4.1_Reports.json)|
 |11381|[11381_Monitor_Google_Maps_Reviews_with_GPT-4o_Sentiment_Analysis___Telegram_RAG_Agent_using_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11381_Monitor_Google_Maps_Reviews_with_GPT-4o_Sentiment_Analysis___Telegram_RAG_Agent_using_Pinecone.json)|
+|11967|[11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json)|
+|12066|[12066_Analyze_WooCommerce_product_reviews_with_GPT-4__Airtable___Slack_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12066_Analyze_WooCommerce_product_reviews_with_GPT-4__Airtable___Slack_summaries.json)|
+|12068|[12068_Aggregate_web_product_reviews_and_sentiment_with_Decodo_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12068_Aggregate_web_product_reviews_and_sentiment_with_Decodo_and_Google_Gemini.json)|
+|12129|[12129_Detect_fake_product_reviews_with_OpenAI_and_send_alerts_to_Slack_via_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12129_Detect_fake_product_reviews_with_OpenAI_and_send_alerts_to_Slack_via_Airtable.json)|
+|12603|[12603_WooCommerce___Product_Review_Sentiment_Analysis_and_AI_Report___for_Improvement.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12603_WooCommerce___Product_Review_Sentiment_Analysis_and_AI_Report___for_Improvement.json)|
+|12654|[12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json)|
+|12827|[12827_Automate_systematic_literature_reviews_with_Google_Drive__GPT-4__Gemini__Qdrant_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12827_Automate_systematic_literature_reviews_with_Google_Drive__GPT-4__Gemini__Qdrant_and_Airtable.json)|
+|13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|

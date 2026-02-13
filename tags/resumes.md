@@ -1,4 +1,4 @@
-# resumes : 14
+# resumes : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |9980|[9980_Match_Resumes_to_Jobs_Automatically_with_Gemini_AI_and_Decodo_Scraping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9980_Match_Resumes_to_Jobs_Automatically_with_Gemini_AI_and_Decodo_Scraping.json)|
 |10201|[10201_Optimize_Resumes___Generate_Cover_Letters_with_Gemini_AI_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10201_Optimize_Resumes___Generate_Cover_Letters_with_Gemini_AI_and_PDF.co.json)|
 |10242|[10242_Personalize_Resumes___Cover_Letters_with_AI__GitHub_Pages_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10242_Personalize_Resumes___Cover_Letters_with_AI__GitHub_Pages_and_Google_Drive.json)|
+|12346|[12346_Generate_visual_resumes_from_Telegram_using_Google_Gemini_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12346_Generate_visual_resumes_from_Telegram_using_Google_Gemini_and_BrowserAct.json)|
+|13034|[13034_Screen_and_score_resumes_from_Gmail_with_PDF_parsing__HubSpot__Slack_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13034_Screen_and_score_resumes_from_Gmail_with_PDF_parsing__HubSpot__Slack_and_PostgreSQL.json)|

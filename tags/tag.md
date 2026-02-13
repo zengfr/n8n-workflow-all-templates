@@ -1,4 +1,4 @@
-# tag : 11
+# tag : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |8042|[8042_Version_Control_n8n_Workflows_in_GitLab_with_Customer_Tag_Organization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8042_Version_Control_n8n_Workflows_in_GitLab_with_Customer_Tag_Organization.json)|
 |9881|[9881_AI_Automate_UX_Feedback__Sentiment___Emotion_Analysis_in_Google_Sheets___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9881_AI_Automate_UX_Feedback__Sentiment___Emotion_Analysis_in_Google_Sheets___OpenAI.json)|
 |11136|[11136_Auto-Generate_WordPress_Blog_Tags_with_GPT-4.1-mini_and_Smart_Tag_Mapping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11136_Auto-Generate_WordPress_Blog_Tags_with_GPT-4.1-mini_and_Smart_Tag_Mapping.json)|
+|11923|[11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json)|
+|13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|

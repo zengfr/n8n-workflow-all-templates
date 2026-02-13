@@ -1,4 +1,4 @@
-# recipe : 12
+# recipe : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |7837|[7837_Find_step-by-step_recipes_from_API_Ninjas_Recipe_API_in_an_n8n_AI_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/78/7837_Find_step-by-step_recipes_from_API_Ninjas_Recipe_API_in_an_n8n_AI_agent.json)|
 |7919|[7919_WhatsApp_Recipe_Suggestions_from_Pantry_Items_with_Gemini_AI___FatSecret_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7919_WhatsApp_Recipe_Suggestions_from_Pantry_Items_with_Gemini_AI___FatSecret_API.json)|
 |9558|[9558_Generate_Recipes_from_Fridge_Photos_using_GPT-4_Vision___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9558_Generate_Recipes_from_Fridge_Photos_using_GPT-4_Vision___Telegram.json)|
+|13168|[13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json)|

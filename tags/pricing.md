@@ -1,4 +1,4 @@
-# pricing : 7
+# pricing : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |6178|[6178_Automated_Gold_Price_Tracker_with_Multiple_Currency_Conversion_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6178_Automated_Gold_Price_Tracker_with_Multiple_Currency_Conversion_for_Telegram.json)|
 |6448|[6448_Automated_Dynamic_Pricing_with_AI_Competitor_Monitoring___Revenue_Optimization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6448_Automated_Dynamic_Pricing_with_AI_Competitor_Monitoring___Revenue_Optimization.json)|
 |8992|[8992_Daily_ETH_Wallet_Monitoring_with_Etherscan__CoinGecko_Pricing___Discord_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8992_Daily_ETH_Wallet_Monitoring_with_Etherscan__CoinGecko_Pricing___Discord_Alerts.json)|
+|12246|[12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json)|
+|12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|

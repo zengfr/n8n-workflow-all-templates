@@ -1,4 +1,4 @@
-# outlook : 53
+# outlook : 55
 
 |id|file|
 |----|----|
@@ -55,3 +55,5 @@
 |10340|[10340_Transform_Support_Emails_into_FAQs_with_GPT-4o__Gmail__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10340_Transform_Support_Emails_into_FAQs_with_GPT-4o__Gmail__Notion__and_Slack.json)|
 |10583|[10583_Classify_and_Auto-Reply_to_Emails_with_Outlook_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10583_Classify_and_Auto-Reply_to_Emails_with_Outlook_and_GPT-4.json)|
 |10602|[10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json)|
+|12648|[12648_Send_automated_payment_reminders_for_Xero_invoices_via_Outlook_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12648_Send_automated_payment_reminders_for_Xero_invoices_via_Outlook_email.json)|
+|12839|[12839_Draft_personalized_Outlook_support_email_replies_with_Supabase_RAG_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12839_Draft_personalized_Outlook_support_email_replies_with_Supabase_RAG_and_OpenAI.json)|

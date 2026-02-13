@@ -1,4 +1,4 @@
-# token : 25
+# token : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |9660|[9660_Host_Your_Own_JWT_Authentication_System_with_Data_Tables_and_Token_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9660_Host_Your_Own_JWT_Authentication_System_with_Data_Tables_and_Token_Management.json)|
 |10038|[10038_Automate_Facebook_Page_Token_Renewal_with_Data_Tables_Storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10038_Automate_Facebook_Page_Token_Renewal_with_Data_Tables_Storage.json)|
 |10747|[10747_Automate_Zoom_User_Onboarding_with_OAuth_Token_Management_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10747_Automate_Zoom_User_Onboarding_with_OAuth_Token_Management_and_Data_Tables.json)|
+|12100|[12100_Compare_LLM_token_costs_across_350__models_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12100_Compare_LLM_token_costs_across_350__models_with_OpenRouter.json)|
+|12646|[12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json)|

@@ -1,4 +1,4 @@
-# models : 25
+# models : 30
 
 |id|file|
 |----|----|
@@ -27,3 +27,8 @@
 |9247|[9247_Smart_Chat_Routing_Between_Gemini_and_GPT_Models_Based_on_Query_Complexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9247_Smart_Chat_Routing_Between_Gemini_and_GPT_Models_Based_on_Query_Complexity.json)|
 |9283|[9283_Compare_AI_Models_with_Nvidia_API__Qwen__DeepSeek__Seed-OSS___Nemotron.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9283_Compare_AI_Models_with_Nvidia_API__Qwen__DeepSeek__Seed-OSS___Nemotron.json)|
 |11660|[11660_Generate_Consensus_Answers_with_Multiple_AI_Models___Peer_Review_System.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11660_Generate_Consensus_Answers_with_Multiple_AI_Models___Peer_Review_System.json)|
+|12100|[12100_Compare_LLM_token_costs_across_350__models_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12100_Compare_LLM_token_costs_across_350__models_with_OpenRouter.json)|
+|12177|[12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json)|
+|12452|[12452_Generate_3D_models_from_images_using_Hunyuan3D_v2_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12452_Generate_3D_models_from_images_using_Hunyuan3D_v2_and_Google_Sheets.json)|
+|12521|[12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json)|
+|12641|[12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json)|

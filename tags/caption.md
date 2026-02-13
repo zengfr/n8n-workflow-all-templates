@@ -1,4 +1,4 @@
-# caption : 8
+# caption : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |7992|[7992_Auto-Caption___Post_Videos_to_Instagram___TikTok_with_Submagic__Postiz___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7992_Auto-Caption___Post_Videos_to_Instagram___TikTok_with_Submagic__Postiz___OpenAI.json)|
 |8877|[8877_Automate_Instagram_Carousel_Creation_with_GPT-5__Nano_Banana__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8877_Automate_Instagram_Carousel_Creation_with_GPT-5__Nano_Banana__and_Blotato.json)|
 |11795|[11795_Extract_Clean_Transcripts_from_Your_YouTube_Channel_Videos_using_Data_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11795_Extract_Clean_Transcripts_from_Your_YouTube_Channel_Videos_using_Data_API.json)|
+|12755|[12755_Generate_and_post_Instagram_captions_with_Google_Drive__GPT-4.1-mini__Gmail_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12755_Generate_and_post_Instagram_captions_with_Google_Drive__GPT-4.1-mini__Gmail_and_Blotato.json)|

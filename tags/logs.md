@@ -1,4 +1,4 @@
-# logs : 11
+# logs : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |7570|[7570_Automated_ClickUp_Time_Tracking_Reports___Task_Performance_Analytics_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7570_Automated_ClickUp_Time_Tracking_Reports___Task_Performance_Analytics_via_Gmail.json)|
 |9173|[9173_Followup_Stripe_Checkouts_with_Gmail_Receipts__Internal_Slack__and_Sheets_Logs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9173_Followup_Stripe_Checkouts_with_Gmail_Receipts__Internal_Slack__and_Sheets_Logs.json)|
 |11775|[11775_Monitor_Compliance_with_GPT-4_Analysis_of_System_Logs_and_Generate_Audit_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11775_Monitor_Compliance_with_GPT-4_Analysis_of_System_Logs_and_Generate_Audit_Reports.json)|
+|12880|[12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12880_Monitor_backup_and_sync_logs_with_Google_Cloud_Storage__GitHub__Gmail__OpenAI__and_GLPI.json)|

@@ -1,4 +1,4 @@
-# applications : 8
+# applications : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |8200|[8200_Google_Drive_to_Supabase_Contextual_Vector_Database_Sync_for_RAG_Applications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8200_Google_Drive_to_Supabase_Contextual_Vector_Database_Sync_for_RAG_Applications.json)|
 |9176|[9176_Automate_Job_Applications_with_Gemini_AI__Notion_Tracking___Multi-platform_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9176_Automate_Job_Applications_with_Gemini_AI__Notion_Tracking___Multi-platform_Search.json)|
 |11215|[11215_Automate_Job_Applications_with_AI_Resume_Tailoring_using_GPT-4o__LinkedIn___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11215_Automate_Job_Applications_with_AI_Resume_Tailoring_using_GPT-4o__LinkedIn___Gmail.json)|
+|12323|[12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json)|
+|13077|[13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json)|
+|13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|

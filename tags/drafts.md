@@ -1,4 +1,4 @@
-# drafts : 11
+# drafts : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |8480|[8480_Generate_Business_Proposals_with_Azure_GPT-4o___Save_as_Gmail_Drafts_from_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8480_Generate_Business_Proposals_with_Azure_GPT-4o___Save_as_Gmail_Drafts_from_Sheets.json)|
 |8553|[8553_Auto-Generate___Post_Social_Media_Content_with_GPT-4__Notion___Instagram_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8553_Auto-Generate___Post_Social_Media_Content_with_GPT-4__Notion___Instagram_API.json)|
 |11333|[11333_Generate_Cold_Outreach_Drafts_from_Google_Sheets_with_GPT-4o-mini___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11333_Generate_Cold_Outreach_Drafts_from_Google_Sheets_with_GPT-4o-mini___Gmail.json)|
+|12386|[12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json)|
