@@ -1,4 +1,4 @@
-# free : 29
+# free : 30
 
 |id|file|
 |----|----|
@@ -31,3 +31,4 @@
 |11772|[11772_Generate_AI_Stock_Reports_w__Fundamental__Technical____News_Analysis__Free_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11772_Generate_AI_Stock_Reports_w__Fundamental__Technical____News_Analysis__Free_APIs.json)|
 |12125|[12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json)|
 |12524|[12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json)|
+|13411|[13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json)|

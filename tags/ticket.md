@@ -1,4 +1,4 @@
-# ticket : 51
+# ticket : 52
 
 |id|file|
 |----|----|
@@ -53,3 +53,4 @@
 |12906|[12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json)|
 |13178|[13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json)|
 |13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|
+|13453|[13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json)|

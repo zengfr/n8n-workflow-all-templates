@@ -1,4 +1,4 @@
-# engine : 44
+# engine : 48
 
 |id|file|
 |----|----|
@@ -46,3 +46,7 @@
 |12540|[12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json)|
 |12684|[12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json)|
 |12702|[12702_Route_and_reassign_leads_with_SLA_using_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12702_Route_and_reassign_leads_with_SLA_using_Google_Sheets_and_Slack.json)|
+|13701|[13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json)|
+|13791|[13791_Auto-heal_failing_workflows_with_Azure_OpenAI__n8n_API__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13791_Auto-heal_failing_workflows_with_Azure_OpenAI__n8n_API__and_Slack_alerts.json)|
+|13792|[13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json)|
+|13794|[13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json)|

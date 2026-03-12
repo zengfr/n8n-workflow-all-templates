@@ -1,4 +1,4 @@
-# excel : 46
+# excel : 47
 
 |id|file|
 |----|----|
@@ -48,3 +48,4 @@
 |10599|[10599_Fetch_Odoo_Customer_Data_and_Export_to_JSON_or_Excel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10599_Fetch_Odoo_Customer_Data_and_Export_to_JSON_or_Excel.json)|
 |10602|[10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10602_Automatic_Microsoft_Outlook_Attachment_Storage_to_OneDrive_with_Excel_Logging.json)|
 |13264|[13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json)|
+|13716|[13716_Track_Excel_365_changes_and_approvals_with_Telegram_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13716_Track_Excel_365_changes_and_approvals_with_Telegram_and_Google_Sheets_logging.json)|

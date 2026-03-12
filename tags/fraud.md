@@ -1,4 +1,4 @@
-# fraud : 6
+# fraud : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |12036|[12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json)|
 |12540|[12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json)|
 |12732|[12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json)|
+|13330|[13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json)|
+|13598|[13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json)|
+|13708|[13708_Detect_influencer_fraud_and_fake_followers_with_Instagram__X__TikTok_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13708_Detect_influencer_fraud_and_fake_followers_with_Instagram__X__TikTok_and_Claude.json)|
+|13774|[13774_Filter_fraudulent_leads_with_GPT-4o-mini__AbstractAPI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13774_Filter_fraudulent_leads_with_GPT-4o-mini__AbstractAPI__Google_Sheets_and_Slack.json)|

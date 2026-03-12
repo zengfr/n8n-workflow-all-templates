@@ -1,4 +1,4 @@
-# conversion : 21
+# conversion : 22
 
 |id|file|
 |----|----|
@@ -23,3 +23,4 @@
 |9997|[9997_Landing_Page_CRO_Analysis___Optimization_with_OpenAI___Multi-channel_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9997_Landing_Page_CRO_Analysis___Optimization_with_OpenAI___Multi-channel_Delivery.json)|
 |11327|[11327_Automate_Timesheet_to_Invoice_Conversion_with_OpenAI__Gmail___Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11327_Automate_Timesheet_to_Invoice_Conversion_with_OpenAI__Gmail___Google_Workspace.json)|
 |12474|[12474_Score_HubSpot_deal_conversion_risk_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12474_Score_HubSpot_deal_conversion_risk_with_OpenAI_and_Slack_alerts.json)|
+|13587|[13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|

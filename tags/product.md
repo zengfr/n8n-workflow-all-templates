@@ -1,4 +1,4 @@
-# product : 165
+# product : 174
 
 |id|file|
 |----|----|
@@ -167,3 +167,12 @@
 |13119|[13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json)|
 |13220|[13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json)|
 |13303|[13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json)|
+|13377|[13377_Monitor_product_prices_with_Decodo__Google_Sheets__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13377_Monitor_product_prices_with_Decodo__Google_Sheets__Gemini_and_Gmail.json)|
+|13415|[13415_Send_Shopify_new_product_announcements_via_WhatsApp_using_Google_Sheets_and_GPT-4.1_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13415_Send_Shopify_new_product_announcements_via_WhatsApp_using_Google_Sheets_and_GPT-4.1_mini.json)|
+|13416|[13416_Send_WhatsApp_new_product_campaigns_from_WooCommerce_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13416_Send_WhatsApp_new_product_campaigns_from_WooCommerce_with_OpenAI_and_Sheets.json)|
+|13588|[13588_Prioritize_Amazon_competitor_gaps_using_Bright_Data_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13588_Prioritize_Amazon_competitor_gaps_using_Bright_Data_and_Google_Sheets.json)|
+|13673|[13673_Generate_e-commerce_product_descriptions_from_a_form_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13673_Generate_e-commerce_product_descriptions_from_a_form_with_Google_Gemini.json)|
+|13704|[13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json)|
+|13800|[13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json)|
+|13804|[13804_Generate_AI_product_marketing_photos_from_Google_Sheets_with_Google_Gemini_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13804_Generate_AI_product_marketing_photos_from_Google_Sheets_with_Google_Gemini_and_Drive.json)|
+|13893|[13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json)|

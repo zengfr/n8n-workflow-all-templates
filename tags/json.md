@@ -1,4 +1,4 @@
-# json : 47
+# json : 50
 
 |id|file|
 |----|----|
@@ -49,3 +49,6 @@
 |11065|[11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json)|
 |13033|[13033_Extract_invoice_data_from_Gmail_PDFs_to_JSON__Google_Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13033_Extract_invoice_data_from_Gmail_PDFs_to_JSON__Google_Sheets_and_Airtable.json)|
 |13317|[13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json)|
+|13575|[13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json)|
+|13787|[13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json)|
+|13788|[13788_Optimize_n8n_workflow_JSON_using_Azure_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13788_Optimize_n8n_workflow_JSON_using_Azure_OpenAI_GPT-4o-mini.json)|

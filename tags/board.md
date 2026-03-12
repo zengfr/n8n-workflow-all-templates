@@ -1,4 +1,4 @@
-# board : 9
+# board : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |7619|[7619_Automatic_Trello_Board_Cleanup_by_Removing_Cards_with_Specific_Labels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7619_Automatic_Trello_Board_Cleanup_by_Removing_Cards_with_Specific_Labels.json)|
 |8231|[8231_Create_Monday.com_Board_Items_from_Jotform_Submissions_with_Field_Mapping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8231_Create_Monday.com_Board_Items_from_Jotform_Submissions_with_Field_Mapping.json)|
 |9300|[9300_Automatically_Scrape_Make.com_Job_Board_with_GPT-5-mini_Summaries___Email_Digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9300_Automatically_Scrape_Make.com_Job_Board_with_GPT-5-mini_Summaries___Email_Digest.json)|
+|13873|[13873_Summarize_Trello_board_activity_with_Gemini_and_send_updates_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13873_Summarize_Trello_board_activity_with_Gemini_and_send_updates_to_Slack.json)|
+|13898|[13898_Generate_board-ready_workforce_analytics_and_talent_reports_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13898_Generate_board-ready_workforce_analytics_and_talent_reports_with_GPT-4o.json)|

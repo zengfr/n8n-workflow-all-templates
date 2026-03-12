@@ -1,4 +1,4 @@
-# applications : 11
+# applications : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |12323|[12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12323_Score_job_applications_and_write_AI_feedback_with_OpenAI_and_Notion.json)|
 |13077|[13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json)|
 |13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|
+|13584|[13584_Automate_LinkedIn_job_search_and_applications_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13584_Automate_LinkedIn_job_search_and_applications_with_Claude_AI_and_Google_Sheets.json)|
+|13812|[13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json)|

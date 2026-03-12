@@ -1,4 +1,4 @@
-# serpapi : 52
+# serpapi : 56
 
 |id|file|
 |----|----|
@@ -54,3 +54,7 @@
 |12780|[12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json)|
 |12971|[12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json)|
 |13151|[13151_Post_daily_tech_news_on_Instagram_with_Gemini_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13151_Post_daily_tech_news_on_Instagram_with_Gemini_and_SerpAPI.json)|
+|13519|[13519_Get_AI_meeting_briefs_from_Google_Calendar_with_SerpAPI__Azure_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13519_Get_AI_meeting_briefs_from_Google_Calendar_with_SerpAPI__Azure_OpenAI_and_Slack.json)|
+|13608|[13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json)|
+|13678|[13678_Generate_Google_Maps_lead_lists_with_SerpApi__Google_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13678_Generate_Google_Maps_lead_lists_with_SerpApi__Google_Gemini_and_Sheets.json)|
+|13867|[13867_Generate_AEO_snippets_from_Google_PAA_with_SerpApi_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13867_Generate_AEO_snippets_from_Google_PAA_with_SerpApi_and_Gemini.json)|

@@ -1,4 +1,4 @@
-# human : 58
+# human : 65
 
 |id|file|
 |----|----|
@@ -60,3 +60,10 @@
 |12362|[12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json)|
 |13216|[13216_Post_AI_news_to_Telegram_with_Google_Gemini_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13216_Post_AI_news_to_Telegram_with_Google_Gemini_and_human_approval.json)|
 |13231|[13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json)|
+|13381|[13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json)|
+|13394|[13394_Build_a_Telegram_AI_chatbot_with_human_takeover_using_Trilox_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13394_Build_a_Telegram_AI_chatbot_with_human_takeover_using_Trilox_and_GPT-4o-mini.json)|
+|13407|[13407_Create_a_human-like_Evolution_API_WhatsApp_agent_with_Redis__PostgreSQL_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13407_Create_a_human-like_Evolution_API_WhatsApp_agent_with_Redis__PostgreSQL_and_Gemini.json)|
+|13426|[13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json)|
+|13847|[13847_Production_AI_Playbook__Human_Oversight__Exercise_1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13847_Production_AI_Playbook__Human_Oversight__Exercise_1.json)|
+|13848|[13848_Production_AI_Playbook__Human_Oversight__Exercise_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13848_Production_AI_Playbook__Human_Oversight__Exercise_2.json)|
+|13849|[13849_Production_AI_Playbook__Human_Oversight__Exercise_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13849_Production_AI_Playbook__Human_Oversight__Exercise_3.json)|

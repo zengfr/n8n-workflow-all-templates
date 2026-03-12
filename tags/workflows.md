@@ -1,4 +1,4 @@
-# workflows : 101
+# workflows : 107
 
 |id|file|
 |----|----|
@@ -103,3 +103,9 @@
 |12747|[12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json)|
 |12890|[12890_Send_severity-based_error_alerts_using_Telegram__email_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12890_Send_severity-based_error_alerts_using_Telegram__email_and_Google_Sheets.json)|
 |13245|[13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json)|
+|13425|[13425_Selectively_import_workflows_between_instances_using_the_n8n_API_and_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13425_Selectively_import_workflows_between_instances_using_the_n8n_API_and_forms.json)|
+|13536|[13536_Design_scalable_sync_workflows_with_Data_Tables__ProspectPro_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13536_Design_scalable_sync_workflows_with_Data_Tables__ProspectPro_and_HubSpot.json)|
+|13665|[13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json)|
+|13791|[13791_Auto-heal_failing_workflows_with_Azure_OpenAI__n8n_API__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13791_Auto-heal_failing_workflows_with_Azure_OpenAI__n8n_API__and_Slack_alerts.json)|
+|13792|[13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json)|
+|13794|[13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json)|

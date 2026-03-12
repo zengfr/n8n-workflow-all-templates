@@ -1,0 +1,359 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Gate deployments on WAF scan results with WAFtester",
+    "wechat": "youandme10086",
+    "id": 13445,
+    "update_time": "2026-03-12"
+  },
+  "name": "Gate deployments on WAF security scan results with WAFtester",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "793762f9-088e-4c68-b43e-9828be0fc25c",
+      "name": "Deploy Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Receives POST from CI/CD pipeline. Body: {\"target\": \"https://...\", \"categories\": [\"sqli\", \"xss\"]}",
+      "position": [
+        672,
+        32
+      ],
+      "webhookId": "0df18a16-adf4-415a-b073-426cb8b90fb4",
+      "parameters": {
+        "path": "waf-security-gate",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "123e328c-f1f2-4816-a1e8-cc87719f71ae",
+      "name": "Detect WAF",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Identifies the WAF vendor protecting the target.",
+      "position": [
+        864,
+        32
+      ],
+      "parameters": {
+        "url": "={{ $env.WAFTESTER_MCP_URL || 'http://waftester:8080/mcp' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"detect_waf\",\n    \"arguments\": {\n      \"target\": \"{{ $('Deploy Webhook').item.json.body.target }}\"\n    }\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a1348c2f-b92c-4344-ad49-ed4841760fc8",
+      "name": "Start Scan",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Starts an async scan. Returns a task_id for polling.",
+      "position": [
+        1072,
+        32
+      ],
+      "parameters": {
+        "url": "={{ $env.WAFTESTER_MCP_URL || 'http://waftester:8080/mcp' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 2,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"scan\",\n    \"arguments\": {\n      \"target\": \"{{ $('Deploy Webhook').item.json.body.target }}\",\n      \"categories\": {{ $('Deploy Webhook').item.json.body.categories ? JSON.stringify($('Deploy Webhook').item.json.body.categories) : '[\"sqli\", \"xss\"]' }}\n    }\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a45cc213-a308-436f-b5a2-9592021f6c16",
+      "name": "Wait for Scan",
+      "type": "n8n-nodes-base.wait",
+      "notes": "Waits 30 seconds for the scan to complete before polling.",
+      "position": [
+        1264,
+        32
+      ],
+      "parameters": {
+        "unit": "seconds",
+        "amount": 30
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d595a7db-5a95-4cef-a502-0ba35bbdf01f",
+      "name": "Poll Task Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Polls get_task_status for scan results. The regex extracts the task_id from the scan response.",
+      "position": [
+        1472,
+        32
+      ],
+      "parameters": {
+        "url": "={{ $env.WAFTESTER_MCP_URL || 'http://waftester:8080/mcp' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 3,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"get_task_status\",\n    \"arguments\": {\n      \"task_id\": \"{{ $('Start Scan').item.json.result.content[0].text.match(/task_id[\\\":\\\\s]+(task-[a-f0-9-]+)/)?.[1] || $('Start Scan').item.json.result.content[0].text }}\"\n    }\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "78af2954-d79f-43cc-b17e-9b67375fc3c7",
+      "name": "Parse Results",
+      "type": "n8n-nodes-base.code",
+      "notes": "Extracts detection rate, bypass count, and compares against the WAF_PASS_THRESHOLD.",
+      "position": [
+        1664,
+        32
+      ],
+      "parameters": {
+        "jsCode": "// Parse the MCP JSON-RPC response and calculate pass/fail\nconst response = $input.first().json;\nconst resultText = response.result?.content?.[0]?.text || '{}';\n\nlet parsed;\ntry {\n  parsed = JSON.parse(resultText);\n} catch (e) {\n  parsed = { error: resultText };\n}\n\nconst detectionRate = parsed.detection_rate || parsed.detectionRate || 0;\nconst threshold = Number($env.WAF_PASS_THRESHOLD) || 90;\nconst passed = detectionRate >= threshold;\n\nreturn [{\n  json: {\n    passed,\n    detection_rate: detectionRate,\n    threshold,\n    total_tests: parsed.total_tests || parsed.totalTests || 0,\n    blocked: parsed.blocked || 0,\n    bypasses: parsed.bypasses || parsed.bypass_count || 0,\n    waf_vendor: parsed.waf_vendor || parsed.wafVendor || 'unknown',\n    details: parsed\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7b655595-dc14-4e30-b5f1-13c1b314e6ab",
+      "name": "Pass or Fail?",
+      "type": "n8n-nodes-base.if",
+      "notes": "Routes to pass (HTTP 200) or fail (HTTP 422) response based on detection rate vs threshold.",
+      "position": [
+        1872,
+        32
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "d8246093-052a-4395-9b7b-7a23d3a36abb",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.passed }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6dce4ceb-108e-47a5-b87c-c5bf9d140835",
+      "name": "Respond Pass",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "notes": "Returns HTTP 200 — deployment can proceed.",
+      "position": [
+        2064,
+        -64
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"pass\",\n  \"detection_rate\": {{ $json.detection_rate }},\n  \"threshold\": {{ $json.threshold }},\n  \"total_tests\": {{ $json.total_tests }},\n  \"blocked\": {{ $json.blocked }},\n  \"waf_vendor\": \"{{ $json.waf_vendor }}\"\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "55ffe1fa-8a43-4aed-9f99-676333e1778c",
+      "name": "Respond Fail",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "notes": "Returns HTTP 422 — deployment should be blocked. Includes bypass details.",
+      "position": [
+        2064,
+        128
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 422
+        },
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"fail\",\n  \"detection_rate\": {{ $json.detection_rate }},\n  \"threshold\": {{ $json.threshold }},\n  \"total_tests\": {{ $json.total_tests }},\n  \"blocked\": {{ $json.blocked }},\n  \"bypasses\": {{ $json.bypasses }},\n  \"waf_vendor\": \"{{ $json.waf_vendor }}\"\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d7f85de9-f0b3-4b38-8eab-ee80d5ad1181",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "",
+      "position": [
+        -96,
+        -240
+      ],
+      "parameters": {
+        "width": 700,
+        "height": 440,
+        "content": "### How it works\n\n1. CI/CD pipeline POSTs target URL and categories to the webhook\n2. Detects WAF vendor, then runs security scan\n3. Polls for results and evaluates detection rate vs threshold\n4. Returns HTTP 200 (pass) or 422 (fail) so pipeline can gate\n\n### Setup steps\n\n1. Start WAFtester MCP server via Docker\n2. Set `WAFTESTER_MCP_URL` and `WAF_PASS_THRESHOLD` env vars\n3. Copy webhook URL into your CI/CD pipeline config\n4. Send POST with `{\"target\": \"...\", \"categories\": [...]}`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3323c452-47a0-4e78-837a-07a6c84912e1",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "",
+      "position": [
+        640,
+        -240
+      ],
+      "parameters": {
+        "width": 980,
+        "height": 144,
+        "content": "## WAF Detection & Scan\n\nDetects WAF vendor and runs async security scan with 30s polling delay."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7e1c0ca5-48d1-4882-b8f1-811c849f0b60",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "notes": "",
+      "position": [
+        1648,
+        -240
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 144,
+        "content": "## Gate Decision\n\nThe Code node calculates detection rate. If it meets the threshold, the pipeline proceeds. Otherwise, deployment is blocked with bypass details in the response body."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Detect WAF": {
+      "main": [
+        [
+          {
+            "node": "Start Scan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Scan": {
+      "main": [
+        [
+          {
+            "node": "Wait for Scan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Results": {
+      "main": [
+        [
+          {
+            "node": "Pass or Fail?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass or Fail?": {
+      "main": [
+        [
+          {
+            "node": "Respond Pass",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Scan": {
+      "main": [
+        [
+          {
+            "node": "Poll Task Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deploy Webhook": {
+      "main": [
+        [
+          {
+            "node": "Detect WAF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Task Status": {
+      "main": [
+        [
+          {
+            "node": "Parse Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "## What it does\n\nA CI/CD quality gate that blocks deployments when WAF protection is insufficient. Your pipeline sends a webhook with the target URL, the workflow runs WAFtester scans, and returns a pass/fail HTTP response the pipeline can gate on.\n\n## Who it's for\n\n- DevOps teams enforcing security gates in CI/CD\n- Platform engineers automating deployment approvals\n- Security teams requiring pre-deploy WAF validation\n\n## How it works\n\n1. Your CI/CD pipeline POSTs `{\"target\": \"https://staging.example.com\", \"categories\": [\"sqli\", \"xss\"]}` to the webhook\n2. The workflow detects the WAF vendor and starts a security scan\n3. It polls for results, then evaluates the detection rate against a configurable threshold\n4. HTTP 200 is returned if the detection rate passes (deploy allowed), or HTTP 422 with bypass details if it fails (deploy blocked)\n\n## How to set up\n\n1. Start WAFtester: `docker run -p 8080:8080 ghcr.io/waftester/waftester:latest mcp --http :8080`\n2. Set environment variables: `WAFTESTER_MCP_URL` and `WAF_PASS_THRESHOLD` (default: 90)\n3. Copy the webhook URL from the Webhook node into your CI/CD pipeline\n4. Activate the workflow\n\n## Requirements\n\n- WAFtester MCP server (Docker)\n- CI/CD pipeline that can call webhooks and read HTTP responses\n\nOnly test targets you have authorization to test."
+}

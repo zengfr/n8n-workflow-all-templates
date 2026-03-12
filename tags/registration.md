@@ -1,4 +1,4 @@
-# registration : 14
+# registration : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |10771|[10771_Patient_Pre-registration_System_with_Email_Verification___QR_Health_Cards_using_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10771_Patient_Pre-registration_System_with_Email_Verification___QR_Health_Cards_using_Google_Drive.json)|
 |11944|[11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json)|
 |12268|[12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json)|
+|13842|[13842_Enrich_event_registrations_with_HubSpot__Clearbit__LinkedIn_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13842_Enrich_event_registrations_with_HubSpot__Clearbit__LinkedIn_and_Gemini_AI.json)|
+|13843|[13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json)|
+|13844|[13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json)|

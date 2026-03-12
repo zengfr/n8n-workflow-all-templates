@@ -1,4 +1,4 @@
-# ad : 42
+# ad : 43
 
 |id|file|
 |----|----|
@@ -44,3 +44,4 @@
 |12854|[12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json)|
 |13015|[13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json)|
 |13222|[13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json)|
+|13893|[13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json)|

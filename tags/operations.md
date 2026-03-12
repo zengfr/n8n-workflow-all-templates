@@ -1,4 +1,4 @@
-# operations : 129
+# operations : 131
 
 |id|file|
 |----|----|
@@ -131,3 +131,5 @@
 |12794|[12794_Manage_healthcare_resource_allocation_and_conflicts_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12794_Manage_healthcare_resource_allocation_and_conflicts_with_Anthropic_Claude.json)|
 |12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|
 |13308|[13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json)|
+|13503|[13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json)|
+|13709|[13709_Coordinate_smart_factory_operations_with_OpenAI_GPT-4.1-mini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13709_Coordinate_smart_factory_operations_with_OpenAI_GPT-4.1-mini_and_Slack_alerts.json)|

@@ -1,4 +1,4 @@
-# costs : 15
+# costs : 16
 
 |id|file|
 |----|----|
@@ -17,3 +17,4 @@
 |12177|[12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json)|
 |13313|[13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json)|
 |13320|[13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json)|
+|13591|[13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json)|

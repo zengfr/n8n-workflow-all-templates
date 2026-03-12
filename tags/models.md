@@ -1,4 +1,4 @@
-# models : 30
+# models : 33
 
 |id|file|
 |----|----|
@@ -32,3 +32,6 @@
 |12452|[12452_Generate_3D_models_from_images_using_Hunyuan3D_v2_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12452_Generate_3D_models_from_images_using_Hunyuan3D_v2_and_Google_Sheets.json)|
 |12521|[12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12521_Build_a_cost-efficient_Lookio_RAG_chatbot_with_GPT-4.1_models_for_knowledge_Q_A.json)|
 |12641|[12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json)|
+|13726|[13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json)|
+|13781|[13781_Train_and_deploy_ML_models_with_Claude_and_Slack_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13781_Train_and_deploy_ML_models_with_Claude_and_Slack_approval.json)|
+|13809|[13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json)|

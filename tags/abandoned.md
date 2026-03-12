@@ -1,4 +1,4 @@
-# abandoned : 12
+# abandoned : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |11805|[11805_Recover_Shopify_Abandoned_Carts_with_Email__SMS__WhatsApp___Facebook_Retargeting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11805_Recover_Shopify_Abandoned_Carts_with_Email__SMS__WhatsApp___Facebook_Retargeting.json)|
 |12069|[12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json)|
 |12461|[12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json)|
+|13844|[13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json)|

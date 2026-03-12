@@ -1,4 +1,4 @@
-# qualify : 33
+# qualify : 38
 
 |id|file|
 |----|----|
@@ -35,3 +35,8 @@
 |12855|[12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json)|
 |12907|[12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json)|
 |12996|[12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json)|
+|13350|[13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json)|
+|13387|[13387_Qualify_mortgage_leads_and_collect_documents_with_Gemini__Gmail__Drive__Telegram__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13387_Qualify_mortgage_leads_and_collect_documents_with_Gemini__Gmail__Drive__Telegram__and_Supabase.json)|
+|13524|[13524_Qualify_Idealista_leads_via_WhatsApp_with_Superchat_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13524_Qualify_Idealista_leads_via_WhatsApp_with_Superchat_and_GPT-4o.json)|
+|13740|[13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json)|
+|13746|[13746_Qualify_and_score_leads_in_Airtable_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13746_Qualify_and_score_leads_in_Airtable_with_OpenAI_and_Slack_alerts.json)|

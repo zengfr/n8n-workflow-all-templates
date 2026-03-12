@@ -1,4 +1,4 @@
-# node : 57
+# node : 58
 
 |id|file|
 |----|----|
@@ -59,3 +59,4 @@
 |11367|[11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11367_Convert_Websites_to_Instagram_Reels_with_Gemini_Veo__OpenAI_TTS__and_JsonCut.json)|
 |11613|[11613_Xano_Support_Ticket_Router__AI___Xano_Node_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11613_Xano_Support_Ticket_Router__AI___Xano_Node_Integration.json)|
 |13270|[13270_Use_skills_In_n8n_agent_node.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13270_Use_skills_In_n8n_agent_node.json)|
+|13768|[13768_Generate_workflow_documentation_and_node_names_with_GPT_4.1_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13768_Generate_workflow_documentation_and_node_names_with_GPT_4.1_mini.json)|

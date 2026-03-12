@@ -1,4 +1,4 @@
-# lists : 14
+# lists : 18
 
 |id|file|
 |----|----|
@@ -16,3 +16,7 @@
 |9252|[9252_Validate_Email_Lists_Weekly_with_Google_Sheets__VerifiEmail_and_Gmail_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9252_Validate_Email_Lists_Weekly_with_Google_Sheets__VerifiEmail_and_Gmail_Reports.json)|
 |9808|[9808_Extract_Meeting_To-Do_Lists_from_Audio_with_Google_Gemini_and_Send_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9808_Extract_Meeting_To-Do_Lists_from_Audio_with_Google_Gemini_and_Send_to_Slack.json)|
 |13324|[13324_Sync_Gmail_sent_email_contacts_with_Odoo_mailing_lists.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13324_Sync_Gmail_sent_email_contacts_with_Odoo_mailing_lists.json)|
+|13345|[13345_Bulk_enrich_CSV_contact_lists_with_Lusha.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13345_Bulk_enrich_CSV_contact_lists_with_Lusha.json)|
+|13639|[13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json)|
+|13678|[13678_Generate_Google_Maps_lead_lists_with_SerpApi__Google_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13678_Generate_Google_Maps_lead_lists_with_SerpApi__Google_Gemini_and_Sheets.json)|
+|13815|[13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json)|

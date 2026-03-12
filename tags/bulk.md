@@ -1,4 +1,4 @@
-# bulk : 43
+# bulk : 53
 
 |id|file|
 |----|----|
@@ -45,3 +45,13 @@
 |11638|[11638_Bulk_Auto-Publish_Videos_to_Social_Networks_with_AI_Copy_and_Client_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11638_Bulk_Auto-Publish_Videos_to_Social_Networks_with_AI_Copy_and_Client_Approval.json)|
 |11921|[11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11921_Bulk_WhatsApp___Gmail_messenger_with_Google_Sheets_status_tracking_via_InboxPlus.json)|
 |13219|[13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json)|
+|13345|[13345_Bulk_enrich_CSV_contact_lists_with_Lusha.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13345_Bulk_enrich_CSV_contact_lists_with_Lusha.json)|
+|13349|[13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json)|
+|13350|[13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json)|
+|13351|[13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json)|
+|13363|[13363_Generate_and_validate_bulk_QR_codes_with_Google_Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13363_Generate_and_validate_bulk_QR_codes_with_Google_Sheets_and_Google_Drive.json)|
+|13414|[13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json)|
+|13477|[13477_Launch_WhatsApp_bulk_campaigns_from_Google_Sheets_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13477_Launch_WhatsApp_bulk_campaigns_from_Google_Sheets_with_MoltFlow.json)|
+|13639|[13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json)|
+|13642|[13642_Send_WhatsApp_bulk_template_messages_from_Google_Sheets_or_CSV_via_WOZTELL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13642_Send_WhatsApp_bulk_template_messages_from_Google_Sheets_or_CSV_via_WOZTELL.json)|
+|13786|[13786_Bulk_generate_payment_reminder_PDFs_from_NocoDB_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13786_Bulk_generate_payment_reminder_PDFs_from_NocoDB_with_Autype.json)|

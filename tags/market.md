@@ -1,4 +1,4 @@
-# market : 86
+# market : 87
 
 |id|file|
 |----|----|
@@ -88,3 +88,4 @@
 |12795|[12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json)|
 |12864|[12864_KodoFlow_-_Futures___Options_Market_Intelligence.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12864_KodoFlow_-_Futures___Options_Market_Intelligence.json)|
 |12944|[12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json)|
+|13908|[13908_Generate_AI_market_research_reports_with_Perplexity__Claude__Google_Trends__and_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13908_Generate_AI_market_research_reports_with_Perplexity__Claude__Google_Trends__and_Autype.json)|

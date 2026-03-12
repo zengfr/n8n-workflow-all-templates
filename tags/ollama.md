@@ -1,4 +1,4 @@
-# ollama : 35
+# ollama : 41
 
 |id|file|
 |----|----|
@@ -37,3 +37,9 @@
 |10157|[10157_Local_Document_Question_Answering_with_Ollama_AI__Agentic_RAG___PGVector.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10157_Local_Document_Question_Answering_with_Ollama_AI__Agentic_RAG___PGVector.json)|
 |12387|[12387_Get_domain_expiry_reminders_with_Google_Sheets__WHOIS__Telegram__and_Ollama_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12387_Get_domain_expiry_reminders_with_Google_Sheets__WHOIS__Telegram__and_Ollama_AI.json)|
 |12889|[12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json)|
+|13422|[13422_Implement_on-prem_RAG_with_Qdrant_and_Ollama_for_a_self-hosted_KB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13422_Implement_on-prem_RAG_with_Qdrant_and_Ollama_for_a_self-hosted_KB.json)|
+|13450|[13450_Auto-respond_and_classify_WhatsApp_leads_with_Ollama_AI_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13450_Auto-respond_and_classify_WhatsApp_leads_with_Ollama_AI_and_log_to_Google_Sheets.json)|
+|13463|[13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json)|
+|13465|[13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json)|
+|13466|[13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json)|
+|13811|[13811_Build_a_private_Llama_chatbot_with_Ollama__Groq__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13811_Build_a_private_Llama_chatbot_with_Ollama__Groq__Slack_and_Google_Sheets.json)|

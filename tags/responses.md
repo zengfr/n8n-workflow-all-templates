@@ -1,4 +1,4 @@
-# responses : 59
+# responses : 61
 
 |id|file|
 |----|----|
@@ -61,3 +61,5 @@
 |12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|
 |13137|[13137_Validate_and_orchestrate_lawsuit_responses_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13137_Validate_and_orchestrate_lawsuit_responses_with_OpenAI_and_Google_Sheets.json)|
 |13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|
+|13403|[13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json)|
+|13562|[13562_Monitor_Google_reviews_and_draft_AI_responses_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13562_Monitor_Google_reviews_and_draft_AI_responses_with_Gemini_and_Slack.json)|

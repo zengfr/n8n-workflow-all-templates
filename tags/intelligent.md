@@ -1,4 +1,4 @@
-# intelligent : 50
+# intelligent : 58
 
 |id|file|
 |----|----|
@@ -52,3 +52,11 @@
 |13139|[13139_Monitor_data_integrity_and_route_severity-based_alerts_with_GPT-4o__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13139_Monitor_data_integrity_and_route_severity-based_alerts_with_GPT-4o__email_and_Slack.json)|
 |13153|[13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json)|
 |13157|[13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json)|
+|13590|[13590_Route_MCP_tool_calls_through_an_intelligent_gateway_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13590_Route_MCP_tool_calls_through_an_intelligent_gateway_with_Claude_AI.json)|
+|13683|[13683_Audit_contract_governance_risk_with_OpenAI__Slack_and_email_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13683_Audit_contract_governance_risk_with_OpenAI__Slack_and_email_routing.json)|
+|13700|[13700_Detect_and_enforce_abuse_cases_with_OpenAI__Slack__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13700_Detect_and_enforce_abuse_cases_with_OpenAI__Slack__Gmail_and_Sheets.json)|
+|13898|[13898_Generate_board-ready_workforce_analytics_and_talent_reports_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13898_Generate_board-ready_workforce_analytics_and_talent_reports_with_GPT-4o.json)|
+|13909|[13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json)|
+|13913|[13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json)|
+|13915|[13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json)|
+|13916|[13916_Triage_and_escalate_ethics_disclosures_with_GPT-4o__policy_API_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13916_Triage_and_escalate_ethics_disclosures_with_GPT-4o__policy_API_and_Slack.json)|

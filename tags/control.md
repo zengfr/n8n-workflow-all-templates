@@ -1,4 +1,4 @@
-# control : 35
+# control : 38
 
 |id|file|
 |----|----|
@@ -37,3 +37,6 @@
 |12378|[12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12378_Generate_multilingual_audio_content_with_OpenAI__ElevenLabs__Google_Drive_and_Slack.json)|
 |12734|[12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json)|
 |13003|[13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json)|
+|13592|[13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json)|
+|13639|[13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json)|
+|13869|[13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json)|

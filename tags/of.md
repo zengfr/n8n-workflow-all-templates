@@ -1,4 +1,4 @@
-# of : 133
+# of : 135
 
 |id|file|
 |----|----|
@@ -135,3 +135,5 @@
 |12017|[12017_Prevent_employee_burnout_with_AI_analysis_of_Slack_and_tasks_data_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12017_Prevent_employee_burnout_with_AI_analysis_of_Slack_and_tasks_data_to_Google_Sheets.json)|
 |12032|[12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json)|
 |12036|[12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json)|
+|13404|[13404_Send_weekly_AI_summaries_of_Google_Sheets_data_via_Gmail_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13404_Send_weekly_AI_summaries_of_Google_Sheets_data_via_Gmail_using_OpenAI.json)|
+|13456|[13456_Send_a_daily_email_summary_of_new_Airtable_contacts_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13456_Send_a_daily_email_summary_of_new_Airtable_contacts_via_Gmail.json)|

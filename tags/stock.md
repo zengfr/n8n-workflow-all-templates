@@ -1,4 +1,4 @@
-# stock : 70
+# stock : 71
 
 |id|file|
 |----|----|
@@ -72,3 +72,4 @@
 |12553|[12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json)|
 |12944|[12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json)|
 |13276|[13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json)|
+|13701|[13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json)|

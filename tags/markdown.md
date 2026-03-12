@@ -1,4 +1,4 @@
-# markdown : 30
+# markdown : 32
 
 |id|file|
 |----|----|
@@ -32,3 +32,5 @@
 |9807|[9807_Generate_AI-Powered_Markdown_Posts_from_Workflow_JSON_with_Gemini___LlamaIndex.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9807_Generate_AI-Powered_Markdown_Posts_from_Workflow_JSON_with_Gemini___LlamaIndex.json)|
 |11811|[11811_PDF_to_Markdown_Converter_with_LlamaCloud_Parser.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11811_PDF_to_Markdown_Converter_with_LlamaCloud_Parser.json)|
 |12889|[12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json)|
+|13735|[13735_Sync_markdown_files_from_Google_Drive_to_Confluence_pages_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13735_Sync_markdown_files_from_Google_Drive_to_Confluence_pages_automatically.json)|
+|13777|[13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json)|

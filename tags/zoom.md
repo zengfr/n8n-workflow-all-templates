@@ -1,4 +1,4 @@
-# zoom : 27
+# zoom : 30
 
 |id|file|
 |----|----|
@@ -29,3 +29,6 @@
 |12267|[12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json)|
 |12271|[12271_Schedule_and_track_interviews_using_Calendly__Zoom__Asana__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12271_Schedule_and_track_interviews_using_Calendly__Zoom__Asana__and_Gmail.json)|
 |12637|[12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json)|
+|13553|[13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json)|
+|13579|[13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json)|
+|13871|[13871_Analyze_Zoom_phone_call_recordings_with_Gemini_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13871_Analyze_Zoom_phone_call_recordings_with_Gemini_and_log_results_to_Google_Sheets.json)|

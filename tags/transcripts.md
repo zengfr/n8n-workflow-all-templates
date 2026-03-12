@@ -1,4 +1,4 @@
-# transcripts : 41
+# transcripts : 42
 
 |id|file|
 |----|----|
@@ -43,3 +43,4 @@
 |12285|[12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json)|
 |12737|[12737_Extract_sales_insights_from_Scoot_call_transcripts_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12737_Extract_sales_insights_from_Scoot_call_transcripts_using_Gemini.json)|
 |12935|[12935_Send_YouTube_transcripts_to_Slack_using_AssemblyAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12935_Send_YouTube_transcripts_to_Slack_using_AssemblyAI.json)|
+|13749|[13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json)|

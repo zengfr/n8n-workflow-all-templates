@@ -1,4 +1,4 @@
-# top : 28
+# top : 30
 
 |id|file|
 |----|----|
@@ -30,3 +30,5 @@
 |12048|[12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12048_AI_news_digest__Summarize_top_stories_with_GPT-4o_and_DALL-E_for_Telegram.json)|
 |12249|[12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json)|
 |12965|[12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json)|
+|13433|[13433_Log_new_Google_top-10_keywords_to_Airtable_with_DataForSEO_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13433_Log_new_Google_top-10_keywords_to_Airtable_with_DataForSEO_and_Slack_alerts.json)|
+|13537|[13537_Get_Gmail_alerts_for_dropped_top_10_keyword_rankings_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13537_Get_Gmail_alerts_for_dropped_top_10_keyword_rankings_with_DataForSEO.json)|

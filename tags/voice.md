@@ -1,4 +1,4 @@
-# voice : 145
+# voice : 148
 
 |id|file|
 |----|----|
@@ -147,3 +147,6 @@
 |13030|[13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json)|
 |13114|[13114_Make_outbound_sales_calls_from_Google_Sheets_using_a_VAPI_voice_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13114_Make_outbound_sales_calls_from_Google_Sheets_using_a_VAPI_voice_agent.json)|
 |13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|
+|13367|[13367_Generate_Images_on_Telegram_____from_Text_and_Voice_using_Grok_Imagine___Kie_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13367_Generate_Images_on_Telegram_____from_Text_and_Voice_using_Grok_Imagine___Kie_AI.json)|
+|13593|[13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json)|
+|13748|[13748_Turn_Telegram_into_an_AI_assistant_with_OpenAI_voice__memory_and_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13748_Turn_Telegram_into_an_AI_assistant_with_OpenAI_voice__memory_and_tools.json)|

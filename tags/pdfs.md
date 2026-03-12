@@ -1,4 +1,4 @@
-# pdfs : 51
+# pdfs : 60
 
 |id|file|
 |----|----|
@@ -53,3 +53,12 @@
 |12660|[12660_Deliver_encrypted_payroll_PDFs_via_Google_Drive__Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12660_Deliver_encrypted_payroll_PDFs_via_Google_Drive__Sheets__Gmail_and_Slack.json)|
 |13033|[13033_Extract_invoice_data_from_Gmail_PDFs_to_JSON__Google_Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13033_Extract_invoice_data_from_Gmail_PDFs_to_JSON__Google_Sheets_and_Airtable.json)|
 |13135|[13135_Create_anti-cheating_tests_from_PDFs_with_GPT-4o-mini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13135_Create_anti-cheating_tests_from_PDFs_with_GPT-4o-mini_and_Google_Docs.json)|
+|13376|[13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json)|
+|13504|[13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json)|
+|13599|[13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json)|
+|13739|[13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json)|
+|13779|[13779_Extract_invoice_data_from_scanned_PDFs_to_Google_Sheets_with_Sarvam_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13779_Extract_invoice_data_from_scanned_PDFs_to_Google_Sheets_with_Sarvam_and_Gemini.json)|
+|13786|[13786_Bulk_generate_payment_reminder_PDFs_from_NocoDB_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13786_Bulk_generate_payment_reminder_PDFs_from_NocoDB_with_Autype.json)|
+|13875|[13875_Analyze_contract_risk_from_PDFs_with_OpenAI__Supabase_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13875_Analyze_contract_risk_from_PDFs_with_OpenAI__Supabase_and_Slack_alerts.json)|
+|13892|[13892_Watermark_and_password-protect_new_Google_Drive_PDFs_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13892_Watermark_and_password-protect_new_Google_Drive_PDFs_with_Autype.json)|
+|13896|[13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json)|

@@ -1,4 +1,4 @@
-# performance : 47
+# performance : 50
 
 |id|file|
 |----|----|
@@ -49,3 +49,6 @@
 |12579|[12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json)|
 |13009|[13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json)|
 |13158|[13158_Monitor_programme_performance_and_governance_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13158_Monitor_programme_performance_and_governance_with_OpenAI_and_Slack.json)|
+|13432|[13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json)|
+|13714|[13714_Track_athlete_sessions_and_weekly_performance_with_OpenAI__Google_Sheets__Slack__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13714_Track_athlete_sessions_and_weekly_performance_with_OpenAI__Google_Sheets__Slack__and_email.json)|
+|13840|[13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json)|

@@ -1,4 +1,4 @@
-# cards : 16
+# cards : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |10723|[10723_Automate_Daily_Google_Calendar_Events_to_Trello_Cards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10723_Automate_Daily_Google_Calendar_Events_to_Trello_Cards.json)|
 |10771|[10771_Patient_Pre-registration_System_with_Email_Verification___QR_Health_Cards_using_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10771_Patient_Pre-registration_System_with_Email_Verification___QR_Health_Cards_using_Google_Drive.json)|
 |11658|[11658_Auto-Generate_Competitive_Battle_Cards_from_Websites_with_Zoho_CRM_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11658_Auto-Generate_Competitive_Battle_Cards_from_Websites_with_Zoho_CRM_and_Gemini_AI.json)|
+|13388|[13388_Sync_Fizzy_cards_with_Basecamp_todos_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13388_Sync_Fizzy_cards_with_Basecamp_todos_in_real_time.json)|

@@ -1,4 +1,4 @@
-# meal : 8
+# meal : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |9294|[9294_Calory_Tracker___Meal_Logger_with_Telegram__Gemini_AI_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9294_Calory_Tracker___Meal_Logger_with_Telegram__Gemini_AI_and_Data_Tables.json)|
 |10967|[10967_Meal_Planner__Cost_Tracking__Leftover_Recipes___Nutrition_Diary_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10967_Meal_Planner__Cost_Tracking__Leftover_Recipes___Nutrition_Diary_in_Google_Sheets.json)|
 |12380|[12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json)|
+|13815|[13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json)|

@@ -1,4 +1,4 @@
-# classify : 31
+# classify : 34
 
 |id|file|
 |----|----|
@@ -33,3 +33,6 @@
 |12661|[12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json)|
 |12779|[12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json)|
 |12946|[12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json)|
+|13450|[13450_Auto-respond_and_classify_WhatsApp_leads_with_Ollama_AI_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13450_Auto-respond_and_classify_WhatsApp_leads_with_Ollama_AI_and_log_to_Google_Sheets.json)|
+|13463|[13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json)|
+|13568|[13568_Analyze__classify__and_summarize_Gmail_with_OpenAI_RAG_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13568_Analyze__classify__and_summarize_Gmail_with_OpenAI_RAG_and_Google_Sheets.json)|

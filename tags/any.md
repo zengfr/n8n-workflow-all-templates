@@ -1,4 +1,4 @@
-# any : 53
+# any : 54
 
 |id|file|
 |----|----|
@@ -55,3 +55,4 @@
 |10864|[10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json)|
 |11211|[11211_Discover_Article_URLs_from_Any_Website_with_GPT-5-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11211_Discover_Article_URLs_from_Any_Website_with_GPT-5-mini_and_Google_Sheets.json)|
 |12981|[12981_Turn_any_website_into_an_AI_support_chatbot_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12981_Turn_any_website_into_an_AI_support_chatbot_with_OpenAI_and_Pinecone.json)|
+|13608|[13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json)|

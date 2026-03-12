@@ -1,4 +1,4 @@
-# application : 19
+# application : 20
 
 |id|file|
 |----|----|
@@ -21,3 +21,4 @@
 |13058|[13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json)|
 |13077|[13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json)|
 |13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|
+|13812|[13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json)|

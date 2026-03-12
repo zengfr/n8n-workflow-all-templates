@@ -1,4 +1,4 @@
-# vendor : 7
+# vendor : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |7860|[7860_CYBERPULSE_AI_GRC__Vendor_Risk_Evaluator.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/78/7860_CYBERPULSE_AI_GRC__Vendor_Risk_Evaluator.json)|
 |11713|[11713_Automate_Vendor_Analysis___Contract_Management_with_GPT-4o__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11713_Automate_Vendor_Analysis___Contract_Management_with_GPT-4o__Gmail__and_Google_Sheets.json)|
 |12037|[12037_Automate_contract_analysis___negotiation_with_GPT-4___financial_impact_assessment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12037_Automate_contract_analysis___negotiation_with_GPT-4___financial_impact_assessment.json)|
+|13615|[13615_Process_vendor_invoices_with_UploadToURL__AWS_Textract__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13615_Process_vendor_invoices_with_UploadToURL__AWS_Textract__and_Google_Sheets.json)|

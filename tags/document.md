@@ -1,4 +1,4 @@
-# document : 83
+# document : 88
 
 |id|file|
 |----|----|
@@ -85,3 +85,8 @@
 |12540|[12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json)|
 |12554|[12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json)|
 |12688|[12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json)|
+|13504|[13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json)|
+|13575|[13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json)|
+|13688|[13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json)|
+|13691|[13691_Validate_customs_clearance_documents_with_Claude_AI__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13691_Validate_customs_clearance_documents_with_Claude_AI__Google_Drive_and_Slack.json)|
+|13784|[13784_Generate_documents_from_saved_templates_and_variables_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13784_Generate_documents_from_saved_templates_and_variables_using_Autype.json)|

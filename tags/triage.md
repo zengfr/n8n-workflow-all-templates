@@ -1,4 +1,4 @@
-# triage : 43
+# triage : 46
 
 |id|file|
 |----|----|
@@ -45,3 +45,6 @@
 |12986|[12986_Triage_emergency_patients_via_chat_with_GPT-4.1_and_hospital_systems.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12986_Triage_emergency_patients_via_chat_with_GPT-4.1_and_hospital_systems.json)|
 |13121|[13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json)|
 |13180|[13180_Triage_Slack_and_Gmail_requests_with_an_AI-powered_intake_layer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13180_Triage_Slack_and_Gmail_requests_with_an_AI-powered_intake_layer.json)|
+|13520|[13520_Automate_patient_intake_and_AI_risk_triage_with_Azure_OpenAI__Google__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13520_Automate_patient_intake_and_AI_risk_triage_with_Azure_OpenAI__Google__and_Slack.json)|
+|13874|[13874_Triage_GitHub_issues_with_Gemini_AI__auto-label_them__and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13874_Triage_GitHub_issues_with_Gemini_AI__auto-label_them__and_send_Slack_alerts.json)|
+|13916|[13916_Triage_and_escalate_ethics_disclosures_with_GPT-4o__policy_API_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13916_Triage_and_escalate_ethics_disclosures_with_GPT-4o__policy_API_and_Slack.json)|

@@ -1,4 +1,4 @@
-# proposals : 20
+# proposals : 22
 
 |id|file|
 |----|----|
@@ -22,3 +22,5 @@
 |12715|[12715_Generate_AI_sales_proposals_with_Gemini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12715_Generate_AI_sales_proposals_with_Gemini_and_Google_Docs.json)|
 |12959|[12959_Generate_consulting_proposals_and_contracts_with_GPT-4o__Google_Docs__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12959_Generate_consulting_proposals_and_contracts_with_GPT-4o__Google_Docs__Gmail_and_Slack.json)|
 |13232|[13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json)|
+|13869|[13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json)|
+|13870|[13870_Generate_Upwork_proposals_with_GPT-4o-mini__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13870_Generate_Upwork_proposals_with_GPT-4o-mini__Airtable_and_Slack.json)|

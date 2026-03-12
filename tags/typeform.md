@@ -1,4 +1,4 @@
-# typeform : 31
+# typeform : 32
 
 |id|file|
 |----|----|
@@ -33,3 +33,4 @@
 |12032|[12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json)|
 |12820|[12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json)|
 |13095|[13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json)|
+|13403|[13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json)|

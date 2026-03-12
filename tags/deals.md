@@ -1,4 +1,4 @@
-# deals : 17
+# deals : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |12227|[12227_Turn_closed-won_HubSpot_deals_into_lookalike_prospects_with_CompanyEnrich.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12227_Turn_closed-won_HubSpot_deals_into_lookalike_prospects_with_CompanyEnrich.json)|
 |12328|[12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12328_Analyze_lost_HubSpot_deals_and_generate_revival_strategies_with_OpenAI.json)|
 |12435|[12435_Find_cheap_flight_deals_using_Google_Gemini__GPT-4__Telegram_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12435_Find_cheap_flight_deals_using_Google_Gemini__GPT-4__Telegram_and_BrowserAct.json)|
+|13837|[13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json)|

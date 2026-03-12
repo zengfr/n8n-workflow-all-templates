@@ -1,4 +1,4 @@
-# customers : 41
+# customers : 44
 
 |id|file|
 |----|----|
@@ -43,3 +43,6 @@
 |12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|
 |12870|[12870_Segment_retail_customers_by_purchase_behavior_with_CRM_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12870_Segment_retail_customers_by_purchase_behavior_with_CRM_and_Google_Sheets.json)|
 |13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|
+|13336|[13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json)|
+|13416|[13416_Send_WhatsApp_new_product_campaigns_from_WooCommerce_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13416_Send_WhatsApp_new_product_campaigns_from_WooCommerce_with_OpenAI_and_Sheets.json)|
+|13483|[13483_Notify_customers_on_WhatsApp_when_Stripe_payment_succeeds_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13483_Notify_customers_on_WhatsApp_when_Stripe_payment_succeeds_with_MoltFlow.json)|

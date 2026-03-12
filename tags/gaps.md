@@ -1,4 +1,4 @@
-# gaps : 8
+# gaps : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |8446|[8446_Analyze_Competitor_Content_Gaps_with_Gemini_AI__Apify___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8446_Analyze_Competitor_Content_Gaps_with_Gemini_AI__Apify___Google_Sheets.json)|
 |11929|[11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json)|
 |13249|[13249_Analyze_website_page_gaps_with_GPT-4.1-mini__Perplexity__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13249_Analyze_website_page_gaps_with_GPT-4.1-mini__Perplexity__and_Google_Docs.json)|
+|13508|[13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json)|
+|13588|[13588_Prioritize_Amazon_competitor_gaps_using_Bright_Data_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13588_Prioritize_Amazon_competitor_gaps_using_Bright_Data_and_Google_Sheets.json)|

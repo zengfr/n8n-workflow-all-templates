@@ -1,4 +1,4 @@
-# confirmations : 8
+# confirmations : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |9262|[9262_Send_Automatic_WhatsApp_Order_Confirmations_from_Shopify_with_Rapiwa_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9262_Send_Automatic_WhatsApp_Order_Confirmations_from_Shopify_with_Rapiwa_API.json)|
 |9448|[9448_Automate_Shopify_Orders_from_Airtable_with_Gmail_Confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9448_Automate_Shopify_Orders_from_Airtable_with_Gmail_Confirmations.json)|
 |13163|[13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json)|
+|13403|[13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json)|
+|13478|[13478_Send_Shopify_order_confirmations_via_WhatsApp_using_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13478_Send_Shopify_order_confirmations_via_WhatsApp_using_MoltFlow.json)|

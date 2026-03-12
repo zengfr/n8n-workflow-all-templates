@@ -1,4 +1,4 @@
-# coding : 5
+# coding : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |9500|[9500_Standardized_Workflow_Design_Pattern_with_Color-Coding_System_for_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9500_Standardized_Workflow_Design_Pattern_with_Color-Coding_System_for_Teams.json)|
 |11147|[11147_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11147_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json)|
 |11728|[11728_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11728_Auto-resolve_Jira_Tickets_with_GitHub_Copilot_using_Port_Context.json)|
+|13827|[13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json)|

@@ -1,4 +1,4 @@
-# predict : 13
+# predict : 17
 
 |id|file|
 |----|----|
@@ -15,3 +15,7 @@
 |12195|[12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json)|
 |12197|[12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json)|
 |12686|[12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json)|
+|13420|[13420_Analyze_invoices_and_predict_cash_flow_with_Gemini__Google_Sheets__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13420_Analyze_invoices_and_predict_cash_flow_with_Gemini__Google_Sheets__Gmail__and_Slack.json)|
+|13595|[13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json)|
+|13687|[13687_Predict_construction_delays_with_Claude__OpenWeather_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13687_Predict_construction_delays_with_Claude__OpenWeather_and_Slack_alerts.json)|
+|13726|[13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json)|

@@ -1,4 +1,4 @@
-# platforms : 34
+# platforms : 37
 
 |id|file|
 |----|----|
@@ -36,3 +36,6 @@
 |13171|[13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json)|
 |13302|[13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json)|
 |13323|[13323_Cross-post_social_content_from_Google_Sheets_to_5_platforms_with_OpenAI_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13323_Cross-post_social_content_from_Google_Sheets_to_5_platforms_with_OpenAI_images.json)|
+|13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|
+|13471|[13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json)|
+|13528|[13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json)|

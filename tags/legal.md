@@ -1,4 +1,4 @@
-# legal : 18
+# legal : 21
 
 |id|file|
 |----|----|
@@ -20,3 +20,6 @@
 |12508|[12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json)|
 |12661|[12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json)|
 |12740|[12740_Analyze_legal_contracts_with_GPT-4.1_and_manage_cases_in_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12740_Analyze_legal_contracts_with_GPT-4.1_and_manage_cases_in_Google_Sheets_and_Slack.json)|
+|13339|[13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json)|
+|13544|[13544_Archive_HR_and_legal_documents_with_UploadToURL__Google_Drive_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13544_Archive_HR_and_legal_documents_with_UploadToURL__Google_Drive_and_Airtable.json)|
+|13585|[13585_Track_legal_risks_and_litigation_threats_using_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13585_Track_legal_risks_and_litigation_threats_using_Bright_Data__OpenRouter_and_Google_Sheets.json)|

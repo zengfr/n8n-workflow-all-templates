@@ -1,4 +1,4 @@
-# recordings : 9
+# recordings : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |11409|[11409_Convert_Meeting_Recordings_to_Notes___Action_Items_with_AssemblyAI__GPT-4___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11409_Convert_Meeting_Recordings_to_Notes___Action_Items_with_AssemblyAI__GPT-4___Sheets.json)|
 |12050|[12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json)|
 |12637|[12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json)|
+|13771|[13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json)|
+|13871|[13871_Analyze_Zoom_phone_call_recordings_with_Gemini_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13871_Analyze_Zoom_phone_call_recordings_with_Gemini_and_log_results_to_Google_Sheets.json)|
+|13919|[13919_Turn_YouTube_meeting_recordings_into_Notion_notes_with_Claude__deAPI__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13919_Turn_YouTube_meeting_recordings_into_Notion_notes_with_Claude__deAPI__and_Slack_alerts.json)|

@@ -1,4 +1,4 @@
-# notification : 43
+# notification : 44
 
 |id|file|
 |----|----|
@@ -45,3 +45,4 @@
 |12430|[12430_Send_package_and_visitor_alerts_with_Slack__SMS__email__Google_Sheets_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12430_Send_package_and_visitor_alerts_with_Slack__SMS__email__Google_Sheets_and_Claude.json)|
 |12904|[12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json)|
 |13111|[13111_Send_customer_visit_notifications_from_Google_Calendar_to_Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13111_Send_customer_visit_notifications_from_Google_Calendar_to_Slack_and_Sheets.json)|
+|13487|[13487_Send_WooCommerce_new_order_notifications_via_WhatsApp_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13487_Send_WooCommerce_new_order_notifications_via_WhatsApp_with_MoltFlow.json)|

@@ -1,4 +1,4 @@
-# mcp : 323
+# mcp : 327
 
 |id|file|
 |----|----|
@@ -325,3 +325,7 @@
 |12599|[12599_Analyze_market_demand_using_GPT-4o__XPOZ_MCP__Notion_and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12599_Analyze_market_demand_using_GPT-4o__XPOZ_MCP__Notion_and_email_reports.json)|
 |12690|[12690_Build_a_Shopify_store_chat_agent_with_Shopify_MCP_and_C1_by_Thesys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12690_Build_a_Shopify_store_chat_agent_with_Shopify_MCP_and_C1_by_Thesys.json)|
 |13269|[13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json)|
+|13443|[13443_Test_WAF_security_interactively_with_an_AI_agent_and_WAFtester_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13443_Test_WAF_security_interactively_with_an_AI_agent_and_WAFtester_MCP.json)|
+|13458|[13458_Query_Airtable_data_from_ChatGPT_using_an_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13458_Query_Airtable_data_from_ChatGPT_using_an_MCP_server.json)|
+|13590|[13590_Route_MCP_tool_calls_through_an_intelligent_gateway_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13590_Route_MCP_tool_calls_through_an_intelligent_gateway_with_Claude_AI.json)|
+|13592|[13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json)|

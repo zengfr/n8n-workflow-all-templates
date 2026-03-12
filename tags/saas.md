@@ -1,4 +1,4 @@
-# saas : 6
+# saas : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |5970|[5970_Generate_SaaS_Product_Ideas_from_Market_Gaps_with_OpenAI_and_Bright_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/59/5970_Generate_SaaS_Product_Ideas_from_Market_Gaps_with_OpenAI_and_Bright_Data.json)|
 |11469|[11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json)|
 |11859|[11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json)|
+|13336|[13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json)|
+|13861|[13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json)|

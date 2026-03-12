@@ -1,4 +1,4 @@
-# approvals : 15
+# approvals : 16
 
 |id|file|
 |----|----|
@@ -17,3 +17,4 @@
 |12659|[12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json)|
 |12866|[12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json)|
 |13157|[13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json)|
+|13716|[13716_Track_Excel_365_changes_and_approvals_with_Telegram_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13716_Track_Excel_365_changes_and_approvals_with_Telegram_and_Google_Sheets_logging.json)|

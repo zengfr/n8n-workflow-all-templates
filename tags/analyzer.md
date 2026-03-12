@@ -1,4 +1,4 @@
-# analyzer : 45
+# analyzer : 47
 
 |id|file|
 |----|----|
@@ -47,3 +47,5 @@
 |12621|[12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json)|
 |12767|[12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json)|
 |12988|[12988_Analyze_global_supply_chain_sustainability_and_risk_with_GPT-4o_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12988_Analyze_global_supply_chain_sustainability_and_risk_with_GPT-4o_and_email_alerts.json)|
+|13593|[13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json)|
+|13725|[13725_Generate_monthly_AI_financial_reports_with_OpenAI_and_email_Slack_distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13725_Generate_monthly_AI_financial_reports_with_OpenAI_and_email_Slack_distribution.json)|

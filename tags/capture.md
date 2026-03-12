@@ -1,4 +1,4 @@
-# capture : 37
+# capture : 38
 
 |id|file|
 |----|----|
@@ -39,3 +39,4 @@
 |12742|[12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json)|
 |12820|[12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12820_Capture__qualify__and_route_real_estate_leads_with_WhatsApp__Typeform__Airtable__Slack__Gmail__and_GPT-4.1-mini.json)|
 |13074|[13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json)|
+|13621|[13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json)|

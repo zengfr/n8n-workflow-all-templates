@@ -1,4 +1,4 @@
-# kling : 18
+# kling : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |12769|[12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json)|
 |12854|[12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json)|
 |13015|[13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json)|
+|13888|[13888_Generate_Viral_AI_Motion_Video____using_Kling_2.6_Kie_AI___Auto-Post_to_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13888_Generate_Viral_AI_Motion_Video____using_Kling_2.6_Kie_AI___Auto-Post_to_TikTok.json)|

@@ -1,4 +1,4 @@
-# replies : 45
+# replies : 46
 
 |id|file|
 |----|----|
@@ -47,3 +47,4 @@
 |13070|[13070_Debounce_Telegram_support_messages_and_aggregate_replies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13070_Debounce_Telegram_support_messages_and_aggregate_replies_with_OpenAI.json)|
 |13203|[13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json)|
 |13231|[13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json)|
+|13463|[13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json)|

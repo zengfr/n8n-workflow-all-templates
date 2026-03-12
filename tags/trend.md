@@ -1,4 +1,4 @@
-# trend : 30
+# trend : 33
 
 |id|file|
 |----|----|
@@ -32,3 +32,6 @@
 |12348|[12348_Create_curated_industry_trend_reports_from_Medium_to_Google_Docs_with_Claude_via_OpenRouter_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12348_Create_curated_industry_trend_reports_from_Medium_to_Google_Docs_with_Claude_via_OpenRouter_and_BrowserAct.json)|
 |12371|[12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json)|
 |12748|[12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json)|
+|13659|[13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json)|
+|13818|[13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json)|
+|13839|[13839_Aggregate_tech_trend_signals_from_RSS_feeds_into_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13839_Aggregate_tech_trend_signals_from_RSS_feeds_into_Google_Sheets_and_Slack.json)|

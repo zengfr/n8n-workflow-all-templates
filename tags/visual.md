@@ -1,4 +1,4 @@
-# visual : 23
+# visual : 25
 
 |id|file|
 |----|----|
@@ -25,3 +25,5 @@
 |12337|[12337_Create_a_daily_visual_journal_from_Discord_chats_with_GPT-4__DALL-E_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12337_Create_a_daily_visual_journal_from_Discord_chats_with_GPT-4__DALL-E_and_Notion.json)|
 |12346|[12346_Generate_visual_resumes_from_Telegram_using_Google_Gemini_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12346_Generate_visual_resumes_from_Telegram_using_Google_Gemini_and_BrowserAct.json)|
 |12357|[12357_Compare_products_and_generate_visual_scorecards_in_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12357_Compare_products_and_generate_visual_scorecards_in_Telegram_with_BrowserAct_and_Gemini.json)|
+|13704|[13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json)|
+|13825|[13825_Generate_visual_diagrams_and_content_assets_from_ideas_with_Claude_and_NapkinAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13825_Generate_visual_diagrams_and_content_assets_from_ideas_with_Claude_and_NapkinAI.json)|

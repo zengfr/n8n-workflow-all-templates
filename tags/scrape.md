@@ -1,4 +1,4 @@
-# scrape : 101
+# scrape : 106
 
 |id|file|
 |----|----|
@@ -103,3 +103,8 @@
 |13007|[13007_Scrape_LinkedIn_B2B_leads_with_Apify_and_GPT-4_and_approve_emails_in_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13007_Scrape_LinkedIn_B2B_leads_with_Apify_and_GPT-4_and_approve_emails_in_Sheets.json)|
 |13170|[13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json)|
 |13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|
+|13374|[13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json)|
+|13437|[13437_Scrape_Skool_community_data_using_the_Olostep_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13437_Scrape_Skool_community_data_using_the_Olostep_API_and_Google_Sheets.json)|
+|13464|[13464_Scrape_RSS_job_posts__deduplicate_with_Google_Sheets__and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13464_Scrape_RSS_job_posts__deduplicate_with_Google_Sheets__and_send_Telegram_alerts.json)|
+|13685|[13685_Scrape_Reddit_posts_with_BrowserAct__summarize_with_Gemini__and_save_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13685_Scrape_Reddit_posts_with_BrowserAct__summarize_with_Gemini__and_save_to_Google_Sheets.json)|
+|13856|[13856_Scrape_Apollo.io_leads_and_sync_them_to_Google_Sheets_with_ScraperCity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13856_Scrape_Apollo.io_leads_and_sync_them_to_Google_Sheets_with_ScraperCity.json)|

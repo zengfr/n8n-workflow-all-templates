@@ -1,4 +1,4 @@
-# pdf : 171
+# pdf : 181
 
 |id|file|
 |----|----|
@@ -173,3 +173,13 @@
 |13071|[13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json)|
 |13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|
 |13232|[13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json)|
+|13364|[13364_Generate_M_A_due_diligence_PDF_reports_with_LlamaIndex__OpenAI__Pinecone__and_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13364_Generate_M_A_due_diligence_PDF_reports_with_LlamaIndex__OpenAI__Pinecone__and_S3.json)|
+|13575|[13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json)|
+|13599|[13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json)|
+|13659|[13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json)|
+|13671|[13671_Review_PDF_contract_risks_with_a_form__Google_Gemini__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13671_Review_PDF_contract_risks_with_a_form__Google_Gemini__Sheets__and_Slack.json)|
+|13739|[13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json)|
+|13758|[13758_Generate_an_SEO_PDF_report_from_HTML_with_Gotenberg_and_Claude_Opus_4.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13758_Generate_an_SEO_PDF_report_from_HTML_with_Gotenberg_and_Claude_Opus_4.6.json)|
+|13777|[13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json)|
+|13806|[13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json)|
+|13902|[13902_Auto-fill_PDF_forms_with_AI_using_Autype__OpenAI__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13902_Auto-fill_PDF_forms_with_AI_using_Autype__OpenAI__and_Google_Drive.json)|

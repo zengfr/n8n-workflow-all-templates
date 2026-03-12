@@ -1,4 +1,4 @@
-# support : 159
+# support : 163
 
 |id|file|
 |----|----|
@@ -161,3 +161,7 @@
 |13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|
 |13178|[13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json)|
 |13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|
+|13546|[13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json)|
+|13594|[13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json)|
+|13770|[13770_Route_and_prioritize_Gmail_support_tickets_to_Notion_with_Gemini_AI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13770_Route_and_prioritize_Gmail_support_tickets_to_Notion_with_Gemini_AI_and_Slack_alerts.json)|
+|13802|[13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json)|

@@ -1,4 +1,4 @@
-# action : 12
+# action : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |11535|[11535_Extract_Meeting_Tasks_from_Google_Docs_to_GoHighLevel_CRM_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11535_Extract_Meeting_Tasks_from_Google_Docs_to_GoHighLevel_CRM_with_GPT-4.json)|
 |13126|[13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json)|
 |13136|[13136_Sync_Fathom_meeting_summaries_and_action_items_with_GoHighLevel_contacts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13136_Sync_Fathom_meeting_summaries_and_action_items_with_GoHighLevel_contacts.json)|
+|13771|[13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json)|

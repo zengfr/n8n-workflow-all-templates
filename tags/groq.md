@@ -1,4 +1,4 @@
-# groq : 29
+# groq : 30
 
 |id|file|
 |----|----|
@@ -31,3 +31,4 @@
 |11787|[11787_Play_RPG_with_Groq_Dungeon_Master_via_Telegram_voice_messages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11787_Play_RPG_with_Groq_Dungeon_Master_via_Telegram_voice_messages.json)|
 |12236|[12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12236_Run_AI-powered_market_research_with_Groq__OpenAI__Documentero_and_Gmail.json)|
 |12673|[12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12673_Send_AI-powered_post-purchase_emails_and_WhatsApp_messages_from_PostgreSQL_to_Google_Sheets_with_Groq.json)|
+|13811|[13811_Build_a_private_Llama_chatbot_with_Ollama__Groq__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13811_Build_a_private_Llama_chatbot_with_Ollama__Groq__Slack_and_Google_Sheets.json)|

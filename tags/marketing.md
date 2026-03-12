@@ -1,4 +1,4 @@
-# marketing : 66
+# marketing : 69
 
 |id|file|
 |----|----|
@@ -68,3 +68,6 @@
 |12462|[12462_Create_AI_product_images_and_marketing_videos_with_NanoBanana_Pro__Veo_3.1_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12462_Create_AI_product_images_and_marketing_videos_with_NanoBanana_Pro__Veo_3.1_and_Blotato.json)|
 |12535|[12535_Generate_product_feature_announcements_from_Notion_to_Google_Docs_with_GPT-5_Mini_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12535_Generate_product_feature_announcements_from_Notion_to_Google_Docs_with_GPT-5_Mini_and_Claude.json)|
 |13303|[13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json)|
+|13596|[13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json)|
+|13804|[13804_Generate_AI_product_marketing_photos_from_Google_Sheets_with_Google_Gemini_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13804_Generate_AI_product_marketing_photos_from_Google_Sheets_with_Google_Gemini_and_Drive.json)|
+|13810|[13810_Generate_marketing_graphics_with_Adobe_Firefly__Slack_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13810_Generate_marketing_graphics_with_Adobe_Firefly__Slack_and_Google_Drive.json)|

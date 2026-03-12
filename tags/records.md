@@ -1,4 +1,4 @@
-# records : 19
+# records : 21
 
 |id|file|
 |----|----|
@@ -21,3 +21,5 @@
 |12476|[12476_Turn_Gmail_meeting_summaries_into_HubSpot_CRM_records_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12476_Turn_Gmail_meeting_summaries_into_HubSpot_CRM_records_with_OpenAI.json)|
 |12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|
 |13166|[13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json)|
+|13457|[13457_Enrich_Airtable_company_records_with_web_research_using_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13457_Enrich_Airtable_company_records_with_web_research_using_OpenAI_GPT-4o.json)|
+|13881|[13881_Generate_images_from_Airtable_records_with_Layerre_and_Canva.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13881_Generate_images_from_Airtable_records_with_Layerre_and_Canva.json)|

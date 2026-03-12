@@ -1,4 +1,4 @@
-# digest : 65
+# digest : 70
 
 |id|file|
 |----|----|
@@ -67,3 +67,8 @@
 |13072|[13072_Get_a_daily_cybersecurity_news_digest_on_Telegram_and_Slack_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13072_Get_a_daily_cybersecurity_news_digest_on_Telegram_and_Slack_with_GPT-4.json)|
 |13124|[13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json)|
 |13126|[13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json)|
+|13527|[13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json)|
+|13552|[13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json)|
+|13674|[13674_Summarize_RSS_feeds_into_a_daily_AI_digest_with_Gemini__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13674_Summarize_RSS_feeds_into_a_daily_AI_digest_with_Gemini__Slack__and_Gmail.json)|
+|13675|[13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json)|
+|13845|[13845_Forward_Zoho_Mail_emails_to_Gmail_with_Gemini_AI_analysis_and_Telegram_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13845_Forward_Zoho_Mail_emails_to_Gmail_with_Gemini_AI_analysis_and_Telegram_digest.json)|

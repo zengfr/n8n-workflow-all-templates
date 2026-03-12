@@ -1,4 +1,4 @@
-# promotion : 8
+# promotion : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |10730|[10730_Automated_Weekly_Product_Promotion_Emails_for_E-commerce_with_Algolia_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10730_Automated_Weekly_Product_Promotion_Emails_for_E-commerce_with_Algolia_and_Gmail.json)|
 |11181|[11181_Automate_Print-on-Demand__Design_to_Shopify_with_AI__Mockups___Social_Promotion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11181_Automate_Print-on-Demand__Design_to_Shopify_with_AI__Mockups___Social_Promotion.json)|
 |11797|[11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json)|
+|13351|[13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json)|
+|13414|[13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json)|
+|13432|[13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json)|

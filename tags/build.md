@@ -1,4 +1,4 @@
-# build : 149
+# build : 157
 
 |id|file|
 |----|----|
@@ -151,3 +151,11 @@
 |12789|[12789_Build_a_full_REST-API_with_n8n_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12789_Build_a_full_REST-API_with_n8n_webhooks.json)|
 |12838|[12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json)|
 |13080|[13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13080_Build_a_Facebook_Messenger_customer_service_AI_chatbot_with_Google_Gemini.json)|
+|13394|[13394_Build_a_Telegram_AI_chatbot_with_human_takeover_using_Trilox_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13394_Build_a_Telegram_AI_chatbot_with_human_takeover_using_Trilox_and_GPT-4o-mini.json)|
+|13436|[13436_Crawl_documentation_sites_and_build_an_AI_knowledge_base_with_Olostep.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13436_Crawl_documentation_sites_and_build_an_AI_knowledge_base_with_Olostep.json)|
+|13441|[13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json)|
+|13506|[13506_Build_a_WhatsApp_AI_shopping_bot_with_virtual_try-on_using_Gemini_and_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13506_Build_a_WhatsApp_AI_shopping_bot_with_virtual_try-on_using_Gemini_and_GPT.json)|
+|13538|[13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json)|
+|13641|[13641_Build_an_AI_agent_for_WhatsApp_with_WOZTELL_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13641_Build_an_AI_agent_for_WhatsApp_with_WOZTELL_and_Google_Gemini.json)|
+|13811|[13811_Build_a_private_Llama_chatbot_with_Ollama__Groq__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13811_Build_a_private_Llama_chatbot_with_Ollama__Groq__Slack_and_Google_Sheets.json)|
+|13823|[13823_Build__test_and_deploy_AI_projects_with_Windsurf_CI_CD_and_Vercel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13823_Build__test_and_deploy_AI_projects_with_Windsurf_CI_CD_and_Vercel.json)|

@@ -1,4 +1,4 @@
-# scrapegraphai : 49
+# scrapegraphai : 50
 
 |id|file|
 |----|----|
@@ -51,3 +51,4 @@
 |12234|[12234_Track_certification_requirements_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12234_Track_certification_requirements_with_ScrapeGraphAI__GitLab_and_Rocket.Chat.json)|
 |12654|[12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json)|
 |12782|[12782_Automated_Feedaty_Review_Scraper___using_ScrapegraphAI___Gemini_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12782_Automated_Feedaty_Review_Scraper___using_ScrapegraphAI___Gemini_3.json)|
+|13812|[13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json)|

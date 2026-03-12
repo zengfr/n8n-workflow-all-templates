@@ -1,4 +1,4 @@
-# logging : 41
+# logging : 44
 
 |id|file|
 |----|----|
@@ -43,3 +43,6 @@
 |12871|[12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json)|
 |12901|[12901_Send_a_daily_WooCommerce_sales_snapshot_to_Slack_with_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12901_Send_a_daily_WooCommerce_sales_snapshot_to_Slack_with_Google_Sheets_logging.json)|
 |13091|[13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json)|
+|13710|[13710_Grade_exam_answers_with_GPT_4.1_mini__plagiarism_checks__Slack_alerts_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13710_Grade_exam_answers_with_GPT_4.1_mini__plagiarism_checks__Slack_alerts_and_Google_Sheets_logging.json)|
+|13716|[13716_Track_Excel_365_changes_and_approvals_with_Telegram_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13716_Track_Excel_365_changes_and_approvals_with_Telegram_and_Google_Sheets_logging.json)|
+|13903|[13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json)|

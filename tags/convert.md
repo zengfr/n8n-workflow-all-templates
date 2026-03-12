@@ -1,4 +1,4 @@
-# convert : 130
+# convert : 133
 
 |id|file|
 |----|----|
@@ -132,3 +132,6 @@
 |12480|[12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json)|
 |13092|[13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json)|
 |13118|[13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json)|
+|13739|[13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json)|
+|13794|[13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json)|
+|13825|[13825_Generate_visual_diagrams_and_content_assets_from_ideas_with_Claude_and_NapkinAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13825_Generate_visual_diagrams_and_content_assets_from_ideas_with_Claude_and_NapkinAI.json)|

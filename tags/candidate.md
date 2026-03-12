@@ -1,4 +1,4 @@
-# candidate : 32
+# candidate : 34
 
 |id|file|
 |----|----|
@@ -34,3 +34,5 @@
 |10607|[10607_Automate_Candidate_Creation_in_Recrutei_with_GPT-4_Vacancy_Matching___Resume_Parsing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10607_Automate_Candidate_Creation_in_Recrutei_with_GPT-4_Vacancy_Matching___Resume_Parsing.json)|
 |10722|[10722_Automate_Resume_Screening___Candidate_Routing_with_Gemini_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10722_Automate_Resume_Screening___Candidate_Routing_with_Gemini_AI_and_Google_Sheets.json)|
 |13062|[13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json)|
+|13352|[13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json)|
+|13793|[13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json)|

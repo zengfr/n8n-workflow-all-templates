@@ -1,4 +1,4 @@
-# hr : 32
+# hr : 34
 
 |id|file|
 |----|----|
@@ -34,3 +34,5 @@
 |12269|[12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json)|
 |13124|[13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json)|
 |13241|[13241_Generate_HR_offer_letters_and_contracts_with_GPT-4.1-mini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13241_Generate_HR_offer_letters_and_contracts_with_GPT-4.1-mini_and_Google_Docs.json)|
+|13441|[13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json)|
+|13544|[13544_Archive_HR_and_legal_documents_with_UploadToURL__Google_Drive_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13544_Archive_HR_and_legal_documents_with_UploadToURL__Google_Drive_and_Airtable.json)|

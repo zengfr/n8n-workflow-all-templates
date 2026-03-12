@@ -1,4 +1,4 @@
-# event : 60
+# event : 67
 
 |id|file|
 |----|----|
@@ -62,3 +62,10 @@
 |12620|[12620_Match_sponsors_to_event_packages_with_Google_Sheets__GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12620_Match_sponsors_to_event_packages_with_Google_Sheets__GPT-4o_and_Gmail.json)|
 |12621|[12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json)|
 |12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|
+|13426|[13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json)|
+|13495|[13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json)|
+|13738|[13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json)|
+|13740|[13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json)|
+|13842|[13842_Enrich_event_registrations_with_HubSpot__Clearbit__LinkedIn_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13842_Enrich_event_registrations_with_HubSpot__Clearbit__LinkedIn_and_Gemini_AI.json)|
+|13843|[13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json)|
+|13844|[13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json)|

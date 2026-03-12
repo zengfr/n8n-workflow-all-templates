@@ -1,4 +1,4 @@
-# trigger : 16
+# trigger : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |9465|[9465_Automate_Email_Bounce___Invalid_Detection_with_Gmail__Google_Sheets___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9465_Automate_Email_Bounce___Invalid_Detection_with_Gmail__Google_Sheets___Slack.json)|
 |12712|[12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json)|
 |13290|[13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json)|
+|13597|[13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json)|

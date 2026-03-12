@@ -1,4 +1,4 @@
-# distribution : 20
+# distribution : 21
 
 |id|file|
 |----|----|
@@ -22,3 +22,4 @@
 |11797|[11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11797_YouTube_Video_Optimization___Cross-Platform_Distribution_with_GPT-4o.json)|
 |11996|[11996_Social_media_auto-posting_to_Instagram__Facebook___LinkedIn_from_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11996_Social_media_auto-posting_to_Instagram__Facebook___LinkedIn_from_Google_Sheets.json)|
 |12159|[12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json)|
+|13725|[13725_Generate_monthly_AI_financial_reports_with_OpenAI_and_email_Slack_distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13725_Generate_monthly_AI_financial_reports_with_OpenAI_and_email_Slack_distribution.json)|

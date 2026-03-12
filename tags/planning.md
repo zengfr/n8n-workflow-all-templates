@@ -1,4 +1,4 @@
-# planning : 12
+# planning : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |10035|[10035_Automate_UX_Research_Planning_with_Gemini_AI__Google_Docs__and_Human_Feedback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10035_Automate_UX_Research_Planning_with_Gemini_AI__Google_Docs__and_Human_Feedback.json)|
 |10219|[10219_Automate_Event_Planning___Budget_Optimization_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10219_Automate_Event_Planning___Budget_Optimization_with_Claude_AI_and_Google_Sheets.json)|
 |12371|[12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json)|
+|13331|[13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json)|
+|13428|[13428_Analyze_workforce_data_and_generate_planning_reports_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13428_Analyze_workforce_data_and_generate_planning_reports_with_GPT-4o.json)|

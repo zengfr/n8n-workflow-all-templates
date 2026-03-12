@@ -1,4 +1,4 @@
-# portfolio : 13
+# portfolio : 15
 
 |id|file|
 |----|----|
@@ -15,3 +15,5 @@
 |12487|[12487_Track_portfolio_performance_and_risk_using_Google_Sheets_and_Alpha_Vantage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12487_Track_portfolio_performance_and_risk_using_Google_Sheets_and_Alpha_Vantage.json)|
 |12947|[12947_Track_weekly_portfolio_risk_using_GPT-4.1__Slack_alerts__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12947_Track_weekly_portfolio_risk_using_GPT-4.1__Slack_alerts__and_Google_Sheets.json)|
 |12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|
+|13408|[13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json)|
+|13512|[13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json)|

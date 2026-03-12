@@ -1,4 +1,4 @@
-# feedback : 73
+# feedback : 75
 
 |id|file|
 |----|----|
@@ -75,3 +75,5 @@
 |12861|[12861_Manage_garage_service_reminders__pickups_and_feedback_with_Airtable__WhatsApp_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12861_Manage_garage_service_reminders__pickups_and_feedback_with_Airtable__WhatsApp_and_Gmail.json)|
 |12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|
 |13314|[13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json)|
+|13563|[13563_Review_GitHub_pull_requests_with_Gemini_and_post_feedback_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13563_Review_GitHub_pull_requests_with_Gemini_and_post_feedback_automatically.json)|
+|13772|[13772_Analyze_Google_Forms_feedback_with_Gemini_AI_and_send_weekly_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13772_Analyze_Google_Forms_feedback_with_Gemini_AI_and_send_weekly_reports.json)|

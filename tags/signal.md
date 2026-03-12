@@ -1,4 +1,4 @@
-# signal : 7
+# signal : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |11439|[11439_Forex___Gold_Trading_Signal_Handler_for_MT5_using_Webhooks__telegram_discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11439_Forex___Gold_Trading_Signal_Handler_for_MT5_using_Webhooks__telegram_discord.json)|
 |12249|[12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json)|
 |13153|[13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json)|
+|13350|[13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json)|

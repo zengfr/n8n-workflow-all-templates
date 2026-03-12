@@ -1,4 +1,4 @@
-# reddit : 81
+# reddit : 86
 
 |id|file|
 |----|----|
@@ -83,3 +83,8 @@
 |12884|[12884_Generate_Reddit_customer_leads_from_a_product_URL_with_OpenAI_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12884_Generate_Reddit_customer_leads_from_a_product_URL_with_OpenAI_and_Firecrawl.json)|
 |12944|[12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json)|
 |13042|[13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json)|
+|13527|[13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json)|
+|13653|[13653_Monitor_brand_mentions_with_OpenAI_across_Twitter_X__Reddit__News__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13653_Monitor_brand_mentions_with_OpenAI_across_Twitter_X__Reddit__News__Airtable_and_Slack.json)|
+|13685|[13685_Scrape_Reddit_posts_with_BrowserAct__summarize_with_Gemini__and_save_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13685_Scrape_Reddit_posts_with_BrowserAct__summarize_with_Gemini__and_save_to_Google_Sheets.json)|
+|13696|[13696_Monitor_brand_reputation_crises_with_Twitter_X__Reddit__News_API__Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13696_Monitor_brand_reputation_crises_with_Twitter_X__Reddit__News_API__Slack_and_Jira.json)|
+|13707|[13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json)|

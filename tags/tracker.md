@@ -1,4 +1,4 @@
-# tracker : 103
+# tracker : 108
 
 |id|file|
 |----|----|
@@ -105,3 +105,8 @@
 |12375|[12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12375_Pick_a_daily_Facebook_comment_contest_winner_with_OpenAI__Airtable_and_Telegram.json)|
 |12380|[12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json)|
 |13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|
+|13462|[13462_Track_Facebook_Page_post_Engagement__Comments__Like__Shares__in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13462_Track_Facebook_Page_post_Engagement__Comments__Like__Shares__in_Google_Sheets.json)|
+|13557|[13557_Track_expenses_and_income_in_Google_Sheets_from_Telegram_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13557_Track_expenses_and_income_in_Google_Sheets_from_Telegram_with_Google_Gemini.json)|
+|13646|[13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json)|
+|13667|[13667_Track_Telegram_expenses_with_GPT-4_and_Google_Sheets__self-learning_categories.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13667_Track_Telegram_expenses_with_GPT-4_and_Google_Sheets__self-learning_categories.json)|
+|13714|[13714_Track_athlete_sessions_and_weekly_performance_with_OpenAI__Google_Sheets__Slack__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13714_Track_athlete_sessions_and_weekly_performance_with_OpenAI__Google_Sheets__Slack__and_email.json)|

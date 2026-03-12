@@ -1,4 +1,4 @@
-# store : 94
+# store : 97
 
 |id|file|
 |----|----|
@@ -96,3 +96,6 @@
 |12927|[12927_Generate_and_post_Apple_App_Store_review_replies_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12927_Generate_and_post_Apple_App_Store_review_replies_with_Anthropic_Claude.json)|
 |13091|[13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json)|
 |13353|[13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json)|
+|13442|[13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json)|
+|13503|[13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json)|
+|13750|[13750_Analyze_invoices_from_Google_Drive_with_AI_and_store_data_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13750_Analyze_invoices_from_Google_Drive_with_AI_and_store_data_in_Google_Sheets.json)|

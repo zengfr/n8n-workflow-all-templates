@@ -1,0 +1,352 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Send a weekly Keephub task progress report to Slack",
+    "wechat": "youandme10086",
+    "id": 13533,
+    "update_time": "2026-03-12"
+  },
+  "nodes": [
+    {
+      "id": "0f418647-b9b5-4544-a6a8-caca65e976e6",
+      "name": "Every Monday 9am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        544,
+        1056
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c0db31a3-ec69-4801-b13a-d069fb85b7ab",
+      "name": "Last Week Start",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        768,
+        1152
+      ],
+      "parameters": {
+        "options": {},
+        "duration": 7,
+        "magnitude": "={{ $now }}",
+        "operation": "subtractFromDate",
+        "outputFieldName": "lastWeekStart"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "dab8e77c-f899-47ae-9b96-4c1109845877",
+      "name": "Get Tasks by Orgunit",
+      "type": "n8n-nodes-keephub.keephub",
+      "position": [
+        1216,
+        1152
+      ],
+      "parameters": {
+        "options": {
+          "limit": 200,
+          "sortBy": "template.dueDate",
+          "sortOrder": 1,
+          "startDateGte": "={{ $('Last Week Start').first().json.lastWeekStart }}",
+          "startDateLte": "={{ $('Last Week End').first().json.lastWeekEnd }}"
+        },
+        "resource": "task",
+        "operation": "getTaskByOrgunit",
+        "orgunitId": "YOUR_ORG_UNIT_ID",
+        "authentication": "loginCredentials"
+      },
+      "credentials": {
+        "keephubLoginApi": {
+          "id": "hh22Q5qm3ZZZtMc2",
+          "name": "Keephub Login account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fa6f817a-0783-4fbc-b4c6-30fcf25f1443",
+      "name": "Extract Task Template IDs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1440,
+        1152
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map(item => ({\n  json: {\n    taskTemplateId: item.json._id,\n    title: item.json.template?.title?.en || item.json.title?.en || item.json._id\n  }\n}));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6682cd7c-3821-4d9c-8034-a2d67166bcf7",
+      "name": "Get Progress",
+      "type": "n8n-nodes-keephub.keephub",
+      "position": [
+        1664,
+        1080
+      ],
+      "parameters": {
+        "taskId": "={{ $json.taskTemplateId }}",
+        "resource": "task",
+        "operation": "getTaskProgress"
+      },
+      "credentials": {
+        "keephubBearerApi": {
+          "id": "5NUOupTW1SOs06nN",
+          "name": "Keephub Bearer account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6f4583e-44e1-44b2-8413-9b50de3ab60a",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1888,
+        1152
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "98526c0c-4628-45c0-9625-5e6abc8a82be",
+      "name": "Format for Message",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2112,
+        1152
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst date = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });\n\nlet overdueItems = [], openItems = [], doneItems = [], stats = { total: 0, done: 0, openCount: 0, overdueCount: 0, doneCount: 0 };\n\nitems.forEach(item => {\n  const progress = item.json.fullProgress?.[0] ?? {};\n  const done = progress.done ?? 0;\n  const openCount = progress.open ?? 0;\n  const status = progress.status ?? 'unknown';\n\n  stats.total += done + openCount;\n  stats.done += done;\n  stats.openCount += openCount;\n  if (status === 'overdue') stats.overdueCount++;\n  if (status === 'done') stats.doneCount++;\n\n  const title = item.json.title || item.json.id || 'Untitled';\n  const total = done + openCount;\n  const pct = total > 0 ? Math.round((done / total) * 100) : 0;\n  const emoji = status === 'overdue' ? '🔴' : status === 'open' ? '🟡' : '✅';\n  const line = `*${title}* ${emoji} ${pct}% (${done}/${total})`;\n\n  if (status === 'overdue') overdueItems.push(line);\n  else if (status === 'done') doneItems.push(line);\n  else openItems.push(line);\n});\n\nconst totalPct = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;\n\nlet report = `*📊 Keephub Weekly Tasks — ${date}*\\n\\n`;\nreport += `📋 Totals: ${stats.done}/${stats.total} (${totalPct}%) | ⏳ ${stats.openCount} open | 🔴 ${stats.overdueCount} overdue | ✅ ${stats.doneCount} done\\n\\n`;\n\nif (overdueItems.length) {\n  report += `🔴 *OVERDUE (${overdueItems.length}):*\\n` + overdueItems.join('\\n') + '\\n\\n';\n}\nif (openItems.length) {\n  report += `🟡 *OPEN (${openItems.length}):*\\n` + openItems.join('\\n') + '\\n\\n';\n}\nif (doneItems.length) {\n  report += `✅ *DONE (${doneItems.length}):*\\n` + doneItems.join('\\n') + '\\n\\n';\n}\n\nreport += `_Generated automatically every Monday at 9:00am_`;\n\nreturn [{ json: { summary: report, stats } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cfe0c410-9be3-4f18-adcb-cce04b312527",
+      "name": "Last Week End",
+      "type": "n8n-nodes-base.dateTime",
+      "position": [
+        992,
+        1152
+      ],
+      "parameters": {
+        "options": {},
+        "duration": 7,
+        "magnitude": "={{ $json.lastWeekStart }}",
+        "operation": "addToDate",
+        "outputFieldName": "lastWeekEnd"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fbb78b41-40af-4e8d-b231-375c38212d2e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        736,
+        1040
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 80,
+        "content": "Dates can be set per your needs, so you can easily change this into a monthly report.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bf3c1a06-47d8-4daf-b8f1-00a93c3aeabd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2064,
+        1024
+      ],
+      "parameters": {
+        "height": 96,
+        "content": "Formats the message so it can be sent to the communication channel of your choice"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fda93213-48f8-4577-a8c8-e3bb1afe782d",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2336,
+        1152
+      ],
+      "webhookId": "7a34684f-6c04-4e01-b831-61bc06db1406",
+      "parameters": {
+        "text": "={{ $json.summary }}",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "4b5c9566-0aef-40e9-9eb5-95f749449850",
+      "name": "Or Manually Run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        544,
+        1248
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "f564a65a-bacb-48ec-839b-7bf02eaa8252",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        432,
+        560
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 336,
+        "height": 416,
+        "content": "## 📊 Keephub Weekly Task Report\n\nFetches all tasks for an org unit from the past week, \ngets their progress, and sends a formatted Slack summary.\n\n**Setup:**\n1. Add your Keephub Login credential\n2. Add your Keephub Bearer credential\n3. Set your orgunit ID in \"Get Tasks by Orgunit\"\n4. Set your Slack channel in the Slack node\n\nRuns automatically every Monday at 9:00am.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d4e741a-6313-46c5-93a0-5d7614341504",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1168,
+        1040
+      ],
+      "parameters": {
+        "color": 4,
+        "height": 80,
+        "content": "⚙️ Change `orgunitId` to your root org unit ID.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Format for Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Progress": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Last Week End": {
+      "main": [
+        [
+          {
+            "node": "Get Tasks by Orgunit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Last Week Start": {
+      "main": [
+        [
+          {
+            "node": "Last Week End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Or Manually Run": {
+      "main": [
+        [
+          {
+            "node": "Last Week Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday 9am": {
+      "main": [
+        [
+          {
+            "node": "Last Week Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format for Message": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tasks by Orgunit": {
+      "main": [
+        [
+          {
+            "node": "Extract Task Template IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Task Template IDs": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Get Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

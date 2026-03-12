@@ -1,4 +1,4 @@
-# receipt : 25
+# receipt : 26
 
 |id|file|
 |----|----|
@@ -27,3 +27,4 @@
 |12030|[12030_Automate_tax_deduction_processing_with_GPT-4_receipt_analysis_and_Gmail_reporting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12030_Automate_tax_deduction_processing_with_GPT-4_receipt_analysis_and_Gmail_reporting.json)|
 |12680|[12680_Track_receipt_expenses_via_LINE_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12680_Track_receipt_expenses_via_LINE_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json)|
 |12954|[12954_Receipt_Processing_AI_Agent__with_step_by_step_video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12954_Receipt_Processing_AI_Agent__with_step_by_step_video.json)|
+|13654|[13654_Scan_WhatsApp_receipt_photos_and_track_expenses_using_Wati_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13654_Scan_WhatsApp_receipt_photos_and_track_expenses_using_Wati_and_GPT-4o.json)|

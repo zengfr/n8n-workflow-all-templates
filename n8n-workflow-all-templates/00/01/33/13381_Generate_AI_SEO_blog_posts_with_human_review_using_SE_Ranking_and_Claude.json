@@ -1,0 +1,1312 @@
+{
+  "name": "Generate AI blog posts with human review using SE Ranking and Claude",
+  "tags": [],
+  "nodes": [
+    {
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        304
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 1380,
+        "content": "## Generate AI SEO content with human review using SE Ranking and Claude\n\n## Who is this for\n- Content teams scaling blog production with AI\n- SEO agencies creating client content at scale\n- Marketing teams with editorial calendars to fill\n\n## What this workflow does\nFind high-opportunity keywords, generate AI content briefs and draft articles, then send everything to a human reviewer before anything gets published.\n\n## What you'll get\n- Keyword opportunities scored by volume, difficulty, and ranking potential\n- AI-generated content briefs with outlines and related keywords\n- Full draft articles written by Claude based on the briefs\n- Email-based human review with one-click approve/reject\n- Everything tracked in Google Sheets\n\n## How it works\n1. Pulls keyword opportunities for your domain from SE Ranking\n2. Scores and filters the best targets by volume and difficulty\n3. Grabs related keywords and \"People Also Ask\" questions\n4. Claude creates a detailed content brief for each keyword\n5. Claude writes a full draft article based on the brief\n6. Sends a review email with approve/reject buttons\n7. Updates Google Sheets with the decision and approved content\n\n## Setup\n1. Install the [SE Ranking community node](https://www.npmjs.com/package/@seranking/n8n-nodes-seranking)\n2. Add your SE Ranking, Anthropic, and SMTP credentials\n3. Update the Configuration node with your domain, brand, and reviewer email\n4. Connect Google Sheets for tracking (optional)\n\n## Requirements\n- Self-hosted n8n instance\n- SE Ranking community node installed ([Install from npm](https://www.npmjs.com/package/@seranking/n8n-nodes-seranking))\n- SE Ranking API token ([Get one here](https://online.seranking.com/admin.api.dashboard.html))\n- Anthropic API key (for Claude)\n- SMTP credentials for review emails\n- Google Sheets account (optional)\n\n## Customization\n- Change `min_volume` and `max_difficulty` to adjust keyword targeting\n- Edit `articles_per_run` to generate more or fewer articles per batch\n- Swap Claude models in the AI nodes for different quality/cost tradeoffs"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Run Content Pipeline",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -192,
+        784
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        32,
+        784
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\n  \"your_domain\": \"example.com\",\n  \"your_brand\": \"Your Brand\",\n  \"brand_voice\": \"professional and helpful\",\n  \"source\": \"us\",\n  \"min_volume\": 500,\n  \"max_difficulty\": 50,\n  \"articles_per_run\": 3,\n  \"target_word_count\": 1500,\n  \"content_type\": \"blog_post\",\n  \"reviewer_email\": \"user@example.com\",\n  \"approval_webhook\": \"https://your-n8n-instance.com/webhook/content-approval\"\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "name": "Keyword Research Phase",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        224,
+        576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 100,
+        "content": "### Keyword Research\nFinds high-opportunity keywords and scores them by volume, difficulty, and ranking potential"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Get Keyword Opportunities",
+      "type": "@seranking/n8n-nodes-seranking.seRanking",
+      "position": [
+        256,
+        784
+      ],
+      "parameters": {
+        "domain": "={{ $json.your_domain }}",
+        "source": "={{ $json.source }}",
+        "operation": "getKeywords",
+        "additionalFields": {
+          "limit": 100,
+          "orderType": "desc",
+          "orderField": "volume",
+          "volumeFrom": "={{ $json.min_volume }}"
+        }
+      },
+      "credentials": {
+        "seRankingApi": {
+          "id": "credential-id",
+          "name": "SE Ranking account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Filter & Score Opportunities",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        464,
+        784
+      ],
+      "parameters": {
+        "jsCode": "const config = $('Configuration').first().json;\nconst keywords = $input.all();\n\n// Score and filter keywords\nconst scored = keywords\n  .map(item => {\n    const k = item.json;\n    \n    // Opportunity score: high volume + low difficulty + not top 3 = good target\n    const volumeScore = Math.min(k.volume / 100, 50); // Cap at 50 points\n    const difficultyScore = (100 - k.difficulty) * 0.3; // Lower is better\n    const positionBonus = (k.position > 10 && k.position <= 30) ? 20 : 0; // Sweet spot\n    const opportunityScore = Math.round(volumeScore + difficultyScore + positionBonus);\n    \n    return {\n      json: {\n        source: $('Configuration').first().json.source,\n        brand: $('Configuration').first().json.your_brand,\n        target_word_count: $('Configuration').first().json.target_word_count,\n        keyword: k.keyword,\n        volume: k.volume,\n        difficulty: k.difficulty,\n        current_position: k.position || 'Not ranking',\n        cpc: k.cpc || 0,\n        estimated_traffic: Math.round(k.volume * 0.15),\n        opportunity_score: opportunityScore,\n        content_type: determineContentType(k.keyword)\n      }\n    };\n  })\n  .filter(item => item.json.opportunity_score > 30)\n  .sort((a, b) => b.json.opportunity_score - a.json.opportunity_score)\n  .slice(0, config.articles_per_run);\n\nfunction determineContentType(keyword) {\n  const kw = keyword.toLowerCase();\n  if (kw.includes('how to') || kw.includes('guide')) return 'tutorial';\n  if (kw.includes('vs') || kw.includes('versus') || kw.includes('comparison')) return 'comparison';\n  if (kw.includes('best') || kw.includes('top')) return 'listicle';\n  if (kw.includes('what is') || kw.includes('definition')) return 'explainer';\n  if (kw.includes('review')) return 'review';\n  return 'informational';\n}\n\nreturn scored.length > 0 ? [scored[0]] : [];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "Content Brief Phase",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        608
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 100,
+        "content": "### Content Brief Generation\nClaude creates detailed briefs with outlines, related keywords, and questions to answer"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Get Related Keywords",
+      "type": "@seranking/n8n-nodes-seranking.seRanking",
+      "position": [
+        720,
+        688
+      ],
+      "parameters": {
+        "source": "={{ $json.source }}",
+        "keyword": "={{ $json.keyword }}",
+        "resource": "keywordResearch",
+        "operation": "getRelated",
+        "additionalFields": {
+          "limit": 20
+        }
+      },
+      "credentials": {
+        "seRankingApi": {
+          "id": "credential-id",
+          "name": "SE Ranking account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Get Questions (PAA)",
+      "type": "@seranking/n8n-nodes-seranking.seRanking",
+      "position": [
+        736,
+        880
+      ],
+      "parameters": {
+        "source": "={{ $json.source }}",
+        "keyword": "={{ $('Filter & Score Opportunities').item.json.keyword }}",
+        "resource": "keywordResearch",
+        "operation": "getQuestions",
+        "additionalFields": {
+          "limit": 10
+        }
+      },
+      "credentials": {
+        "seRankingApi": {
+          "id": "credential-id",
+          "name": "SE Ranking account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Merge Keyword Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        944,
+        784
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineAll"
+      },
+      "typeVersion": 3
+    },
+    {
+      "name": "Content Writing Phase",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        608
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 100,
+        "content": "### AI Content Writing\nClaude writes full draft articles based on the briefs"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Human Review Phase",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        1408
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 100,
+        "content": "### Human Review (Required)\nReviewer gets an email with article previews and one-click approve/reject buttons"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Prepare Review Package",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2000,
+        784
+      ],
+      "parameters": {
+        "jsCode": "const config = $('Configuration').first().json;\nconst rawText = $input.first().json.content[0].text;\n\n// Split articles by \"## Article N:\" header\nconst articleBlocks = rawText.split(/## Article \\d+:\\s*/i).filter(a => a.trim());\n\n// Generate unique review ID\nconst review_id = `review_${Date.now()}`;\nconst MAX_CHARS = 40000;\n\n// Build output with separate columns per article\nconst output = {\n  review_id: review_id,\n  status: 'pending_review',\n  created_at: new Date().toISOString(),\n  total_articles: articleBlocks.length,\n  brand: config.your_brand,\n  reviewer_email: config.reviewer_email\n};\n\n// Add each article as separate columns\narticleBlocks.forEach((articleContent, index) => {\n  const num = index + 1;\n  \n  // Extract keyword from first line (title)\n  const lines = articleContent.trim().split('\\n');\n  const keyword = lines[0].replace(/^#*\\s*/, '').trim();\n  \n  // Truncate content if needed\n  const content = articleContent.length > MAX_CHARS \n    ? articleContent.substring(0, MAX_CHARS) + '\\n\\n[TRUNCATED]'\n    : articleContent;\n  \n  output[`keyword_${num}`] = keyword;\n  output[`article_${num}`] = content.trim();\n  output[`word_count_${num}`] = articleContent.split(/\\s+/).length;\n});\n\nreturn [{ json: output }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "Save Draft to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2208,
+        784
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "review_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "review_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "created_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_articles",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "total_articles",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "brand",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "brand",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewer_email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reviewer_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword_1",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "keyword_1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "article_1",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "article_1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count_1",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "word_count_1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword_2",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "keyword_2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "article_2",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "article_2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count_2",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "word_count_2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword_3",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "keyword_3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "article_3",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "article_3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count_3",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "word_count_3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "brand"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "name": "Create Content Brief",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "position": [
+        1360,
+        784
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "claude-sonnet-4-5-20250929"
+        },
+        "options": {
+          "system": "You are an expert SEO Content Writer. Today's date is {{ $now.format('MMMM D, YYYY') }}.\n\nCRITICAL: All content must be written for {{ $now.format('YYYY') }}. Do not reference 2024 or 2025 as current years - they are in the past. Any \"best tools\" lists, trends, or predictions should be for {{ $now.format('YYYY') }}.\n\n**Writing Style:**\n- Follow the brand voice specified\n- Write in a conversational yet authoritative tone\n- Use short paragraphs (2-3 sentences max)\n- Include transition phrases between sections\n- Add specific examples and data where relevant\n\n**SEO Requirements:**\n- Include primary keyword in first 100 words\n- Use primary keyword 3-5 times naturally\n- Include secondary keywords throughout\n- Answer People Also Ask questions\n- Use proper heading hierarchy (H2, H3)\n\n**Structure:**\n- Compelling introduction (hook + promise)\n- Follow the outline from the brief exactly\n- Include actionable takeaways\n- Strong conclusion with CTA\n\n**Formatting:**\n- Use bullet points for lists\n- Add bold for key terms\n- Include [IMAGE: description] placeholders\n- Add [INTERNAL LINK: anchor text] placeholders\n\n**Quality Standards:**\n- No fluff or filler content\n- Every sentence adds value\n- Factual accuracy (note where verification needed)\n- Original insights, not generic advice\n\nOutput the complete article in markdown format.",
+          "maxTokens": 8000,
+          "temperature": 0.7
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Create detailed content briefs for ALL of these keywords:\n\n{{ JSON.stringify($json.keywords_batch, null, 2) }}\n\nBrand: {{ $json.brand }}\nTarget Word Count: {{ $json.target_word_count }}\n\nGenerate a separate, complete brief for EACH keyword. Label them clearly:\n## Brief 1: [keyword]\n## Brief 2: [keyword]\n## Brief 3: [keyword]"
+            }
+          ]
+        },
+        "simplify": false
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Write Article Draft",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "position": [
+        1664,
+        784
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-opus-4-6",
+          "cachedResultName": "claude-opus-4-6"
+        },
+        "options": {
+          "system": "You are an expert SEO Content Writer. Write a complete, publish-ready article following these guidelines:  **Writing Style:** - Follow the brand voice specified - Write in a conversational yet authoritative tone - Use short paragraphs (2-3 sentences max) - Include transition phrases between sections - Add specific examples and data where relevant  **SEO Requirements:** - Include primary keyword in first 100 words - Use primary keyword 3-5 times naturally - Include secondary keywords throughout - Answer People Also Ask questions - Use proper heading hierarchy (H2, H3)  **Structure:** - Compelling introduction (hook + promise) - Follow the outline from the brief exactly - Include actionable takeaways - Strong conclusion with CTA  **Formatting:** - Use bullet points for lists - Add bold for key terms - Include [IMAGE: description] placeholders - Add [INTERNAL LINK: anchor text] placeholders  **Quality Standards:** - No fluff or filler content - Every sentence adds value - Factual accuracy (note where verification needed) - Original insights, not generic advice  Output the complete article in markdown format.",
+          "maxTokens": 16000,
+          "temperature": 0.7
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Write complete articles based on these content briefs:\n\n{{ $json.content[0].text }}\n\n---\n\n**Today's Date:** {{ $now.format('MMMM D') }}\n**Current Year:** {{ $now.format('yyyy') }}\n**Brand Voice:** {{ $('Configuration').first().json.brand_voice }}\n**Target Word Count:** {{ $('Configuration').first().json.target_word_count }} words per article\n\n**IMPORTANT - Date Context:**\n- Today is {{ $now.format('MMMM D, YYYY') }}\n- Write all content as if publishing TODAY\n- Do NOT reference 2024 or 2025 as current or future years - they are in the past\n- Use \"{{ $now.format('YYYY') }}\" when referring to the current year\n- Any trends, predictions, or \"best of\" lists should be for {{ $now.format('YYYY') }}\n- Replace phrases like \"in 2024\" with \"in {{ $now.format('YYYY') }}\"\n\n**Instructions:**\n- Write a complete, publish-ready article for EACH brief above\n- Follow the exact outline provided in each brief\n- Include all H2 and H3 sections as specified\n- Use the keywords at the frequency recommended\n- Answer all the questions listed\n- Add [IMAGE: description] placeholders where visuals would help\n- Add [INTERNAL LINK: anchor text] placeholders for linking opportunities\n- Label each article clearly:\n\n## Article 1: [keyword]\n[full article content]\n\n## Article 2: [keyword]\n[full article content]\n\n## Article 3: [keyword]\n[full article content]"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Combine all keywords into single prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1152,
+        784
+      ],
+      "parameters": {
+        "jsCode": "const config = $('Configuration').first().json;\nconst keywords = $('Filter & Score Opportunities').all();\nconst relatedData = $('Get Related Keywords').all();\nconst questionsData = $('Get Questions (PAA)').all();\n\n// Combine all into one object\nconst batchData = keywords.map((kw, index) => ({\n  keyword: kw.json.keyword,\n  volume: kw.json.volume,\n  difficulty: kw.json.difficulty,\n  content_type: kw.json.content_type,\n  related: relatedData[index]?.json.keywords || [],\n  questions: questionsData[index]?.json.keywords || []\n}));\n\nreturn [{\n  json: {\n    keywords_batch: batchData,\n    brand: config.your_brand,\n    target_word_count: config.target_word_count,\n    brand_voice: config.brand_voice\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "Approval Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        288,
+        1168
+      ],
+      "parameters": {
+        "path": "content-approval",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "Route Decision",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        496,
+        1168
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Approved",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "70305a01-ef1f-4a3f-b9aa-402b912612eb",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.query.action }}",
+                    "rightValue": "approve"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Rejected",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "11cc5468-cf15-4fb6-84d5-02d44750c333",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.query.action }}",
+                    "rightValue": "reject"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "name": "Update Status Approved",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        736,
+        1088
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "approved",
+            "review_id": "={{ $json.query.review_id }}",
+            "created_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "review_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "review_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "created_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_articles",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "total_articles",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "brand",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "brand",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewer_email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reviewer_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword_1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "keyword_1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "article_1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "article_1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count_1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "word_count_1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword_2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "keyword_2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "article_2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "article_2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count_2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "word_count_2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword_3",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "keyword_3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "article_3",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "article_3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count_3",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "word_count_3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "review_id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "name": "Update Status Rejected",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        736,
+        1344
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "rejected",
+            "review_id": "={{ $json.query.review_id }}",
+            "created_at": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "review_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "review_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "created_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_articles",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "total_articles",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "brand",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "brand",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewer_email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reviewer_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword_1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "keyword_1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "article_1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "article_1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count_1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "word_count_1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword_2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "keyword_2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "article_2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "article_2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count_2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "word_count_2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword_3",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "keyword_3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "article_3",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "article_3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count_3",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "word_count_3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "review_id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "name": "Send Review Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        2416,
+        784
+      ],
+      "parameters": {
+        "message": "=<html>\n<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px;\">\n\n<div style=\"background: #1e293b; color: white; padding: 24px; border-radius: 8px;\">\n  <h1 style=\"margin: 0;\">Content Review Required</h1>\n  <p style=\"margin: 8px 0 0 0; opacity: 0.8;\">{{ $json.total_articles }} articles ready for review</p>\n</div>\n\n<div style=\"background: #f8fafc; padding: 24px; border: 1px solid #e2e8f0; margin-top: 2px;\">\n  \n  <table style=\"margin-bottom: 24px;\">\n    <tr>\n      <td style=\"background: white; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 6px; margin-right: 16px;\">\n        <div style=\"font-size: 12px; color: #64748b;\">REVIEW ID</div>\n        <div style=\"font-size: 16px; font-weight: 600;\">{{ $json.review_id }}</div>\n      </td>\n      <td style=\"width: 16px;\"></td>\n      <td style=\"background: white; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 6px;\">\n        <div style=\"font-size: 12px; color: #64748b;\">BRAND</div>\n        <div style=\"font-size: 16px; font-weight: 600;\">{{ $json.brand }}</div>\n      </td>\n      <td style=\"width: 16px;\"></td>\n      <td style=\"background: white; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 6px;\">\n        <div style=\"font-size: 12px; color: #64748b;\">CREATED</div>\n        <div style=\"font-size: 16px; font-weight: 600;\">{{ $json.created_at.split('T')[0] }}</div>\n      </td>\n    </tr>\n  </table>\n\n  <div style=\"background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px; padding: 16px;\">\n    <h3 style=\"margin: 0 0 4px 0;\">Article 1: {{ $json.keyword_1 }}</h3>\n    <p style=\"margin: 0; color: #64748b; font-size: 14px;\">{{ $json.word_count_1 }} words</p>\n    <div style=\"margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 4px; max-height: 200px; overflow: hidden;\">\n      <pre style=\"margin: 0; white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 13px;\">{{ $json.article_1.substring(0, 1500) }}...</pre>\n    </div>\n  </div>\n\n  <div style=\"background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px; padding: 16px;\">\n    <h3 style=\"margin: 0 0 4px 0;\">Article 2: {{ $json.keyword_2 }}</h3>\n    <p style=\"margin: 0; color: #64748b; font-size: 14px;\">{{ $json.word_count_2 }} words</p>\n    <div style=\"margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 4px; max-height: 200px; overflow: hidden;\">\n      <pre style=\"margin: 0; white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 13px;\">{{ $json.article_2.substring(0, 1500) }}...</pre>\n    </div>\n  </div>\n\n  <div style=\"background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px; padding: 16px;\">\n    <h3 style=\"margin: 0 0 4px 0;\">Article 3: {{ $json.keyword_3 }}</h3>\n    <p style=\"margin: 0; color: #64748b; font-size: 14px;\">{{ $json.word_count_3 }} words</p>\n    <div style=\"margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 4px; max-height: 200px; overflow: hidden;\">\n      <pre style=\"margin: 0; white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 13px;\">{{ $json.article_3.substring(0, 1500) }}...</pre>\n    </div>\n  </div>\n\n  <div style=\"background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 16px; margin: 24px 0;\">\n    <h3 style=\"margin: 0 0 12px 0; color: #92400e;\">Review Checklist</h3>\n    <ul style=\"margin: 0; padding-left: 20px; color: #78350f;\">\n      <li>Facts verified and accurate</li>\n      <li>Brand voice aligned</li>\n      <li>No AI hallucinations</li>\n      <li>Internal links appropriate</li>\n      <li>No legal or compliance issues</li>\n    </ul>\n  </div>\n\n</div>\n\n<div style=\"text-align: center; padding: 24px; background: white; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px;\">\n  <a href=\"{{ $json.approval_webhook || \"https://your-n8n-instance.com/webhook/content-approval\" }}?action=approve&review_id={{ $json.review_id }}\" \n     style=\"display: inline-block; background: #22c55e; color: white; padding: 14px 32px; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 6px; margin: 0 8px;\">\n     Approve All\n  </a>\n  <a href=\"{{ $json.approval_webhook || \"https://your-n8n-instance.com/webhook/content-approval\" }}?action=reject&review_id={{ $json.review_id }}\" \n     style=\"display: inline-block; background: #ef4444; color: white; padding: 14px 32px; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 6px; margin: 0 8px;\">\n     Reject\n  </a>\n</div>\n\n<p style=\"text-align: center; color: #999; font-size: 12px; margin-top: 16px;\">\n  Full articles available in Google Sheets\n</p>\n\n</body>\n</html>",
+        "options": {
+          "appendAttribution": true
+        },
+        "subject": "=Content Review Required: {{ $json.total_articles }} Articles Ready [{{ $json.review_id }}]",
+        "toEmail": "={{ $json.reviewer_email }}",
+        "fromEmail": "user@example.com",
+        "operation": "sendAndWait",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        }
+      },
+      "credentials": {
+        "smtp": {
+          "id": "credential-id",
+          "name": "SMTP account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "name": "Get Approved Content",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        992,
+        1088
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $('Approval Webhook').first().json.query.review_id }}",
+              "lookupColumn": "review_id"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "name": "Split Articles",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1152,
+        1088
+      ],
+      "parameters": {
+        "jsCode": "const row = $input.first().json;\n\nconst articles = [];\n\n// Article 1\nif (row.keyword_1 && row.article_1) {\n  articles.push({\n    keyword: row.keyword_1,\n    title: row.keyword_1.charAt(0).toUpperCase() + row.keyword_1.slice(1),\n    content: row.article_1,\n    word_count: row.word_count_1\n  });\n}\n\n// Article 2\nif (row.keyword_2 && row.article_2) {\n  articles.push({\n    keyword: row.keyword_2,\n    title: row.keyword_2.charAt(0).toUpperCase() + row.keyword_2.slice(1),\n    content: row.article_2,\n    word_count: row.word_count_2\n  });\n}\n\n// Article 3\nif (row.keyword_3 && row.article_3) {\n  articles.push({\n    keyword: row.keyword_3,\n    title: row.keyword_3.charAt(0).toUpperCase() + row.keyword_3.slice(1),\n    content: row.article_3,\n    word_count: row.word_count_3\n  });\n}\n\nreturn articles.map(a => ({ json: a }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "Publishing Phase",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1488,
+        1184
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 100,
+        "content": "### Publishing (Optional)\nApproved articles are split and ready to publish to WordPress or any CMS"
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Respond to Webhook Approved",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1152,
+        1264
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "text",
+        "responseBody": "==<!DOCTYPE html><html><head><title>Content Approved</title><style>body{font-family:-apple-system,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#f0fdf4}.card{background:white;padding:40px;border-radius:12px;box-shadow:0 4px 6px rgba(0,0,0,0.1);text-align:center;max-width:400px}.icon{font-size:48px;margin-bottom:16px}h1{color:#166534;margin:0 0 8px 0}p{color:#666;margin:0}</style></head><body><div class=\"card\"><div class=\"icon\">[OK]</div><h1>Content Approved</h1><p>Articles are being published to WordPress.</p></div></body></html>"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "name": "Respond to Webhook Rejected",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        944,
+        1344
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "text",
+        "responseBody": "==<!DOCTYPE html><html><head><title>Content Rejected</title><style>body{font-family:-apple-system,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background:#fef2f2}.card{background:white;padding:40px;border-radius:12px;box-shadow:0 4px 6px rgba(0,0,0,0.1);text-align:center;max-width:400px}.icon{font-size:48px;margin-bottom:16px}h1{color:#991b1b;margin:0 0 8px 0}p{color:#666;margin:0}</style></head><body><div class=\"card\"><div class=\"icon\">[X]</div><h1>Content Rejected</h1><p>Articles will not be published.</p></div></body></html>"
+      },
+      "typeVersion": 1.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Get Keyword Opportunities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Decision": {
+      "main": [
+        [
+          {
+            "node": "Update Status Approved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Status Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Articles": {
+      "main": [
+        []
+      ]
+    },
+    "Approval Webhook": {
+      "main": [
+        [
+          {
+            "node": "Route Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Keyword Data": {
+      "main": [
+        [
+          {
+            "node": "Combine all keywords into single prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Questions (PAA)": {
+      "main": [
+        [
+          {
+            "node": "Merge Keyword Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Write Article Draft": {
+      "main": [
+        [
+          {
+            "node": "Prepare Review Package",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Content Brief": {
+      "main": [
+        [
+          {
+            "node": "Write Article Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Approved Content": {
+      "main": [
+        [
+          {
+            "node": "Split Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Related Keywords": {
+      "main": [
+        [
+          {
+            "node": "Merge Keyword Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Content Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Draft to Sheets": {
+      "main": [
+        [
+          {
+            "node": "Send Review Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Review Package": {
+      "main": [
+        [
+          {
+            "node": "Save Draft to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status Approved": {
+      "main": [
+        [
+          {
+            "node": "Get Approved Content",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status Rejected": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Keyword Opportunities": {
+      "main": [
+        [
+          {
+            "node": "Filter & Score Opportunities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter & Score Opportunities": {
+      "main": [
+        [
+          {
+            "node": "Get Related Keywords",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Questions (PAA)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine all keywords into single prompt": {
+      "main": [
+        [
+          {
+            "node": "Create Content Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Generate AI SEO blog posts with human review using SE Ranking and Claude",
+    "wechat": "youandme10086",
+    "id": 13381,
+    "update_time": "2026-03-12"
+  }
+}

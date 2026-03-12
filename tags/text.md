@@ -1,4 +1,4 @@
-# text : 156
+# text : 158
 
 |id|file|
 |----|----|
@@ -158,3 +158,5 @@
 |12682|[12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json)|
 |12889|[12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json)|
 |13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|
+|13367|[13367_Generate_Images_on_Telegram_____from_Text_and_Voice_using_Grok_Imagine___Kie_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13367_Generate_Images_on_Telegram_____from_Text_and_Voice_using_Grok_Imagine___Kie_AI.json)|
+|13826|[13826_Generate_AI_songs_from_text_prompts_with_Suno__OpenAI__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13826_Generate_AI_songs_from_text_prompts_with_Suno__OpenAI__Google_Drive_and_Slack.json)|

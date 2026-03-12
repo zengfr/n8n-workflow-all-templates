@@ -1,4 +1,4 @@
-# jobs : 27
+# jobs : 28
 
 |id|file|
 |----|----|
@@ -29,3 +29,4 @@
 |12304|[12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json)|
 |12355|[12355_Find_jobs_on_Indeed_via_Telegram_using_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12355_Find_jobs_on_Indeed_via_Telegram_using_BrowserAct_and_Gemini.json)|
 |12436|[12436_Auto-post_curated_remote_jobs_to_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12436_Auto-post_curated_remote_jobs_to_Telegram_with_BrowserAct_and_Gemini.json)|
+|13382|[13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json)|

@@ -1,4 +1,4 @@
-# media : 167
+# media : 175
 
 |id|file|
 |----|----|
@@ -169,3 +169,11 @@
 |13013|[13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json)|
 |13110|[13110_Generate_daily_AI_reels_from_Google_Drive_images_with_GPT_5.1__Wavespeed_and_Submagic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13110_Generate_daily_AI_reels_from_Google_Drive_images_with_GPT_5.1__Wavespeed_and_Submagic.json)|
 |13181|[13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json)|
+|13334|[13334_Repurpose_blog_articles_into_social_media_posts_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13334_Repurpose_blog_articles_into_social_media_posts_with_Google_Gemini_AI.json)|
+|13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|
+|13471|[13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json)|
+|13528|[13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json)|
+|13540|[13540_Schedule_social_media_posts_from_local_files_using_UploadToURL__OpenAI__and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13540_Schedule_social_media_posts_from_local_files_using_UploadToURL__OpenAI__and_Buffer.json)|
+|13605|[13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json)|
+|13648|[13648_Generate_social_media_posts_with_GPT-4_for_LinkedIn__X__and_Facebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13648_Generate_social_media_posts_with_GPT-4_for_LinkedIn__X__and_Facebook.json)|
+|13767|[13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json)|

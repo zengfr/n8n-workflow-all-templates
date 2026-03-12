@@ -1,4 +1,4 @@
-# clickup : 51
+# clickup : 52
 
 |id|file|
 |----|----|
@@ -53,3 +53,4 @@
 |12579|[12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json)|
 |12664|[12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json)|
 |13259|[13259_Send_subscription_renewal_reminders_with_Email_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13259_Send_subscription_renewal_reminders_with_Email_and_ClickUp.json)|
+|13658|[13658_Automate_client_onboarding_with_Google_Forms__GPT_4o__ClickUp_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13658_Automate_client_onboarding_with_Google_Forms__GPT_4o__ClickUp_and_Gmail.json)|

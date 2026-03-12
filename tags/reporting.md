@@ -1,4 +1,4 @@
-# reporting : 66
+# reporting : 69
 
 |id|file|
 |----|----|
@@ -68,3 +68,6 @@
 |12857|[12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json)|
 |13158|[13158_Monitor_programme_performance_and_governance_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13158_Monitor_programme_performance_and_governance_with_OpenAI_and_Slack.json)|
 |13281|[13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json)|
+|13338|[13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json)|
+|13745|[13745_Generate_Meta_Ads_campaign_reports_in_Google_Sheets_and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13745_Generate_Meta_Ads_campaign_reports_in_Google_Sheets_and_send_Telegram_alerts.json)|
+|13915|[13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json)|

@@ -1,4 +1,4 @@
-# trending : 18
+# trending : 20
 
 |id|file|
 |----|----|
@@ -20,3 +20,5 @@
 |11706|[11706_Track_GitHub_Trending_Repositories_with_ScrapeOps___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11706_Track_GitHub_Trending_Repositories_with_ScrapeOps___Google_Sheets.json)|
 |11856|[11856_Automate_Professional_LinkedIn_Posts_with_OpenAI_GPT__DALL-E_and_Trending_Topics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11856_Automate_Professional_LinkedIn_Posts_with_OpenAI_GPT__DALL-E_and_Trending_Topics.json)|
 |12386|[12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json)|
+|13552|[13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json)|
+|13681|[13681_Generate_and_schedule_LinkedIn_posts_with_Google_Sheets__OpenAI__Gemini_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13681_Generate_and_schedule_LinkedIn_posts_with_Google_Sheets__OpenAI__Gemini_and_Mistral.json)|

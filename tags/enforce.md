@@ -1,4 +1,4 @@
-# enforce : 4
+# enforce : 6
 
 |id|file|
 |----|----|
@@ -6,3 +6,5 @@
 |9838|[9838_Enforce_Pre-Release_Compliance_with_Jira__Monday.com__and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9838_Enforce_Pre-Release_Compliance_with_Jira__Monday.com__and_Slack_Alerts.json)|
 |13311|[13311_Monitor_and_enforce_seller_compliance_with_GPT-4o__email_alerts_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13311_Monitor_and_enforce_seller_compliance_with_GPT-4o__email_alerts_and_Slack.json)|
 |13320|[13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json)|
+|13700|[13700_Detect_and_enforce_abuse_cases_with_OpenAI__Slack__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13700_Detect_and_enforce_abuse_cases_with_OpenAI__Slack__Gmail_and_Sheets.json)|
+|13913|[13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json)|

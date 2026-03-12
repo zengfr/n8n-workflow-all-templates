@@ -1,0 +1,1078 @@
+{
+  "id": "naUjq0csvOzATYan",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Summarize AI news from RSS, Reddit and HN with Claude to Discord and Slack",
+    "wechat": "youandme10086",
+    "id": 13527,
+    "update_time": "2026-03-12"
+  },
+  "name": "Summarize RSS feeds into a daily AI news digest with Claude and deliver to Discord",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "15d9d02a-f5b2-41c3-a02f-718d31cf3fe4",
+      "name": "Initialize run timestamp",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1168,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var now = new Date();\nvar hex = function() { return Math.floor(Math.random() * 0x10000).toString(16).padStart(4, '0'); };\nvar runId = hex() + hex() + '-' + hex() + '-' + hex() + '-' + hex() + '-' + hex() + hex() + hex();\nreturn [{ json: { runDate: now.toISOString().split('T')[0], startedAt: now.toISOString(), runId: runId } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "00e58581-a2bb-489d-8064-6c3ff13d6c91",
+      "name": "Create run record",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1456,
+        784
+      ],
+      "parameters": {
+        "query": "={{ $(\"⚙️ Configure digest settings\").first().json.use_postgres ? \"INSERT INTO digest_runs (run_date) VALUES ('\" + $json.runDate + \"') RETURNING id, run_date, started_at\" : \"SELECT '\" + $json.runId + \"' AS id, '\" + $json.runDate + \"' AS run_date, NOW() AS started_at\" }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "032psGVSbEPse0XO",
+          "name": "nxsi-postgres"
+        }
+      },
+      "typeVersion": 2.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "b59ce09a-69aa-4468-afb9-e00b66510ab1",
+      "name": "Build feed source list",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1728,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var items = $input.all();\nvar runId = items[0].json.id;\nvar feeds = [\n  { url: 'https://hn.algolia.com/api/v1/search_by_date?tags=story&query=AI+LLM+GPT+Claude&numericFilters=points>20', name: 'Hacker News — AI', category: 'ai-models', feedType: 'hn_api' },\n  { url: 'https://techcrunch.com/category/artificial-intelligence/feed/', name: 'TechCrunch AI', category: 'ai-tools', feedType: 'rss' },\n  { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', name: 'The Verge AI', category: 'ai-research', feedType: 'rss' },\n  { url: 'https://feeds.arstechnica.com/arstechnica/index', name: 'Ars Technica', category: 'tech-general', feedType: 'rss' },\n  { url: 'https://simonwillison.net/atom/everything/', name: 'Simon Willison', category: 'ai-tools', feedType: 'atom' },\n  { url: 'https://www.technologyreview.com/feed/', name: 'MIT Technology Review', category: 'ai-research', feedType: 'rss' },\n  { url: 'https://www.reddit.com/r/LocalLLaMA/.json?limit=25&sort=hot', name: 'r/LocalLLaMA', category: 'ai-models', feedType: 'reddit' },\n  { url: 'https://www.reddit.com/r/selfhosted/.json?limit=25&sort=hot', name: 'r/selfhosted', category: 'open-source', feedType: 'reddit' },\n  { url: 'https://www.anthropic.com/rss.xml', name: 'Anthropic Blog', category: 'ai-models', feedType: 'rss' },\n  { url: 'https://openai.com/blog/rss.xml', name: 'OpenAI Blog', category: 'ai-models', feedType: 'rss' }\n];\nvar result = [];\nfor (var i = 0; i < feeds.length; i++) {\n  feeds[i].runId = runId;\n  result.push({ json: feeds[i] });\n}\nreturn result;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b757855c-1658-41dd-b7ea-fc741ca2de47",
+      "name": "Fetch feed content",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        2000,
+        784
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "AI-News-Digest/1.0"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d19d6bfb-14ff-4906-8b23-74e7e79dd3ff",
+      "name": "Parse articles from feeds",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2288,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var httpResults = $input.all();\nvar feedMeta = $('Build feed source list').all();\nvar articles = [];\nvar now = Date.now();\nvar lookbackHours = $('⚙️ Configure digest settings').first().json.feed_lookback_hours || 24;\nvar oneDayAgo = now - (lookbackHours * 60 * 60 * 1000);\nvar errors = [];\nvar runId = feedMeta[0].json.runId;\n\nfor (var i = 0; i < httpResults.length; i++) {\n  var response = httpResults[i].json;\n  var feed = feedMeta[i].json;\n  var feedName = feed.name;\n  var feedCategory = feed.category;\n  var feedType = feed.feedType;\n\n  try {\n    var body = '';\n    if (typeof response === 'string') {\n      body = response;\n    } else if (response.data && typeof response.data === 'string') {\n      body = response.data;\n    } else {\n      body = JSON.stringify(response);\n    }\n\n    if (feedType === 'hn_api') {\n      var hnData = typeof response === 'object' && response.hits ? response : JSON.parse(body);\n      var hits = hnData.hits || [];\n      for (var h = 0; h < hits.length; h++) {\n        var hit = hits[h];\n        var hitDate = new Date(hit.created_at).getTime();\n        if (hitDate < oneDayAgo) continue;\n        if (!hit.url) continue;\n        articles.push({ json: {\n          title: hit.title || '', url: hit.url, source: feedName,\n          category: feedCategory, publishedAt: hit.created_at,\n          socialScore: (hit.points || 0) + (hit.num_comments || 0) * 2,\n          excerpt: '', runId: runId\n        }});\n      }\n    } else if (feedType === 'reddit') {\n      var rd = typeof response === 'object' && response.data ? response : JSON.parse(body);\n      var children = (rd.data && rd.data.children) || [];\n      for (var r = 0; r < children.length; r++) {\n        var post = children[r].data;\n        if (!post) continue;\n        var postDate = (post.created_utc || 0) * 1000;\n        if (postDate < oneDayAgo) continue;\n        var postUrl = post.url_overridden_by_dest || post.url || '';\n        if (postUrl.indexOf('reddit.com') !== -1) postUrl = 'https://www.reddit.com' + post.permalink;\n        articles.push({ json: {\n          title: post.title || '', url: postUrl, source: feedName,\n          category: feedCategory,\n          publishedAt: new Date(postDate).toISOString(),\n          socialScore: (post.score || 0) + (post.num_comments || 0) * 2,\n          excerpt: (post.selftext || '').substring(0, 300), runId: runId\n        }});\n      }\n    } else if (feedType === 'atom') {\n      var entryRegex = /<entry[\\s\\S]*?<\\/entry>/gi;\n      var entries = body.match(entryRegex) || [];\n      for (var a = 0; a < entries.length; a++) {\n        var entry = entries[a];\n        var tM = entry.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i);\n        var lM = entry.match(/<link[^>]*href=[\"']([^\"']+)[\"'][^>]*>/i);\n        var pM = entry.match(/<published[^>]*>([\\s\\S]*?)<\\/published>/i) || entry.match(/<updated[^>]*>([\\s\\S]*?)<\\/updated>/i);\n        var sM = entry.match(/<summary[^>]*>([\\s\\S]*?)<\\/summary>/i) || entry.match(/<content[^>]*>([\\s\\S]*?)<\\/content>/i);\n        var pubDate = pM ? new Date(pM[1].trim()).getTime() : 0;\n        if (pubDate && pubDate < oneDayAgo) continue;\n        var eTitle = tM ? tM[1].replace(/<[^>]+>/g, '').trim() : '';\n        var eUrl = lM ? lM[1] : '';\n        if (!eUrl || !eTitle) continue;\n        articles.push({ json: {\n          title: eTitle, url: eUrl, source: feedName,\n          category: feedCategory,\n          publishedAt: pM ? pM[1].trim() : '',\n          socialScore: 0,\n          excerpt: sM ? sM[1].replace(/<[^>]+>/g, '').trim().substring(0, 300) : '',\n          runId: runId\n        }});\n      }\n    } else {\n      var itemRegex = /<item[\\s\\S]*?<\\/item>/gi;\n      var rssItems = body.match(itemRegex) || [];\n      for (var j = 0; j < rssItems.length; j++) {\n        var item = rssItems[j];\n        var tR = item.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i);\n        var lR = item.match(/<link[^>]*>([\\s\\S]*?)<\\/link>/i);\n        var pR = item.match(/<pubDate[^>]*>([\\s\\S]*?)<\\/pubDate>/i);\n        var dR = item.match(/<description[^>]*>([\\s\\S]*?)<\\/description>/i);\n        var rssDate = pR ? new Date(pR[1].trim()).getTime() : 0;\n        if (rssDate && rssDate < oneDayAgo) continue;\n        var rT = tR ? tR[1].replace(/<!\\[CDATA\\[|\\]\\]>/g, '').replace(/<[^>]+>/g, '').trim() : '';\n        var rL = lR ? lR[1].replace(/<!\\[CDATA\\[|\\]\\]>/g, '').trim() : '';\n        if (!rL || !rT) continue;\n        articles.push({ json: {\n          title: rT, url: rL, source: feedName,\n          category: feedCategory,\n          publishedAt: pR ? pR[1].trim() : '',\n          socialScore: 0,\n          excerpt: dR ? dR[1].replace(/<!\\[CDATA\\[|\\]\\]>/g, '').replace(/<[^>]+>/g, '').trim().substring(0, 300) : '',\n          runId: runId\n        }});\n      }\n    }\n  } catch (e) {\n    errors.push({ feed: feedName, error: e.message });\n  }\n}\n\narticles.sort(function(a, b) { return (b.json.socialScore || 0) - (a.json.socialScore || 0); });\n\nif (articles.length === 0) {\n  return [{ json: { url: '', _noArticles: true, articleCount: 0, runId: runId, errors: errors } }];\n}\nif (errors.length > 0) articles[0].json._feedErrors = errors;\nreturn articles;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2a4aeb63-b347-49cd-a976-76ddee8fd72b",
+      "name": "Any articles found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2560,
+        784
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "afb369bf",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.url }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a33cf456-8543-4018-97a4-68a1fa8a71c8",
+      "name": "Mark run as empty",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        2848,
+        576
+      ],
+      "parameters": {
+        "query": "={{ $(\"⚙️ Configure digest settings\").first().json.use_postgres ? \"UPDATE digest_runs SET status = 'no_articles', completed_at = NOW(), duration_seconds = EXTRACT(EPOCH FROM (NOW() - started_at))::int WHERE id = '\" + $('Create run record').first().json.id + \"'\" : \"SELECT 1\" }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "032psGVSbEPse0XO",
+          "name": "nxsi-postgres"
+        }
+      },
+      "typeVersion": 2.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "a4996912-f948-4cb7-8fe6-59ee3f33671f",
+      "name": "Deduplicate by URL and title",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2848,
+        784
+      ],
+      "parameters": {
+        "jsCode": "function djb2(str) {\n  var hash = 5381;\n  for (var i = 0; i < str.length; i++) {\n    hash = ((hash << 5) + hash) + str.charCodeAt(i);\n    hash = hash & hash;\n  }\n  return Math.abs(hash).toString(16).padStart(8, '0');\n}\n\nfunction levenshtein(a, b) {\n  if (a.length === 0) return b.length;\n  if (b.length === 0) return a.length;\n  var matrix = [];\n  for (var i = 0; i <= b.length; i++) matrix[i] = [i];\n  for (var j = 0; j <= a.length; j++) matrix[0][j] = j;\n  for (var i = 1; i <= b.length; i++) {\n    for (var j = 1; j <= a.length; j++) {\n      if (b.charAt(i - 1) === a.charAt(j - 1)) {\n        matrix[i][j] = matrix[i - 1][j - 1];\n      } else {\n        matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);\n      }\n    }\n  }\n  return matrix[b.length][a.length];\n}\n\nfunction normalizeTitle(title) {\n  return title.toLowerCase().replace(/[^a-z0-9\\s]/g, '').replace(/\\s+/g, ' ').trim();\n}\n\nvar allItems = $input.all();\nvar seen = {};\nvar seenTitles = [];\nvar unique = [];\nvar runId = allItems[0].json.runId;\n\nfor (var i = 0; i < allItems.length; i++) {\n  var article = allItems[i].json;\n  if (!article.url) continue;\n  var urlHash = djb2(article.url);\n  var normTitle = normalizeTitle(article.title || '');\n\n  if (seen[urlHash]) continue;\n\n  var isDupe = false;\n  for (var j = 0; j < seenTitles.length; j++) {\n    var maxLen = Math.max(normTitle.length, seenTitles[j].length);\n    if (maxLen === 0) continue;\n    var dist = levenshtein(normTitle, seenTitles[j]);\n    if (dist / maxLen < 0.2) { isDupe = true; break; }\n  }\n  if (isDupe) continue;\n\n  seen[urlHash] = true;\n  seenTitles.push(normTitle);\n  article.urlHash = urlHash;\n  article.titleNormalized = normTitle;\n  unique.push(article);\n}\n\nvar hashListSql = unique.map(function(a) { return \"'\" + a.urlHash + \"'\"; }).join(',');\nif (!hashListSql) hashListSql = \"''\";\n\nreturn [{ json: { articles: unique, hashListSql: hashListSql, count: unique.length, runId: runId } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6c6c84cf-6795-4427-bca7-a6b96a72e77c",
+      "name": "Check database for recent duplicates",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3120,
+        784
+      ],
+      "parameters": {
+        "query": "={{ $(\"⚙️ Configure digest settings\").first().json.use_postgres ? \"SELECT url_hash FROM digest_articles WHERE url_hash IN (\" + $json.hashListSql + \") AND created_at > NOW() - INTERVAL '\" + ($(\"⚙️ Configure digest settings\").first().json.dedup_lookback_days || 7) + \" days'\" : \"SELECT '' AS url_hash WHERE false\" }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "032psGVSbEPse0XO",
+          "name": "nxsi-postgres"
+        }
+      },
+      "typeVersion": 2.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "d18869bc-2d20-4236-9dc9-ac0a3d288f07",
+      "name": "Remove already-seen articles",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3408,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var pgResults = $input.all();\nvar knownHashes = {};\nfor (var i = 0; i < pgResults.length; i++) {\n  var hash = pgResults[i].json.url_hash;\n  if (hash) knownHashes[hash] = true;\n}\nvar dedupData = $('Deduplicate by URL and title').first().json;\nvar articles = dedupData.articles;\nvar fresh = [];\nfor (var i = 0; i < articles.length; i++) {\n  if (!knownHashes[articles[i].urlHash]) fresh.push(articles[i]);\n}\nreturn [{ json: { articles: fresh, count: fresh.length, runId: dedupData.runId } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "eac5f273-fd2f-4695-aa5e-6c226d538fc7",
+      "name": "Select top articles for extraction",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3680,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var data = $input.first().json;\nvar articles = data.articles;\narticles.sort(function(a, b) { return (b.socialScore || 0) - (a.socialScore || 0); });\nvar maxArticles = $('⚙️ Configure digest settings').first().json.max_extract_articles || 25;\nvar selected = articles.slice(0, maxArticles);\nvar result = [];\nfor (var i = 0; i < selected.length; i++) {\n  result.push({ json: selected[i] });\n}\nif (result.length === 0) result.push({ json: { _empty: true, runId: data.runId } });\nreturn result;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d01169be-bcf1-41dd-9b3a-cb1708505e31",
+      "name": "Extract full text via Jina",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        3968,
+        784
+      ],
+      "parameters": {
+        "url": "=https://r.jina.ai/{{ $json.url }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Return-Format",
+              "value": "markdown"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ef32355d-2617-4692-9506-3e7fce611019",
+      "name": "Assemble extracted content",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4240,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var jinaResults = $input.all();\nvar articleItems = $('Select top articles for extraction').all();\nvar totalJinaTokens = 0;\nvar articles = [];\n\nfor (var i = 0; i < articleItems.length; i++) {\n  var article = articleItems[i].json;\n  if (article._empty) continue;\n  var jina = jinaResults[i] ? jinaResults[i].json : {};\n  var fullText = '';\n  var hasFullText = false;\n\n  if (jina.data && jina.data.content) {\n    fullText = jina.data.content.substring(0, 8000);\n    hasFullText = true;\n    if (jina.data.usage) totalJinaTokens += jina.data.usage.tokens || 0;\n  } else if (jina.content) {\n    fullText = String(jina.content).substring(0, 8000);\n    hasFullText = true;\n  } else {\n    fullText = article.excerpt || '';\n  }\n\n  articles.push({\n    title: article.title, url: article.url, source: article.source,\n    category: article.category, publishedAt: article.publishedAt,\n    socialScore: article.socialScore, urlHash: article.urlHash,\n    titleNormalized: article.titleNormalized,\n    fullText: fullText, hasFullText: hasFullText, runId: article.runId\n  });\n}\n\nreturn [{ json: {\n  articles: articles, jinaTokens: totalJinaTokens,\n  count: articles.length, runId: articles.length > 0 ? articles[0].runId : ''\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f824391b-0d86-4cfc-8b99-cdb1b934a238",
+      "name": "Prepare analysis prompts",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4528,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var data = $input.first().json;\nvar articles = data.articles;\nvar jinaTokens = data.jinaTokens;\nvar runId = data.runId;\n\nvar result = [];\nfor (var i = 0; i < articles.length; i++) {\n  var a = articles[i];\n  var prompt = 'Analyze this article and return ONLY valid JSON:\\n\\nTITLE: ' + a.title + '\\nSOURCE: ' + a.source + '\\nCATEGORY: ' + a.category + '\\nURL: ' + a.url + '\\n\\nFULL TEXT:\\n' + (a.fullText || '(no text available)').substring(0, 8000) + '\\n\\nReturn this exact JSON structure:\\n{\"summary\":\"2-3 sentence summary\",\"importance\":<integer 1-10>,\"categories\":[\"primary\",\"secondary\"],\"sentiment\":\"positive|negative|neutral|mixed\",\"key_entities\":[\"entity1\",\"entity2\"],\"why_it_matters\":\"One sentence on practical impact\",\"reading_time_min\":<integer>}';\n  result.push({ json: {\n    prompt: prompt, _articleIndex: i, _article: a,\n    _jinaTokens: jinaTokens, _runId: runId, _totalArticles: articles.length\n  }});\n}\nif (result.length === 0) result.push({ json: { prompt: 'Return {\"summary\":\"no articles\",\"importance\":1,\"categories\":[],\"sentiment\":\"neutral\",\"key_entities\":[],\"why_it_matters\":\"none\",\"reading_time_min\":0}', _article: {}, _jinaTokens: 0, _runId: runId, _totalArticles: 0 } });\nreturn result;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d6e50e51-2678-4eb1-a4ec-6147c93569e5",
+      "name": "Analyze article with Claude",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        4800,
+        784
+      ],
+      "parameters": {
+        "text": "={{ $json.prompt }}",
+        "batching": {},
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert news analyst. You analyze technology articles and output structured JSON assessments.\n\nSCORING GUIDE (importance 1-10):\n10: Industry-reshaping announcement (new major model, regulation, acquisition >$1B)\n8-9: Significant development with broad impact (major product launch, critical vulnerability)\n6-7: Notable development in a specific domain (new tool, interesting research, meaningful open source release)\n4-5: Incremental update or niche development (version bump, minor feature, limited audience)\n1-3: Routine news, announcements, or opinion pieces with no actionable insight\n\nCATEGORIES (use these exact strings):\nai-models, ai-tools, ai-research, ai-agents, security, devops, open-source, cloud, hardware, startups, regulation, programming\n\nRULES:\n- Return ONLY valid JSON. No markdown formatting, no backticks, no explanation.\n- If the article text is missing, score importance lower (max 5) and note \"limited analysis\" in summary.\n- Be ruthlessly honest about importance. Most articles are 4-6. Reserve 8+ for genuinely significant events.\n- The \"why_it_matters\" should be actionable: \"means X for developers\" not \"this is interesting.\""
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.7,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "8da6dc3e-8d64-4596-b0a9-199b11a6ccb1",
+      "name": "Score and rank articles",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5088,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var aiOutputs = $input.all();\nvar batchItems = $('Prepare analysis prompts').all();\nvar topicWeights = {\n  'ai-models': 1.5, 'ai-agents': 1.5, 'ai-tools': 1.3,\n  'ai-research': 1.2, 'security': 1.3, 'open-source': 1.2, 'devops': 1.1\n};\nvar articles = [];\nvar totalInputTokens = 0;\nvar totalOutputTokens = 0;\n\nfor (var i = 0; i < aiOutputs.length; i++) {\n  var aiOut = aiOutputs[i].json;\n  var batch = batchItems[i].json;\n  var article = batch._article;\n\n  if (aiOut.tokenUsageEstimate) {\n    totalInputTokens += aiOut.tokenUsageEstimate.promptTokens || 0;\n    totalOutputTokens += aiOut.tokenUsageEstimate.completionTokens || 0;\n  }\n\n  // Basic LLM Chain: {text: \"...\"}, AI Agent: {output: \"...\"}\n  var responseText = aiOut.text || aiOut.output || '';\n\n  var analysis = null;\n  try {\n    var cleaned = responseText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n    var js = cleaned.indexOf('{');\n    var je = cleaned.lastIndexOf('}');\n    if (js !== -1 && je !== -1) analysis = JSON.parse(cleaned.substring(js, je + 1));\n  } catch (e) {\n    try {\n      var partial = cleaned.substring(cleaned.indexOf('{'));\n      var opens = (partial.match(/\\{/g) || []).length;\n      var closes = (partial.match(/\\}/g) || []).length;\n      while (closes < opens) { partial += '}'; closes++; }\n      analysis = JSON.parse(partial);\n    } catch (e2) {\n      analysis = { summary: 'Analysis failed', importance: 3, categories: [article.category || 'tech-general'], sentiment: 'neutral', key_entities: [], why_it_matters: 'Unable to analyze', reading_time_min: 3 };\n    }\n  }\n\n  if (!analysis) {\n    analysis = { summary: 'Analysis unavailable', importance: 3, categories: [article.category || 'tech-general'], sentiment: 'neutral', key_entities: [], why_it_matters: 'Unable to analyze', reading_time_min: 3 };\n  }\n  var baseScore = analysis.importance || 5;\n  var maxWeight = 1.0;\n  var cats = analysis.categories || [article.category || 'tech-general'];\n  for (var c = 0; c < cats.length; c++) {\n    var w = topicWeights[cats[c]] || 1.0;\n    if (w > maxWeight) maxWeight = w;\n  }\n  var weighted = baseScore * maxWeight;\n  var socialBoost = Math.min((article.socialScore || 0) / 200, 2);\n  weighted += socialBoost;\n\n  articles.push({\n    title: article.title, url: article.url, source: article.source,\n    category: article.category, publishedAt: article.publishedAt,\n    socialScore: article.socialScore, urlHash: article.urlHash,\n    titleNormalized: article.titleNormalized,\n    fullText: article.fullText, hasFullText: article.hasFullText,\n    summary: analysis.summary, importance: analysis.importance,\n    categories: cats, sentiment: analysis.sentiment,\n    keyEntities: analysis.key_entities || [],\n    whyItMatters: analysis.why_it_matters,\n    readingTimeMin: analysis.reading_time_min || 3,\n    weightedScore: Math.round(weighted * 100) / 100\n  });\n}\n\narticles.sort(function(a, b) { return b.weightedScore - a.weightedScore; });\n\n// Fallback: estimate tokens when tokenUsageEstimate unavailable (Basic LLM Chain)\nif (totalInputTokens === 0) {\n  for (var j = 0; j < aiOutputs.length; j++) {\n    var artJ = batchItems[j].json._article;\n    totalInputTokens += Math.ceil(((artJ.fullText || artJ.summary || '').length + 1800) / 4);\n    totalOutputTokens += Math.ceil((aiOutputs[j].json.text || aiOutputs[j].json.output || '').length / 4);\n  }\n}\n\nreturn [{ json: {\n  articles: articles,\n  analysisInputTokens: totalInputTokens,\n  analysisOutputTokens: totalOutputTokens,\n  jinaTokens: batchItems[0].json._jinaTokens,\n  runId: batchItems[0].json._runId,\n  count: articles.length\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ab298c48-0aa1-494a-a884-67a2c33a4f07",
+      "name": "Select articles for digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5360,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var data = $input.first().json;\nvar articles = data.articles;\nvar maxDigest = $('⚙️ Configure digest settings').first().json.max_digest_articles || 12;\nvar selected = articles.slice(0, maxDigest);\nvar lead = selected.length > 0 ? selected[0] : null;\nvar topStories = selected.slice(1, 5);\nvar quickHits = selected.slice(5);\n\nvar compilationData = '';\nif (lead) {\n  compilationData += 'LEAD STORY:\\nTitle: ' + lead.title + '\\nSource: ' + lead.source + '\\nImportance: ' + lead.importance + '/10\\nSummary: ' + lead.summary + '\\nWhy it matters: ' + lead.whyItMatters + '\\n\\n';\n}\ncompilationData += 'TOP STORIES:\\n';\nfor (var i = 0; i < topStories.length; i++) {\n  var s = topStories[i];\n  compilationData += (i + 1) + '. ' + s.title + ' [' + s.source + ', ' + s.importance + '/10]\\n   ' + s.summary + '\\n   Why: ' + s.whyItMatters + '\\n\\n';\n}\ncompilationData += 'QUICK HITS:\\n';\nfor (var i = 0; i < quickHits.length; i++) {\n  var q = quickHits[i];\n  compilationData += '- ' + q.title + ' [' + q.source + ', ' + q.importance + '/10]: ' + q.summary + '\\n';\n}\n\nvar userPrompt = 'Compile today\\'s AI & tech digest from these analyzed articles. Output ONLY valid JSON.\\n\\n' + compilationData + '\\n\\nReturn this exact JSON structure:\\n{\"subject_line\":\"Email subject (under 60 chars)\",\"lead_analysis\":\"2-3 paragraphs of genuine insight about the lead story\",\"lead_why\":\"Single actionable sentence\",\"top_stories\":[{\"title\":\"...\",\"summary\":\"Exactly 2 sentences\",\"why\":\"Actionable insight\"}],\"quick_hits\":[{\"title\":\"...\",\"one_liner\":\"Key fact, one line\"}],\"trend_note\":\"Trend across stories or empty string\"}';\n\nreturn [{ json: {\n  prompt: userPrompt,\n  _articles: selected, _lead: lead,\n  _topStories: topStories, _quickHits: quickHits,\n  _analysisInputTokens: data.analysisInputTokens,\n  _analysisOutputTokens: data.analysisOutputTokens,\n  _jinaTokens: data.jinaTokens, _runId: data.runId,\n  _allArticles: articles, _articlesFound: articles.length\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "443ea580-1b92-49d9-a27d-136e1f3e914d",
+      "name": "Claude Sonnet (compiler)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        5344,
+        1040
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929"
+        },
+        "options": {
+          "temperature": 0.4,
+          "maxTokensToSample": 8192
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "5zrxbFzTF9Yr7MNS",
+          "name": "nxsi-anthropic"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a5f54991-eb5c-4ecf-9782-a6e5612990ee",
+      "name": "Compile digest with Claude",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "maxTries": 3,
+      "position": [
+        5648,
+        784
+      ],
+      "parameters": {
+        "text": "={{ $json.prompt }}",
+        "agent": "conversationalAgent",
+        "options": {
+          "systemMessage": "You compile daily AI & tech news digests. Your output is the final digest that gets sent to Discord, Slack, and email.\n\nVOICE: Professional but approachable. Write like a knowledgeable colleague summarizing what they read today, not a news anchor. Be direct and opinionated about why things matter.\n\nRULES:\n- Lead analysis should have genuine insight, not just restate the headline\n- \"Why it matters\" must be actionable: what should the reader know or do differently\n- Top story summaries: exactly 2 sentences each, no fluff\n- Quick hits: maximum one line each, start with the key fact\n- If you spot a trend across stories, mention it in trend_note\n- Return ONLY valid JSON"
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "33120460-8e96-404c-a3ec-89c7d1e8143c",
+      "name": "Format multi-channel outputs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5920,
+        784
+      ],
+      "parameters": {
+        "jsCode": "var compileOut = $input.first().json;\nvar selData = $('Select articles for digest').first().json;\n\nvar responseText = compileOut.output || compileOut.text || '';\nvar digest = null;\ntry {\n  var cleaned = responseText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  var js = cleaned.indexOf('{');\n  var je = cleaned.lastIndexOf('}');\n  if (js !== -1 && je !== -1) digest = JSON.parse(cleaned.substring(js, je + 1));\n} catch (e) {\n  digest = { subject_line: 'AI News Digest', lead_analysis: responseText.substring(0, 500), lead_why: '', top_stories: [], quick_hits: [], trend_note: '' };\n}\nif (!digest) digest = {};\ndigest.subject_line = digest.subject_line || 'AI News Digest';\ndigest.lead_analysis = digest.lead_analysis || '';\ndigest.lead_why = digest.lead_why || '';\ndigest.top_stories = digest.top_stories || [];\ndigest.quick_hits = digest.quick_hits || [];\ndigest.trend_note = digest.trend_note || '';\n\nvar compIn = 0, compOut = 0;\nif (compileOut.tokenUsageEstimate) {\n  compIn = compileOut.tokenUsageEstimate.promptTokens || 0;\n  compOut = compileOut.tokenUsageEstimate.completionTokens || 0;\n}\nvar aIn = selData._analysisInputTokens || 0;\nvar aOut = selData._analysisOutputTokens || 0;\n// Fallback: estimate compilation tokens from content length\nif (compIn === 0 && compOut === 0) {\n  compIn = Math.ceil(((selData.prompt || '').length + 1200) / 4);\n  compOut = Math.ceil(responseText.length / 4);\n}\nvar totalIn = aIn + compIn;\nvar totalOut = aOut + compOut;\nvar haikuCost = (aIn * 1 + aOut * 5) / 1000000;\nvar sonnetCost = (compIn * 3 + compOut * 15) / 1000000;\nvar totalCost = Math.round((haikuCost + sonnetCost) * 1000000) / 1000000;\n\nvar lead = selData._lead;\nvar topStories = digest.top_stories || [];\nvar quickHits = digest.quick_hits || [];\nvar articles = selData._articles || [];\nvar allArticles = selData._allArticles || [];\n\n// === DISCORD EMBEDS ===\nvar embeds = [];\nif (lead) {\n  embeds.push({\n    title: lead.title, url: lead.url,\n    description: (digest.lead_analysis || lead.summary || '').substring(0, 4000),\n    color: lead.importance >= 9 ? 0xFF0000 : lead.importance >= 7 ? 0xFF8C00 : 0x3498DB,\n    fields: [\n      { name: 'Why It Matters', value: digest.lead_why || lead.whyItMatters || 'N/A', inline: false },\n      { name: 'Source', value: lead.source || '', inline: true },\n      { name: 'Score', value: (lead.importance || '?') + '/10', inline: true }\n    ],\n    footer: { text: 'Lead Story' }\n  });\n}\nfor (var i = 0; i < topStories.length && i < 4; i++) {\n  var ts = topStories[i];\n  var ma = articles[i + 1] || {};\n  embeds.push({\n    title: ts.title || ma.title || '', url: ma.url || '',\n    description: (ts.summary || '').substring(0, 2000),\n    color: (ma.importance || 5) >= 7 ? 0xFF8C00 : 0x3498DB,\n    fields: [{ name: 'Why', value: ts.why || 'N/A', inline: false }],\n    footer: { text: (ma.source || '') + ' | ' + (ma.importance || '?') + '/10' }\n  });\n}\nif (quickHits.length > 0) {\n  var qhText = '';\n  for (var i = 0; i < quickHits.length; i++) {\n    var qhArticle = articles[5 + i] || {};\n    var qhUrl = qhArticle.url || '';\n    var qhTitle = quickHits[i].title || qhArticle.title || '';\n    if (qhUrl) {\n      qhText += '\\u2022 [' + qhTitle + '](' + qhUrl + '): ' + (quickHits[i].one_liner || '') + '\\n';\n    } else {\n      qhText += '\\u2022 **' + qhTitle + '**: ' + (quickHits[i].one_liner || '') + '\\n';\n    }\n  }\n  embeds.push({ title: 'Quick Hits', description: qhText.substring(0, 4000), color: 0x95A5A6 });\n}\nembeds.push({\n  description: allArticles.length + ' articles analyzed | ' + articles.length + ' selected | Cost: $' + totalCost.toFixed(4),\n  color: 0x2C3E50, footer: { text: 'AI News Digest | Powered by Claude' }\n});\nembeds = embeds.slice(0, 10);\n\n// === SLACK BLOCKS ===\nvar blocks = [];\nblocks.push({ type: 'header', text: { type: 'plain_text', text: digest.subject_line || 'AI & Tech News Digest', emoji: true } });\nblocks.push({ type: 'context', elements: [{ type: 'mrkdwn', text: allArticles.length + ' articles analyzed | ' + articles.length + ' selected | $' + totalCost.toFixed(4) }] });\nblocks.push({ type: 'divider' });\nif (lead) {\n  blocks.push({ type: 'section', text: { type: 'mrkdwn', text: '*Lead: <' + lead.url + '|' + lead.title + '>*\\n' + (digest.lead_analysis || lead.summary || '').substring(0, 2900) } });\n  if (digest.lead_why) blocks.push({ type: 'context', elements: [{ type: 'mrkdwn', text: digest.lead_why }] });\n  blocks.push({ type: 'divider' });\n}\nfor (var i = 0; i < topStories.length; i++) {\n  var ts = topStories[i]; var ma = articles[i + 1] || {};\n  blocks.push({ type: 'section', text: { type: 'mrkdwn', text: '*<' + (ma.url || '') + '|' + (ts.title || ma.title || '') + '>*\\n' + (ts.summary || '') } });\n  if (ts.why) blocks.push({ type: 'context', elements: [{ type: 'mrkdwn', text: ts.why }] });\n}\nif (quickHits.length > 0) {\n  blocks.push({ type: 'divider' });\n  blocks.push({ type: 'section', text: { type: 'mrkdwn', text: '*Quick Hits*' } });\n  var qhLines = '';\n  for (var i = 0; i < quickHits.length; i++) {\n    var qhArticle = articles[5 + i] || {};\n    var qhUrl = qhArticle.url || '';\n    var qhTitle = quickHits[i].title || qhArticle.title || '';\n    if (qhUrl) {\n      qhLines += '\\u2022 <' + qhUrl + '|' + qhTitle + '>: ' + (quickHits[i].one_liner || '') + '\\n';\n    } else {\n      qhLines += '\\u2022 *' + qhTitle + '*: ' + (quickHits[i].one_liner || '') + '\\n';\n    }\n  }\n  blocks.push({ type: 'section', text: { type: 'mrkdwn', text: qhLines.substring(0, 2900) } });\n}\nif (digest.trend_note) {\n  blocks.push({ type: 'divider' });\n  blocks.push({ type: 'context', elements: [{ type: 'mrkdwn', text: '*Trend:* ' + digest.trend_note }] });\n}\n\n// === MARKDOWN ===\nvar md = '# ' + (digest.subject_line || 'AI & Tech News Digest') + '\\n\\n';\nif (lead) {\n  md += '## Lead Story\\n\\n**[' + lead.title + '](' + lead.url + ')** — ' + lead.source + ' (' + lead.importance + '/10)\\n\\n';\n  md += (digest.lead_analysis || lead.summary || '') + '\\n\\n';\n  if (digest.lead_why) md += '> ' + digest.lead_why + '\\n\\n';\n}\nif (topStories.length > 0) {\n  md += '## Top Stories\\n\\n';\n  for (var i = 0; i < topStories.length; i++) {\n    var ts = topStories[i]; var ma = articles[i + 1] || {};\n    md += '### [' + (ts.title || ma.title || '') + '](' + (ma.url || '') + ')\\n' + (ts.summary || '') + '\\n';\n    if (ts.why) md += '> ' + ts.why + '\\n';\n    md += '\\n';\n  }\n}\nif (quickHits.length > 0) {\n  md += '## Quick Hits\\n\\n';\n  for (var i = 0; i < quickHits.length; i++) {\n    var qhArticle = articles[5 + i] || {};\n    var qhUrl = qhArticle.url || '';\n    var qhTitle = quickHits[i].title || qhArticle.title || '';\n    if (qhUrl) {\n      md += '- **[' + qhTitle + '](' + qhUrl + ')**: ' + (quickHits[i].one_liner || '') + '\\n';\n    } else {\n      md += '- **' + qhTitle + '**: ' + (quickHits[i].one_liner || '') + '\\n';\n    }\n  }\n  md += '\\n';\n}\nif (digest.trend_note) md += '---\\n\\n**Trend:** ' + digest.trend_note + '\\n\\n';\nmd += '---\\n\\n_' + allArticles.length + ' articles analyzed | ' + articles.length + ' selected | $' + totalCost.toFixed(4) + ' API cost_\\n';\n\n// === SAVE DATA ===\nvar saveArticles = [];\nfor (var i = 0; i < articles.length; i++) {\n  var a = articles[i];\n  saveArticles.push({\n    urlHash: a.urlHash, titleNormalized: a.titleNormalized,\n    url: a.url, title: a.title, source: a.source,\n    publishedAt: a.publishedAt,\n    fullText: a.fullText ? a.fullText.substring(0, 50000) : '',\n    summary: a.summary || '', importance: a.importance || 5,\n    categories: a.categories || [], sentiment: a.sentiment || 'neutral',\n    keyEntities: a.keyEntities || [], whyItMatters: a.whyItMatters || '',\n    readingTimeMin: a.readingTimeMin || 3, includedInDigest: true\n  });\n}\n\nreturn [{ json: {\n  discordEmbeds: embeds, slackBlocks: blocks,\n  markdown: md, subjectLine: digest.subject_line || 'AI & Tech News Digest',\n  costUsd: totalCost, costInputTokens: totalIn, costOutputTokens: totalOut,\n  jinaTokens: selData._jinaTokens || 0, runId: selData._runId,\n  articlesFound: allArticles.length, articlesSelected: articles.length,\n  leadStoryTitle: lead ? lead.title : '', saveArticles: saveArticles,\n  trendNote: digest.trend_note || ''\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f7793af1-2496-4fbd-b9fd-9e80f4cae36f",
+      "name": "Send digest to Discord",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        6208,
+        608
+      ],
+      "parameters": {
+        "url": "={{ $('⚙️ Configure digest settings').first().json.discord_webhook_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 10000
+        },
+        "jsonBody": "={{ JSON.stringify({ embeds: $json.discordEmbeds }) }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "41cf330d-7627-498c-99d0-c1de256afc06",
+      "name": "Send digest to Slack",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        6208,
+        784
+      ],
+      "webhookId": "9a2a4af7-0cf4-44b1-936b-d6e8994bc358",
+      "parameters": {
+        "text": "={{ $json.subjectLine }}",
+        "select": "channel",
+        "blocksUi": "={{ JSON.stringify({ blocks: $json.slackBlocks }) }}",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('⚙️ Configure digest settings').first().json.slack_channel_id }}"
+        },
+        "messageType": "block",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "LlHrJ3xFhfJjRun1",
+          "name": "nxsi-slack"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "072a0613-8ada-4707-b056-aafb641431c2",
+      "name": "Build article save query",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6208,
+        976
+      ],
+      "parameters": {
+        "jsCode": "var data = $input.first().json;\nvar usePg = $('⚙️ Configure digest settings').first().json.use_postgres;\nif (!usePg) {\n  return [{ json: { query: \"SELECT 1\", _runData: data } }];\n}\nvar articles = data.saveArticles || [];\nvar runId = data.runId;\n\nfunction esc(str) {\n  if (str === null || str === undefined) return 'NULL';\n  return \"'\" + String(str).replace(/'/g, \"''\") + \"'\";\n}\n\nif (articles.length === 0) {\n  return [{ json: { query: \"SELECT 'no articles to save'\", _runData: data } }];\n}\n\nvar values = [];\nfor (var i = 0; i < articles.length; i++) {\n  var a = articles[i];\n  values.push('(' +\n    esc(a.urlHash) + ',' + esc(a.titleNormalized) + ',' +\n    esc(a.url) + ',' + esc(a.title) + ',' + esc(a.source) + ',' +\n    (a.publishedAt ? esc(a.publishedAt) : 'NULL') + ',' +\n    esc((a.fullText || '').substring(0, 50000)) + ',' +\n    esc(a.summary) + ',' + (a.importance || 5) + ',' +\n    esc(JSON.stringify(a.categories || [])) + '::jsonb,' +\n    esc(a.sentiment) + ',' +\n    esc(JSON.stringify(a.keyEntities || [])) + '::jsonb,' +\n    esc(a.whyItMatters) + ',' + (a.readingTimeMin || 3) + ',' +\n    esc(runId) + ',' + (a.includedInDigest ? 'true' : 'false') + ')');\n}\n\nvar query = 'INSERT INTO digest_articles (url_hash, title_normalized, url, title, source_name, published_at, full_text, summary, importance_score, categories, sentiment, key_entities, why_it_matters, reading_time_min, digest_id, included_in_digest) VALUES ' + values.join(',') + ' ON CONFLICT (url_hash) DO NOTHING';\n\nreturn [{ json: { query: query, _runData: data } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7e5072f5-ab02-4009-adc6-2aaf6e14e435",
+      "name": "Save articles to database",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        6480,
+        976
+      ],
+      "parameters": {
+        "query": "={{ $json.query }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "032psGVSbEPse0XO",
+          "name": "nxsi-postgres"
+        }
+      },
+      "typeVersion": 2.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "6a5864ab-dcac-48a5-9a40-d88470440c5e",
+      "name": "Mark run as completed",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        6736,
+        976
+      ],
+      "parameters": {
+        "query": "={{ $(\"⚙️ Configure digest settings\").first().json.use_postgres ? \"UPDATE digest_runs SET status = 'completed', feeds_checked = 10, articles_found = \" + $('Format multi-channel outputs').first().json.articlesFound + \", articles_after_dedup = \" + $('Format multi-channel outputs').first().json.articlesFound + \", articles_selected = \" + $('Format multi-channel outputs').first().json.articlesSelected + \", lead_story_title = \" + ($('Format multi-channel outputs').first().json.leadStoryTitle ? \"'\" + $('Format multi-channel outputs').first().json.leadStoryTitle.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", cost_input_tokens = \" + $('Format multi-channel outputs').first().json.costInputTokens + \", cost_output_tokens = \" + $('Format multi-channel outputs').first().json.costOutputTokens + \", cost_usd = \" + $('Format multi-channel outputs').first().json.costUsd + \", jina_tokens_used = \" + $('Format multi-channel outputs').first().json.jinaTokens + \", completed_at = NOW(), duration_seconds = EXTRACT(EPOCH FROM (NOW() - started_at))::int WHERE id = '\" + $('Format multi-channel outputs').first().json.runId + \"'\" : \"SELECT 1\" }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "032psGVSbEPse0XO",
+          "name": "nxsi-postgres"
+        }
+      },
+      "typeVersion": 2.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "5e659dc8-9dff-4e71-aa92-574d6d48f430",
+      "name": "Run daily at 6 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        608,
+        784
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8fed8e62-681d-4eb2-8373-a1948983d503",
+      "name": "Claude Haiku (analyzer)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        5024,
+        1056
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-haiku-4-5-20251001"
+        },
+        "options": {
+          "temperature": 0.2,
+          "maxTokensToSample": 2048
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "5zrxbFzTF9Yr7MNS",
+          "name": "nxsi-anthropic"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "ae1b7fe1-3933-4ce8-8471-d7216e61f499",
+      "name": "⚙️ Configure digest settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        880,
+        784
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1b2c3d4",
+              "name": "discord_webhook_url",
+              "type": "string",
+              "value": "https://discord.com/api/webhooks/YOUR_DISCORD_WEBHOOK_URL"
+            },
+            {
+              "id": "e5f6a7b8",
+              "name": "slack_channel_id",
+              "type": "string",
+              "value": "YOUR_SLACK_CHANNEL_ID"
+            },
+            {
+              "id": "c9d0e1f2",
+              "name": "max_extract_articles",
+              "type": "number",
+              "value": 25
+            },
+            {
+              "id": "a3b4c5d6",
+              "name": "max_digest_articles",
+              "type": "number",
+              "value": 12
+            },
+            {
+              "id": "e7f8a9b0",
+              "name": "dedup_lookback_days",
+              "type": "number",
+              "value": 7
+            },
+            {
+              "id": "c1d2e3f4",
+              "name": "feed_lookback_hours",
+              "type": "number",
+              "value": 24
+            },
+            {
+              "id": "pg_toggle_01",
+              "name": "use_postgres",
+              "type": "boolean",
+              "value": false
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3c774194-45a4-4f0a-b443-9585691b78d3",
+      "name": "Overview — AI News Digest",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        96
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 880,
+        "content": "# AI News Digest\n\nAutomated daily digest that monitors RSS/API sources, extracts full article text, analyzes each with Claude AI, scores by importance, and delivers a formatted briefing to Discord, Slack, or email.\n\n### How it works\n1. Triggers on a daily schedule (default: 6 AM)\n2. Fetches articles from configurable sources (RSS, Atom, Reddit JSON, Hacker News API)\n3. Deduplicates by URL hash and fuzzy title matching (+ database lookback if Postgres enabled)\n4. Extracts full article text using [Jina Reader API](https://jina.ai/reader/)\n5. Claude Haiku analyzes each article (importance 1-10, categories, sentiment)\n6. Articles are scored with topic weighting and social signal boosting\n7. Claude Sonnet compiles a polished digest (lead story, top stories, quick hits, trend note)\n8. Delivers to Discord (embeds), Slack (blocks), or both\n\n### Quick start\n1. Add your **Anthropic API key** as an n8n credential ([setup guide](https://nxsi.io/guides/claude-api-setup))\n2. Open **⚙️ Configure digest settings** and set your Discord webhook URL\n3. Activate the workflow — that's it!\n\n### Optional: PostgreSQL for history\nSet `use_postgres` to **true** in the config node to enable run tracking, article storage, and cross-day deduplication. Create the tables using the schema in the template description. The workflow runs fine without it.\n\n### Customization\n- Edit the feed list in **Build feed source list** to add/remove sources\n- Adjust topic weights in **Score and rank articles**\n- Change `max_extract_articles` and `max_digest_articles` in the config node\n- Modify the digest tone in the **Compile digest with Claude** system prompt\n- Swap Claude models: Haiku for cheaper runs, Opus for deeper analysis"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "df43ca14-d5df-4610-aa6e-aab8f63c3f46",
+      "name": "Section — Configuration",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        576,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 496,
+        "height": 452,
+        "content": "##  Configuration\nAll user settings in one place. Edit this node to set your webhook URLs, channel IDs, processing limits, and the `use_postgres` toggle.\n\n[Discord webhook setup](https://support.discord.com/hc/en-us/articles/228383668) | [Slack webhook guide](https://api.slack.com/messaging/webhooks)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6ba9dcbd-b802-4050-a610-0d105dc54fa7",
+      "name": "Section — Run Tracking",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 452,
+        "content": "##  Run Tracking\nCreates a timestamped database record to track progress, article counts, and API costs per run.\n\n(Optional)\nPostgreSQL enables run tracking, article history, and cross-day dedup. Set `use_postgres` to **true** in the config node, then create the tables from the template description.\n\nNot required -  the workflow runs fully without a database."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8b57b6f-5d75-4e7c-bb74-6fed24b99d28",
+      "name": "Section — Feed Collection",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1664,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 776,
+        "height": 452,
+        "content": "##  Feed Collection\nFetches and parses articles from RSS, Atom, Reddit JSON, and Hacker News API. Handles all feed formats automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4922558c-4424-4bc9-99dd-31474e2b0649",
+      "name": "Section — Deduplication",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2496,
+        432
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1080,
+        "height": 548,
+        "content": "##  Deduplication\nThree layers: URL hash matching, fuzzy title comparison (Levenshtein distance), and database lookback to skip recently-covered stories.\n\nDatabase dedup is automatic when Postgres is enabled. Without it, URL hash and title matching still prevent duplicates within each run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "35dc639a-7bbd-44d4-9bf2-a63963b325a3",
+      "name": "Section — Content Extraction",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3632,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 744,
+        "height": 452,
+        "content": "##  Content Extraction\nPulls full article text via [Jina Reader API](https://jina.ai/reader/) for deeper AI analysis beyond just titles and excerpts. Free tier handles most daily digest volumes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2da857f5-2fb9-43fe-84d3-b3e002b8227f",
+      "name": "Section — AI Analysis",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4464,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 792,
+        "height": 452,
+        "content": "##  AI Analysis\nClaude Haiku scores each article 1-10 for importance, assigns categories, detects sentiment, and writes a practical \"why it matters\" for each."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d39a1269-00a8-42c5-a164-14ec88ea9797",
+      "name": "Section — Digest Compilation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5312,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 728,
+        "height": 452,
+        "content": "##  Digest Compilation\nClaude Sonnet compiles top articles into a structured digest: lead story with analysis, top stories, quick hits, and trend detection."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4f971704-db51-4830-bb8a-af215aaee8c6",
+      "name": "Section — Delivery and Storage",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6144,
+        448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 744,
+        "height": 716,
+        "content": "##  Delivery & Storage\nSends formatted digest to Discord (embeds) and Slack (blocks). When Postgres is enabled, saves all analyzed articles and logs run completion stats.\n\nWithout Postgres, delivery works the same - the database nodes are safely skipped."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0d60f0c8-aead-4180-b649-5a5b813558ac",
+      "name": "Warning — Anthropic API Cost",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4992,
+        1008
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 464,
+        "height": 328,
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n⚠️ **Requires Anthropic API key**\nAdd your key via n8n Credentials → Anthropic.\n\nQuick setup: [console.anthropic.com](https://console.anthropic.com) → API Keys → Create Key\nFull guide: [nxsi.io/guides/claude-api-setup](https://nxsi.io/guides/claude-api-setup)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "077bd980-e9fc-464e-a343-94b6f5a97168",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        992
+      ],
+      "parameters": {
+        "width": 784,
+        "height": 864,
+        "content": "## Optional: PostgreSQL\n\n  Set `use_postgres` to **true** in the config node to enable run tracking, article storage, and cross-day deduplication. The workflow runs fully without a database -- all five Postgres nodes are safely skipped when disabled.\n\n  If you enable it, create these tables first:\n\n  `CREATE TABLE IF NOT EXISTS digest_runs (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),`\n    `run_date DATE NOT NULL,`\n    `started_at TIMESTAMPTZ DEFAULT now(),`\n    `completed_at TIMESTAMPTZ,`\n    `articles_found INTEGER DEFAULT 0,`\n    `articles_selected INTEGER DEFAULT 0,`\n    `cost_input_tokens INTEGER DEFAULT 0,`\n    `cost_output_tokens INTEGER DEFAULT 0,`\n    `cost_usd NUMERIC(10,6) DEFAULT 0,`\n    `status VARCHAR(20) DEFAULT 'running'`\n  `);`\n\n  `CREATE TABLE IF NOT EXISTS digest_articles (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),`\n    `run_id UUID REFERENCES digest_runs(id),`\n    `url_hash VARCHAR(64) NOT NULL,`\n    `title_normalized VARCHAR(500),`\n    `url TEXT,`\n    `title TEXT,`\n    `source VARCHAR(100),`\n    `published_at TIMESTAMPTZ,`\n    `full_text TEXT,`\n    `summary TEXT,`\n    `importance INTEGER,`\n    `categories TEXT[],`\n    `sentiment VARCHAR(20),`\n    `key_entities TEXT[],`\n    `why_it_matters TEXT,`\n    `reading_time_min INTEGER,`\n    `included_in_digest BOOLEAN DEFAULT false,`\n    `created_at TIMESTAMPTZ DEFAULT now()`\n  `);`\n\n  `CREATE INDEX idx_digest_articles_url_hash ON digest_articles(url_hash);`\n  `CREATE INDEX idx_digest_articles_title ON digest_articles(title_normalized);`\n  `CREATE INDEX idx_digest_articles_created ON digest_articles(created_at);`"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "4db1ab82-a1e5-4f1e-a2da-45a80accced2",
+  "connections": {
+    "Create run record": {
+      "main": [
+        [
+          {
+            "node": "Build feed source list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run daily at 6 AM": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Configure digest settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch feed content": {
+      "main": [
+        [
+          {
+            "node": "Parse articles from feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any articles found?": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate by URL and title",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark run as empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build feed source list": {
+      "main": [
+        [
+          {
+            "node": "Fetch feed content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Haiku (analyzer)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze article with Claude",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score and rank articles": {
+      "main": [
+        [
+          {
+            "node": "Select articles for digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build article save query": {
+      "main": [
+        [
+          {
+            "node": "Save articles to database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Sonnet (compiler)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Compile digest with Claude",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize run timestamp": {
+      "main": [
+        [
+          {
+            "node": "Create run record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare analysis prompts": {
+      "main": [
+        [
+          {
+            "node": "Analyze article with Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse articles from feeds": {
+      "main": [
+        [
+          {
+            "node": "Any articles found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save articles to database": {
+      "main": [
+        [
+          {
+            "node": "Mark run as completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble extracted content": {
+      "main": [
+        [
+          {
+            "node": "Prepare analysis prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compile digest with Claude": {
+      "main": [
+        [
+          {
+            "node": "Format multi-channel outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract full text via Jina": {
+      "main": [
+        [
+          {
+            "node": "Assemble extracted content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select articles for digest": {
+      "main": [
+        [
+          {
+            "node": "Compile digest with Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze article with Claude": {
+      "main": [
+        [
+          {
+            "node": "Score and rank articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate by URL and title": {
+      "main": [
+        [
+          {
+            "node": "Check database for recent duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format multi-channel outputs": {
+      "main": [
+        [
+          {
+            "node": "Send digest to Discord",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send digest to Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build article save query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove already-seen articles": {
+      "main": [
+        [
+          {
+            "node": "Select top articles for extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚙️ Configure digest settings": {
+      "main": [
+        [
+          {
+            "node": "Initialize run timestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select top articles for extraction": {
+      "main": [
+        [
+          {
+            "node": "Extract full text via Jina",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check database for recent duplicates": {
+      "main": [
+        [
+          {
+            "node": "Remove already-seen articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

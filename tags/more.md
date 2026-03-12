@@ -1,4 +1,4 @@
-# more : 12
+# more : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |8369|[8369_Task_Time_Analysis__Automated_Overspend_Time_Insights_for_ClickUp_and_More.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8369_Task_Time_Analysis__Automated_Overspend_Time_Insights_for_ClickUp_and_More.json)|
 |11637|[11637_Automate_Data_Extraction_with_Zyte_AI__Products__Jobs__Articles___More.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11637_Automate_Data_Extraction_with_Zyte_AI__Products__Jobs__Articles___More.json)|
 |12634|[12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json)|
+|13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|

@@ -1,4 +1,4 @@
-# lead : 272
+# lead : 283
 
 |id|file|
 |----|----|
@@ -274,3 +274,14 @@
 |13090|[13090_Enrich_lead_profiles_from_LinkedIn_URLs_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13090_Enrich_lead_profiles_from_LinkedIn_URLs_with_Apify_and_Google_Sheets.json)|
 |13116|[13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json)|
 |13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|
+|13385|[13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json)|
+|13429|[13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json)|
+|13480|[13480_Send_WhatsApp_follow-up_when_a_new_lead_submits_a_form_with_MoltFlow_and_log_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13480_Send_WhatsApp_follow-up_when_a_new_lead_submits_a_form_with_MoltFlow_and_log_to_Sheets.json)|
+|13513|[13513_Generate_Google_Maps_leads_with_AI_enrichment__social_discovery_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13513_Generate_Google_Maps_leads_with_AI_enrichment__social_discovery_and_Google_Sheets.json)|
+|13518|[13518_Re-engage_HubSpot_leads_using_Azure_OpenAI_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13518_Re-engage_HubSpot_leads_using_Azure_OpenAI_GPT-4o__Gmail_and_Slack.json)|
+|13678|[13678_Generate_Google_Maps_lead_lists_with_SerpApi__Google_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13678_Generate_Google_Maps_lead_lists_with_SerpApi__Google_Gemini_and_Sheets.json)|
+|13723|[13723_Automate_WhatsApp_lead_follow-ups_and_nurturing_with_WATI__Airtable_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13723_Automate_WhatsApp_lead_follow-ups_and_nurturing_with_WATI__Airtable_and_OpenAI.json)|
+|13738|[13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json)|
+|13740|[13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json)|
+|13746|[13746_Qualify_and_score_leads_in_Airtable_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13746_Qualify_and_score_leads_in_Airtable_with_OpenAI_and_Slack_alerts.json)|
+|13835|[13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json)|

@@ -1,4 +1,4 @@
-# onboarding : 42
+# onboarding : 45
 
 |id|file|
 |----|----|
@@ -44,3 +44,6 @@
 |12739|[12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json)|
 |13145|[13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json)|
 |13302|[13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json)|
+|13441|[13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json)|
+|13658|[13658_Automate_client_onboarding_with_Google_Forms__GPT_4o__ClickUp_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13658_Automate_client_onboarding_with_Google_Forms__GPT_4o__ClickUp_and_Gmail.json)|
+|13861|[13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json)|

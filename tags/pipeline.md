@@ -1,4 +1,4 @@
-# pipeline : 57
+# pipeline : 58
 
 |id|file|
 |----|----|
@@ -59,3 +59,4 @@
 |13065|[13065_Score_and_route_leads_with_Telegram_alerts_and_Box_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13065_Score_and_route_leads_with_Telegram_alerts_and_Box_storage.json)|
 |13116|[13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json)|
 |13192|[13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json)|
+|13529|[13529_Run_an_AI_SDR_sales_pipeline_with_OpenAI__Google_Sheets__Gmail_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13529_Run_an_AI_SDR_sales_pipeline_with_OpenAI__Google_Sheets__Gmail_and_Calendar.json)|

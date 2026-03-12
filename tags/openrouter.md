@@ -1,4 +1,4 @@
-# openrouter : 75
+# openrouter : 84
 
 |id|file|
 |----|----|
@@ -77,3 +77,12 @@
 |12748|[12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json)|
 |12778|[12778_Generate_personalized_cold_email_icebreakers_with_Apify__Baserow_and_OpenRouter_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12778_Generate_personalized_cold_email_icebreakers_with_Apify__Baserow_and_OpenRouter_GPT-4.1.json)|
 |13203|[13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json)|
+|13374|[13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json)|
+|13378|[13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json)|
+|13382|[13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json)|
+|13383|[13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json)|
+|13384|[13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json)|
+|13503|[13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json)|
+|13585|[13585_Track_legal_risks_and_litigation_threats_using_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13585_Track_legal_risks_and_litigation_threats_using_Bright_Data__OpenRouter_and_Google_Sheets.json)|
+|13586|[13586_Monitor_supplier_financial_distress_and_risk_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13586_Monitor_supplier_financial_distress_and_risk_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|
+|13587|[13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|

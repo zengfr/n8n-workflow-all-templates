@@ -1,4 +1,4 @@
-# documentation : 22
+# documentation : 25
 
 |id|file|
 |----|----|
@@ -24,3 +24,6 @@
 |11780|[11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json)|
 |12173|[12173_Extract___organize_email_invoices_with_Gmail__Drive___OpenAI_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12173_Extract___organize_email_invoices_with_Gmail__Drive___OpenAI_GPT.json)|
 |12641|[12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json)|
+|13436|[13436_Crawl_documentation_sites_and_build_an_AI_knowledge_base_with_Olostep.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13436_Crawl_documentation_sites_and_build_an_AI_knowledge_base_with_Olostep.json)|
+|13597|[13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json)|
+|13768|[13768_Generate_workflow_documentation_and_node_names_with_GPT_4.1_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13768_Generate_workflow_documentation_and_node_names_with_GPT_4.1_mini.json)|

@@ -1,4 +1,4 @@
-# captions : 25
+# captions : 26
 
 |id|file|
 |----|----|
@@ -27,3 +27,4 @@
 |12596|[12596_Create_and_post_social_media_image_captions_with_GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12596_Create_and_post_social_media_image_captions_with_GPT-4.1-mini_and_Google_Sheets.json)|
 |12755|[12755_Generate_and_post_Instagram_captions_with_Google_Drive__GPT-4.1-mini__Gmail_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12755_Generate_and_post_Instagram_captions_with_Google_Drive__GPT-4.1-mini__Gmail_and_Blotato.json)|
 |13112|[13112_Create_LinkedIn_image_posts_with_captions_using_Google_Gemini_and_LinkedIn.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13112_Create_LinkedIn_image_posts_with_captions_using_Google_Gemini_and_LinkedIn.json)|
+|13759|[13759_Upload_Instagram_Reels_from_Google_Sheets_with_DeepSeek_AI_captions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13759_Upload_Instagram_Reels_from_Google_Sheets_with_DeepSeek_AI_captions.json)|

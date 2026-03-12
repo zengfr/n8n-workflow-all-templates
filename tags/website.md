@@ -1,4 +1,4 @@
-# website : 134
+# website : 137
 
 |id|file|
 |----|----|
@@ -136,3 +136,6 @@
 |12981|[12981_Turn_any_website_into_an_AI_support_chatbot_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12981_Turn_any_website_into_an_AI_support_chatbot_with_OpenAI_and_Pinecone.json)|
 |13009|[13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json)|
 |13249|[13249_Analyze_website_page_gaps_with_GPT-4.1-mini__Perplexity__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13249_Analyze_website_page_gaps_with_GPT-4.1-mini__Perplexity__and_Google_Docs.json)|
+|13455|[13455_Monitor_website_changes_and_send_diff_alerts_via_Telegram_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13455_Monitor_website_changes_and_send_diff_alerts_via_Telegram_and_email.json)|
+|13672|[13672_Monitor_website_uptime_and_diagnose_errors_with_Gemini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13672_Monitor_website_uptime_and_diagnose_errors_with_Gemini_and_Slack_alerts.json)|
+|13802|[13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json)|

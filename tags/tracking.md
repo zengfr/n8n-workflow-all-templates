@@ -1,4 +1,4 @@
-# tracking : 149
+# tracking : 151
 
 |id|file|
 |----|----|
@@ -151,3 +151,5 @@
 |12802|[12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json)|
 |13152|[13152_Gamify_fitness_tracking_with_GPT-4o-mini_multi-agents_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13152_Gamify_fitness_tracking_with_GPT-4o-mini_multi-agents_and_Google_Sheets.json)|
 |13163|[13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json)|
+|13469|[13469_Extract_invoice_data_from_Gmail_to_Airtable_with_Mistral_OCR_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13469_Extract_invoice_data_from_Gmail_to_Airtable_with_Mistral_OCR_and_GPT-4.1-mini.json)|
+|13585|[13585_Track_legal_risks_and_litigation_threats_using_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13585_Track_legal_risks_and_litigation_threats_using_Bright_Data__OpenRouter_and_Google_Sheets.json)|

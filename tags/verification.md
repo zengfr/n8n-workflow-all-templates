@@ -1,4 +1,4 @@
-# verification : 48
+# verification : 49
 
 |id|file|
 |----|----|
@@ -50,3 +50,4 @@
 |12036|[12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12036_Verify_property_ownership_with_blockchain__GPT-4_fraud_detection__and_compliance_tracking.json)|
 |12504|[12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json)|
 |13197|[13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json)|
+|13427|[13427_Validate_emissions_data_and_generate_carbon_compliance_reports_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13427_Validate_emissions_data_and_generate_carbon_compliance_reports_with_GPT-4o_and_Google_Sheets.json)|

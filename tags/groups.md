@@ -1,4 +1,4 @@
-# groups : 14
+# groups : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |8442|[8442_Automated_Daily_AI_Summaries_from_WhatsApp_Groups.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8442_Automated_Daily_AI_Summaries_from_WhatsApp_Groups.json)|
 |8880|[8880_Automatically_Join_WhatsApp_Groups_with_Google_Sheets_and_Evolution_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8880_Automatically_Join_WhatsApp_Groups_with_Google_Sheets_and_Evolution_API.json)|
 |9288|[9288_Process_Telegram_Image_Albums_with_Data_Tables_Cache_and_NanoBanana_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9288_Process_Telegram_Image_Albums_with_Data_Tables_Cache_and_NanoBanana_AI.json)|
+|13366|[13366_Upload_videos_to_Facebook_Pages_and_Groups_with_Facebook_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13366_Upload_videos_to_Facebook_Pages_and_Groups_with_Facebook_Graph_API.json)|

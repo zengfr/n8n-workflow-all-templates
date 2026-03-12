@@ -1,4 +1,4 @@
-# location : 13
+# location : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |9891|[9891_Source_Top_GitHub_Talent_by_Language___Location_with_Gemini_AI_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9891_Source_Top_GitHub_Talent_by_Language___Location_with_Gemini_AI_and_BrowserAct.json)|
 |11087|[11087_Create_Film_Location_Database_with_Google_Maps__AI_Analysis___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11087_Create_Film_Location_Database_with_Google_Maps__AI_Analysis___Google_Sheets.json)|
 |11707|[11707_Generate_B2B_Leads_by_Industry___Location_with_Google_Places_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11707_Generate_B2B_Leads_by_Industry___Location_with_Google_Places_API_and_Google_Sheets.json)|
+|13411|[13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json)|

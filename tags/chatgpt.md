@@ -1,4 +1,4 @@
-# chatgpt : 45
+# chatgpt : 48
 
 |id|file|
 |----|----|
@@ -47,3 +47,6 @@
 |11929|[11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11929_Identify_competitor_content_gaps_across_ChatGPT__Perplexity___Gemini_with_SE_Ranking.json)|
 |12042|[12042_Generate___publish_SEO-optimized_Shopify_blog_articles_with_Gemini___ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12042_Generate___publish_SEO-optimized_Shopify_blog_articles_with_Gemini___ChatGPT.json)|
 |12270|[12270_Create_AI_sci_fi_book_review_videos_with_ChatGPT__Fal.ai_and_Nexrender.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12270_Create_AI_sci_fi_book_review_videos_with_ChatGPT__Fal.ai_and_Nexrender.json)|
+|13378|[13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json)|
+|13449|[13449_Track_AI_search_visibility_across_ChatGPT__Claude__DeepSeek_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13449_Track_AI_search_visibility_across_ChatGPT__Claude__DeepSeek_and_Perplexity.json)|
+|13458|[13458_Query_Airtable_data_from_ChatGPT_using_an_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13458_Query_Airtable_data_from_ChatGPT_using_an_MCP_server.json)|

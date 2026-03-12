@@ -1,4 +1,4 @@
-# maps : 62
+# maps : 67
 
 |id|file|
 |----|----|
@@ -64,3 +64,8 @@
 |12937|[12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json)|
 |12956|[12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json)|
 |12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|
+|13386|[13386_Wake_up_on_time_using_Google_Maps_traffic__Twilio_SMS__and_iOS_Shortcuts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13386_Wake_up_on_time_using_Google_Maps_traffic__Twilio_SMS__and_iOS_Shortcuts.json)|
+|13513|[13513_Generate_Google_Maps_leads_with_AI_enrichment__social_discovery_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13513_Generate_Google_Maps_leads_with_AI_enrichment__social_discovery_and_Google_Sheets.json)|
+|13580|[13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json)|
+|13582|[13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json)|
+|13678|[13678_Generate_Google_Maps_lead_lists_with_SerpApi__Google_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13678_Generate_Google_Maps_lead_lists_with_SerpApi__Google_Gemini_and_Sheets.json)|

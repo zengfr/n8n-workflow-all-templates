@@ -1,4 +1,4 @@
-# clockify : 11
+# clockify : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |3147|[3147_Backup_Clockify_to_Github_based_on_monthly_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/31/3147_Backup_Clockify_to_Github_based_on_monthly_reports.json)|
 |3177|[3177_Sync_Notion_to_Clockify_including_Clients_Projects_and_Tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/31/3177_Sync_Notion_to_Clockify_including_Clients_Projects_and_Tasks.json)|
 |5320|[5320_Let_AI_Agents_manage_clients__tasks____Clockify_Tool_MCP_Server___all_operations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/53/5320_Let_AI_Agents_manage_clients__tasks____Clockify_Tool_MCP_Server___all_operations.json)|
+|13368|[13368_Monitor_agency_profitability_with_Facebook_Ads__Shopify__Stripe__Clockify__Google_Sheets__Slack_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13368_Monitor_agency_profitability_with_Facebook_Ads__Shopify__Stripe__Clockify__Google_Sheets__Slack_and_Gemini.json)|

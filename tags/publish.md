@@ -1,4 +1,4 @@
-# publish : 99
+# publish : 106
 
 |id|file|
 |----|----|
@@ -101,3 +101,10 @@
 |13149|[13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json)|
 |13168|[13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json)|
 |13171|[13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json)|
+|13357|[13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json)|
+|13465|[13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json)|
+|13471|[13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json)|
+|13526|[13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json)|
+|13528|[13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json)|
+|13605|[13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json)|
+|13631|[13631_Monitor_YouTube_channels_and_publish_VideoDB_AI_summaries_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13631_Monitor_YouTube_channels_and_publish_VideoDB_AI_summaries_to_Notion.json)|

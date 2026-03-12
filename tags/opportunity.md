@@ -1,4 +1,4 @@
-# opportunity : 9
+# opportunity : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |10029|[10029_Automate_Invoice_Processing_with_OCR__GPT-4___Salesforce_Opportunity_Creation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10029_Automate_Invoice_Processing_with_OCR__GPT-4___Salesforce_Opportunity_Creation.json)|
 |12039|[12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json)|
 |12273|[12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json)|
+|13707|[13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json)|

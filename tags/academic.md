@@ -1,4 +1,4 @@
-# academic : 14
+# academic : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |9994|[9994_Automated_Academic_Paper_Metadata___Variable_Extraction_with_Gemini_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9994_Automated_Academic_Paper_Metadata___Variable_Extraction_with_Gemini_to_Google_Sheets.json)|
 |12730|[12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json)|
 |13156|[13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json)|
+|13430|[13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json)|
+|13432|[13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json)|
+|13680|[13680_Route_and_escalate_student_advising_requests_with_OpenAI__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13680_Route_and_escalate_student_advising_requests_with_OpenAI__Gmail_and_Slack.json)|

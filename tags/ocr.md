@@ -1,4 +1,4 @@
-# ocr : 67
+# ocr : 72
 
 |id|file|
 |----|----|
@@ -69,3 +69,8 @@
 |12868|[12868_Extract_passport_data_with_OpenAI_OCR_and_generate_QR_codes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12868_Extract_passport_data_with_OpenAI_OCR_and_generate_QR_codes.json)|
 |12961|[12961_Extract_data_from_PDF_reports_with_Gmail__OCR__Google_Sheets_and_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12961_Extract_data_from_PDF_reports_with_Gmail__OCR__Google_Sheets_and_OpenAI_GPT-4.1-mini.json)|
 |13092|[13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json)|
+|13469|[13469_Extract_invoice_data_from_Gmail_to_Airtable_with_Mistral_OCR_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13469_Extract_invoice_data_from_Gmail_to_Airtable_with_Mistral_OCR_and_GPT-4.1-mini.json)|
+|13504|[13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json)|
+|13636|[13636_Fast-track_expense_reimbursements_with_UploadToURL__Mindee_OCR__Expensify__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13636_Fast-track_expense_reimbursements_with_UploadToURL__Mindee_OCR__Expensify__and_Slack.json)|
+|13679|[13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json)|
+|13779|[13779_Extract_invoice_data_from_scanned_PDFs_to_Google_Sheets_with_Sarvam_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13779_Extract_invoice_data_from_scanned_PDFs_to_Google_Sheets_with_Sarvam_and_Gemini.json)|

@@ -1,4 +1,4 @@
-# prices : 27
+# prices : 29
 
 |id|file|
 |----|----|
@@ -29,3 +29,5 @@
 |11062|[11062_Track_Amazon_Prices___Monitor_Competitors_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11062_Track_Amazon_Prices___Monitor_Competitors_with_Apify_and_Google_Sheets.json)|
 |12075|[12075_Compare_product_prices_on_Amazon_and_Jumia_with_Decodo__OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12075_Compare_product_prices_on_Amazon_and_Jumia_with_Decodo__OpenAI_and_Telegram.json)|
 |12902|[12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json)|
+|13377|[13377_Monitor_product_prices_with_Decodo__Google_Sheets__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13377_Monitor_product_prices_with_Decodo__Google_Sheets__Gemini_and_Gmail.json)|
+|13836|[13836_Monitor_competitor_prices_with_Google_Shopping_and_Google_Sheets__alert_via_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13836_Monitor_competitor_prices_with_Google_Shopping_and_Google_Sheets__alert_via_Slack_and_Gmail.json)|

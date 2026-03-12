@@ -1,4 +1,4 @@
-# run : 38
+# run : 47
 
 |id|file|
 |----|----|
@@ -40,3 +40,12 @@
 |12686|[12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json)|
 |12811|[12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json)|
 |12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|
+|13373|[13373_Run_a_multi-agent_SEO_domain_audit_with_SE_Ranking_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13373_Run_a_multi-agent_SEO_domain_audit_with_SE_Ranking_and_Claude.json)|
+|13444|[13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json)|
+|13466|[13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json)|
+|13508|[13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json)|
+|13529|[13529_Run_an_AI_SDR_sales_pipeline_with_OpenAI__Google_Sheets__Gmail_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13529_Run_an_AI_SDR_sales_pipeline_with_OpenAI__Google_Sheets__Gmail_and_Calendar.json)|
+|13655|[13655_Run_WhatsApp_quizzes_and_track_student_progress_with_Wati__GPT-4.1_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13655_Run_WhatsApp_quizzes_and_track_student_progress_with_Wati__GPT-4.1_and_Sheets.json)|
+|13717|[13717_Run_a_self-hosted_multi-channel_AI_assistant_with_Claude__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13717_Run_a_self-hosted_multi-channel_AI_assistant_with_Claude__Gemini_and_Gmail.json)|
+|13732|[13732_Run_email_outreach_campaigns_from_Telegram_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13732_Run_email_outreach_campaigns_from_Telegram_with_Gmail_and_Google_Sheets.json)|
+|13809|[13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json)|

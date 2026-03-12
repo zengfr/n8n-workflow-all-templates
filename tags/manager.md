@@ -1,4 +1,4 @@
-# manager : 42
+# manager : 46
 
 |id|file|
 |----|----|
@@ -44,3 +44,7 @@
 |12038|[12038_Predict_tenant_churn_and_manage_retention_with_GPT-4__Gmail__Slack_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12038_Predict_tenant_churn_and_manage_retention_with_GPT-4__Gmail__Slack_and_your_CRM.json)|
 |12105|[12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12105_Automate_launch_intelligence_with_Hacker_News__Asana__GPT___Slack_Email_digests.json)|
 |12268|[12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json)|
+|13663|[13663_Update_KlickTipp_contact_tags_by_tag_names.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13663_Update_KlickTipp_contact_tags_by_tag_names.json)|
+|13664|[13664_Find_KlickTipp_tags_to_remove_by_prefix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13664_Find_KlickTipp_tags_to_remove_by_prefix.json)|
+|13699|[13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json)|
+|13828|[13828_Create_manager_tasks_from_Keephub_form_submissions_with_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13828_Create_manager_tasks_from_Keephub_form_submissions_with_OpenAI_GPT-4.1.json)|

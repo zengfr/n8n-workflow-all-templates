@@ -1,4 +1,4 @@
-# detect : 32
+# detect : 44
 
 |id|file|
 |----|----|
@@ -34,3 +34,15 @@
 |12904|[12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json)|
 |13141|[13141_Detect_financial_risk_and_orchestrate_compliance_with_GPT_4o__Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13141_Detect_financial_risk_and_orchestrate_compliance_with_GPT_4o__Slack_and_email.json)|
 |13186|[13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json)|
+|13322|[13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json)|
+|13330|[13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json)|
+|13349|[13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json)|
+|13351|[13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json)|
+|13534|[13534_Detect_and_move_duplicate_Google_Drive_files_with_Supabase_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13534_Detect_and_move_duplicate_Google_Drive_files_with_Supabase_and_Slack.json)|
+|13538|[13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json)|
+|13581|[13581_Scan_Gmail_links_with_VirusTotal_and_send_alerts_to_WhatsApp__Teams__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13581_Scan_Gmail_links_with_VirusTotal_and_send_alerts_to_WhatsApp__Teams__and_Sheets.json)|
+|13598|[13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json)|
+|13700|[13700_Detect_and_enforce_abuse_cases_with_OpenAI__Slack__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13700_Detect_and_enforce_abuse_cases_with_OpenAI__Slack__Gmail_and_Sheets.json)|
+|13706|[13706_Detect_and_isolate_ransomware_with_Claude__Anthropic___EDR__SIEM_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13706_Detect_and_isolate_ransomware_with_Claude__Anthropic___EDR__SIEM_and_Slack.json)|
+|13708|[13708_Detect_influencer_fraud_and_fake_followers_with_Instagram__X__TikTok_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13708_Detect_influencer_fraud_and_fake_followers_with_Instagram__X__TikTok_and_Claude.json)|
+|13838|[13838_Detect_content_decay_from_Google_Search_Console_and_alert_via_Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13838_Detect_content_decay_from_Google_Search_Console_and_alert_via_Slack_and_email.json)|

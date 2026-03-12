@@ -1,4 +1,4 @@
-# insights : 81
+# insights : 85
 
 |id|file|
 |----|----|
@@ -83,3 +83,7 @@
 |12803|[12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json)|
 |12857|[12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json)|
 |13064|[13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json)|
+|13411|[13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json)|
+|13593|[13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json)|
+|13646|[13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json)|
+|13872|[13872_Analyze_Shopify_orders_with_Gemini_AI_and_send_weekly_Slack_insights.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13872_Analyze_Shopify_orders_with_Gemini_AI_and_send_weekly_Slack_insights.json)|

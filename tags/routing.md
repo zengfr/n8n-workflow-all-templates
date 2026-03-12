@@ -1,4 +1,4 @@
-# routing : 48
+# routing : 56
 
 |id|file|
 |----|----|
@@ -50,3 +50,11 @@
 |12995|[12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json)|
 |12996|[12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json)|
 |13231|[13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json)|
+|13341|[13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json)|
+|13680|[13680_Route_and_escalate_student_advising_requests_with_OpenAI__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13680_Route_and_escalate_student_advising_requests_with_OpenAI__Gmail_and_Slack.json)|
+|13683|[13683_Audit_contract_governance_risk_with_OpenAI__Slack_and_email_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13683_Audit_contract_governance_risk_with_OpenAI__Slack_and_email_routing.json)|
+|13684|[13684_Audit_AI_decisions_and_route_risks_with_GPT-4.1-mini__Slack__and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13684_Audit_AI_decisions_and_route_risks_with_GPT-4.1-mini__Slack__and_email_reports.json)|
+|13698|[13698_Route_engineering_risks_with_Anthropic_multi-agents_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13698_Route_engineering_risks_with_Anthropic_multi-agents_and_Slack_alerts.json)|
+|13738|[13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json)|
+|13740|[13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json)|
+|13900|[13900_Scan_code_repositories_for_governance_issues_with_GPT-4o_and_severity-based_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13900_Scan_code_repositories_for_governance_issues_with_GPT-4o_and_severity-based_reports.json)|

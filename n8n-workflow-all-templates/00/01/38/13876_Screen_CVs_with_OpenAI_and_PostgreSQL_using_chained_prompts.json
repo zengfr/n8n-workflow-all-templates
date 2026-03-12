@@ -1,0 +1,857 @@
+{
+  "id": "FoMizxWit6hOJVzp",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Screen CVs with OpenAI and PostgreSQL using chained prompts",
+    "wechat": "youandme10086",
+    "id": 13876,
+    "update_time": "2026-03-12"
+  },
+  "name": "AI CV Screening with Chained Prompts",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "0cb0572a-b6e0-49e4-a9f2-c7249f9df88a",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -272,
+        64
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 500,
+        "height": 832,
+        "content": "## 🤖 AI CV Screening with Chained Prompts\n\nAutomatically screen resumes using 4 sequential AI prompts, each building on the previous one's output. Results are saved directly to PostgreSQL — no external backend required.\n\n### How it works\n1. **Webhook** receives a job ID + list of candidate IDs. Candidates and job must already exist in the database.\n2. **Prompt 0** extracts a structured job template (requirements, differentials, behavioral competencies and weights) from the job description — runs only if `gabarito` is null in the jobs table.\n3. **Prompts 1–3** run for each candidate in a loop:\n   - **Prompt 1** scores the candidate (0–100) against the job template with calibration anchors to avoid score inflation, plus per-criteria scores\n   - **Prompt 2** uses the score as context to identify concrete strengths (with CV evidence) and critical vs secondary gaps\n   - **Prompt 3** uses the gaps as context to generate personalized interview questions for that specific candidate\n4. Results are saved directly to the `analyses` table and candidate status updated to `processed`\n5. **Prompt 4** runs automatically when all candidates are processed — generates an executive summary saved to `job_summaries`\n\n### Setup\n- Add your **OpenAI API credentials** to all AI nodes\n- Add your **PostgreSQL credentials** to all Postgres nodes\n- Create the required tables using the SQL schema in the sticky note below\n- Trigger via `POST /webhook/cv-analyze` with `{ \"job_id\": 1, \"candidate_ids\": [1, 2, 3] }`\n\n### Customization\n- Swap `gpt-4.1-mini` for a more powerful model for higher accuracy\n- Adjust scoring anchors in Prompt 1 to match your hiring standards\n- Add more criteria to the job template in Prompt 0"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5ef87983-e5bb-49f1-9ea7-7842acb476d2",
+      "name": "Database Schema",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        672
+      ],
+      "parameters": {
+        "width": 708,
+        "height": 880,
+        "content": "## 🗄️ Required Database Schema\n\n```sql\nCREATE TABLE jobs (\n  id SERIAL PRIMARY KEY,\n  title VARCHAR(255) NOT NULL,\n  description TEXT NOT NULL,\n  gabarito JSONB,\n  status VARCHAR(20) DEFAULT 'draft',\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE candidates (\n  id SERIAL PRIMARY KEY,\n  job_id INTEGER REFERENCES jobs(id) ON DELETE CASCADE,\n  name VARCHAR(255),\n  filename VARCHAR(255),\n  cv_text TEXT,\n  status VARCHAR(20) DEFAULT 'pending',\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE analyses (\n  id SERIAL PRIMARY KEY,\n  candidate_id INTEGER REFERENCES candidates(id) ON DELETE CASCADE,\n  job_id INTEGER REFERENCES jobs(id) ON DELETE CASCADE,\n  score INTEGER,\n  nivel_aderencia VARCHAR(20),\n  justificativa_score TEXT,\n  pontos_fortes JSONB,\n  gaps_criticos JSONB,\n  gaps_secundarios JSONB,\n  perguntas_entrevista JSONB,\n  score_criterios JSONB,\n  created_at TIMESTAMP DEFAULT NOW(),\n  CONSTRAINT analyses_candidate_unique UNIQUE (candidate_id)\n);\n\nCREATE TABLE job_summaries (\n  id SERIAL PRIMARY KEY,\n  job_id INTEGER REFERENCES jobs(id) ON DELETE CASCADE,\n  total_analisados INTEGER,\n  recomendados JSONB,\n  destaque TEXT,\n  gap_comum TEXT,\n  resumo TEXT,\n  created_at TIMESTAMP DEFAULT NOW(),\n  CONSTRAINT job_summaries_job_id_key UNIQUE (job_id)\n);\n```"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e04df0d8-215c-4c7c-9c76-e49cd768cbdf",
+      "name": "Input Format",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        304,
+        64
+      ],
+      "parameters": {
+        "width": 340,
+        "height": 232,
+        "content": "## 📥 Webhook Input\nSend a POST request:\n```json\n{\n  \"job_id\": 1,\n  \"candidate_ids\": [1, 2, 3]\n}\n```\nCandidates and job must already exist in the database with `cv_text` populated."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3297343-eac2-4658-a1a7-19d66f2df74f",
+      "name": "Prompt 0 Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        176
+      ],
+      "parameters": {
+        "width": 700,
+        "height": 140,
+        "content": "## 🧠 Prompt 0 — Job Template Extraction\nRuns only when `gabarito` is null in the jobs table.\nExtracts structured requirements and sets weights automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "68d2ff58-4421-422b-8a6b-008b40527bde",
+      "name": "Candidate Loop Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2112,
+        64
+      ],
+      "parameters": {
+        "width": 1700,
+        "height": 140,
+        "content": "## 🔄 Candidate Loop\nProcesses one candidate at a time.\nPrompts 1 → 2 → 3 run sequentially,\neach using the previous output as context.\nResults saved to Postgres after each candidate."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "512b3240-cb2c-4d8a-9ad7-be87df671b62",
+      "name": "Summary Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4432,
+        64
+      ],
+      "parameters": {
+        "width": 1100,
+        "height": 140,
+        "content": "## 📊 Executive Summary — Prompt 4\nRuns once when all candidates are processed (pending = 0).\nSaves pool-level recommendation to job_summaries table."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7b48fa44-ea08-4c46-b89e-388d3ae9ee0e",
+      "name": "Receive CVs",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        304,
+        360
+      ],
+      "webhookId": "3a70a559-3905-44d1-8837-f983b30f8354",
+      "parameters": {
+        "path": "cv-analyze",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "6dbd0cb2-dba2-46dd-a355-eb8bb474e68b",
+      "name": "Fetch Job and Candidates",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        528,
+        360
+      ],
+      "parameters": {
+        "query": "SELECT j.id AS job_id, j.title, j.description, j.gabarito, array_agg(c.id) AS candidate_ids, json_agg(json_build_object('id', c.id, 'name', c.name, 'cv_text', c.cv_text)) AS candidates FROM jobs j JOIN candidates c ON c.job_id = j.id WHERE j.id = {{ $json.body.job_id }} AND c.id = ANY(ARRAY[{{ $json.body.candidate_ids.join(',') }}]::int[]) GROUP BY j.id, j.title, j.description, j.gabarito",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "SokBhjvxZoBINTiO",
+          "name": "Prompt"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "4cfed364-6856-4b72-a781-dbcc5e784879",
+      "name": "Job Template exists?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        752,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-gabarito",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.gabarito }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e0574622-0404-4739-8f86-64e9f2061a5a",
+      "name": "Prompt 0 — Extract Job Template",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        976,
+        432
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an HR and recruitment specialist. Analyze the job description and extract information in a structured way. Return ONLY valid JSON, no additional text, no markdown, no backticks."
+            },
+            {
+              "content": "=JOB DESCRIPTION:\n{{ $('Fetch Job and Candidates').item.json.description }}\n\nReturn ONLY valid JSON in this format:\n{\n  \"mandatory_requirements\": [\"list of mandatory requirements\"],\n  \"differential_requirements\": [\"list of differentials\"],\n  \"behavioral_competencies\": [\"list of behavioral competencies\"],\n  \"seniority_level\": \"junior|mid|senior|specialist\",\n  \"area\": \"area of expertise\",\n  \"weights\": {\n    \"mandatory_requirements\": 0.5,\n    \"differential_requirements\": 0.2,\n    \"behavioral_competencies\": 0.2,\n    \"experience\": 0.1\n  }\n}\n\nWeights must sum to 1.0 and reflect the importance of each criterion for THIS specific job."
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "lEM4Vz2E6WMNTSrX",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1f095e0e-bb1e-4eb7-b2bf-593e775928bb",
+      "name": "Save Job Template",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1328,
+        432
+      ],
+      "parameters": {
+        "query": "UPDATE jobs SET gabarito = '{{ $json.output[0].content[0].text }}'::jsonb WHERE id = {{ $('Fetch Job and Candidates').item.json.job_id }} RETURNING gabarito",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "SokBhjvxZoBINTiO",
+          "name": "Prompt"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "aed6cd32-e56a-482a-85ec-3a3ccde8e35f",
+      "name": "Prepare Candidates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1552,
+        360
+      ],
+      "parameters": {
+        "jsCode": "const jobData = $('Fetch Job and Candidates').first().json;\n\nlet gabarito = jobData.gabarito;\n\nif (!gabarito) {\n  const raw = $('Prompt 0 — Extract Job Template').first().json.output[0].content[0].text;\n  gabarito = JSON.parse(raw);\n}\n\nconst candidates = typeof jobData.candidates === 'string'\n  ? JSON.parse(jobData.candidates)\n  : jobData.candidates;\n\nreturn candidates.map(c => ({\n  json: {\n    job_id:         jobData.job_id,\n    job_title:      jobData.title,\n    gabarito:       gabarito,\n    candidate_id:   c.id,\n    candidate_name: c.name,\n    cv_text:        c.cv_text\n  }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d974a929-57f3-49de-821b-77a41d46724e",
+      "name": "Loop Candidates",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1776,
+        360
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "414e3332-8857-4b7a-8f19-4083e60516a1",
+      "name": "Prompt 1 — Score",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2000,
+        288
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a senior recruitment specialist with 15 years of experience. You evaluate resumes with technical rigor and impartiality. Never inflate scores — an average candidate should receive an average score. Return ONLY valid JSON, no additional text, no markdown, no backticks."
+            },
+            {
+              "content": "=JOB TEMPLATE:\n{{ JSON.stringify($json.gabarito) }}\n\nCANDIDATE RESUME:\n{{ $json.cv_text }}\n\nSCORING RULES — follow strictly:\n- 90-100: Meets ALL mandatory requirements with proven, documented experience. Has most differentials.\n- 70-89: Meets most mandatory requirements. Minor gaps compensated by other strengths.\n- 50-69: Partially meets mandatory requirements. Relevant but non-eliminatory gaps.\n- 30-49: Critical gaps in mandatory requirements. Candidate would need significant development.\n- 0-29: Does not meet the minimum requirements for the role.\n\nINSTRUCTIONS:\n- Consider PROVEN experience, not just superficial keyword mentions.\n- Penalize absence of mandatory requirements proportionally to weights in the job template.\n- Value real projects and concrete results over theoretical knowledge.\n- Use the job template weights to calculate the final score AND per-criteria scores.\n\nReturn ONLY valid JSON:\n{\n  \"score\": number between 0 and 100,\n  \"adherence_level\": \"Low|Medium|High|Excellent\",\n  \"justification\": \"3 objective sentences explaining the score. Cite concrete evidence from the resume and specific gaps that justify the rating.\",\n  \"criteria_scores\": {\n    \"mandatory_requirements\": number between 0 and 100,\n    \"differential_requirements\": number between 0 and 100,\n    \"behavioral_competencies\": number between 0 and 100,\n    \"experience\": number between 0 and 100\n  }\n}"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "lEM4Vz2E6WMNTSrX",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "ab0906db-3de1-4f4e-b749-a680b16d8cd9",
+      "name": "Prompt 2 — Gaps",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2352,
+        288
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a senior recruitment specialist. Analyze resumes with surgical precision — cite concrete evidence, not generalities. Return ONLY valid JSON, no additional text, no markdown, no backticks."
+            },
+            {
+              "content": "=JOB TEMPLATE:\n{{ JSON.stringify($('Loop Candidates').item.json.gabarito) }}\n\nCANDIDATE RESUME:\n{{ $('Loop Candidates').item.json.cv_text }}\n\nSCORE RESULT:\n{{ $('Prompt 1 — Score').item.json.output[0].content[0].text }}\n\nINSTRUCTIONS:\n- For each strength: cite the EXACT evidence from the resume (project, company, technology mentioned).\n- For critical gaps: list only MANDATORY requirements from the template that are absent or insufficiently proven.\n- For secondary gaps: list absent differentials and unevidenced behavioral competencies.\n- Be specific — \"Experience with n8n in self-hosted production\" is better than \"Automation experience\".\n- Do not repeat information between strengths and gaps.\n\nReturn ONLY valid JSON:\n{\n  \"strengths\": [\"strength with resume evidence — max 8 items\"],\n  \"critical_gaps\": [\"absent or insufficient mandatory requirement — be specific\"],\n  \"secondary_gaps\": [\"absent differential or behavioral competency\"]\n}"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "lEM4Vz2E6WMNTSrX",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "bccbda40-5c02-490b-b2bd-ee1a98ad1e9e",
+      "name": "Prompt 3 — Interview Questions",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2704,
+        288
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a recruitment specialist with experience in technical and behavioral competency-based interviews. Generate questions that reveal the real candidate, not the prepared one. Return ONLY valid JSON, no additional text, no markdown, no backticks."
+            },
+            {
+              "content": "=JOB TEMPLATE:\n{{ JSON.stringify($('Loop Candidates').item.json.gabarito) }}\n\nCANDIDATE PROFILE:\n- Name: {{ $('Loop Candidates').item.json.candidate_name }}\n- Score: {{ $('Prompt 1 — Score').item.json.output[0].content[0].text }}\n- Full analysis: {{ $('Prompt 2 — Gaps').item.json.output[0].content[0].text }}\n\nINSTRUCTIONS:\n- Generate PERSONALIZED questions for this candidate — not generic HR questions.\n- Prefer situational questions: \"Tell me about a time when...\" or \"How would you handle...\"\n- Avoid yes/no questions.\n- For critical gaps: investigate non-confrontationally — \"What is your experience with X?\" instead of \"Do you know X?\".\n- For strengths: dig deeper with requests for concrete examples and measurable results.\n- Vary types: at least 2 technical, 2 behavioral, 1 situational.\n- Each question must have a clear and distinct objective.\n\nReturn ONLY valid JSON:\n{\n  \"interview_questions\": [\n    {\n      \"question\": \"full question text\",\n      \"objective\": \"what this question specifically reveals about this candidate\",\n      \"type\": \"technical|behavioral|situational\"\n    }\n  ]\n}\n\nGenerate between 5 and 7 questions."
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "lEM4Vz2E6WMNTSrX",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "01fcae4e-6bcb-48a8-bbd0-8e137e9ef190",
+      "name": "Build Analysis Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3056,
+        288
+      ],
+      "parameters": {
+        "jsCode": "const candidate = $('Loop Candidates').item.json;\n\nconst score_data = JSON.parse($('Prompt 1 — Score').item.json.output[0].content[0].text);\nconst gaps_data  = JSON.parse($('Prompt 2 — Gaps').item.json.output[0].content[0].text);\nconst pergs_data = JSON.parse($('Prompt 3 — Interview Questions').item.json.output[0].content[0].text);\n\nreturn [{\n  json: {\n    candidate_id:          candidate.candidate_id,\n    job_id:                candidate.job_id,\n    score:                 score_data.score,\n    nivel_aderencia:       score_data.adherence_level,\n    justificativa_score:   score_data.justification,\n    score_criterios:       score_data.criteria_scores,\n    pontos_fortes:         gaps_data.strengths,\n    gaps_criticos:         gaps_data.critical_gaps,\n    gaps_secundarios:      gaps_data.secondary_gaps,\n    perguntas_entrevista:  pergs_data.interview_questions\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d9ba1c99-fb5d-46f4-8af1-62a9189b4c66",
+      "name": "Save Analysis",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3280,
+        288
+      ],
+      "parameters": {
+        "query": "INSERT INTO analyses (candidate_id, job_id, score, nivel_aderencia, justificativa_score, score_criterios, pontos_fortes, gaps_criticos, gaps_secundarios, perguntas_entrevista) VALUES ({{ $json.candidate_id }}, {{ $json.job_id }}, {{ $json.score }}, '{{ $json.nivel_aderencia }}', '{{ $json.justificativa_score.replace(/'/g, \"''\") }}', '{{ JSON.stringify($json.score_criterios) }}'::jsonb, '{{ JSON.stringify($json.pontos_fortes) }}'::jsonb, '{{ JSON.stringify($json.gaps_criticos) }}'::jsonb, '{{ JSON.stringify($json.gaps_secundarios) }}'::jsonb, '{{ JSON.stringify($json.perguntas_entrevista) }}'::jsonb) ON CONFLICT (candidate_id) DO UPDATE SET score = EXCLUDED.score, nivel_aderencia = EXCLUDED.nivel_aderencia, justificativa_score = EXCLUDED.justificativa_score, score_criterios = EXCLUDED.score_criterios, pontos_fortes = EXCLUDED.pontos_fortes, gaps_criticos = EXCLUDED.gaps_criticos, gaps_secundarios = EXCLUDED.gaps_secundarios, perguntas_entrevista = EXCLUDED.perguntas_entrevista",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "SokBhjvxZoBINTiO",
+          "name": "Prompt"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "a74272c7-8c2d-4b3b-a6ac-baa509eb8b12",
+      "name": "Update Candidate Status",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3504,
+        288
+      ],
+      "parameters": {
+        "query": "UPDATE candidates SET status = 'processed' WHERE id = {{ $('Build Analysis Payload').item.json.candidate_id }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "SokBhjvxZoBINTiO",
+          "name": "Prompt"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "25b0eaf5-2598-48d0-8be9-fb569d37ea03",
+      "name": "Check Pending Candidates",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3728,
+        288
+      ],
+      "parameters": {
+        "query": "SELECT COUNT(*) AS pending FROM candidates WHERE job_id = {{ $('Build Analysis Payload').item.json.job_id }} AND status = 'pending'",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "SokBhjvxZoBINTiO",
+          "name": "Prompt"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "3398f657-1294-4e5f-a006-6f8ed5c2e9bc",
+      "name": "All Candidates Processed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3952,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-pending",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.pending }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "397c9184-d234-47d8-bc3a-49087c7874e1",
+      "name": "Update Job Status",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        4176,
+        360
+      ],
+      "parameters": {
+        "query": "UPDATE jobs SET status = 'done' WHERE id = {{ $('Build Analysis Payload').item.json.job_id }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "SokBhjvxZoBINTiO",
+          "name": "Prompt"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "bb43a8a2-8431-47dd-b436-2f71c96430a6",
+      "name": "Fetch Full Pool",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        4400,
+        360
+      ],
+      "parameters": {
+        "query": "SELECT c.name, a.score, a.nivel_aderencia, a.justificativa_score, a.pontos_fortes, a.gaps_criticos FROM candidates c JOIN analyses a ON a.candidate_id = c.id WHERE c.job_id = {{ $('Build Analysis Payload').item.json.job_id }} ORDER BY a.score DESC",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "SokBhjvxZoBINTiO",
+          "name": "Prompt"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "e4934c9f-1b20-4bbd-b7d8-2512c665f51a",
+      "name": "Fetch Job for Summary",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        4624,
+        360
+      ],
+      "parameters": {
+        "query": "SELECT title, gabarito FROM jobs WHERE id = {{ $('Build Analysis Payload').item.json.job_id }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "SokBhjvxZoBINTiO",
+          "name": "Prompt"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "f8529e9e-1443-4b42-a6c7-c59af19f51c6",
+      "name": "Prompt 4 — Executive Summary",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        4848,
+        360
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a senior HR consultant with experience in executive selection. Analyze candidate pools with strategic vision and objective language. Return ONLY valid JSON, no additional text, no markdown, no backticks."
+            },
+            {
+              "content": "=JOB: {{ $('Fetch Job for Summary').item.json.title }}\n\nJOB TEMPLATE:\n{{ JSON.stringify($('Fetch Job for Summary').item.json.gabarito) }}\n\nANALYZED CANDIDATES (ordered by score):\n{{ JSON.stringify($('Fetch Full Pool').all().map(i => i.json)) }}\n\nAnalyze the complete candidate pool and generate an executive summary for the HR team.\n\nINSTRUCTIONS:\n- Be direct and objective — HR needs to make a quick decision\n- Clearly identify who to recommend for interview (score >= 70)\n- Point out the most recurring gap in the pool — this may indicate an issue with the job description or the market\n- The summary should have at most 3 sentences — concise and executive\n- Do not repeat information already in individual candidate analyses\n\nReturn ONLY valid JSON:\n{\n  \"total_analyzed\": total number of candidates as integer,\n  \"recommended\": [\"Names of candidates with score >= 70\"],\n  \"destaque\": \"1 sentence about the highest scoring candidate and why they stand out\",\n  \"gap_comum\": \"1 sentence about the most recurring gap in the pool\",\n  \"resumo\": \"2-3 sentence executive conclusion with a clear recommendation for next steps\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "lEM4Vz2E6WMNTSrX",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "44192b37-dd99-4a6a-a23b-8138b1b33d28",
+      "name": "Build Summary Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5200,
+        360
+      ],
+      "parameters": {
+        "jsCode": "const raw  = $('Prompt 4 — Executive Summary').item.json.output[0].content[0].text;\nconst data = JSON.parse(raw);\nconst job_id = $('Build Analysis Payload').item.json.job_id;\n\nreturn [{\n  json: {\n    job_id:           job_id,\n    total_analisados: data.total_analyzed,\n    recomendados:     data.recommended,\n    destaque:         data.destaque,\n    gap_comum:        data.gap_comum,\n    resumo:           data.resumo\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "221e40ba-5662-45ac-9200-787a460e9c8b",
+      "name": "Save Summary",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        5424,
+        360
+      ],
+      "parameters": {
+        "query": "INSERT INTO job_summaries (job_id, total_analisados, recomendados, destaque, gap_comum, resumo) VALUES ({{ $json.job_id }}, {{ $json.total_analisados }}, '{{ JSON.stringify($json.recomendados) }}'::jsonb, '{{ $json.destaque.replace(/'/g, \"''\") }}', '{{ $json.gap_comum.replace(/'/g, \"''\") }}', '{{ $json.resumo.replace(/'/g, \"''\") }}') ON CONFLICT (job_id) DO UPDATE SET total_analisados = EXCLUDED.total_analisados, recomendados = EXCLUDED.recomendados, destaque = EXCLUDED.destaque, gap_comum = EXCLUDED.gap_comum, resumo = EXCLUDED.resumo",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "SokBhjvxZoBINTiO",
+          "name": "Prompt"
+        }
+      },
+      "typeVersion": 2.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dc533c0c-4541-411b-a15d-81cd4c668502",
+  "connections": {
+    "Receive CVs": {
+      "main": [
+        [
+          {
+            "node": "Fetch Job and Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Analysis": {
+      "main": [
+        [
+          {
+            "node": "Update Candidate Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Full Pool": {
+      "main": [
+        [
+          {
+            "node": "Fetch Job for Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Candidates": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Prompt 1 — Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt 2 — Gaps": {
+      "main": [
+        [
+          {
+            "node": "Prompt 3 — Interview Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Job Template": {
+      "main": [
+        [
+          {
+            "node": "Prepare Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Job Status": {
+      "main": [
+        [
+          {
+            "node": "Fetch Full Pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Candidates": {
+      "main": [
+        [
+          {
+            "node": "Loop Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt 1 — Score": {
+      "main": [
+        [
+          {
+            "node": "Prompt 2 — Gaps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Template exists?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prompt 0 — Extract Job Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Summary Payload": {
+      "main": [
+        [
+          {
+            "node": "Save Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Job for Summary": {
+      "main": [
+        [
+          {
+            "node": "Prompt 4 — Executive Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Analysis Payload": {
+      "main": [
+        [
+          {
+            "node": "Save Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Candidate Status": {
+      "main": [
+        [
+          {
+            "node": "Check Pending Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Pending Candidates": {
+      "main": [
+        [
+          {
+            "node": "All Candidates Processed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Job and Candidates": {
+      "main": [
+        [
+          {
+            "node": "Job Template exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Candidates Processed?": {
+      "main": [
+        [
+          {
+            "node": "Update Job Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt 4 — Executive Summary": {
+      "main": [
+        [
+          {
+            "node": "Build Summary Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt 3 — Interview Questions": {
+      "main": [
+        [
+          {
+            "node": "Build Analysis Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt 0 — Extract Job Template": {
+      "main": [
+        [
+          {
+            "node": "Save Job Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

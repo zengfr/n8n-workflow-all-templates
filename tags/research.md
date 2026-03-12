@@ -1,4 +1,4 @@
-# research : 175
+# research : 184
 
 |id|file|
 |----|----|
@@ -177,3 +177,12 @@
 |12949|[12949_Generate_weekly_AI_equity_research_reports_with_Google_Sheets__FMP__NewsAPI__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12949_Generate_weekly_AI_equity_research_reports_with_Google_Sheets__FMP__NewsAPI__OpenAI__and_Gmail.json)|
 |13261|[13261_Multi-AI_Council_Research____GPT_5.2__Claude_Opus_4.6___Gemini_3_Pro_Aggregation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13261_Multi-AI_Council_Research____GPT_5.2__Claude_Opus_4.6___Gemini_3_Pro_Aggregation.json)|
 |13282|[13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json)|
+|13385|[13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json)|
+|13457|[13457_Enrich_Airtable_company_records_with_web_research_using_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13457_Enrich_Airtable_company_records_with_web_research_using_OpenAI_GPT-4o.json)|
+|13519|[13519_Get_AI_meeting_briefs_from_Google_Calendar_with_SerpAPI__Azure_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13519_Get_AI_meeting_briefs_from_Google_Calendar_with_SerpAPI__Azure_OpenAI_and_Slack.json)|
+|13608|[13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json)|
+|13713|[13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json)|
+|13805|[13805_Generate_business_research_reports_with_Claude__web_search_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13805_Generate_business_research_reports_with_Claude__web_search_and_Google_Drive.json)|
+|13835|[13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json)|
+|13869|[13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json)|
+|13908|[13908_Generate_AI_market_research_reports_with_Perplexity__Claude__Google_Trends__and_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13908_Generate_AI_market_research_reports_with_Perplexity__Claude__Google_Trends__and_Autype.json)|

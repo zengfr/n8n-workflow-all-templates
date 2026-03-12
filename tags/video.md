@@ -1,4 +1,4 @@
-# video : 236
+# video : 245
 
 |id|file|
 |----|----|
@@ -238,3 +238,12 @@
 |13110|[13110_Generate_daily_AI_reels_from_Google_Drive_images_with_GPT_5.1__Wavespeed_and_Submagic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13110_Generate_daily_AI_reels_from_Google_Drive_images_with_GPT_5.1__Wavespeed_and_Submagic.json)|
 |13169|[13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json)|
 |13182|[13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json)|
+|13564|[13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json)|
+|13675|[13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json)|
+|13749|[13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json)|
+|13807|[13807_Generate_multi-scene_AI_videos_from_scripts_with_Claude__Stability_AI_and_Runway.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13807_Generate_multi-scene_AI_videos_from_scripts_with_Claude__Stability_AI_and_Runway.json)|
+|13887|[13887_Analyze_YouTube_videos_and_auto-generate_AI_reports_in_Google_Docs_with_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13887_Analyze_YouTube_videos_and_auto-generate_AI_reports_in_Google_Docs_with_DeepSeek.json)|
+|13888|[13888_Generate_Viral_AI_Motion_Video____using_Kling_2.6_Kie_AI___Auto-Post_to_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13888_Generate_Viral_AI_Motion_Video____using_Kling_2.6_Kie_AI___Auto-Post_to_TikTok.json)|
+|13889|[13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json)|
+|13893|[13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json)|
+|13895|[13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json)|

@@ -1,4 +1,4 @@
-# course : 7
+# course : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |9437|[9437_Course_Recommendation_System_for_Surveys_with_Data_Tables_and_GPT-4.1-Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9437_Course_Recommendation_System_for_Surveys_with_Data_Tables_and_GPT-4.1-Mini.json)|
 |12248|[12248_Track_Udemy_course_discounts_with_Airtop__Google_Sheets_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12248_Track_Udemy_course_discounts_with_Airtop__Google_Sheets_and_Telegram_alerts.json)|
 |12731|[12731_Grade_and_deliver_multi-course_assignment_feedback_with_GPT-4o__Google_Drive__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12731_Grade_and_deliver_multi-course_assignment_feedback_with_GPT-4o__Google_Drive__Slack__and_Gmail.json)|
+|13693|[13693_Handle_WhatsApp_course_enrollment_and_payments_with_Wati_and_Razorpay.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13693_Handle_WhatsApp_course_enrollment_and_payments_with_Wati_and_Razorpay.json)|

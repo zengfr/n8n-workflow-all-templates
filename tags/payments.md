@@ -1,4 +1,4 @@
-# payments : 13
+# payments : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |12015|[12015_Monitor_cryptocurrency_payments_across_multiple_blockchains_with_AgentGatePay.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12015_Monitor_cryptocurrency_payments_across_multiple_blockchains_with_AgentGatePay.json)|
 |12695|[12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json)|
 |13213|[13213_Track_MPESA_and_Airtel_mobile_payments_in_a_fundraising_WhatsApp_group.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13213_Track_MPESA_and_Airtel_mobile_payments_in_a_fundraising_WhatsApp_group.json)|
+|13693|[13693_Handle_WhatsApp_course_enrollment_and_payments_with_Wati_and_Razorpay.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13693_Handle_WhatsApp_course_enrollment_and_payments_with_Wati_and_Razorpay.json)|

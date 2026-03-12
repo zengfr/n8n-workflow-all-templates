@@ -1,4 +1,4 @@
-# multiple : 90
+# multiple : 93
 
 |id|file|
 |----|----|
@@ -92,3 +92,6 @@
 |12747|[12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json)|
 |13171|[13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json)|
 |13238|[13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json)|
+|13467|[13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json)|
+|13471|[13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json)|
+|13637|[13637_Generate_rotating_user-agents_and_proxy_IPs_for_scraping_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13637_Generate_rotating_user-agents_and_proxy_IPs_for_scraping_APIs.json)|

@@ -1,4 +1,4 @@
-# outreach : 96
+# outreach : 101
 
 |id|file|
 |----|----|
@@ -98,3 +98,8 @@
 |13029|[13029_Send_LinkedIn_outreach_messages_using_Google_Sheets_and_SourceGeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13029_Send_LinkedIn_outreach_messages_using_Google_Sheets_and_SourceGeek.json)|
 |13119|[13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json)|
 |13172|[13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json)|
+|13336|[13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json)|
+|13346|[13346_Enrich_HubSpot_sales_sequence_contacts_with_Lusha_and_route_to_outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13346_Enrich_HubSpot_sales_sequence_contacts_with_Lusha_and_route_to_outreach.json)|
+|13466|[13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json)|
+|13732|[13732_Run_email_outreach_campaigns_from_Telegram_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13732_Run_email_outreach_campaigns_from_Telegram_with_Gmail_and_Google_Sheets.json)|
+|13843|[13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json)|

@@ -1,4 +1,4 @@
-# publisher : 22
+# publisher : 23
 
 |id|file|
 |----|----|
@@ -24,3 +24,4 @@
 |11566|[11566_Automated_RSS_to_Telegram_Publisher_with_Groq_AI_Rewriting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11566_Automated_RSS_to_Telegram_Publisher_with_Groq_AI_Rewriting.json)|
 |12128|[12128_Text-to-video_generator___social_media_publisher_with_Fal.ai_and_Telegram_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12128_Text-to-video_generator___social_media_publisher_with_Fal.ai_and_Telegram_approval.json)|
 |12131|[12131_Convert_GitHub_code_commits_to_LinkedIn_posts_with_Gemini_AI_and_code_image_generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12131_Convert_GitHub_code_commits_to_LinkedIn_posts_with_Gemini_AI_and_code_image_generation.json)|
+|13767|[13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json)|

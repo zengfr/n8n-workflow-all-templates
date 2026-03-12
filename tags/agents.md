@@ -1,4 +1,4 @@
-# agents : 108
+# agents : 111
 
 |id|file|
 |----|----|
@@ -110,3 +110,6 @@
 |12834|[12834_AI_Agents_Generate_Content___Automate_Posting_for_Beauty_Salon_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12834_AI_Agents_Generate_Content___Automate_Posting_for_Beauty_Salon_Social_Media.json)|
 |12841|[12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json)|
 |13152|[13152_Gamify_fitness_tracking_with_GPT-4o-mini_multi-agents_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13152_Gamify_fitness_tracking_with_GPT-4o-mini_multi-agents_and_Google_Sheets.json)|
+|13637|[13637_Generate_rotating_user-agents_and_proxy_IPs_for_scraping_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13637_Generate_rotating_user-agents_and_proxy_IPs_for_scraping_APIs.json)|
+|13698|[13698_Route_engineering_risks_with_Anthropic_multi-agents_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13698_Route_engineering_risks_with_Anthropic_multi-agents_and_Slack_alerts.json)|
+|13869|[13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json)|

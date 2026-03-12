@@ -1,4 +1,4 @@
-# hunter : 29
+# hunter : 30
 
 |id|file|
 |----|----|
@@ -31,3 +31,4 @@
 |12712|[12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json)|
 |12855|[12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12855_Extract_and_qualify_local_business_leads_and_draft_cold_emails_with_OpenAI__Apify_and_Hunter.json)|
 |13170|[13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json)|
+|13523|[13523_Enrich_and_score_B2B_company_leads_with_Clearbit__Hunter.io__and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13523_Enrich_and_score_B2B_company_leads_with_Clearbit__Hunter.io__and_Gemini_AI.json)|

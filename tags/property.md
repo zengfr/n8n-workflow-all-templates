@@ -1,4 +1,4 @@
-# property : 31
+# property : 35
 
 |id|file|
 |----|----|
@@ -33,3 +33,7 @@
 |12431|[12431_Automate_property_inspections_and_reporting_with_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12431_Automate_property_inspections_and_reporting_with_OpenAI__Google_Sheets_and_Slack.json)|
 |12496|[12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json)|
 |12687|[12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json)|
+|13338|[13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json)|
+|13686|[13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json)|
+|13688|[13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json)|
+|13705|[13705_Manage_WhatsApp_property_maintenance_tickets_with_WATI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13705_Manage_WhatsApp_property_maintenance_tickets_with_WATI_and_Google_Sheets.json)|

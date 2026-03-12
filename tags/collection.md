@@ -1,4 +1,4 @@
-# collection : 33
+# collection : 34
 
 |id|file|
 |----|----|
@@ -35,3 +35,4 @@
 |11899|[11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json)|
 |12197|[12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json)|
 |12694|[12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json)|
+|13504|[13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json)|

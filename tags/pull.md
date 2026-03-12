@@ -1,4 +1,4 @@
-# pull : 9
+# pull : 15
 
 |id|file|
 |----|----|
@@ -11,3 +11,9 @@
 |11119|[11119_E-commerce_bestseller_video_generator__Algolia___Google_VEO_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11119_E-commerce_bestseller_video_generator__Algolia___Google_VEO_3.json)|
 |11967|[11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json)|
 |13118|[13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json)|
+|13332|[13332_Track_new_ranked_keywords_in_Google_Sheets_with_DataForSEO_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13332_Track_new_ranked_keywords_in_Google_Sheets_with_DataForSEO_and_Slack_alerts.json)|
+|13433|[13433_Log_new_Google_top-10_keywords_to_Airtable_with_DataForSEO_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13433_Log_new_Google_top-10_keywords_to_Airtable_with_DataForSEO_and_Slack_alerts.json)|
+|13508|[13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json)|
+|13563|[13563_Review_GitHub_pull_requests_with_Gemini_and_post_feedback_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13563_Review_GitHub_pull_requests_with_Gemini_and_post_feedback_automatically.json)|
+|13652|[13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json)|
+|13694|[13694_Pull_new_backlinks_into_Google_Sheets_with_DataForSEO_and_Gmail_email_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13694_Pull_new_backlinks_into_Google_Sheets_with_DataForSEO_and_Gmail_email_report.json)|

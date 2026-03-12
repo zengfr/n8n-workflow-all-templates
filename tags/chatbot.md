@@ -1,4 +1,4 @@
-# chatbot : 175
+# chatbot : 181
 
 |id|file|
 |----|----|
@@ -176,4 +176,10 @@
 |13182|[13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json)|
 |13248|[13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json)|
 |13250|[13250_Collect_leads_with_a_conversational_GPT-4.1_chatbot_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13250_Collect_leads_with_a_conversational_GPT-4.1_chatbot_and_Google_Sheets.json)|
+|13347|[13347_Enrich_chatbot_and_demo_request_leads_with_Lusha__HubSpot__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13347_Enrich_chatbot_and_demo_request_leads_with_Lusha__HubSpot__and_Slack.json)|
 |13354|[13354_Question_and_Answer_AI_Agent_Chatbot__2_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13354_Question_and_Answer_AI_Agent_Chatbot__2_2.json)|
+|13394|[13394_Build_a_Telegram_AI_chatbot_with_human_takeover_using_Trilox_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13394_Build_a_Telegram_AI_chatbot_with_human_takeover_using_Trilox_and_GPT-4o-mini.json)|
+|13542|[13542_Music_Producer_Chatbot____using_Gemini___Suno__via_Kei_AI____Google_Drive_Upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13542_Music_Producer_Chatbot____using_Gemini___Suno__via_Kei_AI____Google_Drive_Upload.json)|
+|13802|[13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json)|
+|13811|[13811_Build_a_private_Llama_chatbot_with_Ollama__Groq__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13811_Build_a_private_Llama_chatbot_with_Ollama__Groq__Slack_and_Google_Sheets.json)|
+|13812|[13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json)|

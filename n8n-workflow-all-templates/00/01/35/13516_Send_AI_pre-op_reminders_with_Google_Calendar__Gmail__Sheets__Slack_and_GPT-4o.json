@@ -1,0 +1,777 @@
+{
+  "id": "3ScO4fFTR4QAPxv7",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Send AI pre-op reminders with Google Calendar, Gmail, Sheets, Slack and GPT-4o",
+    "wechat": "youandme10086",
+    "id": 13516,
+    "update_time": "2026-03-12"
+  },
+  "name": "AI-Powered Patient Pre-Op Reminder & Nurse Alert System",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "9cb44951-2696-41c7-9b9f-ba9f88eec30d",
+      "name": "Schedule Trigger: Daily 9:00 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1616,
+        80
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "5e89bd0d-fcda-4e4f-b041-e3d9e4c32b68",
+      "name": "Google Calendar: Fetch Today’s Events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        -1376,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "user@example.com",
+          "cachedResultName": "user@example.com"
+        },
+        "operation": "getAll"
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Calendar account -anuj"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "6dbbade9-5c8a-4d68-99a7-85e575b54d65",
+      "name": "Extract Surgery Events + Patient Fields",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1136,
+        80
+      ],
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const event = item.json;\n\n  // Only pick surgery events\n  if (!event.summary || !event.summary.toLowerCase().includes('surgery')) {\n    continue;\n  }\n\n  // Description is HTML-like, clean it\n  const rawDesc = event.description || '';\n\n  const cleanText = rawDesc\n    .replace(/<[^>]*>/g, '')  // remove HTML tags\n    .replace(/\\s+/g, ' ')     // normalize spaces\n    .trim();\n\n  // Extract fields using regex\n  const getValue = (key) => {\n    const match = cleanText.match(new RegExp(`${key}:\\\\s*([^\\\\s]+[^:]*)`, 'i'));\n    return match ? match[1].trim() : null;\n  };\n\n  const patient_name = getValue('patient_name');\n  const patient_email = getValue('patient_email');\n  const patient_phone = getValue('patient_phone');\n  const patient_id = getValue('patient_id');\n  const procedure = getValue('procedure');\n\n  results.push({\n    json: {\n      event_id: event.id,\n      surgery_time: event.start?.dateTime,\n      patient_name,\n      patient_email,\n      patient_phone,\n      patient_id,\n      procedure,\n      calendar_link: event.htmlLink\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7155eea4-a86f-42ee-a4b9-0826745db1ae",
+      "name": "Build Unique Confirmation Link (confirmUrl)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -912,
+        80
+      ],
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\nlet output = [];\n\nallItems.forEach((item, index) => {\n  const patient = item.json;\n\n  const patientId = patient.patient_id;\n  const uniqueId = `confirm_${patientId}_${Date.now()}_${index}`;\n\n  output.push({\n    json: {\n      ...patient,\n      uniqueId,\n      confirmUrl: `https://n8n.tdwebsites.in/webhook-test/confirm?patient_id=${patientId}&uniqueId=${uniqueId}`,\n      createdAt: new Date().toISOString()\n    }\n  });\n});\n\nreturn output;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0d98c297-dd1b-4713-93a6-43df54ceaa04",
+      "name": "Clean Patient Fields (Name/Email/Phone/ID)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -704,
+        80
+      ],
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\n\nconst output = allItems.map(item => {\n  const data = item.json;\n\n  return {\n    json: {\n      ...data,\n      // Clean fields if they already exist\n      patient_name: data.patient_name?.replace(' patient_email', ''),\n      patient_email: data.patient_email?.replace(' patient_phone', ''),\n      patient_phone: data.patient_phone?.replace(' patient_id', ''),\n      patient_id: data.patient_id?.replace(' procedure', ''),\n    }\n  };\n});\n\nreturn output;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3fd06e20-f901-4a98-a3d6-16401a7fb7df",
+      "name": "AI: Generate Pre-Op Checklist Email (Subject + HTML Body)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -480,
+        80
+      ],
+      "parameters": {
+        "text": "=Generate a pre-op checklist reminder email for this patient:\n\n{{ JSON.stringify($json, null, 2) }}\n\nEmail requirements:\n- Subject: \"Pre-Surgery Checklist – Action Required\"\n- Body (HTML):\n  - Greet the patient by name\n  - Mention the surgery time and procedure\n  - Show this checklist:\n    • No food after midnight  \n    • Bring ID and medical reports  \n    • Arrive 30 minutes early  \n  - Include a green confirmation button with label: \"Confirm Checklist Completed\"\n  - The button must link to confirmUrl\n  - Add footer text: \"If you do not confirm within 4 hours, a nurse will follow up.\"\n",
+        "options": {
+          "systemMessage": "=You are a healthcare operations assistant.\n\nYour task is to generate a professional, patient-friendly pre-surgery checklist email.\n\nYou will receive a JSON object with the following fields:\n- event_id\n- surgery_time\n- patient_name\n- patient_email\n- patient_phone\n- patient_id\n- procedure\n- calendar_link\n- confirmUrl\n\nRules:\n- Keep the tone polite, calm, and reassuring.\n- Do NOT invent any details.\n- Do NOT include any medical advice beyond basic reminders.\n- Use only the provided fields.\n- The email must be suitable for sending to a patient.\n- Return output in valid JSON with exactly these keys:\n  {\n    \"Subject\": \"string\",\n    \"Body\": \"<html>...</html>\"\n  }\n- The Body must be valid HTML with inline styles suitable for email clients.\n"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5bc9ecda-dd47-4165-8500-35ea83960ba9",
+      "name": "LLM: Azure OpenAI Chat Model (gpt-4o)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "position": [
+        -496,
+        320
+      ],
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "credential-id",
+          "name": "Azure Open AI account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e8df273d-ea03-4adb-bbbf-9484676512a7",
+      "name": "Parse AI Output (Subject/Body JSON)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -288,
+        304
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"Subject\": \" \",\n\t\"Body\": \" \"\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "320ba35d-f4f4-4cf3-8e2b-68b60683e784",
+      "name": "Gmail: Send Pre-Op Checklist Reminder",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -64,
+        80
+      ],
+      "webhookId": "0b8ad369-1a2d-45b2-b382-3f8d103569b8",
+      "parameters": {
+        "sendTo": "=",
+        "message": "={{ $json.output.Body }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.output.Subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail credentials"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "0eb7713d-6b31-4a1f-9c84-4188eacdd2e4",
+      "name": "Webhook: Patient Checklist Confirmation (GET /confirm)",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1648,
+        688
+      ],
+      "webhookId": "confirm-webhook-placeholder",
+      "parameters": {
+        "path": "confirm",
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "54a170ab-b038-40d0-9203-0ef8d2f49fbc",
+      "name": "Parse Query Params + Mark Confirmed (patient_id, uniqueId, confirmedAt)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1360,
+        688
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Simple in-memory store (for demo purposes)\nconst confirmations = [];\n\nitems.forEach(item => {\n  const query = item.json.query || {};\n\n  const patientIdRaw = query.patient_id || null;\n  const uniqueIdRaw = query.uniqueId || null;\n\n  // Clean messy values (remove extra words if present)\n  const patient_id = patientIdRaw ? patientIdRaw.replace(' procedure', '').trim() : null;\n  const uniqueId = uniqueIdRaw ? uniqueIdRaw.replace(' procedure', '').trim() : null;\n\n  confirmations.push({\n    patient_id,\n    uniqueId,\n    confirmed: true,\n    confirmedAt: new Date().toISOString()\n  });\n});\n\n// Return as items so next nodes can use it\nreturn confirmations.map(c => ({\n  json: c\n}));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1c286f09-82f3-49dd-bd9d-aa0c063218a0",
+      "name": "Google Sheets: Upsert Patient Confirmation Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1088,
+        688
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "confirmed": "={{ $json.confirmed }}",
+            "patient_id": "={{ $json.patient_id }}",
+            "confirmed_at": "={{ $json.confirmed }}"
+          },
+          "schema": [
+            {
+              "id": "patient_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "patient_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "uniqueId",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "uniqueId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "patient_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "patient_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "patient_email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "patient_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "patient_phone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "patient_phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "procedure",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "procedure",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "surgery_time",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "surgery_time",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confirmed",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "confirmed",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confirmed_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "confirmed_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "calendar_link",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "calendar_link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "patient_id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 208642893,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17rcNd_ZpUQLm0uWEVbD-NY6GyFUkrD4BglvawlyBygM/edit#gid=208642893",
+          "cachedResultName": "patient data"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "17rcNd_ZpUQLm0uWEVbD-NY6GyFUkrD4BglvawlyBygM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17rcNd_ZpUQLm0uWEVbD-NY6GyFUkrD4BglvawlyBygM/edit?usp=drivesdk",
+          "cachedResultName": "sample_leads_50"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "automations@techdome.ai"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "87000ced-b5f8-4f9f-8b4a-007d72866349",
+      "name": "Schedule Trigger: Periodic Confirmation Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1680,
+        1184
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "83830ae1-7ac5-47df-a4ef-70873e30e67b",
+      "name": "Google Sheets: Fetch Patient Confirmation Rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1424,
+        1184
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 208642893,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17rcNd_ZpUQLm0uWEVbD-NY6GyFUkrD4BglvawlyBygM/edit#gid=208642893",
+          "cachedResultName": "patient data"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "17rcNd_ZpUQLm0uWEVbD-NY6GyFUkrD4BglvawlyBygM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17rcNd_ZpUQLm0uWEVbD-NY6GyFUkrD4BglvawlyBygM/edit?usp=drivesdk",
+          "cachedResultName": "sample_leads_50"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "automations@techdome.ai"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "e5f71b2f-e692-4b2f-a16a-c9a78f278e8c",
+      "name": "IF: Confirmed = true (route unmatched = not confirmed)",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1216,
+        1184
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a12a691a-10bb-4bef-a829-b28f7a1f29c8",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.confirmed }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "c1bbfc25-3cc5-45a9-9f96-fb98f8426c01",
+      "name": "Slack: Alert Nurse/Owner — Checklist Not Confirmed",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -864,
+        1200
+      ],
+      "webhookId": "7966a1b3-8a66-440c-b36e-edf9019ee900",
+      "parameters": {
+        "text": "=🚨 *Pre-Op Checklist Not Confirmed*\n\n👤 *Patient:* {{ $json.patient_name }}  \n🆔 *Patient ID:* {{ $json.patient_id }}  \n🩺 *Procedure:* {{ $json.procedure }}  \n⏰ *Surgery Time:* {{ $json.surgery_time }}  \n\n❌ The patient has not confirmed the pre-op checklist within the required time window.\n\n📞 *Contact:* {{ $json.patient_phone }}  \n📧 *Email:* {{ $json.patient_email }}  \n\n🔗 *Calendar Event:*  \n{{ $json.calendar_link }}\n\n➡️ Please follow up with the patient as soon as possible.\n",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U09HMPVD466",
+          "cachedResultName": "newscctv22"
+        },
+        "select": "user",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "credential-id",
+          "name": "Slack account vivek"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c88fad6a-9a0a-45ec-9112-63cee20797dd",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2976,
+        -368
+      ],
+      "parameters": {
+        "width": 688,
+        "height": 720,
+        "content": "## 🏥 AI-Powered Patient Pre-Op Reminder & Nurse Alert System\n### What this workflow does\nThis workflow automates pre-surgery checklist reminders for patients and tracks their confirmation status end-to-end. Every day at 9:00 AM, it fetches today’s surgery events from Google Calendar, filters surgery-related events, and extracts patient details from the event description. For each patient, it generates a unique confirmation link and sends a personalized pre-op checklist email using AI.\n\nThe email includes basic preparation steps (fasting, bringing documents, early arrival) and a confirmation button. When a patient clicks the confirmation link, the workflow records the confirmation in Google Sheets. This creates a lightweight audit trail for staff and ensures patient readiness is visible to the care team.\n\nA separate periodic check reviews all patient rows in Google Sheets and identifies patients who have not confirmed within the expected time window. If a patient has not confirmed, the workflow alerts the assigned nurse or owner on Slack with full context so they can follow up manually. This reduces missed confirmations, improves patient preparedness, and helps teams catch risks early.\n\n### Setup checklist\n• Connect Google Calendar OAuth  \n• Connect Azure OpenAI credentials  \n• Connect Gmail OAuth2  \n• Connect Google Sheets  \n• Connect Slack API  \n\n### Customization ideas\n• Change reminder time or cadence  \n• Add SMS reminders for non-confirmed patients  \n• Add nurse assignment logic per procedure  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0950490-833d-4c58-a9ab-13bd9e78685b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1824,
+        -128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 608,
+        "height": 432,
+        "content": "## 📅 Daily Surgery Intake & Patient Extraction\n\nFetches today’s calendar events and filters\nonly surgery-related entries.\n\n• Pulls events from Google Calendar  \n• Extracts patient details from description  \n• Normalizes data for downstream steps  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "39940b45-36e7-41c0-90d4-5d3addf4dd05",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1184,
+        -112
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 624,
+        "height": 416,
+        "content": "## 🔗 Build Unique Patient Confirmation Links\n\nCreates a unique, trackable confirmation\nURL per patient.\n\n• Generates secure confirmUrl  \n• Adds timestamps + IDs  \n• Enables click tracking per patient  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ac09893-52fe-4da7-bd98-752cc8de8166",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -544,
+        -112
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 640,
+        "content": "## ✉️ AI Pre-Op Checklist Email Generation\n\nCreates a patient-friendly checklist email\nusing real surgery details.\n\n• Personalized subject + HTML body  \n• Includes confirmation button  \n• Safe, non-clinical language  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b40c06b8-116e-4af7-930e-3add83ed9be3",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 496,
+        "content": "## 📤 Send Checklist Reminder (Gmail)\n\nSends the pre-op checklist email\nto the patient.\n\n• Uses Gmail for delivery  \n• Supports styled HTML emails  \n• Human-readable patient message  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3e4a1c6-9ba4-42f2-b2da-39c4de528cd8",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1696,
+        448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 496,
+        "height": 432,
+        "content": "## ✅ Patient Confirmation Capture (Webhook)\n\nReceives confirmation when the patient\nclicks the email button.\n\n• Parses patient_id + uniqueId  \n• Marks checklist as confirmed  \n• Feeds data into tracking sheet  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "11e3b3c5-7c6a-4270-b081-fef373480815",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1168,
+        384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 368,
+        "height": 496,
+        "content": "## 🧾 Store Confirmation Status (Google Sheets)\n\nStores and updates patient confirmation\nrecords for audit and ops visibility.\n\n• Upserts confirmation status  \n• Tracks confirmed_at timestamp  \n• Acts as source of truth  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "69246534-8cf5-4299-bc68-0be5d0d850a0",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1728,
+        976
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 704,
+        "height": 400,
+        "content": "## ⏳ Periodic Confirmation Check\n\nPeriodically scans patients who have\nnot confirmed on time.\n\n• Reads patient rows from Sheets  \n• Filters confirmed vs not confirmed  \n• Flags risky cases for follow-up  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "096c15ab-89f7-470d-8ba1-60bde7af780f",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -976,
+        976
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 400,
+        "content": "## 🚨 Alert Care Team for Missing Confirmations\n\nNotifies nurse or owner when a patient\nhas not confirmed the checklist.\n\n• Sends full patient context to Slack  \n• Highlights surgery time + procedure  \n• Enables fast manual follow-up  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f9e8d987-0e48-45c7-aeb8-158449c0dc5d",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -576,
+        1072
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 352,
+        "height": 304,
+        "content": "## 🔐 Credentials & Safety Notes\n\n• Google Calendar OAuth  \n• Gmail OAuth2  \n• Azure OpenAI API  \n• Google Sheets OAuth  \n• Slack API  \n\nDo not include medical advice beyond basic reminders.\nAlways keep human follow-up in the loop for non-confirmed patients.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0b99eb34-b77c-487e-ae98-bdbc3adace73",
+  "connections": {
+    "Schedule Trigger: Daily 9:00 AM": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar: Fetch Today’s Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Output (Subject/Body JSON)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI: Generate Pre-Op Checklist Email (Subject + HTML Body)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Send Pre-Op Checklist Reminder": {
+      "main": [
+        []
+      ]
+    },
+    "LLM: Azure OpenAI Chat Model (gpt-4o)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Generate Pre-Op Checklist Email (Subject + HTML Body)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Surgery Events + Patient Fields": {
+      "main": [
+        [
+          {
+            "node": "Build Unique Confirmation Link (confirmUrl)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar: Fetch Today’s Events": {
+      "main": [
+        [
+          {
+            "node": "Extract Surgery Events + Patient Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Patient Fields (Name/Email/Phone/ID)": {
+      "main": [
+        [
+          {
+            "node": "AI: Generate Pre-Op Checklist Email (Subject + HTML Body)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Unique Confirmation Link (confirmUrl)": {
+      "main": [
+        [
+          {
+            "node": "Clean Patient Fields (Name/Email/Phone/ID)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger: Periodic Confirmation Check": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Fetch Patient Confirmation Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Fetch Patient Confirmation Rows": {
+      "main": [
+        [
+          {
+            "node": "IF: Confirmed = true (route unmatched = not confirmed)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Upsert Patient Confirmation Status": {
+      "main": [
+        []
+      ]
+    },
+    "IF: Confirmed = true (route unmatched = not confirmed)": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Slack: Alert Nurse/Owner — Checklist Not Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Patient Checklist Confirmation (GET /confirm)": {
+      "main": [
+        [
+          {
+            "node": "Parse Query Params + Mark Confirmed (patient_id, uniqueId, confirmedAt)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Generate Pre-Op Checklist Email (Subject + HTML Body)": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Send Pre-Op Checklist Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Query Params + Mark Confirmed (patient_id, uniqueId, confirmedAt)": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Upsert Patient Confirmation Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

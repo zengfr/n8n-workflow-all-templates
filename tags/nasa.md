@@ -1,4 +1,4 @@
-# nasa : 17
+# nasa : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |11304|[11304_Send_asteroid_alerts_from_NASA_to_LINE_using_OpenAI_and_DeepL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11304_Send_asteroid_alerts_from_NASA_to_LINE_using_OpenAI_and_DeepL.json)|
 |11306|[11306_Transform_NASA_Patents_into_Business_Ideas_with_OpenAI_and_Send_to_Google_Sheets___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11306_Transform_NASA_Patents_into_Business_Ideas_with_OpenAI_and_Send_to_Google_Sheets___Slack.json)|
 |11309|[11309_Automated_NASA_Patent_Lead_Generation___Scoring_with_OpenAI__Google__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11309_Automated_NASA_Patent_Lead_Generation___Scoring_with_OpenAI__Google__and_Notion.json)|
+|13767|[13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json)|

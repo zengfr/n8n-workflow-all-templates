@@ -1,4 +1,4 @@
-# alert : 92
+# alert : 98
 
 |id|file|
 |----|----|
@@ -94,3 +94,9 @@
 |12249|[12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12249_Send_crypto_BUY_SELL_alerts_for_top_5_coins_with_OpenAI__WhatsApp__Telegram__and_email.json)|
 |12758|[12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json)|
 |12989|[12989_Aggregate_error_alerts_and_send_consolidated_reports_via_Email_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12989_Aggregate_error_alerts_and_send_consolidated_reports_via_Email_and_Jira.json)|
+|13344|[13344_Enrich_new_HubSpot_contacts_with_Lusha_and_alert_reps_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13344_Enrich_new_HubSpot_contacts_with_Lusha_and_alert_reps_in_Slack.json)|
+|13516|[13516_Send_AI_pre-op_reminders_with_Google_Calendar__Gmail__Sheets__Slack_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13516_Send_AI_pre-op_reminders_with_Google_Calendar__Gmail__Sheets__Slack_and_GPT-4o.json)|
+|13521|[13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json)|
+|13651|[13651_Generate_AI_trading_alerts_from_CoinGecko_and_Alpha_Vantage_via_Slack__email_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13651_Generate_AI_trading_alerts_from_CoinGecko_and_Alpha_Vantage_via_Slack__email_and_SMS.json)|
+|13836|[13836_Monitor_competitor_prices_with_Google_Shopping_and_Google_Sheets__alert_via_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13836_Monitor_competitor_prices_with_Google_Shopping_and_Google_Sheets__alert_via_Slack_and_Gmail.json)|
+|13838|[13838_Detect_content_decay_from_Google_Search_Console_and_alert_via_Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13838_Detect_content_decay_from_Google_Search_Console_and_alert_via_Slack_and_email.json)|

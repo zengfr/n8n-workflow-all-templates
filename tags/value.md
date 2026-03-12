@@ -1,4 +1,4 @@
-# value : 15
+# value : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |10151|[10151_Automate_High-Value_Lead_Alerts_from_GoHighLevel_to_Slack__Sheets_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10151_Automate_High-Value_Lead_Alerts_from_GoHighLevel_to_Slack__Sheets_and_Calendar.json)|
 |12026|[12026_Monitor_high-value_USDT_transfers_on_Ethereum_with_Airtable_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12026_Monitor_high-value_USDT_transfers_on_Ethereum_with_Airtable_and_Slack_alerts.json)|
 |13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|
+|13403|[13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json)|
+|13442|[13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json)|

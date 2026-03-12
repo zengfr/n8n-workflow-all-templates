@@ -1,4 +1,4 @@
-# arxiv : 6
+# arxiv : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |8847|[8847_Daily_RAG_Research_Paper_Hub_with_arXiv__Gemini_AI__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8847_Daily_RAG_Research_Paper_Hub_with_arXiv__Gemini_AI__and_Notion.json)|
 |9859|[9859_Monitor_AI_Research_Papers_with_Gemini-powered_Filtering_and_Email_Summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9859_Monitor_AI_Research_Papers_with_Gemini-powered_Filtering_and_Email_Summaries.json)|
 |12938|[12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json)|
+|13713|[13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json)|

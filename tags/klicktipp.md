@@ -1,4 +1,4 @@
-# klicktipp : 24
+# klicktipp : 30
 
 |id|file|
 |----|----|
@@ -26,3 +26,9 @@
 |11923|[11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json)|
 |12679|[12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json)|
 |13233|[13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json)|
+|13474|[13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json)|
+|13621|[13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json)|
+|13663|[13663_Update_KlickTipp_contact_tags_by_tag_names.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13663_Update_KlickTipp_contact_tags_by_tag_names.json)|
+|13664|[13664_Find_KlickTipp_tags_to_remove_by_prefix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13664_Find_KlickTipp_tags_to_remove_by_prefix.json)|
+|13699|[13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json)|
+|13721|[13721_Create_WordPress_users_from_KlickTipp_and_tag_contacts_based_on_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13721_Create_WordPress_users_from_KlickTipp_and_tag_contacts_based_on_comments.json)|

@@ -1,4 +1,4 @@
-# title : 11
+# title : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |8827|[8827_Improving_Title_Clarity_with_Google_Sheets_and_Email_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8827_Improving_Title_Clarity_with_Google_Sheets_and_Email_Notifications.json)|
 |8848|[8848_Auto-Generate_SEO_Product_Titles___Descriptions_with_GPT-4o-mini_for_Printify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8848_Auto-Generate_SEO_Product_Titles___Descriptions_with_GPT-4o-mini_for_Printify.json)|
 |10314|[10314_Qwen-Max__Journal_Paper_Generation_from_Title_Abstract.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10314_Qwen-Max__Journal_Paper_Generation_from_Title_Abstract.json)|
+|13896|[13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json)|

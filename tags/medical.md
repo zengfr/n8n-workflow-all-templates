@@ -1,4 +1,4 @@
-# medical : 20
+# medical : 21
 
 |id|file|
 |----|----|
@@ -22,3 +22,4 @@
 |11690|[11690_Automate_Medical_Rep_Visit_Workflow_with_Google_Sheets__Gmail___OpenAI_Summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11690_Automate_Medical_Rep_Visit_Workflow_with_Google_Sheets__Gmail___OpenAI_Summaries.json)|
 |11722|[11722_Healthcare_Policy_Monitoring_with_ScrapeGraphAI__Pipedrive_and_Matrix_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11722_Healthcare_Policy_Monitoring_with_ScrapeGraphAI__Pipedrive_and_Matrix_Alerts.json)|
 |12072|[12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json)|
+|13589|[13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json)|

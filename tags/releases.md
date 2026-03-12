@@ -1,4 +1,4 @@
-# releases : 11
+# releases : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |11005|[11005_Automatic_Email_Notifications_for_n8n_Version_Releases_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11005_Automatic_Email_Notifications_for_n8n_Version_Releases_with_Gmail.json)|
 |11126|[11126_Sync_Upcoming_Anime_Releases_from_Jikan_API_to_Google_Calendar_with_Rate_Limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11126_Sync_Upcoming_Anime_Releases_from_Jikan_API_to_Google_Calendar_with_Rate_Limiting.json)|
 |12350|[12350_Track_new_box_office_releases_with_BrowserAct__Google_Sheets__OpenRouter_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12350_Track_new_box_office_releases_with_BrowserAct__Google_Sheets__OpenRouter_and_Telegram.json)|
+|13552|[13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json)|
+|13677|[13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json)|

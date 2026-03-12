@@ -1,4 +1,4 @@
-# phishing : 7
+# phishing : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |6509|[6509_CYBERPULSE_AI_RedOps__Phishing_Simulation_with_Redirect_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/65/6509_CYBERPULSE_AI_RedOps__Phishing_Simulation_with_Redirect_Tracking.json)|
 |12221|[12221_Monitor_SSL_certificates_for_brand-impersonating_domains_with_crt.sh__Urlscan.io_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12221_Monitor_SSL_certificates_for_brand-impersonating_domains_with_crt.sh__Urlscan.io_and_Slack.json)|
 |12846|[12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json)|
+|13448|[13448_Check_phishing_URL_reputation_with_VirusTotal_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13448_Check_phishing_URL_reputation_with_VirusTotal_and_log_to_Google_Sheets.json)|

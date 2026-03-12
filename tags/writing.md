@@ -1,4 +1,4 @@
-# writing : 11
+# writing : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |8654|[8654_Multi-Agent_SEO_Optimized_Blog_Writing_System_with_Hyperlinks_for_E-Commmerce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8654_Multi-Agent_SEO_Optimized_Blog_Writing_System_with_Hyperlinks_for_E-Commmerce.json)|
 |10524|[10524_Phase-Based_Blog_Creation_System_with_Specialized_AI_Sub-Agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10524_Phase-Based_Blog_Creation_System_with_Specialized_AI_Sub-Agents.json)|
 |12535|[12535_Generate_product_feature_announcements_from_Notion_to_Google_Docs_with_GPT-5_Mini_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12535_Generate_product_feature_announcements_from_Notion_to_Google_Docs_with_GPT-5_Mini_and_Claude.json)|
+|13713|[13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json)|

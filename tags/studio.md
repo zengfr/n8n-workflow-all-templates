@@ -1,4 +1,4 @@
-# studio : 6
+# studio : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |8843|[8843_Transform_Product_Photos_into_Studio-Quality_Visuals_with_Nano_Banana___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8843_Transform_Product_Photos_into_Studio-Quality_Visuals_with_Nano_Banana___Telegram.json)|
 |12682|[12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json)|
 |13093|[13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json)|
+|13602|[13602_Create_sprint_goals_from_Google_Sheets_with_Pega_Agile_Studio_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13602_Create_sprint_goals_from_Google_Sheets_with_Pega_Agile_Studio_and_Google_Gemini.json)|

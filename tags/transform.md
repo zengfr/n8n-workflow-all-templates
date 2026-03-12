@@ -1,4 +1,4 @@
-# transform : 75
+# transform : 79
 
 |id|file|
 |----|----|
@@ -77,3 +77,7 @@
 |12045|[12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json)|
 |12365|[12365_Transform_articles_into_kids__audiobooks_and_comics_with_Telegram__BrowserAct__Gemini_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12365_Transform_articles_into_kids__audiobooks_and_comics_with_Telegram__BrowserAct__Gemini_and_ElevenLabs.json)|
 |12885|[12885_Transform_chatbots_into_AI_advisors_with_memory_and_real-time_context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12885_Transform_chatbots_into_AI_advisors_with_memory_and_real-time_context.json)|
+|13362|[13362_Transform_GitHub_repos_into_evidence-based_architecture_blueprints_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13362_Transform_GitHub_repos_into_evidence-based_architecture_blueprints_with_Claude.json)|
+|13408|[13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json)|
+|13521|[13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json)|
+|13802|[13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json)|

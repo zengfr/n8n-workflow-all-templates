@@ -1,4 +1,4 @@
-# compliance : 51
+# compliance : 60
 
 |id|file|
 |----|----|
@@ -53,3 +53,12 @@
 |13157|[13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json)|
 |13311|[13311_Monitor_and_enforce_seller_compliance_with_GPT-4o__email_alerts_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13311_Monitor_and_enforce_seller_compliance_with_GPT-4o__email_alerts_and_Slack.json)|
 |13318|[13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json)|
+|13330|[13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json)|
+|13338|[13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json)|
+|13427|[13427_Validate_emissions_data_and_generate_carbon_compliance_reports_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13427_Validate_emissions_data_and_generate_carbon_compliance_reports_with_GPT-4o_and_Google_Sheets.json)|
+|13451|[13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json)|
+|13597|[13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json)|
+|13598|[13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json)|
+|13900|[13900_Scan_code_repositories_for_governance_issues_with_GPT-4o_and_severity-based_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13900_Scan_code_repositories_for_governance_issues_with_GPT-4o_and_severity-based_reports.json)|
+|13913|[13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json)|
+|13915|[13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json)|

@@ -1,4 +1,4 @@
-# generated : 52
+# generated : 53
 
 |id|file|
 |----|----|
@@ -54,3 +54,4 @@
 |11791|[11791_Automate_RSS_to_Instagram_with_AI-Generated_Content_and_Cloudinary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11791_Automate_RSS_to_Instagram_with_AI-Generated_Content_and_Cloudinary.json)|
 |12652|[12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json)|
 |12841|[12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json)|
+|13896|[13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json)|

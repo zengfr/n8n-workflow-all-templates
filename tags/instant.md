@@ -1,4 +1,4 @@
-# instant : 21
+# instant : 25
 
 |id|file|
 |----|----|
@@ -23,3 +23,7 @@
 |11244|[11244_Instant_Infographic_Generator__LINE___Nano_Banana_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11244_Instant_Infographic_Generator__LINE___Nano_Banana_Pro.json)|
 |12447|[12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12447_Extract_text_from_PDFs_and_images_in_Google_Drive_and_post_to_WordPress_and_social_media_with_OpenAI_GPT-4.1_and_DALL_E.json)|
 |12883|[12883_Send_instant_replies_to_new_Yelp_leads_with_LeadResponder.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12883_Send_instant_replies_to_new_Yelp_leads_with_LeadResponder.ai.json)|
+|13344|[13344_Enrich_new_HubSpot_contacts_with_Lusha_and_alert_reps_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13344_Enrich_new_HubSpot_contacts_with_Lusha_and_alert_reps_in_Slack.json)|
+|13455|[13455_Monitor_website_changes_and_send_diff_alerts_via_Telegram_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13455_Monitor_website_changes_and_send_diff_alerts_via_Telegram_and_email.json)|
+|13464|[13464_Scrape_RSS_job_posts__deduplicate_with_Google_Sheets__and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13464_Scrape_RSS_job_posts__deduplicate_with_Google_Sheets__and_send_Telegram_alerts.json)|
+|13579|[13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json)|

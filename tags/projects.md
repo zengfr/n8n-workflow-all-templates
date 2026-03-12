@@ -1,4 +1,4 @@
-# projects : 12
+# projects : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |12479|[12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json)|
 |12567|[12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12567_Kick_off_client_projects_after_Stripe_payment_with_Google_Drive__ClickUp__Gmail__Sheets__and_Slack.json)|
 |13269|[13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json)|
+|13823|[13823_Build__test_and_deploy_AI_projects_with_Windsurf_CI_CD_and_Vercel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13823_Build__test_and_deploy_AI_projects_with_Windsurf_CI_CD_and_Vercel.json)|

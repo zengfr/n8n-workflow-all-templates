@@ -1,4 +1,4 @@
-# nodes : 13
+# nodes : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |6269|[6269_State_Management_System_for_Long-Running_Workflows_with_Wait_Nodes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/62/6269_State_Management_System_for_Long-Running_Workflows_with_Wait_Nodes.json)|
 |10317|[10317_Auto-Rename_Workflow_Nodes_with_AI__Gemini_Claude__for_Better_Readability.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10317_Auto-Rename_Workflow_Nodes_with_AI__Gemini_Claude__for_Better_Readability.json)|
 |12174|[12174_Estimate_construction_costs_from_text_with_Telegram__OpenAI_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12174_Estimate_construction_costs_from_text_with_Telegram__OpenAI_and_DDC_CWICR.json)|
+|13868|[13868_Auto-generate_sticky_notes_and_rename_nodes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13868_Auto-generate_sticky_notes_and_rename_nodes.json)|

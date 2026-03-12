@@ -1,4 +1,4 @@
-# scheduled : 34
+# scheduled : 36
 
 |id|file|
 |----|----|
@@ -36,3 +36,5 @@
 |12920|[12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json)|
 |13260|[13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json)|
 |13290|[13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json)|
+|13444|[13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json)|
+|13737|[13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json)|

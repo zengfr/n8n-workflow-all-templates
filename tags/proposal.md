@@ -1,4 +1,4 @@
-# proposal : 19
+# proposal : 20
 
 |id|file|
 |----|----|
@@ -21,3 +21,4 @@
 |12211|[12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12211_Generate_client_proposals_with_OpenAI__Google_Sheets__Slides__Gmail__and_Drive.json)|
 |12530|[12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12530_Send_AI_sales_proposals_and_Stripe_payment_links_after_Calendly_calls.json)|
 |12959|[12959_Generate_consulting_proposals_and_contracts_with_GPT-4o__Google_Docs__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12959_Generate_consulting_proposals_and_contracts_with_GPT-4o__Google_Docs__Gmail_and_Slack.json)|
+|13869|[13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json)|

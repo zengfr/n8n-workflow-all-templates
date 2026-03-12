@@ -1,4 +1,4 @@
-# attendance : 11
+# attendance : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |10106|[10106_Track_Employee_Attendance_with_Analytics__Email_Reports___Slack_Alerts_Using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10106_Track_Employee_Attendance_with_Analytics__Email_Reports___Slack_Alerts_Using_Google_Sheets.json)|
 |11625|[11625_Automated_Employee_Attendance___Salary_Deduction_with_Google_Sheets_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11625_Automated_Employee_Attendance___Salary_Deduction_with_Google_Sheets_and_GPT-4.json)|
 |12050|[12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12050_Automate_Zoom_attendance_follow-ups_with_recordings___Google_Sheets_tracking.json)|
+|13441|[13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json)|

@@ -1,4 +1,4 @@
-# order : 50
+# order : 53
 
 |id|file|
 |----|----|
@@ -52,3 +52,6 @@
 |11968|[11968_Sync_WooCommerce_orders_and_inventory_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11968_Sync_WooCommerce_orders_and_inventory_with_Google_Sheets_and_Slack.json)|
 |12904|[12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json)|
 |12906|[12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json)|
+|13478|[13478_Send_Shopify_order_confirmations_via_WhatsApp_using_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13478_Send_Shopify_order_confirmations_via_WhatsApp_using_MoltFlow.json)|
+|13487|[13487_Send_WooCommerce_new_order_notifications_via_WhatsApp_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13487_Send_WooCommerce_new_order_notifications_via_WhatsApp_with_MoltFlow.json)|
+|13531|[13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json)|

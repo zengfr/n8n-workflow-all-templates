@@ -1,4 +1,4 @@
-# sora : 23
+# sora : 24
 
 |id|file|
 |----|----|
@@ -25,3 +25,4 @@
 |12287|[12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json)|
 |12590|[12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json)|
 |13085|[13085_Create_and_publish_AI_videos_with_Sora_2_Cameos__Gemini__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13085_Create_and_publish_AI_videos_with_Sora_2_Cameos__Gemini__and_Blotato.json)|
+|13752|[13752_Generate_cinematic_videos_with_OpenAI_Sora_and_uploadtourl_hosting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13752_Generate_cinematic_videos_with_OpenAI_Sora_and_uploadtourl_hosting.json)|

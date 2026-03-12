@@ -1,4 +1,4 @@
-# visibility : 6
+# visibility : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |11748|[11748_Generate_AI_Search_Visibility_Datasets_with_Claude_and_GPT_for_Tracking_Platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11748_Generate_AI_Search_Visibility_Datasets_with_Claude_and_GPT_for_Tracking_Platforms.json)|
 |12291|[12291_Summarize_SE_Ranking_AI_search_visibility_using_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12291_Summarize_SE_Ranking_AI_search_visibility_using_OpenAI_GPT-4.1-mini.json)|
 |12442|[12442_Analyze_brand_visibility_in_AI_SERPs_with_SE_Ranking_and_OpenAI_GPT-4.1_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12442_Analyze_brand_visibility_in_AI_SERPs_with_SE_Ranking_and_OpenAI_GPT-4.1_mini.json)|
+|13378|[13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json)|
+|13449|[13449_Track_AI_search_visibility_across_ChatGPT__Claude__DeepSeek_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13449_Track_AI_search_visibility_across_ChatGPT__Claude__DeepSeek_and_Perplexity.json)|

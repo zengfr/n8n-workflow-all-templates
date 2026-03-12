@@ -1,4 +1,4 @@
-# company : 71
+# company : 75
 
 |id|file|
 |----|----|
@@ -73,3 +73,7 @@
 |12188|[12188_Automate_company_data_enrichment_with_HubSpot__Sona___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12188_Automate_company_data_enrichment_with_HubSpot__Sona___Google_Sheets.json)|
 |12362|[12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12362_Extract_employee_emails_from_company_domains_with_BrowserAct_and_Google_Sheets.json)|
 |12852|[12852_Monitor_company_budgets_with_Bexio__Google_Sheets_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12852_Monitor_company_budgets_with_Bexio__Google_Sheets_and_Gmail_alerts.json)|
+|13349|[13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json)|
+|13351|[13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json)|
+|13457|[13457_Enrich_Airtable_company_records_with_web_research_using_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13457_Enrich_Airtable_company_records_with_web_research_using_OpenAI_GPT-4o.json)|
+|13523|[13523_Enrich_and_score_B2B_company_leads_with_Clearbit__Hunter.io__and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13523_Enrich_and_score_B2B_company_leads_with_Clearbit__Hunter.io__and_Gemini_AI.json)|

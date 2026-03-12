@@ -1,4 +1,4 @@
-# detection : 57
+# detection : 66
 
 |id|file|
 |----|----|
@@ -59,3 +59,12 @@
 |12540|[12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12540_Assess_document_fraud_risk_and_compliance_with_GPT-4__Claude_and_Slack_alerts.json)|
 |12712|[12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json)|
 |12732|[12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json)|
+|13322|[13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json)|
+|13330|[13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json)|
+|13349|[13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json)|
+|13429|[13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json)|
+|13455|[13455_Monitor_website_changes_and_send_diff_alerts_via_Telegram_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13455_Monitor_website_changes_and_send_diff_alerts_via_Telegram_and_email.json)|
+|13598|[13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json)|
+|13700|[13700_Detect_and_enforce_abuse_cases_with_OpenAI__Slack__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13700_Detect_and_enforce_abuse_cases_with_OpenAI__Slack__Gmail_and_Sheets.json)|
+|13710|[13710_Grade_exam_answers_with_GPT_4.1_mini__plagiarism_checks__Slack_alerts_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13710_Grade_exam_answers_with_GPT_4.1_mini__plagiarism_checks__Slack_alerts_and_Google_Sheets_logging.json)|
+|13774|[13774_Filter_fraudulent_leads_with_GPT-4o-mini__AbstractAPI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13774_Filter_fraudulent_leads_with_GPT-4o-mini__AbstractAPI__Google_Sheets_and_Slack.json)|

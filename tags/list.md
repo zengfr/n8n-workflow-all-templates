@@ -1,4 +1,4 @@
-# list : 25
+# list : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |11017|[11017_Email_List_Validation_and_Cleanup_with_Google_Sheets_and_VerifiEmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11017_Email_List_Validation_and_Cleanup_with_Google_Sheets_and_VerifiEmail.json)|
 |11604|[11604_Interactive_Recruitment_Customer_Service_with_WhatsApp__Google_Sheets_CRM___Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11604_Interactive_Recruitment_Customer_Service_with_WhatsApp__Google_Sheets_CRM___Notifications.json)|
 |12562|[12562_Build_a_prospecting_list_with_LeadIQ_and_save_it_to_Airtable_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12562_Build_a_prospecting_list_with_LeadIQ_and_save_it_to_Airtable_CRM.json)|
+|13635|[13635_List_properties_instantly_with_UploadToURL__OpenAI_Vision__WordPress_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13635_List_properties_instantly_with_UploadToURL__OpenAI_Vision__WordPress_and_Airtable.json)|
+|13639|[13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json)|

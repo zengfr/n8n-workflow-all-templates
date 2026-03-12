@@ -1,4 +1,4 @@
-# incident : 21
+# incident : 22
 
 |id|file|
 |----|----|
@@ -23,3 +23,4 @@
 |11946|[11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json)|
 |12086|[12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json)|
 |12686|[12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json)|
+|13322|[13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json)|

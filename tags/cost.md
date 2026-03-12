@@ -1,4 +1,4 @@
-# cost : 23
+# cost : 24
 
 |id|file|
 |----|----|
@@ -25,3 +25,4 @@
 |12802|[12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12802_Monitor_Azure_subscription_resources_with_cost_and_usage_tracking_and_reports.json)|
 |13313|[13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json)|
 |13320|[13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json)|
+|13591|[13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json)|

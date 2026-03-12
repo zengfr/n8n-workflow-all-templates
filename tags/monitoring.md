@@ -1,4 +1,4 @@
-# monitoring : 110
+# monitoring : 120
 
 |id|file|
 |----|----|
@@ -112,3 +112,13 @@
 |13139|[13139_Monitor_data_integrity_and_route_severity-based_alerts_with_GPT-4o__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13139_Monitor_data_integrity_and_route_severity-based_alerts_with_GPT-4o__email_and_Slack.json)|
 |13158|[13158_Monitor_programme_performance_and_governance_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13158_Monitor_programme_performance_and_governance_with_OpenAI_and_Slack.json)|
 |13318|[13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json)|
+|13337|[13337_Monitor_supply_chain_risks_and_disruptions_with_GPT-4o_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13337_Monitor_supply_chain_risks_and_disruptions_with_GPT-4o_and_Slack_alerts.json)|
+|13339|[13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json)|
+|13384|[13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json)|
+|13430|[13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json)|
+|13591|[13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json)|
+|13595|[13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json)|
+|13598|[13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json)|
+|13797|[13797_Monitor_Realtor_listings_and_export_CSV_XLSX_with_MrScraper_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13797_Monitor_Realtor_listings_and_export_CSV_XLSX_with_MrScraper_and_Gmail.json)|
+|13818|[13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json)|
+|13915|[13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json)|

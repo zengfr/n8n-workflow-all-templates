@@ -1,4 +1,4 @@
-# carousel : 10
+# carousel : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |9654|[9654_Generate_Educational_Social_Media_Carousels_with_GPT-4.1__Templated.io___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9654_Generate_Educational_Social_Media_Carousels_with_GPT-4.1__Templated.io___Google_Drive.json)|
 |10900|[10900_Generate_LinkedIn_Carousel_Images_from_Text_with_Mistral_AI___S3_Storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10900_Generate_LinkedIn_Carousel_Images_from_Text_with_Mistral_AI___S3_Storage.json)|
 |11694|[11694_Create___Publish_Instagram_Carousels_with_AI_Research__Nano_Banana_Pro___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11694_Create___Publish_Instagram_Carousels_with_AI_Research__Nano_Banana_Pro___Slack.json)|
+|13904|[13904_Auto-create_Instagram_carousel_posts_from_Canva_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13904_Auto-create_Instagram_carousel_posts_from_Canva_with_OpenAI_and_Blotato.json)|

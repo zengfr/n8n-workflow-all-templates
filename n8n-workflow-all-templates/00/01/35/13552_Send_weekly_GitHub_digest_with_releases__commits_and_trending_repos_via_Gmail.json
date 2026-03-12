@@ -1,0 +1,617 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Send weekly GitHub digest with releases, commits and trending repos via Gmail",
+    "wechat": "youandme10086",
+    "id": 13552,
+    "update_time": "2026-03-12"
+  },
+  "nodes": [
+    {
+      "id": "5a3638b4-dd45-477c-82c8-24b33e8334c1",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -224,
+        80
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 952,
+        "content": "## 🤖 Weekly GitHub Digest\n\nSends **one combined weekly email** with 3 sections:\n- 🚀 **Releases** — new releases from your watched repos\n- 👥 **Commits** — recent activity from tracked users or repos\n- 🔥 **Trending** — GitHub trending repos for the day\n\nOnly sends if at least one section has content.\n\n### How it works\n1. 3 parallel branches run at 9am Monday\n2. **Releases**: checks each watched repo for new releases this week\n3. **Commits**: fetches activity from tracked users OR repos. Accepts both user (e.g.`torvalds`)  and repo (e.g`huggingface/transformers`) \n4. **Trending**: scrapes GitHub trending page for today’s top repos\n5. All data merges into one HTML email\n\n### Setup steps\n1. Open **Set Variables** and set:\n   - `recipient_email` → your email\n   - `days_back` → lookback window (default: 7)\n   - `release_repos` → e.g. `[\"n8n-io/n8n\",\"facebook/react\"]`\n   - `tracked_entities` → e.g. `[\"torvalds\",\"huggingface/transformers\"]`\n2. Connect your **Gmail credential** in the Send node\n3. Activate\n\n### Tips\n- Add a GitHub token header for 5000 req/hr limit\n- `tracked_entities` accepts usernames AND repo paths"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "15d8a903-54f0-4291-966a-0a84692a5197",
+      "name": "Every Monday at 9am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        240,
+        384
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7f6e199c-657e-4869-9d37-f8312a2c54dc",
+      "name": "Releases Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        688,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 664,
+        "height": 356,
+        "content": "## Releases\nFetches the latest release per watched repo and collects those published within the lookback window."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "166f731a-f1b5-47ec-8536-2aaea728ad19",
+      "name": "Split Watched Repos",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        704,
+        -48
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "release_repos"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "940a1583-8ad8-40b5-8323-92f7b9c900a9",
+      "name": "Aggregate Releases",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1136,
+        -48
+      ],
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\nconst config = $('Set Variables').first().json;\nconst cutoff = new Date(Date.now() - config.days_back * 24 * 60 * 60 * 1000);\n\nconst releases = [];\n\nfor (const item of allItems) {\n  // /releases?per_page=1 returns an array — take the first (most recent)\n  const releaseList = Array.isArray(item.json) ? item.json : [item.json];\n\n  for (const r of releaseList) {\n    if (!r.published_at || !r.html_url) continue;\n    if (r.draft) continue; // skip drafts only; pre-releases are included (n8n marks stable releases as pre-release on GitHub)\n    if (new Date(r.published_at) < cutoff) continue;\n\n    const repo = r.html_url.split('/releases/')[0].replace('https://github.com/', '');\n    const body = r.body\n      ? r.body.replace(/#{1,6}\\s/g, '').replace(/<!--[\\s\\S]*?-->/g, '').trim().substring(0, 280) + '...'\n      : 'No release notes.';\n\n    releases.push({\n      repo,\n      tag: r.tag_name,\n      name: r.name || r.tag_name,\n      url: r.html_url,\n      published_at: r.published_at,\n      body,\n      prerelease: r.prerelease\n    });\n    break; // only take the most recent per repo\n  }\n}\n\nreturn [{ json: { releases, release_count: releases.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4b4091a3-440c-433f-8905-bae1e382ca32",
+      "name": "Commits Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        688,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 632,
+        "height": 260,
+        "content": "##  Commits\nSupports both GitHub users (`torvalds`) and repos (`huggingface/transformers`). "
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1161e57c-c587-462e-b87c-a9a1b893b026",
+      "name": "Extract Commits",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        496
+      ],
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\nconst config = $('Set Variables').first().json;\nconst cutoff = new Date(Date.now() - config.days_back * 24 * 60 * 60 * 1000);\nconst commits = [];\n\nfor (const item of allItems) {\n  const data = item.json;\n  if (!data || data.message === 'Not Found') continue;\n\n  // User/Org events format\n  if (data.type) {\n    if (data.type !== 'PushEvent') continue;\n    if (new Date(data.created_at) < cutoff) continue;\n    const actor = data.actor?.login || 'unknown';\n    const repoName = data.repo?.name || 'unknown';\n    for (const commit of (data.payload?.commits || []).slice(0,3)) {\n      commits.push({ author: actor, author_url: `https://github.com/${actor}`, repo: repoName, repo_url: `https://github.com/${repoName}`, message: (commit.message||'').split('\\n')[0].substring(0,100), sha: (commit.sha||'').substring(0,7), url: `https://github.com/${repoName}/commit/${commit.sha}`, date: data.created_at });\n    }\n  }\n  // Repo commits format\n  else if (data.sha && data.commit) {\n    const commitDate = data.commit.author?.date || data.commit.committer?.date;\n    if (commitDate && new Date(commitDate) < cutoff) continue;\n    const repoBase = (data.html_url||'').split('/commit/')[0];\n    const repoPath = repoBase.replace('https://github.com/','');\n    commits.push({ author: data.author?.login || data.commit.author?.name || 'unknown', author_url: data.author ? `https://github.com/${data.author.login}` : '#', repo: repoPath, repo_url: repoBase, message: (data.commit.message||'').split('\\n')[0].substring(0,100), sha: (data.sha||'').substring(0,7), url: data.html_url||'', date: commitDate||'' });\n  }\n}\n\nconst seen = new Set();\nconst unique = commits.filter(c => { if(seen.has(c.sha)) return false; seen.add(c.sha); return true; }).slice(0,40);\nreturn [{ json: { commits: unique, commit_count: unique.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "24e7ab70-e28e-41c9-a14d-669ce9c76746",
+      "name": "Trending Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        832
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 512,
+        "height": 292,
+        "content": "## GitHub Trending Today\nScrapes the GitHub trending page for the day the workflow runs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0416371c-2248-442f-8ee9-27a3425f2fc9",
+      "name": "Fetch GitHub Trending Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        736,
+        928
+      ],
+      "parameters": {
+        "url": "https://github.com/trending?since=daily",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "31861753-3d34-41fc-aac1-813efcee001f",
+      "name": "Parse Trending HTML",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        928,
+        928
+      ],
+      "parameters": {
+        "jsCode": "const rawData = $input.first().json;\nconst html = rawData.data || rawData.body || '';\n\nconst repos = [];\nlet pos = 0;\n\nwhile (repos.length < 10) {\n  const start = html.indexOf('class=\"Box-row\"', pos);\n  if (start === -1) break;\n  const end = html.indexOf('</article>', start);\n  if (end === -1) break;\n  pos = end + 10;\n  const block = html.substring(start, end);\n\n  const linkMatch = block.match(/href=\"\\/(([\\w][\\w.-]+)\\/([\\w][\\w.-]+))\"/);\n  if (!linkMatch) continue;\n  const repoPath = linkMatch[1];\n  if (['trending','explore','settings','login','signup'].some(s => repoPath.startsWith(s))) continue;\n\n  const descMatch = block.match(/col-9[^\"]*\"[^>]*>\\s*([^<]{3,})/);\n  const description = descMatch ? descMatch[1].trim().replace(/\\s+/g,' ').substring(0,120) : '';\n\n  const langMatch = block.match(/programmingLanguage\"[^>]*>([^<]+)</);\n  const language = langMatch ? langMatch[1].trim() : '';\n\n  const starsMatch = block.match(/([\\d,]+)\\s+stars?\\s+today/i);\n  const starsToday = starsMatch ? starsMatch[1] : '';\n\n  repos.push({ name: repoPath, url: `https://github.com/${repoPath}`, description, language, stars_today: starsToday });\n}\n\nreturn [{ json: { trending_repos: repos, trending_count: repos.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5132a98d-3f32-496e-9905-8bec7dc28643",
+      "name": "Merge Releases + Commits",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1728,
+        288
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "753b0c40-c481-4e5c-8bff-9a5ac49b6aa4",
+      "name": "Merge All Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1888,
+        496
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "16f88f96-e5eb-4898-a4b1-ac1501e780d2",
+      "name": "Has Any Content?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2080,
+        496
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.release_count }}",
+              "rightValue": 0
+            },
+            {
+              "id": "c2",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.commit_count }}",
+              "rightValue": 0
+            },
+            {
+              "id": "c3",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.trending_count }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "63f1d1c8-1e1b-414f-8a32-9bcfb4523b41",
+      "name": "Build Combined Email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2288,
+        416
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst relData = (items.find(i => i.json.releases) || { json: { releases: [], release_count: 0 } }).json;\nconst cmData = (items.find(i => i.json.commits) || { json: { commits: [], commit_count: 0 } }).json;\nconst trData = (items.find(i => i.json.trending_repos) || { json: { trending_repos: [], trending_count: 0 } }).json;\n\nconst releases = relData.releases || [];\nconst commits = cmData.commits || [];\nconst trending = trData.trending_repos || [];\n\nconst today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });\nconst subject = `\\uD83E\\uDD16 Weekly GitHub Digest \\u2014 ${today}`;\n\nconst releasesHtml = releases.length === 0\n  ? `<p style='color:#999;font-style:italic'>No new releases this week.</p>`\n  : releases.map(r => `<div style='margin-bottom:16px;padding:12px;background:#fafafa;border-left:3px solid #ff6d5a;border-radius:4px'><a href='${r.url}' style='font-weight:600;color:#ff6d5a;text-decoration:none'>${r.repo} ${r.tag}</a><span style='color:#999;font-size:12px;margin-left:8px'>${new Date(r.published_at).toLocaleDateString()}</span><p style='margin:6px 0 0;font-size:13px;color:#555'>${r.body}</p></div>`).join('');\n\nconst commitsHtml = commits.length === 0\n  ? `<p style='color:#999;font-style:italic'>No recent commits found.</p>`\n  : commits.slice(0, 15).map(c => `<div style='margin-bottom:10px;padding:8px 12px;background:#fafafa;border-left:3px solid #6366f1;border-radius:4px'><a href='${c.url}' style='font-size:13px;color:#6366f1;text-decoration:none;font-weight:500'>${c.message}</a><br><span style='font-size:11px;color:#999'>${c.repo} \\u00b7 ${c.sha} \\u00b7 ${c.author} \\u00b7 ${c.date ? new Date(c.date).toLocaleDateString() : ''}</span></div>`).join('');\n\nconst trendingHtml = trending.length === 0\n  ? `<p style='color:#999;font-style:italic'>Could not load trending repos today.</p>`\n  : trending.map((r, i) => `<div style='margin-bottom:10px;padding:8px 12px;background:#fafafa;border-left:3px solid #10b981;border-radius:4px'><span style='color:#999;font-size:11px;margin-right:8px'>#${i+1}</span><a href='${r.url}' style='font-weight:600;color:#10b981;text-decoration:none'>${r.name}</a>${r.language ? `<span style='font-size:11px;color:#999;margin-left:8px'>${r.language}</span>` : ''}${r.stars_today ? `<span style='font-size:11px;color:#f59e0b;margin-left:8px'>\\u2605 ${r.stars_today} today</span>` : ''}<br><span style='font-size:12px;color:#666;margin-top:2px'>${r.description || ''}</span></div>`).join('');\n\nconst html = `<div style='font-family:sans-serif;max-width:620px;margin:0 auto;padding:24px;color:#333'><h2 style='margin-bottom:4px'>\\uD83E\\uDD16 Weekly GitHub Digest</h2><p style='color:#aaa;font-size:13px;margin-top:0;margin-bottom:28px'>${today}</p><h3 style='color:#ff6d5a;margin-bottom:14px;padding-bottom:6px;border-bottom:2px solid #ff6d5a'>\\uD83D\\uDE80 New Releases (${releases.length})</h3>${releasesHtml}<h3 style='color:#6366f1;margin-bottom:14px;padding-bottom:6px;border-bottom:2px solid #6366f1;margin-top:32px'>\\uD83D\\uDC65 Developer Commits (${commits.length})</h3>${commitsHtml}<h3 style='color:#10b981;margin-bottom:14px;padding-bottom:6px;border-bottom:2px solid #10b981;margin-top:32px'>\\uD83D\\uDD25 Trending Today (${trending.length})</h3>${trendingHtml}<hr style='border:none;border-top:1px solid #eee;margin:32px 0'><p style='font-size:12px;color:#bbb'>Weekly digest created by Dahiana Porto via N8N</p></div>`;\n\nreturn [{ json: { html, subject, release_count: releases.length, commit_count: commits.length, trending_count: trending.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8c203c76-5a0c-4ec7-a265-8f706d1f4340",
+      "name": "Send Weekly Digest",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2512,
+        416
+      ],
+      "webhookId": "6bb0b6af-ada3-41d8-a8e8-3ee1d67c41fd",
+      "parameters": {
+        "sendTo": "={{ $('Set Variables').first().json.recipient_email }}",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail (Dummy Account)"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "cbcc5fae-b715-47b6-8bab-3ecaf0c335f6",
+      "name": "Fetch Latest Release",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        912,
+        -48
+      ],
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $json.release_repos }}/releases?per_page=1",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "0c910eda-7a6f-4641-826c-7e886178116e",
+      "name": "Fetch Entity Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        880,
+        496
+      ],
+      "parameters": {
+        "url": "={{ $json.tracked_entities.includes('/') ? 'https://api.github.com/repos/' + $json.tracked_entities + '/commits?per_page=20&since=' + $now.minus({days: $('Set Variables').first().json.days_back}).toISO() : 'https://api.github.com/users/' + $json.tracked_entities + '/events/public?per_page=30' }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "a1472e9e-8c29-4dcd-95d4-6a3787da7288",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        -48
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 272,
+        "height": 352,
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n#### Important\nGitHub's /releases/latest endpoint skips anything flagged as prerelease.\nIf you only want to fetch usual releases, use \n´https://api.github.com/repos/repo-name/releases/latest´"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1373c533-c8cb-43ea-a2a7-2f492fcab55e",
+      "name": "Split Tracked Entities",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        720,
+        496
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "tracked_entities"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b9f4c5d-daaf-4901-8604-c993b13d7ca0",
+      "name": "Do Nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2288,
+        608
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "2aa3eb79-1f86-4c68-a48f-159cb59c5f7f",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        464,
+        384
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-1",
+              "name": "recipient_email",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "cfg-2",
+              "name": "days_back",
+              "type": "number",
+              "value": 7
+            },
+            {
+              "id": "cfg-3",
+              "name": "release_repos",
+              "type": "array",
+              "value": "={{ ['n8n-io/n8n'] }}"
+            },
+            {
+              "id": "cfg-4",
+              "name": "tracked_entities",
+              "type": "array",
+              "value": "={{ ['anthropics/claude', 'huggingface/transformers'] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3083f525-fbff-4ac7-aa0b-6b904a67978e",
+      "name": "Commits Section1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2224,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 264,
+        "height": 388,
+        "content": "##  Email Template\n\nAggregates output from all three branches into a single HTML email.   \n\nOutput fields: `html`, `subject`, `release_count`,`commit_count`, `trending_count`.\n\nFeel free to modify this template."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Split Watched Repos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch GitHub Trending Page",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Tracked Entities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Data": {
+      "main": [
+        [
+          {
+            "node": "Has Any Content?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Commits": {
+      "main": [
+        [
+          {
+            "node": "Merge Releases + Commits",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Has Any Content?": {
+      "main": [
+        [
+          {
+            "node": "Build Combined Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Do Nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Entity Data": {
+      "main": [
+        [
+          {
+            "node": "Extract Commits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Releases": {
+      "main": [
+        [
+          {
+            "node": "Merge Releases + Commits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday at 9am": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Trending HTML": {
+      "main": [
+        [
+          {
+            "node": "Merge All Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Split Watched Repos": {
+      "main": [
+        [
+          {
+            "node": "Fetch Latest Release",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Combined Email": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Latest Release": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Releases",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Tracked Entities": {
+      "main": [
+        [
+          {
+            "node": "Fetch Entity Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Releases + Commits": {
+      "main": [
+        [
+          {
+            "node": "Merge All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch GitHub Trending Page": {
+      "main": [
+        [
+          {
+            "node": "Parse Trending HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

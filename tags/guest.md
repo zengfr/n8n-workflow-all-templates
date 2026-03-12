@@ -1,4 +1,4 @@
-# guest : 7
+# guest : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |12946|[12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json)|
 |12948|[12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json)|
 |12950|[12950_Generate_hotel_guest_upsell_recommendations_with_OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12950_Generate_hotel_guest_upsell_recommendations_with_OpenAI__Sheets_and_Slack.json)|
+|13467|[13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json)|

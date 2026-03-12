@@ -1,4 +1,4 @@
-# cv : 27
+# cv : 29
 
 |id|file|
 |----|----|
@@ -29,3 +29,5 @@
 |10359|[10359_Automate_CV_Screening_and_Candidate_Scoring_with_Gemini_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10359_Automate_CV_Screening_and_Candidate_Scoring_with_Gemini_AI_and_Google_Sheets.json)|
 |12779|[12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json)|
 |12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|
+|13408|[13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json)|
+|13876|[13876_Screen_CVs_with_OpenAI_and_PostgreSQL_using_chained_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13876_Screen_CVs_with_OpenAI_and_PostgreSQL_using_chained_prompts.json)|

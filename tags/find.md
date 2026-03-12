@@ -1,4 +1,4 @@
-# find : 66
+# find : 71
 
 |id|file|
 |----|----|
@@ -68,3 +68,8 @@
 |12437|[12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json)|
 |12809|[12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json)|
 |12882|[12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json)|
+|13336|[13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json)|
+|13496|[13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json)|
+|13508|[13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json)|
+|13664|[13664_Find_KlickTipp_tags_to_remove_by_prefix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13664_Find_KlickTipp_tags_to_remove_by_prefix.json)|
+|13858|[13858_Find_business_emails_from_contact_names_and_domains_using_ScraperCity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13858_Find_business_emails_from_contact_names_and_domains_using_ScraperCity.json)|

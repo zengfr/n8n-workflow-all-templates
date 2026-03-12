@@ -1,0 +1,645 @@
+{
+  "name": "Smart WP Translation with OpenAI & DeepL (Gutenberg + ACF)",
+  "nodes": [
+    {
+      "id": "b09ce46f-19e9-4ee4-9538-a76f417649fb",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1568,
+        64
+      ],
+      "parameters": {
+        "path": "translate-post",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "58826b48-c964-4df2-a049-72bef987081f",
+      "name": "Get Post Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1344,
+        56
+      ],
+      "parameters": {
+        "url": "=https://your-wordpress-site.com/wp-json/wp/v2/{{ $json.body.post.post_type === 'post' ? 'posts' : $json.body.post.post_type === 'solution' ? 'solutions' : $json.body.post.post_type }}/{{ $json.body.post.ID }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "uOtGiCZl4h3hybVW",
+          "name": "WordPress Application"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "9c7cff9a-c5c1-4af5-a5fb-196225b74998",
+      "name": "Prepare Text Snippet",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        -1120,
+        56
+      ],
+      "parameters": {
+        "functionCode": "// Extract a snippet of text for the AI to analyze\nconst post = items[0].json;\nlet snippet = post.title.rendered + \"\\n\\n\";\n\n// Try to grab raw content or intro if available\nif (post.content && post.content.rendered) {\n    snippet += post.content.rendered.replace(/<[^>]*>?/gm, ''); // Strip HTML\n} else if (post.acf && post.acf.intro) {\n    snippet += post.acf.intro;\n}\n\n// Limit to 1000 chars to save OpenAI tokens\nreturn [{\n  json: {\n    ...post,\n    textSnippet: snippet.substring(0, 1000)\n  }\n}];"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7558b3a4-95f7-4db2-87e0-a64f4b9c7ace",
+      "name": "OpenAI Language Detect",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        -896,
+        56
+      ],
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a language detection bot. Reply ONLY with the 2-letter lowercase ISO 639-1 language code (e.g., en, fr, de, es, nl). Do not include any other text, punctuation, or explanation."
+            }
+          ]
+        },
+        "options": {},
+        "resource": "chat",
+        "requestOptions": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "kXuygi0uT6VOPrb1",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b5d17f47-d5c0-40fa-a5f7-deff90984546",
+      "name": "Smart Router & Targets",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        -672,
+        56
+      ],
+      "parameters": {
+        "functionCode": "const originalPost = $items(\"Prepare Text Snippet\")[0].json;\nconst detectedLang = items[0].json.message.content.trim().toLowerCase();\nconst currentWpLang = originalPost.lang || 'en'; // Defaults to 'en' if not set\n\n// 👉 UPDATE THIS ARRAY to include all the languages your site supports\nconst allSupported = ['en', 'fr', 'de'];\nlet targetLangs = allSupported.filter(l => l !== detectedLang);\n\n// 2. Check which translations already exist so we don't duplicate\nconst existingTranslations = originalPost.translations || {};\nconst needed = [];\n\ntargetLangs.forEach(lang => {\n  if (!existingTranslations[lang]) {\n    needed.push(lang);\n  }\n});\n\n// 3. Do we need to fix the original post's flag in WP?\nconst needsLangFix = (detectedLang !== currentWpLang) && allSupported.includes(detectedLang);\n\nreturn [{\n  json: {\n    originalPost: originalPost,\n    detectedLang: detectedLang,\n    languagesNeeded: needed,\n    needsLangFix: needsLangFix,\n    originalId: originalPost.id,\n    postTypeUrl: originalPost._links.self[0].href // e.g., https://.../wp/v2/posts/123\n  }\n}];"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f326e6d2-bf5c-4d14-8c6d-242da29f7dad",
+      "name": "Needs WP Lang Fix?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -448,
+        56
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.needsLangFix }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ce0b4c3b-4019-4ab6-9d03-4280624e4438",
+      "name": "Fix WP Language Flag",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -224,
+        -16
+      ],
+      "parameters": {
+        "url": "={{ $json.postTypeUrl }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "lang",
+              "value": "={{ $json.detectedLang }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "uOtGiCZl4h3hybVW",
+          "name": "WordPress Application"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "bf7b9308-ce6c-45fe-aa2f-3c83d8af30f9",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        0,
+        56
+      ],
+      "parameters": {},
+      "typeVersion": 2.1
+    },
+    {
+      "id": "fa16eebf-412f-4acd-b76a-9260aa77f5c5",
+      "name": "Needs Translations?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        224,
+        56
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.languagesNeeded.length > 0 }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "47ec6995-9e87-42e8-b3c8-2d0b0c0261a6",
+      "name": "Extract Content",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        448,
+        64
+      ],
+      "parameters": {
+        "jsCode": "const input = items[0].json;\nconst post = input.originalPost;\nconst acf = post.acf || {};\n\n// === 🚨 IMPORTANT: UPDATE THESE KEYS 🚨 ===\n// These keys are specific to the Advanced Custom Fields (ACF) setup. \n// Replace these with the actual field names you use in your own ACF configuration!\nconst textKeys = ['title', 'headline', 'subheadline', 'text', 'description', 'body', 'intro', 'buttonLabel', 'quote', 'ctaText', 'chipText', 'content', 'keyCapabilities', 'sectionDescription', 'iconName', 'featureTitle', 'featureDescription', 'planName', 'planDescription', 'features', 'question', 'answer', 'label', 'context', 'authorRole', 'step_title', 'step_description'];\n\nlet stringsToTranslate = [post.title.rendered];\nlet mapPaths = ['post_title'];\n\nif (post.content && post.content.rendered && post.content.rendered.trim() !== '') {\n    stringsToTranslate.push(post.content.rendered);\n    mapPaths.push('post_content');\n}\n\nif (acf.intro) {\n  stringsToTranslate.push(acf.intro);\n  mapPaths.push('acf.intro');\n}\n\nfunction walk(obj, path) {\n  if (Array.isArray(obj)) {\n    obj.forEach((item, index) => walk(item, `${path}[${index}]`));\n  } else if (typeof obj === 'object' && obj !== null) {\n    for (const key in obj) {\n      if (textKeys.includes(key) && typeof obj[key] === 'string' && obj[key].trim() !== '') {\n        stringsToTranslate.push(obj[key]);\n        mapPaths.push(`${path}.${key}`);\n      } else {\n        walk(obj[key], `${path}.${key}`);\n      }\n    }\n  }\n}\n\n// === 🚨 CUSTOM ACF FLEXIBLE CONTENT 🚨 ===\n// 'product_flexible' is a specific field identifier. \n// If you use flexible content or repeater fields, adjust or duplicate the line below.\nif (acf.product_flexible) walk(acf.product_flexible, 'acf.product_flexible');\n\nreturn [{ json: { ...input, stringsToTranslate, mapPaths } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a96fb374-69b4-4770-a356-003d4d0ecf8a",
+      "name": "Split by Target Lang",
+      "type": "n8n-nodes-base.itemLists",
+      "position": [
+        672,
+        56
+      ],
+      "parameters": {
+        "include": "allOtherFields",
+        "options": {},
+        "fieldToSplitOut": "languagesNeeded"
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "6d8785f6-f053-4959-94a3-730d4dc38490",
+      "name": "DeepL Translate",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        896,
+        56
+      ],
+      "parameters": {
+        "url": "https://api-free.deepl.com/v2/translate",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "sendHeaders": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.stringsToTranslate }}"
+            },
+            {
+              "name": "target_lang",
+              "value": "={{ $json.languagesNeeded.toUpperCase() }}"
+            },
+            {
+              "name": "source_lang",
+              "value": "={{ $json.detectedLang.toUpperCase() }}"
+            },
+            {
+              "name": "tag_handling",
+              "value": "html"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "DeepL-Auth-Key YOUR_DEEPL_API_KEY_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "5a1a2eb4-f4e0-48fa-9cc3-52e8db6b0c84",
+      "name": "RECONSTRUCT JSON",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        56
+      ],
+      "parameters": {
+        "jsCode": "const splitItems = $items(\"Split by Target Lang\");\nconst results = [];\n\nfunction set(obj, path, value) {\n    var schema = obj, pList = path.split('.'), len = pList.length;\n    for(var i = 0; i < len-1; i++) {\n        var elem = pList[i];\n        if(elem.includes('[')) {\n             const arrayName = elem.split('[')[0];\n             const index = parseInt(elem.split('[')[1].replace(']', ''));\n             schema = schema[arrayName][index];\n        } else {\n             if( !schema[elem] ) schema[elem] = {}\n             schema = schema[elem];\n        }\n    }\n    var lastElem = pList[len-1];\n     if(lastElem.includes('[')) {\n         const arrayName = lastElem.split('[')[0];\n         const index = parseInt(lastElem.split('[')[1].replace(']', ''));\n         schema[arrayName][index] = value;\n    } else {\n         schema[lastElem] = value;\n    }\n}\n\n// Cleans inside Arrays and Objects\nfunction cleanAcf(obj) {\n    if (!obj) return;\n    if (Array.isArray(obj)) {\n        obj.forEach(item => cleanAcf(item));\n    } else if (typeof obj === 'object') {\n        Object.keys(obj).forEach(key => {\n            if (obj[key] === \"\") {\n                obj[key] = null; \n            } else if (typeof obj[key] === 'object' && obj[key] !== null) {\n                cleanAcf(obj[key]);\n            }\n        });\n    }\n}\n\nfor (let i = 0; i < items.length; i++) {\n    const translatedTexts = items[i].json.translations;\n    const originalData = splitItems[i].json;\n    const mapPaths = originalData.mapPaths;\n    \n    let newPost = JSON.parse(JSON.stringify(originalData.originalPost));\n    \n    mapPaths.forEach((path, index) => {\n        const translatedString = translatedTexts[index].text;\n        \n        if (path === 'post_title') {\n            newPost.title.raw = translatedString;\n            newPost.title.rendered = translatedString;\n        } else if (path === 'post_content') {\n            newPost.content.raw = translatedString;\n            newPost.content.rendered = translatedString;\n        } else if (path.startsWith('acf.')) {\n            set(newPost.acf, path.replace('acf.', ''), translatedString);\n        }\n    });\n\n    cleanAcf(newPost.acf);\n    \n    const originalUrl = originalData.postTypeUrl;\n    const baseUrl = originalUrl.substring(0, originalUrl.lastIndexOf('/'));\n    \n    results.push({\n        json: {\n            lang: originalData.languagesNeeded, \n            originalId: originalData.originalId,\n            newTitle: newPost.title.raw,\n            newAcf: newPost.acf,\n            newContent: newPost.content?.raw || \"\",\n            createUrl: baseUrl\n        }\n    });\n}\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2e280904-8300-4cac-b537-6fa3843b6962",
+      "name": "Create Translated Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1344,
+        56
+      ],
+      "parameters": {
+        "url": "={{ $json.createUrl }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.newTitle }}"
+            },
+            {
+              "name": "acf",
+              "value": "={{ $json.newAcf }}"
+            },
+            {
+              "name": "status",
+              "value": "draft"
+            },
+            {
+              "name": "lang",
+              "value": "={{ $json.lang }}"
+            },
+            {
+              "name": "translation_of",
+              "value": "={{ $json.originalId }}"
+            },
+            {
+              "name": "content",
+              "value": "=={{ $json.newContent }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "uOtGiCZl4h3hybVW",
+          "name": "WordPress Application"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "c3e32f1f-9c6f-482c-992a-52625b5e4a43",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2064,
+        -304
+      ],
+      "parameters": {
+        "width": 352,
+        "height": 768,
+        "content": "# Smart WP Translation (Gutenberg + ACF)\n\nThis workflow automatically translates new or updated WordPress posts into multiple languages using DeepL, while keeping your Advanced Custom Fields (ACF) JSON structure intact. It uses OpenAI to detect the source language and prevent duplicate translations.\n\n🛠️ Prerequisites:\n1. WordPress Application Password (for HTTP Basic Auth)\n2. OpenAI API Key\n3. DeepL API Key\n\n🚀 Setup Instructions:\n1. Add your credentials to the Webhook, Get Post Data, OpenAI, and Create Post nodes.\n2. In the \"Smart Router & Targets\" node, configure your supported languages.\n3. In the \"Extract Content\" node, update the array with your site's specific ACF keys.\n4. In the \"DeepL Translate\" node, add your DeepL API Key to the Header.\n\nP.S.\n\nYou can use the Deep Node, but in this template I use a generic node in case you get issues with the Deepl Node"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7a704daf-301f-4a7e-a39b-d6ba668b3fbc",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1648,
+        -32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 464,
+        "height": 288,
+        "content": "## 1. Trigger & Fetch Raw WP Post Data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d448172-2b66-4103-acc0-04a47c4dec73",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1168,
+        -32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1312,
+        "height": 288,
+        "content": "## 2. AI Language Detection & Smart Routing"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6691bca-a7fd-49bd-ad2c-0adf947a2a65",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        -32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 288,
+        "content": "## 3. Flatten ACF Structure & Translate with DeepL"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d88a9828-8e59-4f5c-a8b2-d1481b8abe8c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1056,
+        -32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 528,
+        "height": 288,
+        "content": "## 4. Rebuild ACF Object & Push to WordPress"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d0057bbd-9ac6-4863-8b42-c8fed6d25e30",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1408,
+        208
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 208,
+        "height": 176,
+        "content": "### URL and WP APP Password\nUpdate the URL to your WP domain and select your WP App Password credentials."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "30e91335-d3c5-440a-ac42-05d1ed21e6af",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1296,
+        208
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 208,
+        "height": 176,
+        "content": "### URL and WP APP Password\nUpdate the URL to your WP domain and select your WP App Password credentials."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3bfb431-9ac1-4ce7-853f-204ed19e8d19",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        208
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 176,
+        "height": 176,
+        "content": "### Configuration: \nOpen this node and update the \"allSupported\" array to match your website's languages."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2898babf-c8fd-4407-b597-ed8d8df1456d",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        416,
+        208
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 176,
+        "height": 176,
+        "content": "### ACF Keys\nOpen this node and update the \"textKeys\" array to match the actual ACF field names used on your WordPress site"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ad985939-851f-46c1-8fe2-05ef2c582a5a",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        864,
+        224
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 176,
+        "height": 176,
+        "content": "### DEEPL Translate\nAdd your DeepL API Key in the Header Parameters."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Needs Translations?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Post Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Post Data": {
+      "main": [
+        [
+          {
+            "node": "Prepare Text Snippet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepL Translate": {
+      "main": [
+        [
+          {
+            "node": "RECONSTRUCT JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Content": {
+      "main": [
+        [
+          {
+            "node": "Split by Target Lang",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RECONSTRUCT JSON": {
+      "main": [
+        [
+          {
+            "node": "Create Translated Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs WP Lang Fix?": {
+      "main": [
+        [
+          {
+            "node": "Fix WP Language Flag",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Needs Translations?": {
+      "main": [
+        [
+          {
+            "node": "Extract Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix WP Language Flag": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Text Snippet": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Language Detect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split by Target Lang": {
+      "main": [
+        [
+          {
+            "node": "DeepL Translate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Language Detect": {
+      "main": [
+        [
+          {
+            "node": "Smart Router & Targets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Smart Router & Targets": {
+      "main": [
+        [
+          {
+            "node": "Needs WP Lang Fix?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Translate WordPress posts and ACF fields using DeepL and OpenAI",
+    "wechat": "youandme10086",
+    "id": 13543,
+    "update_time": "2026-03-12"
+  }
+}

@@ -1,4 +1,4 @@
-# audits : 6
+# audits : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |10031|[10031_Export_WordPress_Posts_with_Categories_and_Tags_to_Google_Sheets_for_SEO_Audits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10031_Export_WordPress_Posts_with_Categories_and_Tags_to_Google_Sheets_for_SEO_Audits.json)|
 |10689|[10689_Automated_SEO_Watchlist__Continuous_Audits_with_Decodo__Gemini___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10689_Automated_SEO_Watchlist__Continuous_Audits_with_Decodo__Gemini___Google_Sheets.json)|
 |12811|[12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json)|
+|13444|[13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json)|

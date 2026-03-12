@@ -1,4 +1,4 @@
-# facebook : 107
+# facebook : 115
 
 |id|file|
 |----|----|
@@ -109,3 +109,11 @@
 |13234|[13234_Extract_and_analyze___ALL_Facebook_post_comments_with_sentiment_AI_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13234_Extract_and_analyze___ALL_Facebook_post_comments_with_sentiment_AI_using_Gemini.json)|
 |13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|
 |13301|[13301_Schedule_Facebook_posts_from_Google_Sheets_with_approval_and_Drive_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13301_Schedule_Facebook_posts_from_Google_Sheets_with_approval_and_Drive_images.json)|
+|13340|[13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json)|
+|13366|[13366_Upload_videos_to_Facebook_Pages_and_Groups_with_Facebook_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13366_Upload_videos_to_Facebook_Pages_and_Groups_with_Facebook_Graph_API.json)|
+|13368|[13368_Monitor_agency_profitability_with_Facebook_Ads__Shopify__Stripe__Clockify__Google_Sheets__Slack_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13368_Monitor_agency_profitability_with_Facebook_Ads__Shopify__Stripe__Clockify__Google_Sheets__Slack_and_Gemini.json)|
+|13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|
+|13419|[13419_Sync_Facebook_leads_from_Google_Sheets_to_Perfex_CRM_via_REST_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13419_Sync_Facebook_leads_from_Google_Sheets_to_Perfex_CRM_via_REST_API.json)|
+|13462|[13462_Track_Facebook_Page_post_Engagement__Comments__Like__Shares__in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13462_Track_Facebook_Page_post_Engagement__Comments__Like__Shares__in_Google_Sheets.json)|
+|13648|[13648_Generate_social_media_posts_with_GPT-4_for_LinkedIn__X__and_Facebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13648_Generate_social_media_posts_with_GPT-4_for_LinkedIn__X__and_Facebook.json)|
+|13833|[13833_Moderate_Facebook_group_posts_with_OpenAI__Slack__and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13833_Moderate_Facebook_group_posts_with_OpenAI__Slack__and_Airtable.json)|

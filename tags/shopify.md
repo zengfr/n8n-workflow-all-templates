@@ -1,4 +1,4 @@
-# shopify : 99
+# shopify : 110
 
 |id|file|
 |----|----|
@@ -101,3 +101,14 @@
 |12694|[12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json)|
 |12902|[12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json)|
 |13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|
+|13333|[13333_Create_Shopify_products_via_a_Telegram_bot_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13333_Create_Shopify_products_via_a_Telegram_bot_with_Google_Gemini_AI.json)|
+|13368|[13368_Monitor_agency_profitability_with_Facebook_Ads__Shopify__Stripe__Clockify__Google_Sheets__Slack_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13368_Monitor_agency_profitability_with_Facebook_Ads__Shopify__Stripe__Clockify__Google_Sheets__Slack_and_Gemini.json)|
+|13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|
+|13414|[13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json)|
+|13415|[13415_Send_Shopify_new_product_announcements_via_WhatsApp_using_Google_Sheets_and_GPT-4.1_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13415_Send_Shopify_new_product_announcements_via_WhatsApp_using_Google_Sheets_and_GPT-4.1_mini.json)|
+|13478|[13478_Send_Shopify_order_confirmations_via_WhatsApp_using_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13478_Send_Shopify_order_confirmations_via_WhatsApp_using_MoltFlow.json)|
+|13541|[13541_Create_e-commerce_listings_from_images_with_UploadToURL__GPT-4o__Shopify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13541_Create_e-commerce_listings_from_images_with_UploadToURL__GPT-4o__Shopify.json)|
+|13594|[13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json)|
+|13704|[13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json)|
+|13829|[13829_Sync_Shopify_and_WooCommerce_sales_into_a_Google_Sheets_accounting_ledger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13829_Sync_Shopify_and_WooCommerce_sales_into_a_Google_Sheets_accounting_ledger.json)|
+|13872|[13872_Analyze_Shopify_orders_with_Gemini_AI_and_send_weekly_Slack_insights.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13872_Analyze_Shopify_orders_with_Gemini_AI_and_send_weekly_Slack_insights.json)|

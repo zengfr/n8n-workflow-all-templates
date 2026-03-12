@@ -1,4 +1,4 @@
-# bot : 229
+# bot : 233
 
 |id|file|
 |----|----|
@@ -231,3 +231,7 @@
 |13042|[13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json)|
 |13166|[13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13166_Manage_Supabase_database_records_with_Telegram_bot_commands.json)|
 |13224|[13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json)|
+|13333|[13333_Create_Shopify_products_via_a_Telegram_bot_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13333_Create_Shopify_products_via_a_Telegram_bot_with_Google_Gemini_AI.json)|
+|13503|[13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json)|
+|13506|[13506_Build_a_WhatsApp_AI_shopping_bot_with_virtual_try-on_using_Gemini_and_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13506_Build_a_WhatsApp_AI_shopping_bot_with_virtual_try-on_using_Gemini_and_GPT.json)|
+|13651|[13651_Generate_AI_trading_alerts_from_CoinGecko_and_Alpha_Vantage_via_Slack__email_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13651_Generate_AI_trading_alerts_from_CoinGecko_and_Alpha_Vantage_via_Slack__email_and_SMS.json)|

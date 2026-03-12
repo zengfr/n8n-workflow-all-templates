@@ -1,0 +1,440 @@
+{
+  "id": "2PIbeICyXdKvNHgNGvlAg",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Monitor Google reviews and draft AI responses with Gemini and Slack",
+    "wechat": "youandme10086",
+    "id": 13562,
+    "update_time": "2026-03-12"
+  },
+  "name": "Monitor Google reviews and draft AI responses with Gemini and Slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "08634900-caeb-4c86-9a91-6d558570fbd3",
+      "name": "Review Check Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        80,
+        224
+      ],
+      "webhookId": "",
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.2,
+      "cronExpression": "0 * * * *"
+    },
+    {
+      "id": "388cf707-e49c-4985-ba31-08ec0c25fb53",
+      "name": "Get Google Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        224
+      ],
+      "parameters": {
+        "url": "https://maps.googleapis.com/maps/api/place/details/json",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9578322c-90ba-4cf7-82d3-7d7484d8d78a",
+      "name": "Filter New Reviews",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        720,
+        224
+      ],
+      "parameters": {
+        "jsCode": "// Filter new reviews since last check\nconst reviews = $input.item.json.result.reviews || [];\nconst lastCheckTime = $('Setup Variables').item.json.last_check_timestamp;\nconst currentTime = Math.floor(Date.now() / 1000);\n\n// Filter reviews newer than last check\nconst newReviews = reviews.filter(review => {\n  return review.time > lastCheckTime;\n});\n\n// Update last check timestamp\nconst setupVars = $('Setup Variables').item.json;\nsetupVars.last_check_timestamp = currentTime;\n\nreturn newReviews.map(review => ({\n  ...review,\n  place_id: setupVars.place_id,\n  business_name: setupVars.business_name\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2e3d1c4-20d7-4698-9f76-38c0fe8d4d23",
+      "name": "Sentiment Analysis & Draft Response",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        880,
+        224
+      ],
+      "parameters": {},
+      "typeVersion": 1.4
+    },
+    {
+      "id": "03b31695-2269-433f-9d2f-9819ad006819",
+      "name": "Parse AI Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1152,
+        224
+      ],
+      "parameters": {
+        "jsCode": "// Parse AI response and classify sentiment\nconst aiResponse = $input.item.json.response;\n\n// Extract sentiment score (1-5) and response draft from AI\nconst lines = aiResponse.split('\\n');\nlet sentimentScore = 3;\nlet responseDraft = '';\n\nlines.forEach(line => {\n  if (line.startsWith('SENTIMENT:')) {\n    sentimentScore = parseInt(line.replace('SENTIMENT:', '').trim());\n  }\n  if (line.startsWith('RESPONSE:')) {\n    responseDraft = line.replace('RESPONSE:', '').trim();\n  }\n});\n\n// Combine with original review data\nconst review = $('Filter New Reviews').item.json;\n\nreturn {\n  ...review,\n  sentiment_score: sentimentScore,\n  ai_response_draft: responseDraft,\n  is_negative: sentimentScore < 3,\n  created_at: new Date().toISOString()\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5f6d0bb6-b4bf-479c-a626-037d3d90524f",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1344,
+        224
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "text": "={{ $json.text }}",
+            "rating": "={{ $json.rating }}",
+            "review_id": "={{ $json.time }}",
+            "created_at": "={{ $json.created_at }}",
+            "author_name": "={{ $json.author_name }}",
+            "business_name": "={{ $json.business_name }}",
+            "sentiment_score": "={{ $json.sentiment_score }}",
+            "ai_response_draft": "={{ $json.ai_response_draft }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": "Reviews Log",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Setup Variables').item.json.sheet_id }}"
+        },
+        "authentication": "oAuth2Api"
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "30975d15-2310-4244-a56a-efa746c18429",
+      "name": "Filter Negative Reviews",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1552,
+        224
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              },
+              "leftValue": "={{ $json.is_negative }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b5442848-5a44-4aa6-bfe8-49502d6de588",
+      "name": "Send Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1744,
+        224
+      ],
+      "webhookId": "bf80b669-4c98-4c99-85f1-7a0e9a37e4e7",
+      "parameters": {
+        "text": "🚨 **Negative Review Alert** ({{ $json.rating }}/5 stars)\n\n**Business:** {{ $json.business_name }}\n**Author:** {{ $json.author_name }}\n**Review:** {{ $json.text }}\n\n**AI Response Draft:**\n{{ $json.ai_response_draft }}\n\n_Sentiment Score: {{ $json.sentiment_score }}/5_",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Setup Variables').item.json.slack_channel_id }}"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2Api"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "14a536fa-e2df-4dfa-9692-73ea41f4c41e",
+      "name": "Email Daily Summary",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1920,
+        224
+      ],
+      "webhookId": "c623d4e6-6b7a-4555-a3ef-d9cd31a0677b",
+      "parameters": {
+        "sendTo": "={{ $('Setup Variables').item.json.owner_email }}",
+        "message": "Hello,\n\nHere's your daily Google Reviews summary:\n\n**New Reviews Today:** {{ $('Parse AI Results').all().length }}\n**Negative Reviews:** {{ $('Filter Negative Reviews').all().length }}\n**Average Rating:** {{ $('Parse AI Results').all().map(item => item.json.rating).reduce((a, b) => a + b, 0) / $('Parse AI Results').all().length }}\n\n{% for review in $('Parse AI Results').all() %}\n- **{{ review.json.rating }}/5** by {{ review.json.author_name }}: {{ review.json.text | truncate(100) }}\n{% endfor %}\n\nBest regards,\nYour Review Monitoring System",
+        "options": {},
+        "subject": "Daily Google Reviews Summary - {{ $now.format('YYYY-MM-DD') }}",
+        "authentication": "oAuth2Api"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "9490d026-ee8e-48cd-bdb6-c8395050fbcc",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        880,
+        416
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1ddb190e-55b0-4a6f-be4a-5516c732d028",
+      "name": "Setup Variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        288,
+        224
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "place_id",
+              "name": "place_id",
+              "type": "string",
+              "value": "ChIJN1t_tDeuEmsRUsoyG83frY4"
+            },
+            {
+              "id": "business_name",
+              "name": "business_name",
+              "type": "string",
+              "value": "Your Business Name"
+            },
+            {
+              "id": "sheet_id",
+              "name": "sheet_id",
+              "type": "string",
+              "value": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+            },
+            {
+              "id": "slack_channel_id",
+              "name": "slack_channel_id",
+              "type": "string",
+              "value": "C1234567890"
+            },
+            {
+              "id": "owner_email",
+              "name": "owner_email",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "last_check_timestamp",
+              "name": "last_check_timestamp",
+              "type": "number",
+              "value": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "5e86cb07-f10a-4510-a6d2-89d4cae0c4c5",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        16
+      ],
+      "parameters": {
+        "width": 452,
+        "height": 576,
+        "content": "### Monitor Google reviews and draft AI responses with Gemini and Slack\n\nAutomatic Google Reviews monitoring system that keeps an eye on your business reviews every hour, analyzes sentiment with AI, and drafts professional responses.\n\n### How it works\n1. Runs on a schedule (default: every hour)\n2. Pulls latest reviews from Google Maps Places API\n3. Gemini AI reads each review, scores sentiment 1-5, and writes a reply draft\n4. Everything gets logged to Google Sheets\n5. Bad reviews (under 3 stars) trigger a Slack alert immediately\n6. Daily summary email goes to the owner\n\n### Setup steps\n1. Set your Google Maps Place ID in the Setup Variables node\n2. Add Google Maps API key (HTTP Header Auth)\n3. Connect Google Gemini API\n4. Connect Google Sheets and create a spreadsheet\n5. Connect Slack and pick your alert channel\n6. Set the Gmail recipient for daily summaries"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ce8edc93-4a02-478a-b591-43ad77c1fc3e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 656,
+        "height": 528,
+        "content": "## Fetch reviews\nSchedule trigger checks every hour. Setup Variables node holds the Place ID — change it to your business."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0ee52f9b-0d7a-4015-a1fd-870947421aa6",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        688,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 536,
+        "content": "## AI analysis\nGemini reads each review, scores sentiment 1-5, and drafts a polite response. The code node below parses the JSON output."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f805c8f9-bc25-45d6-9da5-f2140a2edfbc",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 816,
+        "height": 540,
+        "content": "## Save, filter, and alert\nAll reviews go to Sheets. Negative ones (score < 3) get a Slack alert. Daily summary goes out via Gmail."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "323df5c9-2ede-457f-b095-6e134ab1d385",
+  "connections": {
+    "Setup Variables": {
+      "main": [
+        [
+          {
+            "node": "Get Google Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Results": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Slack Alert": {
+      "main": [
+        [
+          {
+            "node": "Email Daily Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter New Reviews": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis & Draft Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Google Reviews": {
+      "main": [
+        [
+          {
+            "node": "Filter New Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Filter Negative Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review Check Schedule": {
+      "main": [
+        [
+          {
+            "node": "Setup Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Negative Reviews": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sentiment Analysis & Draft Response",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sentiment Analysis & Draft Response": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

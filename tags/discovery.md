@@ -1,4 +1,4 @@
-# discovery : 21
+# discovery : 22
 
 |id|file|
 |----|----|
@@ -23,3 +23,4 @@
 |11211|[11211_Discover_Article_URLs_from_Any_Website_with_GPT-5-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11211_Discover_Article_URLs_from_Any_Website_with_GPT-5-mini_and_Google_Sheets.json)|
 |11232|[11232_Automatically_Discover_and_Extract_Reports_from_Websites_using_GPT_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11232_Automatically_Discover_and_Extract_Reports_from_Websites_using_GPT_and_Google_Sheets.json)|
 |12499|[12499_Create_a_founder_digest_and_leads_from_Hacker_News_with_GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12499_Create_a_founder_digest_and_leads_from_Hacker_News_with_GPT-4o_and_Gmail.json)|
+|13513|[13513_Generate_Google_Maps_leads_with_AI_enrichment__social_discovery_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13513_Generate_Google_Maps_leads_with_AI_enrichment__social_discovery_and_Google_Sheets.json)|

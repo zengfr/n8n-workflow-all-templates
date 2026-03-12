@@ -1,4 +1,4 @@
-# topic : 16
+# topic : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |10396|[10396_Analyze___Publish_GCE_O-Level_Math_Predictions_with_Perplexity_AI_to_WordPress___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10396_Analyze___Publish_GCE_O-Level_Math_Predictions_with_Perplexity_AI_to_WordPress___Slack.json)|
 |12571|[12571_Generate__translate_and_publish_AI_content_to_WordPress_and_socials_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12571_Generate__translate_and_publish_AI_content_to_WordPress_and_socials_with_GPT-4.1_and_Google_Sheets.json)|
 |12780|[12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json)|
+|13608|[13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json)|

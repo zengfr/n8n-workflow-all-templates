@@ -1,4 +1,4 @@
-# validation : 40
+# validation : 43
 
 |id|file|
 |----|----|
@@ -42,3 +42,6 @@
 |13153|[13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json)|
 |13156|[13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json)|
 |13157|[13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json)|
+|13432|[13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json)|
+|13453|[13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json)|
+|13854|[13854_Enrich_leads_from_Google_Sheets_with_ScraperCity_emails__phones__and_validation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13854_Enrich_leads_from_Google_Sheets_with_ScraperCity_emails__phones__and_validation.json)|

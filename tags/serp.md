@@ -1,4 +1,4 @@
-# serp : 20
+# serp : 21
 
 |id|file|
 |----|----|
@@ -22,3 +22,4 @@
 |11436|[11436_Automated_SEO_SERP_Analysis_with_Decodo___Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11436_Automated_SEO_SERP_Analysis_with_Decodo___Google_Gemini.json)|
 |11630|[11630_Track_SERP_Rankings___Discover_Keywords_using_DataForSEO___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11630_Track_SERP_Rankings___Discover_Keywords_using_DataForSEO___Airtable.json)|
 |11809|[11809_Generate_SEO_Content_Outlines_from_SERP_Analysis_with_OpenAI_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11809_Generate_SEO_Content_Outlines_from_SERP_Analysis_with_OpenAI_and_Google_Docs.json)|
+|13737|[13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json)|

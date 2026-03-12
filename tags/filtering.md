@@ -1,4 +1,4 @@
-# filtering : 26
+# filtering : 27
 
 |id|file|
 |----|----|
@@ -28,3 +28,4 @@
 |10977|[10977_Daily_News_Digest___Weekly_Trends_with_AI_Filtering__Slack___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10977_Daily_News_Digest___Weekly_Trends_with_AI_Filtering__Slack___Google_Sheets.json)|
 |11593|[11593_Sync_Zoom_Webinar_Attendees_to_Mailchimp_with_Double_Opt-in_and_Email_Filtering.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11593_Sync_Zoom_Webinar_Attendees_to_Mailchimp_with_Double_Opt-in_and_Email_Filtering.json)|
 |13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|
+|13903|[13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json)|

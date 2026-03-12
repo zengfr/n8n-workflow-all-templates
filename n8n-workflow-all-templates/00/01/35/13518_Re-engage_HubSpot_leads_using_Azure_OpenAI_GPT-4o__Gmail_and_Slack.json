@@ -1,0 +1,541 @@
+{
+  "id": "Fg8PQ8LaXVbmFFkJ",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Re-engage HubSpot leads using Azure OpenAI GPT-4o, Gmail and Slack",
+    "wechat": "youandme10086",
+    "id": 13518,
+    "update_time": "2026-03-12"
+  },
+  "name": "AI-Powered HubSpot Lead Re-Engagement Workflow",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "69cfc7e6-4462-4b01-9818-dd24dea2c3fa",
+      "name": "Daily Trigger (Every 24h)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1264,
+        640
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0aa45b52-1a96-4c4a-8fd5-92a27a494f77",
+      "name": "HubSpot: Fetch Recent Leads + Activity Fields",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        -1056,
+        640
+      ],
+      "parameters": {
+        "limit": 20,
+        "operation": "getAll",
+        "authentication": "appToken",
+        "additionalFields": {
+          "propertiesCollection": {
+            "propertiesValues": {
+              "properties": [
+                "notes_last_contacted",
+                "hs_last_sales_activity_timestamp",
+                "hs_notes_last_activity",
+                "notes_last_updated",
+                "createdate",
+                "first_deal_created_date",
+                "hs_lead_status"
+              ]
+            }
+          }
+        }
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "nv4vVAIbYgup0ey7",
+          "name": "HubSpot account-anuj"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "accf270a-21e1-4113-8f1d-3bfe72a6a7d9",
+      "name": "Filter: Lead Status = BAD_TIMING",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -848,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e7a05654-7b96-416e-8e46-c49fb0bd3d9c",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.properties.hs_lead_status?.value || '' }} ",
+              "rightValue": "=BAD_TIMING"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "2b7c4f34-4602-481f-8026-96340e2ccb13",
+      "name": "Batch Leads (Split In Batches)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -448,
+        624
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "55062cd6-fcb4-4645-9957-83b424f75501",
+      "name": "AI: Generate Re-Engagement Follow-Up Email Body",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueErrorOutput",
+      "position": [
+        -80,
+        640
+      ],
+      "parameters": {
+        "text": "=Write a personalized follow-up email to this lead:\n\nEmail: {{ $json[\"identity-profiles\"][0].identities[0].value }}\nLead Status: {{ $json.properties.hs_lead_status.value }}\nNotes Last Contacted (timestamp): {{ $json.properties.notes_last_contacted.value }}\nAccount Created Date (timestamp): {{ $json.properties.createdate.value }}\n\nContext:\nThis lead was previously marked as \"bad timing\" and has not been contacted recently. \nThe goal is to politely re-open the conversation and check if now is a better time to connect.\n\nWrite a short, natural follow-up email.\n",
+        "options": {
+          "systemMessage": "=You are an expert SDR assistant.\n\nYour job is to write short, friendly, and personalized follow-up emails to leads marked as BAD_TIMING in HubSpot.\n\nRules:\n- Keep the email concise (3–5 lines max).\n- Be polite, non-pushy, and value-driven.\n- Do NOT sound salesy or desperate.\n- Do NOT mention internal CRM terms like “BAD_TIMING”.\n- If no name is available, avoid using a name.\n- End with a soft CTA asking if this is a better time to reconnect.\n- Output only the email body text. No subject line. No explanations.\n"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "f79a4963-e6a7-46ac-9d47-dfcc531d9bcb",
+      "name": "Parse AI JSON",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        336,
+        624
+      ],
+      "parameters": {
+        "jsCode": "const rawOutput = $input.first().json.output || '';\n\nlet subject = 'Following up';\nlet body = 'Hi, just checking in to see if you had any questions. Let me know!';\n\ntry {\n  const parsed = JSON.parse(rawOutput);\n  if (parsed.subject) subject = parsed.subject;\n  if (parsed.body) body = parsed.body;\n} catch (e) {\n  // fallback to defaults already set above\n}\n\nconst leadData = $('Batch Leads (Split In Batches)').first().json;\n\nreturn [{\n  json: {\n    subject,\n    body,\n    toEmail: leadData.properties.email,\n    firstName: leadData.properties.firstname,\n    lastName: leadData.properties.lastname,\n    ownerId: leadData.properties.hubspot_owner_id\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "816a2a8f-f489-4d9f-b1e4-06c68b6382fc",
+      "name": "Gmail: Create Follow-Up Draft Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        672,
+        624
+      ],
+      "webhookId": "8656ebb7-43ac-4a06-b457-17086d7b0388",
+      "parameters": {
+        "message": "={{ $('AI: Generate Re-Engagement Follow-Up Email Body').item.json.output }}",
+        "options": {},
+        "subject": "={{ $json.subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gEIaWCTvGfYjMSb3",
+          "name": "Gmail credentials"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7f437895-4f06-463b-8133-d2ae7f98cbc0",
+      "name": "Slack: Notify Owner to Re-Engage Lead",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1024,
+        624
+      ],
+      "webhookId": "7966a1b3-8a66-440c-b36e-edf9019ee900",
+      "parameters": {
+        "text": "=🚨 *Lead Needs Follow-up (Bad Timing)*\n\n• Email: {{ $('Batch Leads (Split In Batches)').item.json[\"identity-profiles\"][0].identities[0].value }}\n• Lead Status: {{ $('Batch Leads (Split In Batches)').item.json.properties.hs_lead_status.value }}\n\n👀 This lead was previously marked as *Bad Timing*. Might be a good moment to retry outreach.\n",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U09HMPVD466",
+          "cachedResultName": "newscctv22"
+        },
+        "select": "user",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "rNqvWj9TfChPVRYY",
+          "name": "Slack account vivek"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0bb82f5e-ed99-4182-9269-20d0a967939d",
+      "name": "Slack: Alert AI Draft Failure",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        688,
+        1296
+      ],
+      "webhookId": "e94a9562-b23c-4ddb-a595-3f9756dcca8b",
+      "parameters": {
+        "text": "=:warning: *Follow-Up Draft Failed (AI Error)*\n\n*Lead:* {{ $json.firstName }} {{ $json.lastName }}\n*Email:* {{ $json.toEmail }}\n*Error:* {{ $json.errorMessage }}\n\nPlease follow up manually with this lead.",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U09HMPVD466",
+          "cachedResultName": "newscctv22"
+        },
+        "select": "user",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "rNqvWj9TfChPVRYY",
+          "name": "Slack account vivek"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4cde9769-eab5-4df2-9d92-a1f1c6d4cd75",
+      "name": "Build AI Error Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        464,
+        1296
+      ],
+      "parameters": {
+        "jsCode": "const leadData = $('Batch Leads (Split In Batches)').first().json;\n\nreturn [{\n  json: {\n    firstName: leadData.properties?.firstname || 'Unknown',\n    lastName: leadData.properties?.lastname || '',\n    toEmail: leadData.properties?.email || '',\n    errorMessage: $input.first().json.error?.message || 'AI generation failed'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2f9d974a-6eaa-4170-ae5e-f56755c7e656",
+      "name": "Execute Re-Engagement Follow-Up Email Body with Azure OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "position": [
+        -144,
+        896
+      ],
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "C3WzT18XqF8OdVM6",
+          "name": "Azure Open AI account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ca3ef8f2-66d6-45c4-91ea-4d85ceab7992",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2304,
+        -128
+      ],
+      "parameters": {
+        "width": 672,
+        "height": 624,
+        "content": "## 🔁 AI-Powered HubSpot Lead Re-Engagement Workflow\n\n### What this workflow does\nThis workflow automatically re-engages HubSpot leads that were previously marked as “Bad Timing” and have gone cold. Every 24 hours, it fetches stale leads from HubSpot, filters only those with the BAD_TIMING status, and loops through them one by one.\n\nFor each eligible lead, an AI agent generates a short, polite follow-up email that re-opens the conversation without sounding pushy or salesy. The email draft is created in Gmail so the sales rep can review before sending. At the same time, the owner is notified on Slack so they are aware a follow-up was prepared.\n\nIf AI generation fails for any lead, the workflow safely falls back and alerts the sales rep to follow up manually. This ensures no leads are silently skipped and sales never miss reactivation opportunities.\n\n### Setup checklist\n• Connect HubSpot App Token  \n• Connect Azure OpenAI credentials  \n• Connect Gmail OAuth2  \n• Connect Slack API  \n• Review email tone inside AI prompt  \n\n### Customization ideas\n• Change retry cadence (daily → weekly)  \n• Add CRM status updates after follow-up  \n• Push follow-ups into a CRM task queue  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5fe26e48-0ab5-420b-97e3-88a706060456",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1376,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 464,
+        "height": 496,
+        "content": "## ⏰ Daily Schedule & Lead Fetch (HubSpot)\n\nRuns every 24 hours to fetch leads\nfrom HubSpot with activity timestamps.\n\n• Scheduled trigger  \n• Pulls recent lead activity  \n• Feeds data into filtering logic  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "58d57330-91ca-4cdc-b424-a115f9ba44e3",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -896,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 288,
+        "height": 448,
+        "content": "## 🚦 Filter Leads Marked as “Bad Timing”\n\nOnly processes leads that were previously\nmarked as bad timing in HubSpot.\n\n• Prevents spamming active leads  \n• Targets cold or paused opportunities  \n• Keeps follow-ups intentional  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1dd4c22f-f047-4a67-abaa-4c338be2b188",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -576,
+        368
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 496,
+        "content": "## 🔄 Loop Over Eligible Leads\n\nProcesses leads one-by-one to avoid\nrate limits and ensure clean AI output.\n\n• Handles each lead independently  \n• Supports retries on failure  \n• Keeps processing stable at scale  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "226753c4-adcf-4735-90cb-0009f8fc5803",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -208,
+        416
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 656,
+        "height": 640,
+        "content": "## ✍️ AI Follow-Up Email Generator\n\nGenerates short, polite re-engagement\nemails for cold leads.\n\n• Personalized using lead data  \n• Non-pushy, friendly tone  \n• Soft CTA to re-open conversation  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9003037c-7cb8-4781-8cf0-36e40d5d37c3",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        416
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 368,
+        "height": 432,
+        "content": "## 📨 Gmail Draft Creation\n\nCreates a draft follow-up email\nfor sales to review and send.\n\n• Human-in-the-loop safety  \n• No auto-send to customers  \n• Keeps outreach controlled  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c9ef72c9-c4ed-437c-99d2-f5c751407359",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        944,
+        384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 272,
+        "height": 464,
+        "content": "## 🔔 Sales Rep Notification (Slack)\n\nNotifies the assigned owner that\na follow-up draft was created.\n\n• Includes lead email + status  \n• Prompts timely outreach  \n• Keeps sales informed  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "11986706-3aa5-4420-83e8-5d5824b71b6c",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        1104
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 400,
+        "content": "## ⚠️ AI Failure Handling & Fallback\n\nHandles cases where AI fails to\ngenerate a follow-up email.\n\n• Notifies sales on Slack  \n• Prevents silent lead drops  \n• Enables manual follow-up  \n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "73bde7cf-c29b-43a4-a9e8-d1dbe2ec5f9f",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1248,
+        576
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 336,
+        "height": 272,
+        "content": "## 🔐 Required Credentials & Access\n\n• HubSpot App Token  \n• Azure OpenAI (LLM generation)  \n• Gmail OAuth2 (draft emails)  \n• Slack API (sales alerts)  \n\nNever auto-send emails without review.\nKeep humans in the loop for outreach.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f2e5f5c9-39d9-4c84-a718-b77e55c6e0cc",
+  "connections": {
+    "Parse AI JSON": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Create Follow-Up Draft Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI Error Payload": {
+      "main": [
+        [
+          {
+            "node": "Slack: Alert AI Draft Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Trigger (Every 24h)": {
+      "main": [
+        [
+          {
+            "node": "HubSpot: Fetch Recent Leads + Activity Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Alert AI Draft Failure": {
+      "main": [
+        [
+          {
+            "node": "Batch Leads (Split In Batches)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch Leads (Split In Batches)": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI: Generate Re-Engagement Follow-Up Email Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Lead Status = BAD_TIMING": {
+      "main": [
+        [
+          {
+            "node": "Batch Leads (Split In Batches)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Create Follow-Up Draft Email": {
+      "main": [
+        [
+          {
+            "node": "Slack: Notify Owner to Re-Engage Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Notify Owner to Re-Engage Lead": {
+      "main": [
+        [
+          {
+            "node": "Batch Leads (Split In Batches)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot: Fetch Recent Leads + Activity Fields": {
+      "main": [
+        [
+          {
+            "node": "Filter: Lead Status = BAD_TIMING",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Generate Re-Engagement Follow-Up Email Body": {
+      "main": [
+        [
+          {
+            "node": "Parse AI JSON",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build AI Error Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Re-Engagement Follow-Up Email Body with Azure OpenAI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Generate Re-Engagement Follow-Up Email Body",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

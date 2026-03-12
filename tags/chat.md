@@ -1,4 +1,4 @@
-# chat : 134
+# chat : 137
 
 |id|file|
 |----|----|
@@ -136,3 +136,6 @@
 |13147|[13147_Chat_with_Google_Drive_documents_using_Pinecone_and_OpenAI_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13147_Chat_with_Google_Drive_documents_using_Pinecone_and_OpenAI_RAG.json)|
 |13264|[13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json)|
 |13271|[13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json)|
+|13347|[13347_Enrich_chatbot_and_demo_request_leads_with_Lusha__HubSpot__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13347_Enrich_chatbot_and_demo_request_leads_with_Lusha__HubSpot__and_Slack.json)|
+|13459|[13459_Chat_with_your_Airtable_CRM_using_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13459_Chat_with_your_Airtable_CRM_using_OpenAI_GPT-4.1-mini.json)|
+|13575|[13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json)|

@@ -1,4 +1,4 @@
-# japanese : 8
+# japanese : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |11883|[11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11883_Convert_Audio_Emails_to_Japanese_Transcripts_with_OpenAI_GPT-4o___Google_Suite.json)|
 |12384|[12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json)|
 |13003|[13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json)|
+|13522|[13522_Enrich_and_score_Japanese_B2B_leads_with_gBizINFO__web_scraping__and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13522_Enrich_and_score_Japanese_B2B_leads_with_gBizINFO__web_scraping__and_Gemini_AI.json)|

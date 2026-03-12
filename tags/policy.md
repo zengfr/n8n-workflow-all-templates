@@ -1,4 +1,4 @@
-# policy : 12
+# policy : 15
 
 |id|file|
 |----|----|
@@ -14,3 +14,6 @@
 |13124|[13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json)|
 |13157|[13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json)|
 |13318|[13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json)|
+|13432|[13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json)|
+|13451|[13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json)|
+|13916|[13916_Triage_and_escalate_ethics_disclosures_with_GPT-4o__policy_API_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13916_Triage_and_escalate_ethics_disclosures_with_GPT-4o__policy_API_and_Slack.json)|

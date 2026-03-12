@@ -1,4 +1,4 @@
-# photos : 28
+# photos : 31
 
 |id|file|
 |----|----|
@@ -30,3 +30,6 @@
 |12176|[12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json)|
 |12380|[12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json)|
 |12921|[12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json)|
+|13531|[13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json)|
+|13654|[13654_Scan_WhatsApp_receipt_photos_and_track_expenses_using_Wati_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13654_Scan_WhatsApp_receipt_photos_and_track_expenses_using_Wati_and_GPT-4o.json)|
+|13804|[13804_Generate_AI_product_marketing_photos_from_Google_Sheets_with_Google_Gemini_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13804_Generate_AI_product_marketing_photos_from_Google_Sheets_with_Google_Gemini_and_Drive.json)|

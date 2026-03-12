@@ -1,4 +1,4 @@
-# videos : 257
+# videos : 265
 
 |id|file|
 |----|----|
@@ -259,3 +259,11 @@
 |13097|[13097_Create_TikTok_videos_with_GPT-4o__Digital_Twins__Veo_3_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13097_Create_TikTok_videos_with_GPT-4o__Digital_Twins__Veo_3_and_Telegram.json)|
 |13182|[13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json)|
 |13317|[13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json)|
+|13366|[13366_Upload_videos_to_Facebook_Pages_and_Groups_with_Facebook_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13366_Upload_videos_to_Facebook_Pages_and_Groups_with_Facebook_Graph_API.json)|
+|13526|[13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json)|
+|13632|[13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json)|
+|13675|[13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json)|
+|13752|[13752_Generate_cinematic_videos_with_OpenAI_Sora_and_uploadtourl_hosting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13752_Generate_cinematic_videos_with_OpenAI_Sora_and_uploadtourl_hosting.json)|
+|13807|[13807_Generate_multi-scene_AI_videos_from_scripts_with_Claude__Stability_AI_and_Runway.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13807_Generate_multi-scene_AI_videos_from_scripts_with_Claude__Stability_AI_and_Runway.json)|
+|13887|[13887_Analyze_YouTube_videos_and_auto-generate_AI_reports_in_Google_Docs_with_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13887_Analyze_YouTube_videos_and_auto-generate_AI_reports_in_Google_Docs_with_DeepSeek.json)|
+|13889|[13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json)|

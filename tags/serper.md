@@ -1,4 +1,4 @@
-# serper : 9
+# serper : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |7543|[7543_Find_B2B_Decision_Maker_Emails___Build_Lead_Database_with_Serper.dev___AnyMailFinder.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7543_Find_B2B_Decision_Maker_Emails___Build_Lead_Database_with_Serper.dev___AnyMailFinder.json)|
 |8225|[8225_Track_Weekly_Keyword_Rankings_with_Google_SERP__Serper_API__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8225_Track_Weekly_Keyword_Rankings_with_Google_SERP__Serper_API__and_Google_Sheets.json)|
 |12504|[12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json)|
+|13596|[13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json)|
+|13722|[13722_Turn_WhatsApp_into_an_AI_shopping_and_price_comparison_assistant_using_Wati__OpenAI__Serper__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13722_Turn_WhatsApp_into_an_AI_shopping_and_price_comparison_assistant_using_Wati__OpenAI__Serper__and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# files : 75
+# files : 80
 
 |id|file|
 |----|----|
@@ -77,3 +77,8 @@
 |12873|[12873_Sync_Android_env_config_to_Gradle_files_with_GitHub_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12873_Sync_Android_env_config_to_Gradle_files_with_GitHub_and_Slack_alerts.json)|
 |13192|[13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json)|
 |13260|[13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13260_Back_up_databases_and_files_to_Box_with_Mailgun_email_notifications.json)|
+|13534|[13534_Detect_and_move_duplicate_Google_Drive_files_with_Supabase_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13534_Detect_and_move_duplicate_Google_Drive_files_with_Supabase_and_Slack.json)|
+|13540|[13540_Schedule_social_media_posts_from_local_files_using_UploadToURL__OpenAI__and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13540_Schedule_social_media_posts_from_local_files_using_UploadToURL__OpenAI__and_Buffer.json)|
+|13735|[13735_Sync_markdown_files_from_Google_Drive_to_Confluence_pages_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13735_Sync_markdown_files_from_Google_Drive_to_Confluence_pages_automatically.json)|
+|13787|[13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json)|
+|13904|[13904_Auto-create_Instagram_carousel_posts_from_Canva_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13904_Auto-create_Instagram_carousel_posts_from_Canva_with_OpenAI_and_Blotato.json)|

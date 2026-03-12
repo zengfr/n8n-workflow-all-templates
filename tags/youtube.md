@@ -1,4 +1,4 @@
-# youtube : 262
+# youtube : 271
 
 |id|file|
 |----|----|
@@ -264,3 +264,12 @@
 |12965|[12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json)|
 |13088|[13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json)|
 |13169|[13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json)|
+|13564|[13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json)|
+|13631|[13631_Monitor_YouTube_channels_and_publish_VideoDB_AI_summaries_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13631_Monitor_YouTube_channels_and_publish_VideoDB_AI_summaries_to_Notion.json)|
+|13632|[13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json)|
+|13659|[13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json)|
+|13675|[13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json)|
+|13749|[13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json)|
+|13887|[13887_Analyze_YouTube_videos_and_auto-generate_AI_reports_in_Google_Docs_with_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13887_Analyze_YouTube_videos_and_auto-generate_AI_reports_in_Google_Docs_with_DeepSeek.json)|
+|13889|[13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json)|
+|13919|[13919_Turn_YouTube_meeting_recordings_into_Notion_notes_with_Claude__deAPI__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13919_Turn_YouTube_meeting_recordings_into_Notion_notes_with_Claude__deAPI__and_Slack_alerts.json)|

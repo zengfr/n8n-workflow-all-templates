@@ -1,4 +1,4 @@
-# job : 99
+# job : 105
 
 |id|file|
 |----|----|
@@ -101,3 +101,9 @@
 |12838|[12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json)|
 |13077|[13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json)|
 |13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|
+|13351|[13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json)|
+|13382|[13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json)|
+|13464|[13464_Scrape_RSS_job_posts__deduplicate_with_Google_Sheets__and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13464_Scrape_RSS_job_posts__deduplicate_with_Google_Sheets__and_send_Telegram_alerts.json)|
+|13507|[13507_Match_job_descriptions_with_resumes_using_Google_Gemini_and_log_scores_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13507_Match_job_descriptions_with_resumes_using_Google_Gemini_and_log_scores_to_Google_Sheets.json)|
+|13584|[13584_Automate_LinkedIn_job_search_and_applications_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13584_Automate_LinkedIn_job_search_and_applications_with_Claude_AI_and_Google_Sheets.json)|
+|13812|[13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13812_Automate_Job_applications______with_Chatbot__PredictLeads_and_ScrapegraphAI.json)|

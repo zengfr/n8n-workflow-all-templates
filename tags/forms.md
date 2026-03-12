@@ -1,4 +1,4 @@
-# forms : 56
+# forms : 61
 
 |id|file|
 |----|----|
@@ -58,3 +58,8 @@
 |12621|[12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12621_AI_Event_Feedback_Analyser__Google_Forms__GPT-4o_Sentiment__Slack_Alerts__Docs.json)|
 |12766|[12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json)|
 |12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|
+|13425|[13425_Selectively_import_workflows_between_instances_using_the_n8n_API_and_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13425_Selectively_import_workflows_between_instances_using_the_n8n_API_and_forms.json)|
+|13579|[13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json)|
+|13658|[13658_Automate_client_onboarding_with_Google_Forms__GPT_4o__ClickUp_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13658_Automate_client_onboarding_with_Google_Forms__GPT_4o__ClickUp_and_Gmail.json)|
+|13772|[13772_Analyze_Google_Forms_feedback_with_Gemini_AI_and_send_weekly_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13772_Analyze_Google_Forms_feedback_with_Gemini_AI_and_send_weekly_reports.json)|
+|13902|[13902_Auto-fill_PDF_forms_with_AI_using_Autype__OpenAI__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13902_Auto-fill_PDF_forms_with_AI_using_Autype__OpenAI__and_Google_Drive.json)|

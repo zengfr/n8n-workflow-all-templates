@@ -1,4 +1,4 @@
-# instagram : 155
+# instagram : 161
 
 |id|file|
 |----|----|
@@ -157,3 +157,9 @@
 |13149|[13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json)|
 |13151|[13151_Post_daily_tech_news_on_Instagram_with_Gemini_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13151_Post_daily_tech_news_on_Instagram_with_Gemini_and_SerpAPI.json)|
 |13317|[13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json)|
+|13340|[13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json)|
+|13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|
+|13526|[13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json)|
+|13708|[13708_Detect_influencer_fraud_and_fake_followers_with_Instagram__X__TikTok_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13708_Detect_influencer_fraud_and_fake_followers_with_Instagram__X__TikTok_and_Claude.json)|
+|13759|[13759_Upload_Instagram_Reels_from_Google_Sheets_with_DeepSeek_AI_captions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13759_Upload_Instagram_Reels_from_Google_Sheets_with_DeepSeek_AI_captions.json)|
+|13904|[13904_Auto-create_Instagram_carousel_posts_from_Canva_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13904_Auto-create_Instagram_carousel_posts_from_Canva_with_OpenAI_and_Blotato.json)|

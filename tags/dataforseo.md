@@ -1,4 +1,4 @@
-# dataforseo : 15
+# dataforseo : 27
 
 |id|file|
 |----|----|
@@ -17,3 +17,15 @@
 |10829|[10829_Generate_SEO_Content_Briefs_with_GPT-4o__DataForSEO_Keyword_Research___SERP_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10829_Generate_SEO_Content_Briefs_with_GPT-4o__DataForSEO_Keyword_Research___SERP_Analysis.json)|
 |11216|[11216_Find_low-competition_keyword_opportunities_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11216_Find_low-competition_keyword_opportunities_with_DataForSEO.json)|
 |11630|[11630_Track_SERP_Rankings___Discover_Keywords_using_DataForSEO___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11630_Track_SERP_Rankings___Discover_Keywords_using_DataForSEO___Airtable.json)|
+|13332|[13332_Track_new_ranked_keywords_in_Google_Sheets_with_DataForSEO_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13332_Track_new_ranked_keywords_in_Google_Sheets_with_DataForSEO_and_Slack_alerts.json)|
+|13431|[13431_Get_new_ranked_Google_AI_Overview_keywords_via_email_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13431_Get_new_ranked_Google_AI_Overview_keywords_via_email_with_DataForSEO.json)|
+|13433|[13433_Log_new_Google_top-10_keywords_to_Airtable_with_DataForSEO_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13433_Log_new_Google_top-10_keywords_to_Airtable_with_DataForSEO_and_Slack_alerts.json)|
+|13488|[13488_Track_new_Featured_Snippet_keyword_wins_via_email_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13488_Track_new_Featured_Snippet_keyword_wins_via_email_with_DataForSEO.json)|
+|13490|[13490_Turn_new_high-volume_ranked_keywords_into_Asana_tasks_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13490_Turn_new_high-volume_ranked_keywords_into_Asana_tasks_with_DataForSEO.json)|
+|13508|[13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json)|
+|13537|[13537_Get_Gmail_alerts_for_dropped_top_10_keyword_rankings_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13537_Get_Gmail_alerts_for_dropped_top_10_keyword_rankings_with_DataForSEO.json)|
+|13538|[13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json)|
+|13539|[13539_Monitor_toxic_backlinks_and_email_weekly_Google_Sheets_reports_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13539_Monitor_toxic_backlinks_and_email_weekly_Google_Sheets_reports_with_DataForSEO.json)|
+|13689|[13689_Track_broken_backlinks_with_DataForSEO__log_to_Google_Sheets__and_create_Asana_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13689_Track_broken_backlinks_with_DataForSEO__log_to_Google_Sheets__and_create_Asana_tasks.json)|
+|13694|[13694_Pull_new_backlinks_into_Google_Sheets_with_DataForSEO_and_Gmail_email_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13694_Pull_new_backlinks_into_Google_Sheets_with_DataForSEO_and_Gmail_email_report.json)|
+|13695|[13695_Monitor_lost_backlinks_with_DataForSEO__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13695_Monitor_lost_backlinks_with_DataForSEO__Google_Sheets_and_Gmail.json)|

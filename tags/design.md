@@ -1,4 +1,4 @@
-# design : 12
+# design : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |12354|[12354_Create_an_AI_image_remix_and_design_bot_for_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12354_Create_an_AI_image_remix_and_design_bot_for_Telegram_with_BrowserAct_and_Gemini.json)|
 |13030|[13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json)|
 |13269|[13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json)|
+|13357|[13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json)|
+|13536|[13536_Design_scalable_sync_workflows_with_Data_Tables__ProspectPro_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13536_Design_scalable_sync_workflows_with_Data_Tables__ProspectPro_and_HubSpot.json)|

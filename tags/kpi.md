@@ -1,4 +1,4 @@
-# kpi : 7
+# kpi : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |12857|[12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json)|
 |13272|[13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json)|
 |13281|[13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json)|
+|13545|[13545_Host_a_static_HTML_KPI_dashboard_from_Google_Sheets_with_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13545_Host_a_static_HTML_KPI_dashboard_from_Google_Sheets_with_CustomJS.json)|

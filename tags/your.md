@@ -1,4 +1,4 @@
-# your : 190
+# your : 198
 
 |id|file|
 |----|----|
@@ -192,3 +192,11 @@
 |13097|[13097_Create_TikTok_videos_with_GPT-4o__Digital_Twins__Veo_3_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13097_Create_TikTok_videos_with_GPT-4o__Digital_Twins__Veo_3_and_Telegram.json)|
 |13198|[13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13198_Log_n8n_workflow_errors_to_your_REST_API_with_Slack_alerts_and_metrics.json)|
 |13232|[13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json)|
+|13408|[13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json)|
+|13459|[13459_Chat_with_your_Airtable_CRM_using_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13459_Chat_with_your_Airtable_CRM_using_OpenAI_GPT-4.1-mini.json)|
+|13488|[13488_Track_new_Featured_Snippet_keyword_wins_via_email_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13488_Track_new_Featured_Snippet_keyword_wins_via_email_with_DataForSEO.json)|
+|13509|[13509_Fetch_Threads_analytics_for_your_latest_posts_and_email_an_HTML_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13509_Fetch_Threads_analytics_for_your_latest_posts_and_email_an_HTML_report.json)|
+|13512|[13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json)|
+|13521|[13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json)|
+|13751|[13751_Generate_and_host_AI_images_on_your_CDN_with_Gemini_Imagen_3_and_Upload_to_URL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13751_Generate_and_host_AI_images_on_your_CDN_with_Gemini_Imagen_3_and_Upload_to_URL.json)|
+|13802|[13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json)|

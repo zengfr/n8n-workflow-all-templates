@@ -1,0 +1,921 @@
+{
+  "id": "nQrZgOOKkRdMkFsl",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Sync Toggl Track time entries with Google Sheets detail and summary tabs",
+    "wechat": "youandme10086",
+    "id": 13497,
+    "update_time": "2026-03-12"
+  },
+  "name": "Sync Toggl Track time entries with Google Sheets monthly tabs",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "manual-trigger",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        -136
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "set-dates",
+      "name": "Set Date Range",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        -136
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "start_date",
+              "name": "start_date",
+              "type": "string",
+              "value": "=2025-01-01"
+            },
+            {
+              "id": "end_date",
+              "name": "end_date",
+              "type": "string",
+              "value": "={{ $now.toFormat('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "http-time-entries",
+      "name": "Fetch Time Entries",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        448,
+        -256
+      ],
+      "parameters": {
+        "url": "https://api.track.toggl.com/api/v9/me/time_entries",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "start_date",
+              "value": "={{ $json.start_date }}"
+            },
+            {
+              "name": "end_date",
+              "value": "={{ $json.end_date }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "http-projects",
+      "name": "Fetch Projects",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        448,
+        -64
+      ],
+      "parameters": {
+        "url": "https://api.track.toggl.com/api/v9/me/projects",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "merge-data",
+      "name": "Merge With Projects",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        672,
+        -136
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {
+          "fuzzyCompare": true,
+          "clashHandling": {
+            "values": {
+              "mergeMode": "shallowMerge",
+              "resolveClash": "preferInput1"
+            }
+          }
+        },
+        "advanced": true,
+        "joinMode": "enrichInput1",
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "project_id",
+              "field2": "id"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "code-process",
+      "name": "Process Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        896,
+        -136
+      ],
+      "parameters": {
+        "jsCode": "// ===== CONFIGURATION =====\nconst PROJECT_NAME = 'YOUR_PROJECT_NAME';\nconst TIMEZONE = 'Europe/Warsaw';\n// =========================\n\nconst items = $input.all();\nconst allEntries = [];\nconst dailyGroups = {};\nconst monthsSet = new Set();\n\nfor (const item of items) {\n  const d = item.json;\n  if (d.name !== PROJECT_NAME) continue;\n  if (!d.start || !d.stop || d.duration < 0) continue;\n  const startDt = DateTime.fromISO(d.start).setZone(TIMEZONE);\n  const stopDt = DateTime.fromISO(d.stop).setZone(TIMEZONE);\n  const month = startDt.toFormat('yyyy-MM');\n  const dateStr = startDt.toFormat('yyyy-MM-dd');\n  const duration = d.duration;\n  const hours = Math.floor(duration / 3600);\n  const minutes = Math.floor((duration % 3600) / 60);\n\n  const entry = {\n    description: d.description || '',\n    project: d.name || 'No project',\n    start_date: dateStr,\n    start_time: startDt.toFormat('HH:mm'),\n    start_decimal_hour: Math.round((startDt.hour + startDt.minute / 60) * 100) / 100,\n    stop_date: stopDt.toFormat('yyyy-MM-dd'),\n    stop_time: stopDt.toFormat('HH:mm'),\n    stop_decimal_hour: Math.round((stopDt.hour + stopDt.minute / 60) * 100) / 100,\n    duration_hhmm: String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0'),\n    duration_hours: Math.round((duration / 3600) * 100) / 100,\n    tags: (d.tags || []).join(', '),\n    month,\n  };\n\n  allEntries.push(entry);\n  monthsSet.add(month);\n\n  if (!dailyGroups[dateStr]) {\n    dailyGroups[dateStr] = {\n      date: dateStr,\n      project: d.name || 'No project',\n      descriptions: [],\n      duration_total: 0,\n      tags_set: [],\n      month,\n    };\n  }\n\n  if (d.description && !dailyGroups[dateStr].descriptions.includes(d.description)) {\n    dailyGroups[dateStr].descriptions.push(d.description);\n  }\n  dailyGroups[dateStr].duration_total += duration;\n\n  for (const tag of d.tags || []) {\n    if (!dailyGroups[dateStr].tags_set.includes(tag)) dailyGroups[dateStr].tags_set.push(tag);\n  }\n}\n\nallEntries.sort((a, b) => a.start_date.localeCompare(b.start_date) || a.start_time.localeCompare(b.start_time));\n\nconst dailySummaries = Object.values(dailyGroups).map((group) => {\n  const h = Math.floor(group.duration_total / 3600);\n  const m = Math.floor((group.duration_total % 3600) / 60);\n  return {\n    date: group.date,\n    project: group.project,\n    description: group.descriptions.join('; '),\n    duration_hhmm: String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'),\n    duration_hours: Math.round((group.duration_total / 3600) * 100) / 100,\n    tags: group.tags_set.join(', '),\n    month: group.month,\n  };\n});\n\ndailySummaries.sort((a, b) => a.date.localeCompare(b.date));\n\nconst months = [...monthsSet].sort();\nconst staticData = $getWorkflowStaticData('global');\nstaticData.entries = JSON.stringify(allEntries);\nstaticData.summaries = JSON.stringify(dailySummaries);\nstaticData.months = JSON.stringify(months);\n\nreturn [{ json: { ready: true, months } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "http-get-sheets",
+      "name": "Get Sheet Info 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1120,
+        -136
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_DETAIL_SPREADSHEET_ID",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "sheets.properties"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "code-batch",
+      "name": "Build Sheet Ops 1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1344,
+        -136
+      ],
+      "parameters": {
+        "jsCode": "const sd=$getWorkflowStaticData('global'),months=JSON.parse(sd.months||'[]');\nconst sheets=($input.first().json.sheets||[]).map(s=>({title:s.properties.title,sheetId:s.properties.sheetId}));\nconst names=sheets.map(s=>s.title),req=[];\nfor(const m of months){if(!names.includes(m))req.push({addSheet:{properties:{title:m}}});}\nfor(const s of sheets){if(months.includes(s.title))req.push({updateCells:{range:{sheetId:s.sheetId},fields:'userEnteredValue'}});}\nif(months.length>0){for(const s of sheets){if(!months.includes(s.title))req.push({deleteSheet:{sheetId:s.sheetId}});}}\nreturn [{json:{requests:req}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "http-batch-update",
+      "name": "Apply Sheet Ops 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1568,
+        -136
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_DETAIL_SPREADSHEET_ID:batchUpdate",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({requests:$json.requests}) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "http-get-sheets-2",
+      "name": "Get Sheet Info 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1792,
+        -136
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_SUMMARY_SPREADSHEET_ID",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "sheets.properties"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "code-batch-2",
+      "name": "Build Sheet Ops 2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2016,
+        -136
+      ],
+      "parameters": {
+        "jsCode": "const sd=$getWorkflowStaticData('global'),months=JSON.parse(sd.months||'[]');\nconst sheets=($input.first().json.sheets||[]).map(s=>({title:s.properties.title,sheetId:s.properties.sheetId}));\nconst names=sheets.map(s=>s.title),req=[];\nfor(const m of months){if(!names.includes(m))req.push({addSheet:{properties:{title:m}}});}\nfor(const s of sheets){if(months.includes(s.title))req.push({updateCells:{range:{sheetId:s.sheetId},fields:'userEnteredValue'}});}\nif(months.length>0){for(const s of sheets){if(!months.includes(s.title))req.push({deleteSheet:{sheetId:s.sheetId}});}}\nreturn [{json:{requests:req}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "http-batch-update-2",
+      "name": "Apply Sheet Ops 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2240,
+        -136
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_SUMMARY_SPREADSHEET_ID:batchUpdate",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({requests:$json.requests}) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "code-read-data",
+      "name": "Read Detail Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2464,
+        -136
+      ],
+      "parameters": {
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nconst entries = JSON.parse(sd.entries || '[]');\ndelete sd.entries;\n\nif (!entries.length) return [{ json: { info: 'No data', entries: [] } }];\n\nconst grouped = {};\nfor (const item of entries) {\n  if (!grouped[item.month]) grouped[item.month] = [];\n  grouped[item.month].push(item);\n}\n\nreturn Object.keys(grouped)\n  .sort()\n  .map((month) => ({ json: { month, entries: grouped[month] } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "loop-write",
+      "name": "Detail Write Loop",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        2688,
+        -136
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "code-expand",
+      "name": "Expand Entries",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2912,
+        -112
+      ],
+      "parameters": {
+        "jsCode": "const b=$input.first().json;\nreturn b.entries.map(e=>({json:e}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "gs-append",
+      "name": "Write Details",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3136,
+        -112
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $json.month }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/YOUR_DETAIL_SPREADSHEET_ID/edit"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "code-read-summaries",
+      "name": "Read Summary Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2912,
+        -328
+      ],
+      "parameters": {
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nconst summaries = JSON.parse(sd.summaries || '[]');\ndelete sd.summaries;\ndelete sd.months;\n\nif (!summaries.length) return [{ json: { info: 'No summaries', entries: [] } }];\n\nconst grouped = {};\nfor (const item of summaries) {\n  if (!grouped[item.month]) grouped[item.month] = [];\n  grouped[item.month].push(item);\n}\n\nreturn Object.keys(grouped)\n  .sort()\n  .map((month) => ({ json: { month, entries: grouped[month] } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "loop-summaries",
+      "name": "Summary Write Loop",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        3136,
+        -328
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "code-expand-summaries",
+      "name": "Expand Summaries",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3376,
+        -320
+      ],
+      "parameters": {
+        "jsCode": "const b=$input.first().json;\nreturn b.entries.map(e=>({json:e}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "gs-append-summaries",
+      "name": "Write Summaries",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3584,
+        -320
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "project",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "project",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "duration_hhmm",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "duration_hhmm",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "duration_hours",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "duration_hours",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tags",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "tags",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "month",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "month",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $json.month }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/YOUR_SUMMARY_SPREADSHEET_ID/edit"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "sticky-note-1",
+      "name": "Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -656,
+        -512
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 840,
+        "content": "## Sync Toggl Track time entries with Google Sheets monthly tabs\n\nThis workflow fetches Toggl time entries, filters by project, and writes:\n- **Detail Sheet**: individual entries\n- **Summary Sheet**: daily totals\n\nData is organized into monthly tabs (YYYY-MM).\n\n### Setup after import\n1. Set your Toggl HTTP Basic Auth credential.\n2. Set your Google Sheets OAuth2 credential.\n3. Set `start_date` in **Set Date Range**.\n4. In **Process Data**, set `PROJECT_NAME` and `TIMEZONE`.\n5. Replace placeholders:\n   - `YOUR_DETAIL_SPREADSHEET_ID`\n   - `YOUR_SUMMARY_SPREADSHEET_ID`\n\n### Detail columns\n`description | project | start_date | start_time | start_decimal_hour | stop_date | stop_time | stop_decimal_hour | duration_hhmm | duration_hours | tags | month`\n\n### Summary columns\n`date | project | description | duration_hhmm | duration_hours | tags | month`"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section-1",
+      "name": "Section: Trigger Date",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 170,
+        "content": "## Trigger & Date Range\nStarts the workflow and builds dynamic `start_date` / `end_date` values for API queries."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section-2",
+      "name": "Section: Toggl Fetch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 170,
+        "content": "## Toggl Data Fetch\nRequests time entries and projects from Toggl Track API using HTTP Basic Auth credentials."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section-3",
+      "name": "Section: Merge Transform",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 190,
+        "content": "## Merge & Transform\nMerges entries with project metadata, filters by project name, and prepares detail + summary datasets grouped by month."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section-4",
+      "name": "Section: Detail Prep",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1136,
+        -480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 350,
+        "height": 180,
+        "content": "## Detail Sheet Preparation\nEnsures monthly tabs exist in the detail spreadsheet and clears previous monthly tab values before writing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section-5",
+      "name": "Section: Detail Loop",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2624,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 350,
+        "height": 180,
+        "content": "## Detail Sheet Write Loop\nSplits detail data by month, expands entries, and appends rows to each monthly tab in the detail spreadsheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section-6",
+      "name": "Section: Summary Prep",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2784,
+        -544
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 350,
+        "height": 180,
+        "content": "## Summary Sheet Preparation\nEnsures monthly tabs exist in the summary spreadsheet and clears previous monthly tab values before writing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-section-7",
+      "name": "Section: Summary Loop",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3328,
+        -528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 350,
+        "height": 180,
+        "content": "## Summary Sheet Write Loop\nSplits summary data by month, expands entries, and appends rows to each monthly tab in the summary spreadsheet."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "c8b707c0-e3cb-494e-b6e5-c0a59e96b893",
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Set Date Range",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Data": {
+      "main": [
+        [
+          {
+            "node": "Get Sheet Info 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Details": {
+      "main": [
+        [
+          {
+            "node": "Detail Write Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand Entries": {
+      "main": [
+        [
+          {
+            "node": "Write Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Projects": {
+      "main": [
+        [
+          {
+            "node": "Merge With Projects",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set Date Range": {
+      "main": [
+        [
+          {
+            "node": "Fetch Time Entries",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Summaries": {
+      "main": [
+        [
+          {
+            "node": "Summary Write Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand Summaries": {
+      "main": [
+        [
+          {
+            "node": "Write Summaries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sheet Info 1": {
+      "main": [
+        [
+          {
+            "node": "Build Sheet Ops 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sheet Info 2": {
+      "main": [
+        [
+          {
+            "node": "Build Sheet Ops 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Detail Data": {
+      "main": [
+        [
+          {
+            "node": "Detail Write Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Sheet Ops 1": {
+      "main": [
+        [
+          {
+            "node": "Get Sheet Info 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Sheet Ops 2": {
+      "main": [
+        [
+          {
+            "node": "Read Detail Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Sheet Ops 1": {
+      "main": [
+        [
+          {
+            "node": "Apply Sheet Ops 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Sheet Ops 2": {
+      "main": [
+        [
+          {
+            "node": "Apply Sheet Ops 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detail Write Loop": {
+      "main": [
+        [
+          {
+            "node": "Read Summary Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Expand Entries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Summary Data": {
+      "main": [
+        [
+          {
+            "node": "Summary Write Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Time Entries": {
+      "main": [
+        [
+          {
+            "node": "Merge With Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary Write Loop": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Expand Summaries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge With Projects": {
+      "main": [
+        [
+          {
+            "node": "Process Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

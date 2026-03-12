@@ -1,4 +1,4 @@
-# automated : 719
+# automated : 732
 
 |id|file|
 |----|----|
@@ -721,3 +721,16 @@
 |13165|[13165_Track_inventory_levels_with_automated_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13165_Track_inventory_levels_with_automated_alerts.json)|
 |13171|[13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json)|
 |13245|[13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json)|
+|13350|[13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json)|
+|13414|[13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json)|
+|13416|[13416_Send_WhatsApp_new_product_campaigns_from_WooCommerce_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13416_Send_WhatsApp_new_product_campaigns_from_WooCommerce_with_OpenAI_and_Sheets.json)|
+|13466|[13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json)|
+|13469|[13469_Extract_invoice_data_from_Gmail_to_Airtable_with_Mistral_OCR_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13469_Extract_invoice_data_from_Gmail_to_Airtable_with_Mistral_OCR_and_GPT-4.1-mini.json)|
+|13579|[13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json)|
+|13688|[13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json)|
+|13690|[13690_Match_students_to_scholarships_with_Claude_AI__Airtable__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13690_Match_students_to_scholarships_with_Claude_AI__Airtable__and_Google_Sheets.json)|
+|13732|[13732_Run_email_outreach_campaigns_from_Telegram_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13732_Run_email_outreach_campaigns_from_Telegram_with_Gmail_and_Google_Sheets.json)|
+|13757|[13757_Automate_contract_signing_from_Tally_to_Airtable_and_DocuSign.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13757_Automate_contract_signing_from_Tally_to_Airtable_and_DocuSign.json)|
+|13767|[13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json)|
+|13840|[13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json)|
+|13895|[13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json)|

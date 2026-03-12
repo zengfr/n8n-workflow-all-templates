@@ -1,4 +1,4 @@
-# response : 54
+# response : 56
 
 |id|file|
 |----|----|
@@ -56,3 +56,5 @@
 |12094|[12094_Real-time_lead_response_across_social_channels_with_Llama_AI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12094_Real-time_lead_response_across_social_channels_with_Llama_AI___Google_Sheets.json)|
 |12195|[12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json)|
 |12541|[12541_Analyze_customer_feedback_and_send_AI-written_replies_with_GPT-4_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12541_Analyze_customer_feedback_and_send_AI-written_replies_with_GPT-4_and_Gmail.json)|
+|13322|[13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json)|
+|13555|[13555_Gamify_Keephub_form_response_times_and_email_a_ranked_leaderboard_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13555_Gamify_Keephub_form_response_times_and_email_a_ranked_leaderboard_via_Gmail.json)|

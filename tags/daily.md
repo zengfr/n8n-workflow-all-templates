@@ -1,4 +1,4 @@
-# daily : 278
+# daily : 288
 
 |id|file|
 |----|----|
@@ -280,3 +280,13 @@
 |13151|[13151_Post_daily_tech_news_on_Instagram_with_Gemini_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13151_Post_daily_tech_news_on_Instagram_with_Gemini_and_SerpAPI.json)|
 |13181|[13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json)|
 |13309|[13309_Manage_Google_Calendar_via_Telegram_and_get_daily_AI_briefings__OpenAI___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13309_Manage_Google_Calendar_via_Telegram_and_get_daily_AI_briefings__OpenAI___Gemini.json)|
+|13456|[13456_Send_a_daily_email_summary_of_new_Airtable_contacts_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13456_Send_a_daily_email_summary_of_new_Airtable_contacts_via_Gmail.json)|
+|13486|[13486_Send_a_daily_sales_report_to_WhatsApp_from_Google_Sheets_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13486_Send_a_daily_sales_report_to_WhatsApp_from_Google_Sheets_with_MoltFlow.json)|
+|13505|[13505_Automate_daily_standups_using_Slack__Notion__and_Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13505_Automate_daily_standups_using_Slack__Notion__and_Redis.json)|
+|13512|[13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json)|
+|13527|[13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json)|
+|13674|[13674_Summarize_RSS_feeds_into_a_daily_AI_digest_with_Gemini__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13674_Summarize_RSS_feeds_into_a_daily_AI_digest_with_Gemini__Slack__and_Gmail.json)|
+|13726|[13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json)|
+|13737|[13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json)|
+|13801|[13801_Discover_daily_business_opportunities_with_Google_Gemini__Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13801_Discover_daily_business_opportunities_with_Google_Gemini__Sheets_and_Telegram.json)|
+|13808|[13808_Summarize_daily_Jenkins_test_runs_with_Google_Sheets__HTTP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13808_Summarize_daily_Jenkins_test_runs_with_Google_Sheets__HTTP_and_Gemini_AI.json)|

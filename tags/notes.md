@@ -1,4 +1,4 @@
-# notes : 42
+# notes : 44
 
 |id|file|
 |----|----|
@@ -44,3 +44,5 @@
 |12372|[12372_Create_active_learning_notes_from_YouTube_videos_with_Gemini_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12372_Create_active_learning_notes_from_YouTube_videos_with_Gemini_and_Notion.json)|
 |12664|[12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json)|
 |12760|[12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json)|
+|13868|[13868_Auto-generate_sticky_notes_and_rename_nodes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13868_Auto-generate_sticky_notes_and_rename_nodes.json)|
+|13919|[13919_Turn_YouTube_meeting_recordings_into_Notion_notes_with_Claude__deAPI__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13919_Turn_YouTube_meeting_recordings_into_Notion_notes_with_Claude__deAPI__and_Slack_alerts.json)|

@@ -1,4 +1,4 @@
-# viral : 66
+# viral : 69
 
 |id|file|
 |----|----|
@@ -68,3 +68,6 @@
 |12682|[12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json)|
 |12867|[12867_Auto-dub_Viral_Instagram_and_TikTok_videos___with_Fal_AI_ElevenLabs_dubbing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12867_Auto-dub_Viral_Instagram_and_TikTok_videos___with_Fal_AI_ElevenLabs_dubbing.json)|
 |13089|[13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json)|
+|13340|[13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json)|
+|13707|[13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json)|
+|13888|[13888_Generate_Viral_AI_Motion_Video____using_Kling_2.6_Kie_AI___Auto-Post_to_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13888_Generate_Viral_AI_Motion_Video____using_Kling_2.6_Kie_AI___Auto-Post_to_TikTok.json)|

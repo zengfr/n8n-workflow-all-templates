@@ -1,4 +1,4 @@
-# level : 16
+# level : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |8844|[8844_Create_a_Dynamic_Telegram_Bot_Menu_System_with_Multi-Level_Navigation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8844_Create_a_Dynamic_Telegram_Bot_Menu_System_with_Multi-Level_Navigation.json)|
 |10396|[10396_Analyze___Publish_GCE_O-Level_Math_Predictions_with_Perplexity_AI_to_WordPress___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10396_Analyze___Publish_GCE_O-Level_Math_Predictions_with_Perplexity_AI_to_WordPress___Slack.json)|
 |12299|[12299_Generate_5-level_AI_explanations_for_different_audiences_from_Telegram_to_Google_Docs_with_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12299_Generate_5-level_AI_explanations_for_different_audiences_from_Telegram_to_Google_Docs_with_GPT-4.1-mini.json)|
+|13605|[13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json)|

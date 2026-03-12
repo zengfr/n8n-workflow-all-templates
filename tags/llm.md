@@ -1,4 +1,4 @@
-# llm : 58
+# llm : 59
 
 |id|file|
 |----|----|
@@ -60,3 +60,4 @@
 |12100|[12100_Compare_LLM_token_costs_across_350__models_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12100_Compare_LLM_token_costs_across_350__models_with_OpenRouter.json)|
 |12316|[12316_Synthesize_and_compare_multiple_LLM_responses_with_OpenRouter_council.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12316_Synthesize_and_compare_multiple_LLM_responses_with_OpenRouter_council.json)|
 |12471|[12471_Generate_consensus-based_answers_using_Claude__GPT__Grok_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12471_Generate_consensus-based_answers_using_Claude__GPT__Grok_and_Gemini.json)|
+|13726|[13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json)|

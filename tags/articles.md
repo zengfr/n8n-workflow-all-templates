@@ -1,4 +1,4 @@
-# articles : 59
+# articles : 62
 
 |id|file|
 |----|----|
@@ -61,3 +61,6 @@
 |12589|[12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json)|
 |12866|[12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json)|
 |13005|[13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json)|
+|13334|[13334_Repurpose_blog_articles_into_social_media_posts_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13334_Repurpose_blog_articles_into_social_media_posts_with_Google_Gemini_AI.json)|
+|13383|[13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json)|
+|13835|[13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json)|

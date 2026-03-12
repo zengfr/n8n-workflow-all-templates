@@ -1,4 +1,4 @@
-# optimization : 26
+# optimization : 30
 
 |id|file|
 |----|----|
@@ -28,3 +28,7 @@
 |12496|[12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json)|
 |12907|[12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json)|
 |13313|[13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json)|
+|13428|[13428_Analyze_workforce_data_and_generate_planning_reports_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13428_Analyze_workforce_data_and_generate_planning_reports_with_GPT-4o.json)|
+|13564|[13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json)|
+|13591|[13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json)|
+|13909|[13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json)|

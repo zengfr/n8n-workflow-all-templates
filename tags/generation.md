@@ -1,4 +1,4 @@
-# generation : 217
+# generation : 219
 
 |id|file|
 |----|----|
@@ -219,3 +219,5 @@
 |13088|[13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json)|
 |13117|[13117_Generate_consistent_styled_images_from_references_with_Google_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13117_Generate_consistent_styled_images_from_references_with_Google_Gemini_and_Sheets.json)|
 |13303|[13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json)|
+|13513|[13513_Generate_Google_Maps_leads_with_AI_enrichment__social_discovery_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13513_Generate_Google_Maps_leads_with_AI_enrichment__social_discovery_and_Google_Sheets.json)|
+|13542|[13542_Music_Producer_Chatbot____using_Gemini___Suno__via_Kei_AI____Google_Drive_Upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13542_Music_Producer_Chatbot____using_Gemini___Suno__via_Kei_AI____Google_Drive_Upload.json)|

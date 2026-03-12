@@ -1,4 +1,4 @@
-# zero : 6
+# zero : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |7645|[7645_Track_New_Search_Queries_with_Zero-Click_Analysis_in_Google_Search_Console.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7645_Track_New_Search_Queries_with_Zero-Click_Analysis_in_Google_Search_Console.json)|
 |7980|[7980_Automate_Gmail_Organization__Weekly_Newsletter_Archiving_and_Receipt_Labeling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7980_Automate_Gmail_Organization__Weekly_Newsletter_Archiving_and_Receipt_Labeling.json)|
 |13203|[13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13203_Draft_Gmail_replies_with_OpenAI_and_OpenRouter_for_an_inbox-zero_workflow.json)|
+|13692|[13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json)|

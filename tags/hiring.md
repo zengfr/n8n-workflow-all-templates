@@ -1,4 +1,4 @@
-# hiring : 15
+# hiring : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |9435|[9435_Resume_Screening___Candidate_Routing_with_OpenAI__Jotform__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9435_Resume_Screening___Candidate_Routing_with_OpenAI__Jotform__and_Google_Sheets.json)|
 |9955|[9955_Screen_Job_Applicants_with_Gemini_AI__Jotform_to_Notion_Hiring_Pipeline.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9955_Screen_Job_Applicants_with_Gemini_AI__Jotform_to_Notion_Hiring_Pipeline.json)|
 |11912|[11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json)|
+|13352|[13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json)|
+|13517|[13517_Automate_end-to-end_hiring_with_Keka__Google_Sheets__Gmail_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13517_Automate_end-to-end_hiring_with_Keka__Google_Sheets__Gmail_and_GPT-4.json)|

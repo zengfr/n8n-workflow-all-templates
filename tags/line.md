@@ -1,4 +1,4 @@
-# line : 39
+# line : 43
 
 |id|file|
 |----|----|
@@ -41,3 +41,7 @@
 |12680|[12680_Track_receipt_expenses_via_LINE_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12680_Track_receipt_expenses_via_LINE_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json)|
 |12866|[12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json)|
 |13071|[13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json)|
+|13429|[13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json)|
+|13531|[13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json)|
+|13646|[13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json)|
+|13712|[13712_Review_and_approve_Google_Sheets_orders_by_email_and_notify_via_LINE.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13712_Review_and_approve_Google_Sheets_orders_by_email_and_notify_via_LINE.json)|

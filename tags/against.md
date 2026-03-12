@@ -1,4 +1,4 @@
-# against : 5
+# against : 7
 
 |id|file|
 |----|----|
@@ -7,3 +7,5 @@
 |8235|[8235_Compare_LinkedIn_Profiles_Against_Job_Descriptions_with_Groq_AI___GhostGenius.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8235_Compare_LinkedIn_Profiles_Against_Job_Descriptions_with_Groq_AI___GhostGenius.json)|
 |8531|[8531_Score_Resumes_Against_JDs_with_Google_Drive__Google_Sheets__and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8531_Score_Resumes_Against_JDs_with_Google_Drive__Google_Sheets__and_GPT-4o.json)|
 |13026|[13026_Score_LinkedIn_leads_against_your_ICP_with_Google_Sheets__SourceGeek_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13026_Score_LinkedIn_leads_against_your_ICP_with_Google_Sheets__SourceGeek_and_Gemini.json)|
+|13530|[13530_Verify_email_content_against_Google_Sheets_and_Gmail_logs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13530_Verify_email_content_against_Google_Sheets_and_Gmail_logs.json)|
+|13769|[13769_Check_workflow_templates_against_Creator_Hub_guidelines_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13769_Check_workflow_templates_against_Creator_Hub_guidelines_with_Gemini_and_Gmail.json)|

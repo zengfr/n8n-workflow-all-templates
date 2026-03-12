@@ -1,4 +1,4 @@
-# handling : 24
+# handling : 25
 
 |id|file|
 |----|----|
@@ -26,3 +26,4 @@
 |11462|[11462_Complete_Appointment_System_with_Supabase_and_AI_Assistants_for_Scheduling___Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11462_Complete_Appointment_System_with_Supabase_and_AI_Assistants_for_Scheduling___Management.json)|
 |11580|[11580_Automated_Customer_Support_System_with_Gemini_AI__RAG___Security_Guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11580_Automated_Customer_Support_System_with_Gemini_AI__RAG___Security_Guardrails.json)|
 |12724|[12724_Automated_error_monitoring_and_reporting_system_using_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12724_Automated_error_monitoring_and_reporting_system_using_data_tables.json)|
+|13822|[13822_Create_an_autonomous_task-handling_AI_agent_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13822_Create_an_autonomous_task-handling_AI_agent_with_OpenAI_and_Slack.json)|

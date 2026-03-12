@@ -1,4 +1,4 @@
-# se : 11
+# se : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |12631|[12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json)|
 |12809|[12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json)|
 |12811|[12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json)|
+|13373|[13373_Run_a_multi-agent_SEO_domain_audit_with_SE_Ranking_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13373_Run_a_multi-agent_SEO_domain_audit_with_SE_Ranking_and_Claude.json)|
+|13381|[13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json)|

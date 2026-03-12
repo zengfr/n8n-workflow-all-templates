@@ -1,4 +1,4 @@
-# signals : 13
+# signals : 18
 
 |id|file|
 |----|----|
@@ -15,3 +15,8 @@
 |12497|[12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json)|
 |12553|[12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12553_Generate_intraday_AAPL_trade_signals_using_live_data__OpenAI__Telegram_and_Notion.json)|
 |13153|[13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13153_Validate_clinical_trial_and_lab_signals_with_OpenAI_for_regulatory_governance.json)|
+|13349|[13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json)|
+|13374|[13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json)|
+|13430|[13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json)|
+|13701|[13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json)|
+|13839|[13839_Aggregate_tech_trend_signals_from_RSS_feeds_into_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13839_Aggregate_tech_trend_signals_from_RSS_feeds_into_Google_Sheets_and_Slack.json)|

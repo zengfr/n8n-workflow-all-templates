@@ -1,4 +1,4 @@
-# assessment : 8
+# assessment : 12
 
 |id|file|
 |----|----|
@@ -10,3 +10,7 @@
 |12990|[12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json)|
 |13137|[13137_Validate_and_orchestrate_lawsuit_responses_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13137_Validate_and_orchestrate_lawsuit_responses_with_OpenAI_and_Google_Sheets.json)|
 |13141|[13141_Detect_financial_risk_and_orchestrate_compliance_with_GPT_4o__Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13141_Detect_financial_risk_and_orchestrate_compliance_with_GPT_4o__Slack_and_email.json)|
+|13331|[13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json)|
+|13341|[13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json)|
+|13352|[13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json)|
+|13426|[13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json)|

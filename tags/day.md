@@ -1,4 +1,4 @@
-# day : 19
+# day : 20
 
 |id|file|
 |----|----|
@@ -21,3 +21,4 @@
 |10825|[10825_Automate_Task_Deadline_Reminders_with_Google_Sheets_and_Gmail__Today_3-Day_7-Day.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10825_Automate_Task_Deadline_Reminders_with_Google_Sheets_and_Gmail__Today_3-Day_7-Day.json)|
 |11300|[11300_Turn_NASA_Astronomy_Pictures_into_Matching_Spotify_Tracks_using_GPT-4o_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11300_Turn_NASA_Astronomy_Pictures_into_Matching_Spotify_Tracks_using_GPT-4o_Vision.json)|
 |11944|[11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json)|
+|13692|[13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json)|

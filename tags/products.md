@@ -1,4 +1,4 @@
-# products : 39
+# products : 42
 
 |id|file|
 |----|----|
@@ -41,3 +41,6 @@
 |12360|[12360_Create_WooCommerce_products_and_WordPress_posts_from_product_links_via_Telegram_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12360_Create_WooCommerce_products_and_WordPress_posts_from_product_links_via_Telegram_and_BrowserAct.json)|
 |12437|[12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json)|
 |13288|[13288_Sync_NetSuite_inventory_items_between_NetSuite_and_Salesforce_products.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13288_Sync_NetSuite_inventory_items_between_NetSuite_and_Salesforce_products.json)|
+|13333|[13333_Create_Shopify_products_via_a_Telegram_bot_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13333_Create_Shopify_products_via_a_Telegram_bot_with_Google_Gemini_AI.json)|
+|13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|
+|13414|[13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13414_Send_bulk_WhatsApp_promos_for_new_Shopify_products_with_OpenAI_and_Sheets.json)|

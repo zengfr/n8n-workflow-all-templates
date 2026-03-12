@@ -1,4 +1,4 @@
-# papers : 10
+# papers : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |9966|[9966_Telegram_Research_Assistant_for_Academic_Papers_Using_Gemini_AI_and_Decodo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9966_Telegram_Research_Assistant_for_Academic_Papers_Using_Gemini_AI_and_Decodo.json)|
 |12730|[12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json)|
 |12938|[12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json)|
+|13376|[13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json)|
+|13713|[13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json)|

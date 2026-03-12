@@ -1,4 +1,4 @@
-# campaign : 28
+# campaign : 31
 
 |id|file|
 |----|----|
@@ -30,3 +30,6 @@
 |10174|[10174_PPC_Campaign_Intelligence___Optimization_with_Google_Ads__Sheets___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10174_PPC_Campaign_Intelligence___Optimization_with_Google_Ads__Sheets___Slack.json)|
 |11499|[11499_Meta_Ads_to_Google_Sheets__Daily___Historical_Campaign_Performance_Report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11499_Meta_Ads_to_Google_Sheets__Daily___Historical_Campaign_Performance_Report.json)|
 |11734|[11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json)|
+|13384|[13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json)|
+|13477|[13477_Launch_WhatsApp_bulk_campaigns_from_Google_Sheets_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13477_Launch_WhatsApp_bulk_campaigns_from_Google_Sheets_with_MoltFlow.json)|
+|13745|[13745_Generate_Meta_Ads_campaign_reports_in_Google_Sheets_and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13745_Generate_Meta_Ads_campaign_reports_in_Google_Sheets_and_send_Telegram_alerts.json)|

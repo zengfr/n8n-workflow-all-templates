@@ -1,4 +1,4 @@
-# churn : 7
+# churn : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |11469|[11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11469_Automate_B2B_SaaS_Renewal_Risk_Management_with_CRM__Support___Usage_Data.json)|
 |11977|[11977_Automate_customer_retention_with_AI_risk_prediction__Stripe_coupons___personalized_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11977_Automate_customer_retention_with_AI_risk_prediction__Stripe_coupons___personalized_Gmail.json)|
 |12038|[12038_Predict_tenant_churn_and_manage_retention_with_GPT-4__Gmail__Slack_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12038_Predict_tenant_churn_and_manage_retention_with_GPT-4__Gmail__Slack_and_your_CRM.json)|
+|13726|[13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json)|

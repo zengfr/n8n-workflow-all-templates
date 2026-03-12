@@ -1,4 +1,4 @@
-# carousels : 14
+# carousels : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |12413|[12413_Generate_and_publish_Instagram_carousels_with_Gemini_and_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12413_Generate_and_publish_Instagram_carousels_with_Gemini_and_Google_Slides.json)|
 |12510|[12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json)|
 |12587|[12587_Generate_Instagram_news_carousels_from_RSS_feeds_using_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12587_Generate_Instagram_news_carousels_from_RSS_feeds_using_GPT-4o.json)|
+|13526|[13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json)|
+|13605|[13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json)|

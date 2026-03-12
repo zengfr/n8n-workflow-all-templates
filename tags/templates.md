@@ -1,4 +1,4 @@
-# templates : 15
+# templates : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |10800|[10800_AI_sticky_generator_for_n8n_templates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10800_AI_sticky_generator_for_n8n_templates.json)|
 |11620|[11620_Design_and_Post_LinkedIn_Content_with_AI_Captions_and_Custom_Templates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11620_Design_and_Post_LinkedIn_Content_with_AI_Captions_and_Custom_Templates.json)|
 |13195|[13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json)|
+|13769|[13769_Check_workflow_templates_against_Creator_Hub_guidelines_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13769_Check_workflow_templates_against_Creator_Hub_guidelines_with_Gemini_and_Gmail.json)|
+|13784|[13784_Generate_documents_from_saved_templates_and_variables_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13784_Generate_documents_from_saved_templates_and_variables_using_Autype.json)|

@@ -1,4 +1,4 @@
-# customer : 168
+# customer : 172
 
 |id|file|
 |----|----|
@@ -170,3 +170,7 @@
 |13111|[13111_Send_customer_visit_notifications_from_Google_Calendar_to_Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13111_Send_customer_visit_notifications_from_Google_Calendar_to_Slack_and_Sheets.json)|
 |13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|
 |13314|[13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json)|
+|13406|[13406_Manage_coupon_campaigns_and_customer_chats_with_WhatsApp_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13406_Manage_coupon_campaigns_and_customer_chats_with_WhatsApp_and_PostgreSQL.json)|
+|13587|[13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|
+|13593|[13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json)|
+|13726|[13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json)|

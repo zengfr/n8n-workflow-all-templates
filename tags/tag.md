@@ -1,4 +1,4 @@
-# tag : 13
+# tag : 17
 
 |id|file|
 |----|----|
@@ -15,3 +15,7 @@
 |11136|[11136_Auto-Generate_WordPress_Blog_Tags_with_GPT-4.1-mini_and_Smart_Tag_Mapping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11136_Auto-Generate_WordPress_Blog_Tags_with_GPT-4.1-mini_and_Smart_Tag_Mapping.json)|
 |11923|[11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11923_KlickTipp_tag_manager__convert_tag_names_to_IDs.json)|
 |13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|
+|13663|[13663_Update_KlickTipp_contact_tags_by_tag_names.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13663_Update_KlickTipp_contact_tags_by_tag_names.json)|
+|13664|[13664_Find_KlickTipp_tags_to_remove_by_prefix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13664_Find_KlickTipp_tags_to_remove_by_prefix.json)|
+|13699|[13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json)|
+|13721|[13721_Create_WordPress_users_from_KlickTipp_and_tag_contacts_based_on_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13721_Create_WordPress_users_from_KlickTipp_and_tag_contacts_based_on_comments.json)|

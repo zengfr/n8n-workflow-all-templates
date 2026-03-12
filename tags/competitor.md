@@ -1,4 +1,4 @@
-# competitor : 67
+# competitor : 73
 
 |id|file|
 |----|----|
@@ -69,3 +69,9 @@
 |12809|[12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json)|
 |13094|[13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json)|
 |13096|[13096_Monitor_and_analyze_competitor_Facebook_ads_with_Apify__GPT-4o__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13096_Monitor_and_analyze_competitor_Facebook_ads_with_Apify__GPT-4o__Gemini__and_Google_Sheets.json)|
+|13379|[13379_Track_competitor_pricing_and_features_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13379_Track_competitor_pricing_and_features_with_BrowserAct_and_Google_Sheets.json)|
+|13384|[13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json)|
+|13508|[13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json)|
+|13588|[13588_Prioritize_Amazon_competitor_gaps_using_Bright_Data_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13588_Prioritize_Amazon_competitor_gaps_using_Bright_Data_and_Google_Sheets.json)|
+|13817|[13817_Audit_competitor_SEO_content_with_Decodo__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13817_Audit_competitor_SEO_content_with_Decodo__Gemini__and_Google_Sheets.json)|
+|13836|[13836_Monitor_competitor_prices_with_Google_Shopping_and_Google_Sheets__alert_via_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13836_Monitor_competitor_prices_with_Google_Shopping_and_Google_Sheets__alert_via_Slack_and_Gmail.json)|

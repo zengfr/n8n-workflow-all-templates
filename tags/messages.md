@@ -1,4 +1,4 @@
-# messages : 94
+# messages : 98
 
 |id|file|
 |----|----|
@@ -96,3 +96,7 @@
 |12948|[12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json)|
 |13029|[13029_Send_LinkedIn_outreach_messages_using_Google_Sheets_and_SourceGeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13029_Send_LinkedIn_outreach_messages_using_Google_Sheets_and_SourceGeek.json)|
 |13070|[13070_Debounce_Telegram_support_messages_and_aggregate_replies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13070_Debounce_Telegram_support_messages_and_aggregate_replies_with_OpenAI.json)|
+|13485|[13485_Forward_Slack_channel_messages_to_WhatsApp_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13485_Forward_Slack_channel_messages_to_WhatsApp_with_MoltFlow.json)|
+|13531|[13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json)|
+|13581|[13581_Scan_Gmail_links_with_VirusTotal_and_send_alerts_to_WhatsApp__Teams__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13581_Scan_Gmail_links_with_VirusTotal_and_send_alerts_to_WhatsApp__Teams__and_Sheets.json)|
+|13642|[13642_Send_WhatsApp_bulk_template_messages_from_Google_Sheets_or_CSV_via_WOZTELL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13642_Send_WhatsApp_bulk_template_messages_from_Google_Sheets_or_CSV_via_WOZTELL.json)|

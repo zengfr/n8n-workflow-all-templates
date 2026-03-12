@@ -1,4 +1,4 @@
-# creation : 136
+# creation : 140
 
 |id|file|
 |----|----|
@@ -138,3 +138,7 @@
 |12360|[12360_Create_WooCommerce_products_and_WordPress_posts_from_product_links_via_Telegram_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12360_Create_WooCommerce_products_and_WordPress_posts_from_product_links_via_Telegram_and_BrowserAct.json)|
 |12554|[12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12554_Generate_PDF_documents_from_HTML_with_PDF_Generator_API__Gmail_and_Supabase.json)|
 |13145|[13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13145_Automate_employee_onboarding_and_Google_Workspace_account_creation_with_Gmail__Google_Sheets__PDFBro_and_Google_Gemini.json)|
+|13357|[13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json)|
+|13676|[13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json)|
+|13681|[13681_Generate_and_schedule_LinkedIn_posts_with_Google_Sheets__OpenAI__Gemini_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13681_Generate_and_schedule_LinkedIn_posts_with_Google_Sheets__OpenAI__Gemini_and_Mistral.json)|
+|13739|[13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json)|

@@ -1,4 +1,4 @@
-# price : 59
+# price : 62
 
 |id|file|
 |----|----|
@@ -61,3 +61,6 @@
 |12823|[12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json)|
 |12902|[12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json)|
 |12971|[12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json)|
+|13701|[13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json)|
+|13722|[13722_Turn_WhatsApp_into_an_AI_shopping_and_price_comparison_assistant_using_Wati__OpenAI__Serper__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13722_Turn_WhatsApp_into_an_AI_shopping_and_price_comparison_assistant_using_Wati__OpenAI__Serper__and_Google_Sheets.json)|
+|13797|[13797_Monitor_Realtor_listings_and_export_CSV_XLSX_with_MrScraper_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13797_Monitor_Realtor_listings_and_export_CSV_XLSX_with_MrScraper_and_Gmail.json)|

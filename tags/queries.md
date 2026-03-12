@@ -1,4 +1,4 @@
-# queries : 18
+# queries : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |11820|[11820_Answer_Product_Queries_via_WhatsApp_using_OpenAI_GPT-4o_and_PDF_Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11820_Answer_Product_Queries_via_WhatsApp_using_OpenAI_GPT-4o_and_PDF_Knowledge_Base.json)|
 |12400|[12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json)|
 |13220|[13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json)|
+|13383|[13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json)|

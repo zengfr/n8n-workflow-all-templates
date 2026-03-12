@@ -1,4 +1,4 @@
-# session : 6
+# session : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |5872|[5872_Automated_Telegram_UserBot_Session_Monitoring___Recovery_with_TelePilot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/58/5872_Automated_Telegram_UserBot_Session_Monitoring___Recovery_with_TelePilot.json)|
 |6324|[6324_Create___Send_Client_Session_Summaries_from_Zoom_Meetings_via_Gmail_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6324_Create___Send_Client_Session_Summaries_from_Zoom_Meetings_via_Gmail_and_Airtable.json)|
 |10221|[10221_Generate_Event_Speaker_Recommendations_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10221_Generate_Event_Speaker_Recommendations_with_Claude_AI_and_Google_Sheets.json)|
+|13714|[13714_Track_athlete_sessions_and_weekly_performance_with_OpenAI__Google_Sheets__Slack__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13714_Track_athlete_sessions_and_weekly_performance_with_OpenAI__Google_Sheets__Slack__and_email.json)|

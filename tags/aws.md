@@ -1,4 +1,4 @@
-# aws : 44
+# aws : 47
 
 |id|file|
 |----|----|
@@ -46,3 +46,6 @@
 |12524|[12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json)|
 |12531|[12531_Build_a_RAG_chat_system_using_Aryn_DocParse__AWS_S3__Pinecone_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12531_Build_a_RAG_chat_system_using_Aryn_DocParse__AWS_S3__Pinecone_and_GPT-4o.json)|
 |12655|[12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12655_Compress_and_archive_old_Google_Drive_PDFs_to_AWS_S3_cold_storage_with_Slack_reports.json)|
+|13504|[13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json)|
+|13615|[13615_Process_vendor_invoices_with_UploadToURL__AWS_Textract__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13615_Process_vendor_invoices_with_UploadToURL__AWS_Textract__and_Google_Sheets.json)|
+|13803|[13803_Summarize_invoices_with_AWS_Textract__Google_Gemini__and_send_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13803_Summarize_invoices_with_AWS_Textract__Google_Gemini__and_send_to_Slack.json)|

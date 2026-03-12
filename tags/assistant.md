@@ -1,4 +1,4 @@
-# assistant : 229
+# assistant : 241
 
 |id|file|
 |----|----|
@@ -231,3 +231,15 @@
 |13064|[13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13064_Extract_insights_from_LinkedIn_comments_with_Apify__Pinecone_Assistant__and_GPT-4.1.json)|
 |13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|
 |13309|[13309_Manage_Google_Calendar_via_Telegram_and_get_daily_AI_briefings__OpenAI___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13309_Manage_Google_Calendar_via_Telegram_and_get_daily_AI_briefings__OpenAI___Gemini.json)|
+|13408|[13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json)|
+|13441|[13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json)|
+|13461|[13461_Search_and_update_HubSpot_contacts_with_GPT-5.2_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13461_Search_and_update_HubSpot_contacts_with_GPT-5.2_AI_assistant.json)|
+|13467|[13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json)|
+|13519|[13519_Get_AI_meeting_briefs_from_Google_Calendar_with_SerpAPI__Azure_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13519_Get_AI_meeting_briefs_from_Google_Calendar_with_SerpAPI__Azure_OpenAI_and_Slack.json)|
+|13652|[13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json)|
+|13717|[13717_Run_a_self-hosted_multi-channel_AI_assistant_with_Claude__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13717_Run_a_self-hosted_multi-channel_AI_assistant_with_Claude__Gemini_and_Gmail.json)|
+|13722|[13722_Turn_WhatsApp_into_an_AI_shopping_and_price_comparison_assistant_using_Wati__OpenAI__Serper__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13722_Turn_WhatsApp_into_an_AI_shopping_and_price_comparison_assistant_using_Wati__OpenAI__Serper__and_Google_Sheets.json)|
+|13734|[13734_Manage_Google_Calendar_events_with_GPT_4_and_an_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13734_Manage_Google_Calendar_events_with_GPT_4_and_an_AI_assistant.json)|
+|13748|[13748_Turn_Telegram_into_an_AI_assistant_with_OpenAI_voice__memory_and_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13748_Turn_Telegram_into_an_AI_assistant_with_OpenAI_voice__memory_and_tools.json)|
+|13766|[13766_Get_actionable_Gmail_alerts_on_Telegram_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13766_Get_actionable_Gmail_alerts_on_Telegram_with_OpenAI.json)|
+|13867|[13867_Generate_AEO_snippets_from_Google_PAA_with_SerpApi_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13867_Generate_AEO_snippets_from_Google_PAA_with_SerpApi_and_Gemini.json)|

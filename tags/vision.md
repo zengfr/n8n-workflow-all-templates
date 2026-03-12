@@ -1,4 +1,4 @@
-# vision : 53
+# vision : 55
 
 |id|file|
 |----|----|
@@ -55,3 +55,5 @@
 |12829|[12829_Generate_AI_video_clips_from_YouTube_automatically_with_Reka_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12829_Generate_AI_video_clips_from_YouTube_automatically_with_Reka_Vision.json)|
 |12926|[12926_Generate_AI_video_clips_from_YouTube_using_Reka_Vision_API_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12926_Generate_AI_video_clips_from_YouTube_using_Reka_Vision_API_and_Gmail.json)|
 |13004|[13004_Extract_structured_data_from_Gmail_attachments_to_Google_Sheets__GPT_vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13004_Extract_structured_data_from_Gmail_attachments_to_Google_Sheets__GPT_vision.json)|
+|13546|[13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json)|
+|13635|[13635_List_properties_instantly_with_UploadToURL__OpenAI_Vision__WordPress_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13635_List_properties_instantly_with_UploadToURL__OpenAI_Vision__WordPress_and_Airtable.json)|

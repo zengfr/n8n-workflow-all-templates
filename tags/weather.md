@@ -1,4 +1,4 @@
-# weather : 55
+# weather : 56
 
 |id|file|
 |----|----|
@@ -57,3 +57,4 @@
 |11939|[11939_Smart_irrigation_scheduler_with_weather_forecast_and_soil_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11939_Smart_irrigation_scheduler_with_weather_forecast_and_soil_analysis.json)|
 |12232|[12232_Send_daily_Malaysian_weather_alerts_with_Perplexity_AI__Firecrawl_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12232_Send_daily_Malaysian_weather_alerts_with_Perplexity_AI__Firecrawl_and_Telegram.json)|
 |12653|[12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json)|
+|13411|[13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json)|

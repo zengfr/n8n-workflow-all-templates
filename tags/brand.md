@@ -1,4 +1,4 @@
-# brand : 34
+# brand : 38
 
 |id|file|
 |----|----|
@@ -36,3 +36,7 @@
 |12283|[12283_Monitor_brand_reputation_and_detect_crises_with_GPT-4__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12283_Monitor_brand_reputation_and_detect_crises_with_GPT-4__Slack_and_Gmail.json)|
 |12442|[12442_Analyze_brand_visibility_in_AI_SERPs_with_SE_Ranking_and_OpenAI_GPT-4.1_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12442_Analyze_brand_visibility_in_AI_SERPs_with_SE_Ranking_and_OpenAI_GPT-4.1_mini.json)|
 |12772|[12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json)|
+|13378|[13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json)|
+|13653|[13653_Monitor_brand_mentions_with_OpenAI_across_Twitter_X__Reddit__News__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13653_Monitor_brand_mentions_with_OpenAI_across_Twitter_X__Reddit__News__Airtable_and_Slack.json)|
+|13696|[13696_Monitor_brand_reputation_crises_with_Twitter_X__Reddit__News_API__Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13696_Monitor_brand_reputation_crises_with_Twitter_X__Reddit__News_API__Slack_and_Jira.json)|
+|13837|[13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json)|

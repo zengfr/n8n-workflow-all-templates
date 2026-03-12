@@ -1,4 +1,4 @@
-# calls : 36
+# calls : 39
 
 |id|file|
 |----|----|
@@ -38,3 +38,6 @@
 |12745|[12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12745_Nurture_landscaping_leads_and_book_calls_with_GoHighLevel__OpenAI_and_Slack.json)|
 |12856|[12856_Make_outbound_sales_calls_from_Google_Sheets_using_a_Retell_AI_voice_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12856_Make_outbound_sales_calls_from_Google_Sheets_using_a_Retell_AI_voice_agent.json)|
 |13114|[13114_Make_outbound_sales_calls_from_Google_Sheets_using_a_VAPI_voice_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13114_Make_outbound_sales_calls_from_Google_Sheets_using_a_VAPI_voice_agent.json)|
+|13535|[13535_Recover_missed_calls_with_Twilio__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13535_Recover_missed_calls_with_Twilio__Slack_and_Google_Sheets.json)|
+|13590|[13590_Route_MCP_tool_calls_through_an_intelligent_gateway_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13590_Route_MCP_tool_calls_through_an_intelligent_gateway_with_Claude_AI.json)|
+|13593|[13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json)|

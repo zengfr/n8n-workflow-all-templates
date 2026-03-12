@@ -1,4 +1,4 @@
-# quality : 25
+# quality : 29
 
 |id|file|
 |----|----|
@@ -27,3 +27,7 @@
 |12766|[12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12766_Collect__score__and_coach_call_quality_with_forms__Gemini__OpenAI__Gmail__and_Google_Drive.json)|
 |12965|[12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12965_Score_and_download_top_YouTube_videos_to_Google_Sheets_with_FetchMedia.io.json)|
 |13003|[13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13003_Generate_Japanese_Twitter_posts_with_GPT-4__quality_control__and_Notion.json)|
+|13341|[13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json)|
+|13426|[13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json)|
+|13465|[13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json)|
+|13869|[13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json)|

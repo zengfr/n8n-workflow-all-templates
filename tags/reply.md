@@ -1,4 +1,4 @@
-# reply : 49
+# reply : 51
 
 |id|file|
 |----|----|
@@ -51,3 +51,5 @@
 |12359|[12359_Auto-reply_to_Telegram_messages_using_BrowserAct_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12359_Auto-reply_to_Telegram_messages_using_BrowserAct_and_Google_Gemini.json)|
 |12460|[12460_Auto-reply_to_emails_using_Google_Gemini_AI_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12460_Auto-reply_to_emails_using_Google_Gemini_AI_and_SendGrid.json)|
 |12652|[12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12652_Send_AI-generated_Gmail_auto_replies_with_GPT-4o-mini_and_Google_Sheets.json)|
+|13463|[13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json)|
+|13830|[13830_Read__analyze__and_auto-reply_to_Gmail_emails_with_OpenAI__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13830_Read__analyze__and_auto-reply_to_Gmail_emails_with_OpenAI__Slack__and_Sheets.json)|

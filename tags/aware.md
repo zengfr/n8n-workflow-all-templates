@@ -1,4 +1,4 @@
-# aware : 11
+# aware : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |8602|[8602_Automated_Task_Generation_from_Blueprints_with_Baserow___Weekend-Aware_Scheduling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8602_Automated_Task_Generation_from_Blueprints_with_Baserow___Weekend-Aware_Scheduling.json)|
 |12057|[12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json)|
 |13119|[13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json)|
+|13502|[13502_Perform_unit-aware_calculations_and_conversions_with_CalcsLive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13502_Perform_unit-aware_calculations_and_conversions_with_CalcsLive.json)|

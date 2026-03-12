@@ -1,4 +1,4 @@
-# them : 29
+# them : 36
 
 |id|file|
 |----|----|
@@ -31,3 +31,10 @@
 |12826|[12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json)|
 |12854|[12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12854_Create_Kling_2.6_ad_videos_and_post_them_to_YouTube_using_the_YouTube_API.json)|
 |13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|
+|13496|[13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json)|
+|13621|[13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json)|
+|13632|[13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json)|
+|13765|[13765_Monitor_BOAMP_IT_tenders_and_score_them_with_GPT-4o_Mini_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13765_Monitor_BOAMP_IT_tenders_and_score_them_with_GPT-4o_Mini_to_Supabase.json)|
+|13856|[13856_Scrape_Apollo.io_leads_and_sync_them_to_Google_Sheets_with_ScraperCity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13856_Scrape_Apollo.io_leads_and_sync_them_to_Google_Sheets_with_ScraperCity.json)|
+|13874|[13874_Triage_GitHub_issues_with_Gemini_AI__auto-label_them__and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13874_Triage_GitHub_issues_with_Gemini_AI__auto-label_them__and_send_Slack_alerts.json)|
+|13880|[13880_Generate_Layerre_image_variants_from_a_webhook_and_post_them_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13880_Generate_Layerre_image_variants_from_a_webhook_and_post_them_to_Slack.json)|

@@ -1,4 +1,4 @@
-# update : 113
+# update : 117
 
 |id|file|
 |----|----|
@@ -115,3 +115,7 @@
 |11780|[11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11780_Aggregate___Update_Documentation_from_Slack__Teams___GitHub_with_Claude_Sonnet_4.5.json)|
 |12287|[12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json)|
 |13124|[13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13124_Turn_HR_news_into_policy_update_tasks_and_a_weekly_Gmail_digest_with_RSS__Google_Drive__Gemini__and_GPT-5.2.json)|
+|13461|[13461_Search_and_update_HubSpot_contacts_with_GPT-5.2_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13461_Search_and_update_HubSpot_contacts_with_GPT-5.2_AI_assistant.json)|
+|13593|[13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json)|
+|13663|[13663_Update_KlickTipp_contact_tags_by_tag_names.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13663_Update_KlickTipp_contact_tags_by_tag_names.json)|
+|13677|[13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json)|

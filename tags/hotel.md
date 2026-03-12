@@ -1,4 +1,4 @@
-# hotel : 12
+# hotel : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |12246|[12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json)|
 |12948|[12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json)|
 |12950|[12950_Generate_hotel_guest_upsell_recommendations_with_OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12950_Generate_hotel_guest_upsell_recommendations_with_OpenAI__Sheets_and_Slack.json)|
+|13573|[13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json)|

@@ -1,4 +1,4 @@
-# profile : 56
+# profile : 58
 
 |id|file|
 |----|----|
@@ -58,3 +58,5 @@
 |12309|[12309_Sync_LinkedIn_profile_visitors_into_HubSpot_CRM_leads_with_ConnectSafely.ai_and_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12309_Sync_LinkedIn_profile_visitors_into_HubSpot_CRM_leads_with_ConnectSafely.ai_and_Apify.json)|
 |12311|[12311_Send_personalized_LinkedIn_DMs_to_profile_visitors_with_ConnectSafely.ai_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12311_Send_personalized_LinkedIn_DMs_to_profile_visitors_with_ConnectSafely.ai_and_Google_Sheets.json)|
 |12345|[12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json)|
+|13669|[13669_Get_LinkedIn_profile_data_via_TexAU_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13669_Get_LinkedIn_profile_data_via_TexAU_API.json)|
+|13793|[13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json)|

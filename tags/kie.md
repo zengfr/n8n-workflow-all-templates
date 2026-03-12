@@ -1,4 +1,4 @@
-# kie : 16
+# kie : 18
 
 |id|file|
 |----|----|
@@ -18,3 +18,5 @@
 |12510|[12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json)|
 |12682|[12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json)|
 |12684|[12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json)|
+|13367|[13367_Generate_Images_on_Telegram_____from_Text_and_Voice_using_Grok_Imagine___Kie_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13367_Generate_Images_on_Telegram_____from_Text_and_Voice_using_Grok_Imagine___Kie_AI.json)|
+|13888|[13888_Generate_Viral_AI_Motion_Video____using_Kling_2.6_Kie_AI___Auto-Post_to_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13888_Generate_Viral_AI_Motion_Video____using_Kling_2.6_Kie_AI___Auto-Post_to_TikTok.json)|

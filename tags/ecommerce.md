@@ -1,4 +1,4 @@
-# ecommerce : 11
+# ecommerce : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |11082|[11082_Generate_eCommerce_Product_Descriptions_with_GPT-4o-mini_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11082_Generate_eCommerce_Product_Descriptions_with_GPT-4o-mini_and_Airtable.json)|
 |12132|[12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json)|
 |12193|[12193_E-commerce_product_mockups_from_images_with_OpenAI_DALL-E__remove.bg_and_G-Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12193_E-commerce_product_mockups_from_images_with_OpenAI_DALL-E__remove.bg_and_G-Drive.json)|
+|13503|[13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json)|
+|13819|[13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json)|

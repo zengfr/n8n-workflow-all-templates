@@ -1,4 +1,4 @@
-# reputation : 10
+# reputation : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |12283|[12283_Monitor_brand_reputation_and_detect_crises_with_GPT-4__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12283_Monitor_brand_reputation_and_detect_crises_with_GPT-4__Slack_and_Gmail.json)|
 |12654|[12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json)|
 |13229|[13229_Check_file_hash_reputation_with_VirusTotal_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13229_Check_file_hash_reputation_with_VirusTotal_and_Slack_alerts.json)|
+|13448|[13448_Check_phishing_URL_reputation_with_VirusTotal_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13448_Check_phishing_URL_reputation_with_VirusTotal_and_log_to_Google_Sheets.json)|
+|13696|[13696_Monitor_brand_reputation_crises_with_Twitter_X__Reddit__News_API__Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13696_Monitor_brand_reputation_crises_with_Twitter_X__Reddit__News_API__Slack_and_Jira.json)|

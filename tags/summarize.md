@@ -1,4 +1,4 @@
-# summarize : 89
+# summarize : 100
 
 |id|file|
 |----|----|
@@ -91,3 +91,14 @@
 |12934|[12934_Summarize_YouTube_videos_in_Slack_using_AssemblyAI_transcription_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12934_Summarize_YouTube_videos_in_Slack_using_AssemblyAI_transcription_and_OpenAI.json)|
 |13126|[13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json)|
 |13148|[13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json)|
+|13385|[13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json)|
+|13527|[13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json)|
+|13568|[13568_Analyze__classify__and_summarize_Gmail_with_OpenAI_RAG_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13568_Analyze__classify__and_summarize_Gmail_with_OpenAI_RAG_and_Google_Sheets.json)|
+|13674|[13674_Summarize_RSS_feeds_into_a_daily_AI_digest_with_Gemini__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13674_Summarize_RSS_feeds_into_a_daily_AI_digest_with_Gemini__Slack__and_Gmail.json)|
+|13685|[13685_Scrape_Reddit_posts_with_BrowserAct__summarize_with_Gemini__and_save_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13685_Scrape_Reddit_posts_with_BrowserAct__summarize_with_Gemini__and_save_to_Google_Sheets.json)|
+|13749|[13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json)|
+|13771|[13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json)|
+|13803|[13803_Summarize_invoices_with_AWS_Textract__Google_Gemini__and_send_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13803_Summarize_invoices_with_AWS_Textract__Google_Gemini__and_send_to_Slack.json)|
+|13808|[13808_Summarize_daily_Jenkins_test_runs_with_Google_Sheets__HTTP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13808_Summarize_daily_Jenkins_test_runs_with_Google_Sheets__HTTP_and_Gemini_AI.json)|
+|13873|[13873_Summarize_Trello_board_activity_with_Gemini_and_send_updates_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13873_Summarize_Trello_board_activity_with_Gemini_and_send_updates_to_Slack.json)|
+|13889|[13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json)|

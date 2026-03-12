@@ -1,4 +1,4 @@
-# asana : 25
+# asana : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |12479|[12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12479_Create_client_onboarding_projects__contracts_and_Slack_channels_from_form_data.json)|
 |12480|[12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12480_Qualify_webhook_leads_with_GPT-4o-mini_and_create_Asana_tasks_automatically.json)|
 |12498|[12498_Analyze_stock_sentiment_with_GPT-4o_and_create_Asana_tasks_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12498_Analyze_stock_sentiment_with_GPT-4o_and_create_Asana_tasks_with_Slack_alerts.json)|
+|13490|[13490_Turn_new_high-volume_ranked_keywords_into_Asana_tasks_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13490_Turn_new_high-volume_ranked_keywords_into_Asana_tasks_with_DataForSEO.json)|
+|13689|[13689_Track_broken_backlinks_with_DataForSEO__log_to_Google_Sheets__and_create_Asana_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13689_Track_broken_backlinks_with_DataForSEO__log_to_Google_Sheets__and_create_Asana_tasks.json)|

@@ -1,4 +1,4 @@
-# client : 63
+# client : 66
 
 |id|file|
 |----|----|
@@ -65,3 +65,6 @@
 |12739|[12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json)|
 |12761|[12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json)|
 |13186|[13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json)|
+|13579|[13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json)|
+|13658|[13658_Automate_client_onboarding_with_Google_Forms__GPT_4o__ClickUp_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13658_Automate_client_onboarding_with_Google_Forms__GPT_4o__ClickUp_and_Gmail.json)|
+|13745|[13745_Generate_Meta_Ads_campaign_reports_in_Google_Sheets_and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13745_Generate_Meta_Ads_campaign_reports_in_Google_Sheets_and_send_Telegram_alerts.json)|

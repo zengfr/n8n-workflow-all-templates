@@ -1,4 +1,4 @@
-# deduplicate : 5
+# deduplicate : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |8281|[8281_Deduplicate_Lead_Data_with_Google_Sheets__Automated_Email_Alerts___Log_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8281_Deduplicate_Lead_Data_with_Google_Sheets__Automated_Email_Alerts___Log_Management.json)|
 |9748|[9748_Auto-Post_X_Videos_with_OpenRouter_AI_Captions___Google_Sheets_Deduplication.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9748_Auto-Post_X_Videos_with_OpenRouter_AI_Captions___Google_Sheets_Deduplication.json)|
 |12366|[12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12366_Validate__deduplicate__and_store_customers_via_API_with_Supabase__Slack__Telegram__and_email.json)|
+|13464|[13464_Scrape_RSS_job_posts__deduplicate_with_Google_Sheets__and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13464_Scrape_RSS_job_posts__deduplicate_with_Google_Sheets__and_send_Telegram_alerts.json)|

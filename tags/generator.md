@@ -1,4 +1,4 @@
-# generator : 262
+# generator : 274
 
 |id|file|
 |----|----|
@@ -264,3 +264,15 @@
 |12908|[12908_Generate_technical_n8n_workflow_reports_with_GPT-4.1_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12908_Generate_technical_n8n_workflow_reports_with_GPT-4.1_and_Google_Docs.json)|
 |12956|[12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json)|
 |13219|[13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json)|
+|13599|[13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json)|
+|13648|[13648_Generate_social_media_posts_with_GPT-4_for_LinkedIn__X__and_Facebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13648_Generate_social_media_posts_with_GPT-4_for_LinkedIn__X__and_Facebook.json)|
+|13704|[13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json)|
+|13713|[13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json)|
+|13768|[13768_Generate_workflow_documentation_and_node_names_with_GPT_4.1_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13768_Generate_workflow_documentation_and_node_names_with_GPT_4.1_mini.json)|
+|13787|[13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json)|
+|13805|[13805_Generate_business_research_reports_with_Claude__web_search_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13805_Generate_business_research_reports_with_Claude__web_search_and_Google_Drive.json)|
+|13807|[13807_Generate_multi-scene_AI_videos_from_scripts_with_Claude__Stability_AI_and_Runway.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13807_Generate_multi-scene_AI_videos_from_scripts_with_Claude__Stability_AI_and_Runway.json)|
+|13810|[13810_Generate_marketing_graphics_with_Adobe_Firefly__Slack_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13810_Generate_marketing_graphics_with_Adobe_Firefly__Slack_and_Google_Drive.json)|
+|13841|[13841_Generate_conference_synthetic_personas_with_Slack__Gemini_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13841_Generate_conference_synthetic_personas_with_Slack__Gemini_and_Salesforce.json)|
+|13869|[13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json)|
+|13889|[13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json)|

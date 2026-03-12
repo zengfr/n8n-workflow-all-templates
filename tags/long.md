@@ -1,4 +1,4 @@
-# long : 18
+# long : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |12866|[12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json)|
 |13030|[13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json)|
 |13088|[13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json)|
+|13895|[13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json)|

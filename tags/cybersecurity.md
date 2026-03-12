@@ -1,4 +1,4 @@
-# cybersecurity : 6
+# cybersecurity : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |7608|[7608_Cybersecurity_Intelligence__Create_Daily_Digest___Viral_Topics_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7608_Cybersecurity_Intelligence__Create_Daily_Digest___Viral_Topics_with_Gemini_AI.json)|
 |9137|[9137_Daily_Cybersecurity_News_Summarizer_with_Grok_AI_for_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9137_Daily_Cybersecurity_News_Summarizer_with_Grok_AI_for_Telegram.json)|
 |13072|[13072_Get_a_daily_cybersecurity_news_digest_on_Telegram_and_Slack_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13072_Get_a_daily_cybersecurity_news_digest_on_Telegram_and_Slack_with_GPT-4.json)|
+|13322|[13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json)|

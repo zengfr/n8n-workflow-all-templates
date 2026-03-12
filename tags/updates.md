@@ -1,4 +1,4 @@
-# updates : 119
+# updates : 121
 
 |id|file|
 |----|----|
@@ -121,3 +121,5 @@
 |12072|[12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12072_Monitor_regulatory_updates_with_ScrapeGraphAI_and_send_alerts_via_Telegram.json)|
 |12364|[12364_Create_WordPress_posts_and_Telegram_updates_from_links_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12364_Create_WordPress_posts_and_Telegram_updates_from_links_with_BrowserAct_and_Gemini.json)|
 |12871|[12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json)|
+|13553|[13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json)|
+|13873|[13873_Summarize_Trello_board_activity_with_Gemini_and_send_updates_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13873_Summarize_Trello_board_activity_with_Gemini_and_send_updates_to_Slack.json)|

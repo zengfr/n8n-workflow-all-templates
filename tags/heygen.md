@@ -1,4 +1,4 @@
-# heygen : 30
+# heygen : 31
 
 |id|file|
 |----|----|
@@ -32,3 +32,4 @@
 |11735|[11735_Transform_HR_PDFs_into_Engaging_Onboarding_Videos_with_AI__HeyGen_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11735_Transform_HR_PDFs_into_Engaging_Onboarding_Videos_with_AI__HeyGen_and_Google_Drive.json)|
 |11895|[11895_Generate_AI_avatar_videos_from_scripts_using_ElevenLabs_and_HeyGen.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11895_Generate_AI_avatar_videos_from_scripts_using_ElevenLabs_and_HeyGen.json)|
 |13024|[13024_Create_and_publish_AI_avatar_short_videos_with_Gemini__HeyGen_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13024_Create_and_publish_AI_avatar_short_videos_with_Gemini__HeyGen_and_Google_Sheets.json)|
+|13676|[13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json)|

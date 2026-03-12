@@ -1,4 +1,4 @@
-# jira : 87
+# jira : 91
 
 |id|file|
 |----|----|
@@ -89,3 +89,7 @@
 |12989|[12989_Aggregate_error_alerts_and_send_consolidated_reports_via_Email_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12989_Aggregate_error_alerts_and_send_consolidated_reports_via_Email_and_Jira.json)|
 |13224|[13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json)|
 |13276|[13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json)|
+|13546|[13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json)|
+|13553|[13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json)|
+|13692|[13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json)|
+|13696|[13696_Monitor_brand_reputation_crises_with_Twitter_X__Reddit__News_API__Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13696_Monitor_brand_reputation_crises_with_Twitter_X__Reddit__News_API__Slack_and_Jira.json)|

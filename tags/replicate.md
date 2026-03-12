@@ -1,4 +1,4 @@
-# replicate : 29
+# replicate : 30
 
 |id|file|
 |----|----|
@@ -31,3 +31,4 @@
 |11175|[11175_Auto-Generate_Trending_Merchandise_on_Printify_with_GPT-4o__Stable_Diffusion___Google_Trends.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11175_Auto-Generate_Trending_Merchandise_on_Printify_with_GPT-4o__Stable_Diffusion___Google_Trends.json)|
 |13303|[13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json)|
 |13306|[13306_Enhance_images_with_Riverflow_2.0_reference-based_super-resolution_via_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13306_Enhance_images_with_Riverflow_2.0_reference-based_super-resolution_via_Replicate.json)|
+|13676|[13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json)|

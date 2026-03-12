@@ -1,4 +1,4 @@
-# meta : 54
+# meta : 55
 
 |id|file|
 |----|----|
@@ -56,3 +56,4 @@
 |12416|[12416_Analyze_Meta_ads_daily_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12416_Analyze_Meta_ads_daily_with_Google_Gemini_and_Google_Sheets.json)|
 |13134|[13134_Extract_Meta_Ads_detailed_targeting_across_all_endpoints_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13134_Extract_Meta_Ads_detailed_targeting_across_all_endpoints_using_Google_Sheets.json)|
 |13222|[13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json)|
+|13745|[13745_Generate_Meta_Ads_campaign_reports_in_Google_Sheets_and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13745_Generate_Meta_Ads_campaign_reports_in_Google_Sheets_and_send_Telegram_alerts.json)|

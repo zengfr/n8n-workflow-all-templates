@@ -1,0 +1,354 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Run weekly WAF security audits with WAFtester and Slack alerts",
+    "wechat": "youandme10086",
+    "id": 13444,
+    "update_time": "2026-03-12"
+  },
+  "name": "Run scheduled WAF security audits with WAFtester and Slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "3f2d8d58-80c1-4751-ba92-d39b2279e6cf",
+      "name": "Weekly Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "notes": "Triggers every Monday at 3 AM. Adjust the schedule to match your audit cadence.",
+      "position": [
+        768,
+        320
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 3
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1ca5df1d-201a-4808-986b-e17ec2dd6148",
+      "name": "Detect WAF",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Calls detect_waf via JSON-RPC. Returns the WAF vendor name and detection confidence.",
+      "position": [
+        960,
+        320
+      ],
+      "parameters": {
+        "url": "={{ $env.WAFTESTER_MCP_URL || 'http://waftester:8080/mcp' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"detect_waf\",\n    \"arguments\": {\n      \"target\": \"{{ $env.WAF_TARGET_URL }}\"\n    }\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "35af7ed7-4c02-415e-abd9-849041b93dae",
+      "name": "Start Assessment",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Starts an async WAF assessment. Returns a task_id to poll. Tests SQLi, XSS, traversal, cmdi, and SSRF.",
+      "position": [
+        1168,
+        320
+      ],
+      "parameters": {
+        "url": "={{ $env.WAFTESTER_MCP_URL || 'http://waftester:8080/mcp' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 60000
+        },
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 2,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"assess\",\n    \"arguments\": {\n      \"target\": \"{{ $env.WAF_TARGET_URL }}\",\n      \"categories\": [\"sqli\", \"xss\", \"traversal\", \"cmdi\", \"ssrf\"],\n      \"rate_limit\": 20,\n      \"concurrency\": 10\n    }\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7b95bac4-82b3-4f2d-b24a-25efe17c0f0c",
+      "name": "Wait for Assessment",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1360,
+        320
+      ],
+      "parameters": {
+        "unit": "seconds",
+        "amount": 30
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "15cb64fa-df05-4f42-aa3a-d066a7fa3251",
+      "name": "Poll Task Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Retrieves assessment results using the task_id from Start Assessment. Contains WAF grade, detection rate, and findings.",
+      "position": [
+        1568,
+        320
+      ],
+      "parameters": {
+        "url": "={{ $env.WAFTESTER_MCP_URL || 'http://waftester:8080/mcp' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 3,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"get_task_status\",\n    \"arguments\": {\n      \"task_id\": \"{{ $json.result.content[0].text }}\"\n    }\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0c61533b-323c-4237-b442-4931d8acfa5f",
+      "name": "Check Results",
+      "type": "n8n-nodes-base.if",
+      "notes": "Routes to Slack Alert (true branch) when grade is NOT A. Routes to Slack OK (false branch) when grade is A. Customize by changing 'Grade: A' to your acceptable threshold.",
+      "position": [
+        1760,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "581b2357-4341-4b43-aada-bd24bbfe03c1",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              },
+              "leftValue": "={{ $json.result.content[0].text }}",
+              "rightValue": "Grade: A"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c657b776-2039-48c0-b00b-336ef305b0c4",
+      "name": "Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Sends alert when assessment grade is below threshold.",
+      "position": [
+        1968,
+        224
+      ],
+      "parameters": {
+        "text": "=WAF Security Audit Report\n========================\n\nTarget: {{ $env.WAF_TARGET_URL }}\nDate: {{ $now.format('yyyy-MM-dd HH:mm') }}\n\nAssessment Results:\n{{ $('Poll Task Status').item.json.result.content[0].text }}\n\nWAF Detection:\n{{ $('Detect WAF').item.json.result.content[0].text }}",
+        "select": "channel",
+        "channelId": {
+          "mode": "name",
+          "value": "={{ $env.SLACK_CHANNEL || '#security-alerts' }}"
+        },
+        "messageType": "text",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "credential-id",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "392d17d4-007d-4e2a-a8ff-696ce960275b",
+      "name": "Slack OK",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Sends brief confirmation when audit passes.",
+      "position": [
+        1968,
+        416
+      ],
+      "parameters": {
+        "text": "=WAF Audit Passed - {{ $env.WAF_TARGET_URL }} - {{ $now.format('yyyy-MM-dd') }}\n\n{{ $('Poll Task Status').item.json.result.content[0].text }}",
+        "select": "channel",
+        "channelId": {
+          "mode": "name",
+          "value": "={{ $env.SLACK_CHANNEL || '#security-alerts' }}"
+        },
+        "messageType": "text",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "credential-id",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4fe534ee-017a-41e9-bce8-ec3c179905f7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        48,
+        48
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 780,
+        "content": "### How it works\n\nRuns a WAF security assessment every Monday at 3 AM and posts results to Slack.\n\n1. **Weekly Schedule** triggers the workflow\n2. **Detect WAF** identifies the vendor via fingerprinting\n3. **Start Assessment** fires test payloads (SQLi, XSS, traversal, cmdi, SSRF)\n4. **Wait** 30 seconds for async completion\n5. **Poll Task Status** retrieves the WAF grade\n6. **Check Results** routes to alert or confirmation\n7. **Slack** posts results to your security channel\n\n### Setup steps\n\n1. Start WAFtester MCP server:\n```\ndocker run -p 8080:8080 ghcr.io/waftester/waftester:latest mcp --http :8080\n```\n2. Set environment variables:\n   - `WAF_TARGET_URL` — target to audit (required)\n   - `WAFTESTER_MCP_URL` — endpoint (default: `http://waftester:8080/mcp`)\n   - `SLACK_CHANNEL` — channel (default: `#security-alerts`)\n3. Add Slack credentials: **Settings → Credentials → New → Slack OAuth2 API**\n4. Select the credential in both Slack nodes\n5. Activate the workflow\n\n### Customization tips\n\n- Change schedule in the Weekly Schedule node\n- Change grade threshold in Check Results (default: Grade A)\n- Add categories in Start Assessment's `categories` array"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "da245a55-54d3-45ba-977e-337c15b999ab",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        736,
+        48
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 144,
+        "content": "## WAF Detection & Assessment\n\nDetects WAF vendor, then runs async security assessment with 30s polling delay."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21282f9e-7424-45a8-8ed3-b27ce9fc4eb4",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1664,
+        48
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 144,
+        "content": "## Results & Alerting\n\nRoutes to Slack alert or confirmation based on the WAF grade."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Detect WAF": {
+      "main": [
+        [
+          {
+            "node": "Start Assessment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Results": {
+      "main": [
+        [
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Schedule": {
+      "main": [
+        [
+          {
+            "node": "Detect WAF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Task Status": {
+      "main": [
+        [
+          {
+            "node": "Check Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Assessment": {
+      "main": [
+        [
+          {
+            "node": "Wait for Assessment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Assessment": {
+      "main": [
+        [
+          {
+            "node": "Poll Task Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "## What it does\n\nAutomated weekly WAF security assessments with Slack reporting. Detects your WAF vendor, runs a security assessment, grades your protection, and alerts your team when the grade drops below threshold.\n\n## Who it's for\n\n- Security teams needing continuous WAF monitoring\n- DevOps engineers tracking WAF configuration drift\n- Compliance teams requiring regular security assessments\n\n## How it works\n\nEvery Monday at 3 AM, this workflow detects the WAF vendor, runs test payloads across SQLi, XSS, traversal, cmdi, and SSRF, then grades the results. If the grade falls below \"A\", Slack gets an alert. Otherwise, a brief confirmation is posted.\n\n## How to set up\n\n1. Start WAFtester: `docker run -p 8080:8080 ghcr.io/waftester/waftester:latest mcp --http :8080`\n2. Set environment variables: `WAF_TARGET_URL` (required), `WAFTESTER_MCP_URL`, `SLACK_CHANNEL`\n3. Add Slack OAuth2 credentials and select them in both Slack nodes\n4. Activate the workflow\n\n## Requirements\n\n- WAFtester MCP server (Docker)\n- Slack workspace with OAuth2 bot\n\n## How to customize\n\n- Adjust schedule in the Weekly Schedule node\n- Change grade threshold in the Check Results node\n- Add attack categories in Start Assessment's `categories` array\n\nOnly test targets you have authorization to test."
+}

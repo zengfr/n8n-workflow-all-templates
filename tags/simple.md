@@ -1,4 +1,4 @@
-# simple : 43
+# simple : 44
 
 |id|file|
 |----|----|
@@ -45,3 +45,4 @@
 |10755|[10755_Simple_error_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10755_Simple_error_workflow.json)|
 |11234|[11234_Simple_Scheduling_and_Internal_Document_Query_Bot_with_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11234_Simple_Scheduling_and_Internal_Document_Query_Bot_with_Telegram.json)|
 |12125|[12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12125_Generate_multiple_profile_picture_avatars_with_free_public_APIs__no_keys.json)|
+|13792|[13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json)|

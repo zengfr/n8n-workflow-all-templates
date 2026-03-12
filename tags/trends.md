@@ -1,4 +1,4 @@
-# trends : 42
+# trends : 47
 
 |id|file|
 |----|----|
@@ -44,3 +44,8 @@
 |12748|[12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json)|
 |12796|[12796_Track_CoinMarketCap_crypto_sector_pumps_with_Gemini_AI_and_send_digests_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12796_Track_CoinMarketCap_crypto_sector_pumps_with_Gemini_AI_and_send_digests_to_Discord.json)|
 |13181|[13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13181_Send_a_daily_media_briefing_email_with_GPT-4.1-mini__NewsAPI__Gmail_and_Google_Sheets.json)|
+|13465|[13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json)|
+|13525|[13525_Generate_content_ideas_from_social_trends_with_Apify__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13525_Generate_content_ideas_from_social_trends_with_Apify__Gemini__and_Google_Sheets.json)|
+|13707|[13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json)|
+|13818|[13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json)|
+|13908|[13908_Generate_AI_market_research_reports_with_Perplexity__Claude__Google_Trends__and_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13908_Generate_AI_market_research_reports_with_Perplexity__Claude__Google_Trends__and_Autype.json)|

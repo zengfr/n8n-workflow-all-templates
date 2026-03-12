@@ -1,4 +1,4 @@
-# firecrawl : 35
+# firecrawl : 37
 
 |id|file|
 |----|----|
@@ -37,3 +37,5 @@
 |12882|[12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json)|
 |12884|[12884_Generate_Reddit_customer_leads_from_a_product_URL_with_OpenAI_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12884_Generate_Reddit_customer_leads_from_a_product_URL_with_OpenAI_and_Firecrawl.json)|
 |12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|
+|13608|[13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json)|
+|13644|[13644_Score_and_route_new_trial_leads_with_Firecrawl__Scrapin.io__OpenAI__Slack_and_Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13644_Score_and_route_new_trial_leads_with_Firecrawl__Scrapin.io__OpenAI__Slack_and_Instantly.json)|

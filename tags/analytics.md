@@ -1,4 +1,4 @@
-# analytics : 64
+# analytics : 68
 
 |id|file|
 |----|----|
@@ -66,3 +66,7 @@
 |12496|[12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12496_Optimize_multi-property_rents_and_analytics_with_GPT-4o_and_Google_Sheets.json)|
 |12565|[12565_Conversational_analytics_with_Google_Sheet_and_C1_by_Thesys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12565_Conversational_analytics_with_Google_Sheet_and_C1_by_Thesys.json)|
 |13195|[13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json)|
+|13352|[13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json)|
+|13509|[13509_Fetch_Threads_analytics_for_your_latest_posts_and_email_an_HTML_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13509_Fetch_Threads_analytics_for_your_latest_posts_and_email_an_HTML_report.json)|
+|13553|[13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json)|
+|13898|[13898_Generate_board-ready_workforce_analytics_and_talent_reports_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13898_Generate_board-ready_workforce_analytics_and_talent_reports_with_GPT-4o.json)|

@@ -1,4 +1,4 @@
-# translate : 40
+# translate : 41
 
 |id|file|
 |----|----|
@@ -42,3 +42,4 @@
 |12571|[12571_Generate__translate_and_publish_AI_content_to_WordPress_and_socials_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12571_Generate__translate_and_publish_AI_content_to_WordPress_and_socials_with_GPT-4.1_and_Google_Sheets.json)|
 |12723|[12723_Translate___and_upload_dubbed_YouTube_videos___using_ElevenLabs_AI_Dubbing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12723_Translate___and_upload_dubbed_YouTube_videos___using_ElevenLabs_AI_Dubbing.json)|
 |13171|[13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json)|
+|13543|[13543_Translate_WordPress_posts_and_ACF_fields_using_DeepL_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13543_Translate_WordPress_posts_and_ACF_fields_using_DeepL_and_OpenAI.json)|

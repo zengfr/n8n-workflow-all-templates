@@ -1,4 +1,4 @@
-# transfer : 18
+# transfer : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |9469|[9469_Sync_Adobe_Commerce_Customer_Data_to_KlickTipp_with_Value-Based_Tagging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9469_Sync_Adobe_Commerce_Customer_Data_to_KlickTipp_with_Value-Based_Tagging.json)|
 |9711|[9711_Automate_Stripe_Customer_Data_Transfer_to_KlickTipp_with_Dynamic_Tagging_Logic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9711_Automate_Stripe_Customer_Data_Transfer_to_KlickTipp_with_Dynamic_Tagging_Logic.json)|
 |12871|[12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json)|
+|13621|[13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json)|

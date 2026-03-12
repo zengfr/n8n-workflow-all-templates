@@ -1,4 +1,4 @@
-# custom : 65
+# custom : 66
 
 |id|file|
 |----|----|
@@ -67,3 +67,4 @@
 |12461|[12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json)|
 |12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|
 |13030|[13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13030_Create_long_Audiobooks____with_custom_voices_using_Qwen3-TTS_Voice_Design.json)|
+|13826|[13826_Generate_AI_songs_from_text_prompts_with_Suno__OpenAI__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13826_Generate_AI_songs_from_text_prompts_with_Suno__OpenAI__Google_Drive_and_Slack.json)|

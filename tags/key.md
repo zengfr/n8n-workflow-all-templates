@@ -1,4 +1,4 @@
-# key : 24
+# key : 25
 
 |id|file|
 |----|----|
@@ -26,3 +26,4 @@
 |11212|[11212_Monitor_YouTube_Channels_and_Send_Daily_Updates_to_Discord_via_RSS__No_API_Key.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11212_Monitor_YouTube_Channels_and_Send_Daily_Updates_to_Discord_via_RSS__No_API_Key.json)|
 |12032|[12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json)|
 |12589|[12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12589_Curate_key_RSS_articles_with_OpenAI__save_to_Notion__and_notify_via_Telegram.json)|
+|13442|[13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json)|

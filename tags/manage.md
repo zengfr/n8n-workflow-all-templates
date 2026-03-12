@@ -1,4 +1,4 @@
-# manage : 97
+# manage : 106
 
 |id|file|
 |----|----|
@@ -99,3 +99,12 @@
 |13196|[13196_Manage_online_bookings_with_webhook__Gmail__Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13196_Manage_online_bookings_with_webhook__Gmail__Google_Calendar_and_Slack.json)|
 |13218|[13218_Manage_Streak_CRM_via_WhatsApp_using_GPT_4.1_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13218_Manage_Streak_CRM_via_WhatsApp_using_GPT_4.1_and_Gemini.json)|
 |13309|[13309_Manage_Google_Calendar_via_Telegram_and_get_daily_AI_briefings__OpenAI___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13309_Manage_Google_Calendar_via_Telegram_and_get_daily_AI_briefings__OpenAI___Gemini.json)|
+|13406|[13406_Manage_coupon_campaigns_and_customer_chats_with_WhatsApp_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13406_Manage_coupon_campaigns_and_customer_chats_with_WhatsApp_and_PostgreSQL.json)|
+|13441|[13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json)|
+|13503|[13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json)|
+|13598|[13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13598_Detect_transaction_fraud_and_manage_compliance_with_GPT-4_and_Airtable.json)|
+|13639|[13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json)|
+|13705|[13705_Manage_WhatsApp_property_maintenance_tickets_with_WATI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13705_Manage_WhatsApp_property_maintenance_tickets_with_WATI_and_Google_Sheets.json)|
+|13733|[13733_Manage_WhatsApp_vehicle_service_reminders_and_bookings_with_WATI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13733_Manage_WhatsApp_vehicle_service_reminders_and_bookings_with_WATI_and_Google_Sheets.json)|
+|13734|[13734_Manage_Google_Calendar_events_with_GPT_4_and_an_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13734_Manage_Google_Calendar_events_with_GPT_4_and_an_AI_assistant.json)|
+|13837|[13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json)|

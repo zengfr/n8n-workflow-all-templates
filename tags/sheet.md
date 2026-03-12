@@ -1,4 +1,4 @@
-# sheet : 76
+# sheet : 80
 
 |id|file|
 |----|----|
@@ -78,3 +78,7 @@
 |11355|[11355_LinkedIn_Content_Automation__AI_Post_Creation___Images_with_Sheet_Approval_Workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11355_LinkedIn_Content_Automation__AI_Post_Creation___Images_with_Sheet_Approval_Workflow.json)|
 |12565|[12565_Conversational_analytics_with_Google_Sheet_and_C1_by_Thesys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12565_Conversational_analytics_with_Google_Sheet_and_C1_by_Thesys.json)|
 |12727|[12727_Generate_VEED_AI_talking_head_videos_from_sheet_rows_with_OpenAI_or_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12727_Generate_VEED_AI_talking_head_videos_from_sheet_rows_with_OpenAI_or_ElevenLabs.json)|
+|13507|[13507_Match_job_descriptions_with_resumes_using_Google_Gemini_and_log_scores_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13507_Match_job_descriptions_with_resumes_using_Google_Gemini_and_log_scores_to_Google_Sheets.json)|
+|13521|[13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json)|
+|13605|[13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json)|
+|13647|[13647_Extract_LinkedIn_search_results_into_a_Google_Sheet_with_SourceGeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13647_Extract_LinkedIn_search_results_into_a_Google_Sheet_with_SourceGeek.json)|

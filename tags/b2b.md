@@ -1,4 +1,4 @@
-# b2b : 37
+# b2b : 43
 
 |id|file|
 |----|----|
@@ -39,3 +39,9 @@
 |12920|[12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json)|
 |13007|[13007_Scrape_LinkedIn_B2B_leads_with_Apify_and_GPT-4_and_approve_emails_in_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13007_Scrape_LinkedIn_B2B_leads_with_Apify_and_GPT-4_and_approve_emails_in_Sheets.json)|
 |13119|[13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13119_Generate_product-aware_B2B_leads_and_outreach_emails_with_Gemini__Pinecone_and_Gmail.json)|
+|13385|[13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json)|
+|13522|[13522_Enrich_and_score_Japanese_B2B_leads_with_gBizINFO__web_scraping__and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13522_Enrich_and_score_Japanese_B2B_leads_with_gBizINFO__web_scraping__and_Gemini_AI.json)|
+|13523|[13523_Enrich_and_score_B2B_company_leads_with_Clearbit__Hunter.io__and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13523_Enrich_and_score_B2B_company_leads_with_Clearbit__Hunter.io__and_Gemini_AI.json)|
+|13582|[13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json)|
+|13763|[13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json)|
+|13835|[13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json)|

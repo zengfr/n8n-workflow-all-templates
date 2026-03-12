@@ -1,4 +1,4 @@
-# notion : 243
+# notion : 255
 
 |id|file|
 |----|----|
@@ -245,3 +245,15 @@
 |13121|[13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json)|
 |13148|[13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json)|
 |13224|[13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json)|
+|13452|[13452_Export_Glasp_highlights_to_Notion__Slack__Google_Sheets__or_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13452_Export_Glasp_highlights_to_Notion__Slack__Google_Sheets__or_webhooks.json)|
+|13505|[13505_Automate_daily_standups_using_Slack__Notion__and_Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13505_Automate_daily_standups_using_Slack__Notion__and_Redis.json)|
+|13508|[13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json)|
+|13572|[13572_Look_up_English_vocabulary_via_Telegram_and_save_results_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13572_Look_up_English_vocabulary_via_Telegram_and_save_results_to_Notion.json)|
+|13631|[13631_Monitor_YouTube_channels_and_publish_VideoDB_AI_summaries_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13631_Monitor_YouTube_channels_and_publish_VideoDB_AI_summaries_to_Notion.json)|
+|13638|[13638_Insert_Notion_database_fields_from_a_public_URL_via_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13638_Insert_Notion_database_fields_from_a_public_URL_via_WhatsApp.json)|
+|13770|[13770_Route_and_prioritize_Gmail_support_tickets_to_Notion_with_Gemini_AI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13770_Route_and_prioritize_Gmail_support_tickets_to_Notion_with_Gemini_AI_and_Slack_alerts.json)|
+|13771|[13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json)|
+|13818|[13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json)|
+|13819|[13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json)|
+|13837|[13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json)|
+|13919|[13919_Turn_YouTube_meeting_recordings_into_Notion_notes_with_Claude__deAPI__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13919_Turn_YouTube_meeting_recordings_into_Notion_notes_with_Claude__deAPI__and_Slack_alerts.json)|

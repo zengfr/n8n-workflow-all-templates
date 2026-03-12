@@ -1,4 +1,4 @@
-# pre : 11
+# pre : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |11944|[11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11944_Automate_event_registration_and_reminder_emails_with_Forms__Sheets___Gmail.json)|
 |12948|[12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json)|
 |13224|[13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13224_Send_pre-meeting_Slack_briefings_using_Google_Calendar__Notion__GitHub__and_Jira.json)|
+|13516|[13516_Send_AI_pre-op_reminders_with_Google_Calendar__Gmail__Sheets__Slack_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13516_Send_AI_pre-op_reminders_with_Google_Calendar__Gmail__Sheets__Slack_and_GPT-4o.json)|
+|13520|[13520_Automate_patient_intake_and_AI_risk_triage_with_Azure_OpenAI__Google__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13520_Automate_patient_intake_and_AI_risk_triage_with_Azure_OpenAI__Google__and_Slack.json)|

@@ -1,0 +1,792 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Discover daily business opportunities with Google Gemini, Sheets and Telegram",
+    "wechat": "youandme10086",
+    "id": 13801,
+    "update_time": "2026-03-12"
+  },
+  "nodes": [
+    {
+      "id": "d9a5b97c-8b98-4e09-a609-5374ad91e565",
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.cron",
+      "position": [
+        -1056,
+        112
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "be574841-0653-4d6f-b641-240569296621",
+      "name": "Google News",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -832,
+        -272
+      ],
+      "parameters": {
+        "url": "https://newsapi.org/v2/everything?q=startup+funding+OR+expansion+OR+hiring&pageSize=5&apiKey=YOUR_TOKEN_HERE",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "869364b4-f121-4bf1-b162-a2d364756392",
+      "name": "Crunchbase RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -832,
+        -80
+      ],
+      "parameters": {
+        "url": "https://www.crunchbase.com/funding-rounds.rss",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e36e34ec-135d-4485-bc3e-5675efa6f808",
+      "name": "Twitter API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -832,
+        304
+      ],
+      "parameters": {
+        "url": "https://api.twitter.com/2/tweets/search/recent?query=startup%20(funding%20OR%20launch%20OR%20hiring)&tweet.fields=created_at,text,author_id",
+        "options": {},
+        "authentication": "headerAuth"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d177a047-fec6-4b1f-b0f1-91d3f66d0ebf",
+      "name": "Merge Sources",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        -256,
+        16
+      ],
+      "parameters": {
+        "functionCode": "// n8n Function node: normalize mixed multi-source JSON into a unified feed\nconst out = [];\n\nfunction safeGet(obj, path, fallback = null) {\n  try {\n    return path.split('.').reduce((acc, k) => (acc && acc[k] !== undefined ? acc[k] : undefined), obj) ?? fallback;\n  } catch (e) {\n    return fallback;\n  }\n}\n\n// Build blocks array from possible input shapes\nlet blocks = [];\nif (!items || items.length === 0) {\n  return []; // nothing to do\n} else if (items.length === 1) {\n  const j = items[0].json;\n  if (Array.isArray(j)) {\n    blocks = j; // already an array of blocks\n  } else if (j && typeof j === 'object') {\n    const tmp = [];\n    if (Array.isArray(j.articles)) tmp.push({ articles: j.articles });\n    if (Array.isArray(j.entities)) tmp.push({ entities: j.entities });\n    if (j.data && (j.data.posts || Array.isArray(j.data))) tmp.push({ data: j.data });\n    if (Array.isArray(j.tweets)) tmp.push({ tweets: j.tweets });\n    blocks = tmp.length ? tmp : [j];\n  } else {\n    blocks = [j];\n  }\n} else {\n  blocks = items.map(it => it.json);\n}\n\n// Process each block\nfor (const block of blocks) {\n  if (!block || typeof block !== 'object') continue;\n\n  // --- Google News (articles array) ---\n  if (Array.isArray(block.articles)) {\n    for (const article of block.articles) {\n      out.push({\n        source: safeGet(article, 'source.name', 'news'),\n        type: 'google_news',\n        title: article.title || null,\n        description: article.description || article.content || null,\n        url: article.url || article.link || null,\n        publishedAt: article.publishedAt || null,\n        raw: article\n      });\n    }\n    continue;\n  }\n\n  // --- Crunchbase (entities) ---\n  if (Array.isArray(block.entities)) {\n    for (const ent of block.entities) {\n      out.push({\n        source: 'crunchbase',\n        type: 'crunchbase',\n        company: safeGet(ent, 'identifier.value', null),\n        permalink: safeGet(ent, 'identifier.permalink', null),\n        description: ent.short_description || null,\n        facet_ids: ent.facet_ids || null,\n        raw: ent\n      });\n    }\n    continue;\n  }\n\n  // --- Product Hunt (data.posts.edges) ---\n  const phEdges = safeGet(block, 'data.posts.edges', null) || safeGet(block, 'posts.edges', null);\n  if (Array.isArray(phEdges)) {\n    for (const edge of phEdges) {\n      const node = edge.node || edge;\n      out.push({\n        source: 'product_hunt',\n        type: 'product_hunt',\n        name: safeGet(node, 'name', null),\n        tagline: safeGet(node, 'tagline', null),\n        votes: safeGet(node, 'votesCount', safeGet(node, 'votes', 0)),\n        comments: safeGet(node, 'commentsCount', safeGet(node, 'comments', 0)),\n        website: safeGet(node, 'website', null),\n        createdAt: safeGet(node, 'createdAt', null),\n        raw: node\n      });\n    }\n    continue;\n  }\n\n  // --- Twitter/X (many shapes) ---\n  const tweetCandidates = [];\n  if (Array.isArray(block.data) && block.data.length && (block.data[0].text || block.data[0].full_text)) {\n    tweetCandidates.push(...block.data);\n  }\n  if (Array.isArray(block.tweets)) tweetCandidates.push(...block.tweets);\n  if (block.includes && Array.isArray(block.includes.tweets)) tweetCandidates.push(...block.includes.tweets);\n  if (block.tweets && Array.isArray(block.tweets)) tweetCandidates.push(...block.tweets);\n  if (Array.isArray(safeGet(block, 'data.tweets', null))) tweetCandidates.push(...block.data.tweets);\n\n  // Deduplicate tweets by id\n  const seen = new Set();\n  const uniq = [];\n  for (const t of tweetCandidates) {\n    const tid = safeGet(t, 'id', null) || safeGet(t, 'tweet_id', null);\n    if (!tid) continue;\n    if (!seen.has(tid)) {\n      seen.add(tid);\n      uniq.push(t);\n    }\n  }\n\n  if (uniq.length) {\n    const userMap = {};\n    if (block.includes && Array.isArray(block.includes.users)) {\n      for (const u of block.includes.users) if (u.id) userMap[u.id] = u;\n    }\n    if (Array.isArray(block.users)) {\n      for (const u of block.users) if (u.id) userMap[u.id] = u;\n    }\n\n    for (const tweet of uniq) {\n      const authorId = safeGet(tweet, 'author_id', null) || safeGet(tweet, 'user.id', null);\n      const user = authorId ? userMap[authorId] : null;\n      out.push({\n        source: 'twitter',\n        type: 'twitter',\n        author: tweet.username || safeGet(tweet, 'user.username', null) || (user ? user.username || user.name : null),\n        text: tweet.text || tweet.full_text || null,\n        createdAt: safeGet(tweet, 'created_at', safeGet(tweet, 'createdAt', null)),\n        tweetId: safeGet(tweet, 'id', null),\n        media: safeGet(tweet, 'attachments.media_keys', null) || safeGet(tweet, 'media_key', null),\n        place: safeGet(tweet, 'place', null),\n        raw: tweet\n      });\n    }\n    continue;\n  }\n\n  // --- Generic fallback ---\n  const guessTitle = safeGet(block, 'title', null) || safeGet(block, 'name', null);\n  const guessDesc = safeGet(block, 'description', null) || safeGet(block, 'tagline', null);\n  const guessUrl = safeGet(block, 'url', null) || safeGet(block, 'website', null);\n  if (guessTitle || guessDesc || guessUrl) {\n    out.push({\n      source: safeGet(block, 'source.name', 'unknown'),\n      type: 'generic',\n      title: guessTitle,\n      description: guessDesc,\n      url: guessUrl,\n      publishedAt: safeGet(block, 'publishedAt', safeGet(block, 'createdAt', null)),\n      raw: block\n    });\n  } else {\n    out.push({\n      source: 'unknown',\n      type: 'unmapped',\n      raw: block\n    });\n  }\n}\n\n// Return items in n8n format\nreturn out.map(r => ({ json: r }));\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4d7673f4-76b3-45f7-b883-62809637290f",
+      "name": "Enrich Contacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        768,
+        -80
+      ],
+      "parameters": {
+        "url": "=https://person.enrichment.api/lookup?company={{$json.company}}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ebc47618-9794-459f-bbd4-d1f4341fcf6d",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        992,
+        -176
+      ],
+      "parameters": {
+        "range": "Opportunities!A:D",
+        "options": {},
+        "sheetId": "YOUR_SHEET_ID"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b654d147-25ec-4975-871e-0e293985d64b",
+      "name": "Send Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        992,
+        16
+      ],
+      "webhookId": "2eb01839-6c42-4450-ba1e-10ad7b685629",
+      "parameters": {
+        "text": "🚀 New Business Opportunity:\n{{$json.summary}}",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "additionalFields": {}
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6ebc86b2-3d30-4d8a-9e2c-381cbe448575",
+      "name": "Merge2",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -480,
+        16
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "bb6c1d61-4708-4884-9682-8d53a53237d6",
+      "name": "Product Hunt API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -832,
+        112
+      ],
+      "parameters": {
+        "url": "https://api.producthunt.com/v1/posts",
+        "options": {},
+        "authentication": "headerAuth"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "738ba4c9-f4d8-46fe-a374-eba81d171be1",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -32,
+        16
+      ],
+      "parameters": {
+        "text": "=You are an AI business opportunity filter.\n\nYou will receive a list of items about startups, companies, or business news. Each item may come from Google News, Crunchbase, Product Hunt, or Twitter.\n\n🎯 Your job is to:\n1. **Filter** → Only keep updates about:\n   - Funding rounds\n   - Product launches\n   - Company expansions\n   - Hiring announcements\n   Ignore random blogs, irrelevant tweets, or general news.\n\n2. **Summarize** each relevant update\n\n3. **Be concise** → No fluff, only key facts.\n\nData: {{ JSON.stringify($json, null, 2) }}",
+        "options": {
+          "systemMessage": "if you don't find any specific things set it to null from below\nyou required to output in this specific format\nif it's not related to interest then set everything to null\n\n{ \"interest\": \"Yes/No\", \n\"company\": \"Company name\",   \"event\": \"Type of event (Funding, Launch, Expansion, Hiring)\",   \"summary\": \"1-2 sentence summary of what happened\",   \"why_opportunity\": \"Explain why this is a business opportunity (e.g., they raised money, so they’ll need marketing/growth help)\",   \"source\": \"Which source it came from (Google News / Crunchbase / Product Hunt / Twitter)\",   \"link\": \"Original URL if available\" }"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "60665650-eadd-4c05-93d1-fef044099981",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        48,
+        240
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "credential-id",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "85c3195f-3184-41df-b3e9-6ac43c26293b",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        16
+      ],
+      "parameters": {
+        "jsCode": "// n8n Code Node (JavaScript)\nreturn items.map(item => {\n  let raw = item.json.output;\n\n  // 1. Remove ```json ``` or ``` wrappers if present\n  raw = raw.replace(/```json|```/g, \"\").trim();\n\n  let parsed;\n  try {\n    // 2. Parse the JSON string safely\n    parsed = JSON.parse(raw);\n  } catch (e) {\n    // If parsing fails, keep it null for debugging\n    parsed = { error: \"Invalid JSON\", raw };\n  }\n\n  return {\n    json: parsed\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4f6f4770-9fee-4379-a3d5-e17d4a0f9d2b",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        544,
+        16
+      ],
+      "parameters": {
+        "options": {
+          "ignoreCase": true
+        },
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "750ac883-6c29-4ffd-b784-54fdb807e0fd",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.interest }}",
+              "rightValue": "yes"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "04e73628-475b-4c00-91b7-809aaf63936a",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        768,
+        112
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b76c2b30-b238-4c59-b3dc-1abdffad21ee",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -832,
+        496
+      ],
+      "parameters": {
+        "url": "https://www.linkedin.com/oauth/v2/authorization",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f408f463-9942-405c-9efc-1d4fabab3b40",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1968,
+        -352
+      ],
+      "parameters": {
+        "width": 800,
+        "height": 448,
+        "content": "## Daily Business Opportunity Digest\n\n\n### How it works\n1. The workflow runs daily to gather business news from Google News, Crunchbase, Product Hunt, and Twitter.\n2. A Function node merges and normalizes the data from all sources into a consistent format.\n3. An AI model (Google Gemini) analyzes the collected information, filtering for key business events like funding rounds, product launches, company expansions, or hiring announcements.\n4. For identified opportunities, the AI generates a concise summary, and the workflow attempts to enrich the contact data.\n5. Finally, relevant opportunities are saved to a Google Sheet and an alert is sent via Telegram.\n\n\n### Setup\n- [ ] Connect your Google Gemini (PaLM) account.\n- [ ] Add API keys for Google News, Twitter, and Product Hunt to their respective HTTP Request nodes.\n- [ ] Connect your Google Sheets account and specify the 'Sheet ID' and 'Range'.\n- [ ] Connect your Telegram account and set the 'Chat ID'.\n- [ ] (Optional) Review and update the 'Enrich Contacts' API URL for your specific enrichment service.\n- [ ] Set your desired schedule in the 'Daily Trigger' node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa781ff4-a7b4-4f33-ad87-aad46511f6b2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -304
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 512,
+        "height": 960,
+        "content": "## Gather Info"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b4119150-2669-4b34-882b-46e07717291e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 960,
+        "height": 464,
+        "content": "## Find opportunities"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f30ffc63-6da4-491a-9dbb-cf6015b8debd",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        496,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 704,
+        "height": 512,
+        "content": "## enrich data and log opportunity"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {
+    "Twitter API": [
+      {
+        "data": [
+          {
+            "id": "1875478392019384320",
+            "text": "Excited to share updates about the new X API improvements rolling out this week 🚀 Developers can now access more powerful endpoints. Docs 👉 https://x.dev/api/v2",
+            "username": "elonmusk",
+            "author_id": "44196397",
+            "created_at": "2025-08-20T14:12:30.000Z"
+          },
+          {
+            "id": "1874332184729036801",
+            "text": "Reminder: The X API v2 Sandbox will undergo maintenance on Aug 25th at 02:00 UTC. Expect downtime of ~30 minutes. #DevNotice",
+            "username": "XDevelopers",
+            "author_id": "2244994945",
+            "created_at": "2025-08-18T09:45:12.000Z"
+          }
+        ],
+        "meta": {
+          "newest_id": "1875478392019384320",
+          "oldest_id": "1874332184729036801",
+          "next_token": "b26v89c19zqg8o3fosdf8234jhs",
+          "result_count": 2,
+          "previous_token": "b26v89c19zqg8o3fosdf8234jhp"
+        },
+        "errors": [
+          {
+            "type": "https://api.x.com/errors/not-found",
+            "title": "Not Found Error",
+            "detail": "The requested tweet ID could not be found.",
+            "status": 404
+          }
+        ],
+        "includes": {
+          "media": [
+            {
+              "url": "https://pbs.twimg.com/media/F9lKxAAXMAEn1Jt.jpg",
+              "type": "photo",
+              "width": 1920,
+              "height": 1080,
+              "media_key": "3_1875478398871244800"
+            }
+          ],
+          "polls": [
+            {
+              "id": "1875478398829000704",
+              "options": [
+                {
+                  "label": "Yes 🚀",
+                  "votes": 452,
+                  "position": 1
+                },
+                {
+                  "label": "Not Yet 🤔",
+                  "votes": 128,
+                  "position": 2
+                }
+              ],
+              "end_datetime": "2025-08-29T12:00:00Z",
+              "voting_status": "open",
+              "duration_minutes": 1440
+            }
+          ],
+          "users": [
+            {
+              "id": "44196397",
+              "name": "Elon Musk",
+              "username": "elonmusk",
+              "protected": false,
+              "created_at": "2009-06-02T20:12:29Z"
+            },
+            {
+              "id": "2244994945",
+              "name": "X Developers",
+              "username": "XDevelopers",
+              "protected": false,
+              "created_at": "2013-12-14T04:35:55Z"
+            }
+          ],
+          "places": [
+            {
+              "id": "f7eb2fa2fea288b1",
+              "geo": {
+                "bbox": [
+                  -123.173825,
+                  37.63983,
+                  -122.28178,
+                  37.929824
+                ],
+                "type": "Feature",
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    -122.4194,
+                    37.7749
+                  ]
+                },
+                "properties": {}
+              },
+              "name": "San Francisco",
+              "country": "United States",
+              "full_name": "San Francisco, CA",
+              "place_type": "city",
+              "country_code": "US",
+              "contained_within": [
+                "f7eb2fa2fea288b1"
+              ]
+            }
+          ],
+          "topics": [
+            {
+              "id": "1234567890",
+              "name": "SpaceX",
+              "description": "All things related to space exploration and technology"
+            },
+            {
+              "id": "9876543210",
+              "name": "X API",
+              "description": "Updates and features for developers building on the X API"
+            }
+          ],
+          "tweets": [
+            {
+              "id": "1875478392019384320",
+              "text": "Excited to share updates about the new X API improvements rolling out this week 🚀 Developers can now access more powerful endpoints. Docs 👉 https://x.dev/api/v2",
+              "username": "elonmusk",
+              "author_id": "44196397",
+              "created_at": "2025-08-20T14:12:30.000Z"
+            }
+          ]
+        }
+      }
+    ],
+    "Crunchbase RSS": [
+      {
+        "entities": [
+          {
+            "facet_ids": [
+              "company",
+              "funding_round"
+            ],
+            "identifier": {
+              "uuid": "b2a7d940-7b5a-4d64-bf0e-3c6d8e1f1111",
+              "value": "OpenAI",
+              "image_id": "openai-logo",
+              "permalink": "openai",
+              "entity_def_id": "organization"
+            },
+            "short_description": "OpenAI raised $10B in funding from Microsoft to accelerate AGI development."
+          },
+          {
+            "facet_ids": [
+              "company",
+              "funding_round"
+            ],
+            "identifier": {
+              "uuid": "9c3e1a24-1b87-4b1a-8c6e-2c76c5c22222",
+              "value": "Stripe",
+              "image_id": "stripe-logo",
+              "permalink": "stripe",
+              "entity_def_id": "organization"
+            },
+            "short_description": "Stripe closed a $6.5B funding round at a $50B valuation."
+          },
+          {
+            "facet_ids": [
+              "company",
+              "acquisition"
+            ],
+            "identifier": {
+              "uuid": "5d72b214-71ce-4f18-b890-1c2d44f33333",
+              "value": "Figma",
+              "image_id": "figma-logo",
+              "permalink": "figma",
+              "entity_def_id": "organization"
+            },
+            "short_description": "Figma was acquired by Adobe in a $20B deal."
+          },
+          {
+            "facet_ids": [
+              "company",
+              "funding_round"
+            ],
+            "identifier": {
+              "uuid": "1e2a3b4c-5678-4def-9101-234567444444",
+              "value": "Databricks",
+              "image_id": "databricks-logo",
+              "permalink": "databricks",
+              "entity_def_id": "organization"
+            },
+            "short_description": "Databricks raised $500M at a $43B valuation led by T. Rowe Price."
+          },
+          {
+            "facet_ids": [
+              "company",
+              "acquisition"
+            ],
+            "identifier": {
+              "uuid": "abcd1234-ef56-7890-ab12-cd3455555555",
+              "value": "Slack",
+              "image_id": "slack-logo",
+              "permalink": "slack",
+              "entity_def_id": "organization"
+            },
+            "short_description": "Slack was acquired by Salesforce in a $27.7B deal."
+          },
+          {
+            "facet_ids": [
+              "company",
+              "funding_round"
+            ],
+            "identifier": {
+              "uuid": "12345678-90ab-cdef-1234-567890666666",
+              "value": "Airbnb",
+              "image_id": "airbnb-logo",
+              "permalink": "airbnb",
+              "entity_def_id": "organization"
+            },
+            "short_description": "Airbnb raised $1B funding from Silver Lake and Sixth Street Partners."
+          }
+        ]
+      }
+    ],
+    "Product Hunt API": [
+      {
+        "data": {
+          "posts": {
+            "edges": [
+              {
+                "node": {
+                  "id": "post-001",
+                  "name": "Notion AI",
+                  "makers": [
+                    {
+                      "id": "user-101",
+                      "name": "Ivan Zhao",
+                      "username": "ivanzhao"
+                    }
+                  ],
+                  "topics": [
+                    {
+                      "id": "topic-01",
+                      "name": "Productivity"
+                    },
+                    {
+                      "id": "topic-02",
+                      "name": "Artificial Intelligence"
+                    }
+                  ],
+                  "tagline": "AI-powered writing assistant inside Notion",
+                  "website": "https://www.notion.so/product/ai",
+                  "createdAt": "2023-02-15T10:45:00Z",
+                  "votesCount": 4521,
+                  "commentsCount": 310
+                }
+              },
+              {
+                "node": {
+                  "id": "post-002",
+                  "name": "Linear",
+                  "makers": [
+                    {
+                      "id": "user-102",
+                      "name": "Karri Saarinen",
+                      "username": "karri"
+                    }
+                  ],
+                  "topics": [
+                    {
+                      "id": "topic-03",
+                      "name": "Project Management"
+                    }
+                  ],
+                  "tagline": "The issue tracking tool for high-performance teams",
+                  "website": "https://linear.app",
+                  "createdAt": "2023-03-10T09:20:00Z",
+                  "votesCount": 2987,
+                  "commentsCount": 185
+                }
+              },
+              {
+                "node": {
+                  "id": "post-003",
+                  "name": "Midjourney",
+                  "makers": [
+                    {
+                      "id": "user-103",
+                      "name": "David Holz",
+                      "username": "davidholz"
+                    }
+                  ],
+                  "topics": [
+                    {
+                      "id": "topic-04",
+                      "name": "Artificial Intelligence"
+                    },
+                    {
+                      "id": "topic-05",
+                      "name": "Design Tools"
+                    }
+                  ],
+                  "tagline": "AI that generates images from text prompts",
+                  "website": "https://midjourney.com",
+                  "createdAt": "2023-01-25T16:30:00Z",
+                  "votesCount": 6230,
+                  "commentsCount": 512
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Enrich Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Merge Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google News": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twitter API": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google News",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Crunchbase RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Twitter API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Product Hunt API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Sources": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crunchbase RSS": {
+      "main": [
+        []
+      ]
+    },
+    "Enrich Contacts": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product Hunt API": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# pricing : 9
+# pricing : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |8992|[8992_Daily_ETH_Wallet_Monitoring_with_Etherscan__CoinGecko_Pricing___Discord_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8992_Daily_ETH_Wallet_Monitoring_with_Etherscan__CoinGecko_Pricing___Discord_Alerts.json)|
 |12246|[12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json)|
 |12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|
+|13379|[13379_Track_competitor_pricing_and_features_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13379_Track_competitor_pricing_and_features_with_BrowserAct_and_Google_Sheets.json)|
+|13588|[13588_Prioritize_Amazon_competitor_gaps_using_Bright_Data_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13588_Prioritize_Amazon_competitor_gaps_using_Bright_Data_and_Google_Sheets.json)|

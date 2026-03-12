@@ -1,4 +1,4 @@
-# personalized : 149
+# personalized : 152
 
 |id|file|
 |----|----|
@@ -151,3 +151,6 @@
 |12982|[12982_Send_personalized_emails_from_Google_Sheets_via_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12982_Send_personalized_emails_from_Google_Sheets_via_SMTP.json)|
 |13077|[13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13077_Send_personalized_job_application_emails_with_Telegram__OpenAI__and_Gmail.json)|
 |13172|[13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13172_Send_AI-personalized_LinkedIn_outreach_from_Google_Sheets_with_Azure_OpenAI_and_ConnectSafely.json)|
+|13731|[13731_Send_a_personalized_WhatsApp_morning_brief_with_GPT-4o__Google_and_WATI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13731_Send_a_personalized_WhatsApp_morning_brief_with_GPT-4o__Google_and_WATI.json)|
+|13859|[13859_Create_personalized_images_from_Google_Sheets_data_with_Layerre.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13859_Create_personalized_images_from_Google_Sheets_data_with_Layerre.json)|
+|13861|[13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json)|

@@ -1,4 +1,4 @@
-# label : 16
+# label : 19
 
 |id|file|
 |----|----|
@@ -18,3 +18,6 @@
 |11967|[11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json)|
 |12826|[12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12826_Label_Gmail_inbox_emails_with_GPT-4o_and_store_them_in_Mem0.json)|
 |13221|[13221_Categorise_and_label_Gmail_emails_with_GPT-4o_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13221_Categorise_and_label_Gmail_emails_with_GPT-4o_and_OpenAI.json)|
+|13463|[13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json)|
+|13874|[13874_Triage_GitHub_issues_with_Gemini_AI__auto-label_them__and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13874_Triage_GitHub_issues_with_Gemini_AI__auto-label_them__and_send_Slack_alerts.json)|
+|13903|[13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json)|

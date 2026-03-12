@@ -1,4 +1,4 @@
-# http : 29
+# http : 30
 
 |id|file|
 |----|----|
@@ -31,3 +31,4 @@
 |12279|[12279_Score_telematics_driving_risk_with_Claude_and_adjust_insurance_premiums_via_HTTP__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12279_Score_telematics_driving_risk_with_Claude_and_adjust_insurance_premiums_via_HTTP__Gmail__and_Slack.json)|
 |13186|[13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json)|
 |13272|[13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json)|
+|13808|[13808_Summarize_daily_Jenkins_test_runs_with_Google_Sheets__HTTP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13808_Summarize_daily_Jenkins_test_runs_with_Google_Sheets__HTTP_and_Gemini_AI.json)|

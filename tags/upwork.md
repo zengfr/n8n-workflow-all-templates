@@ -1,4 +1,4 @@
-# upwork : 22
+# upwork : 23
 
 |id|file|
 |----|----|
@@ -24,3 +24,4 @@
 |11965|[11965_Create_personalized_Loom_video_scripts_from_Upwork_jobs_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11965_Create_personalized_Loom_video_scripts_from_Upwork_jobs_with_Claude_AI.json)|
 |12179|[12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json)|
 |12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|
+|13870|[13870_Generate_Upwork_proposals_with_GPT-4o-mini__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13870_Generate_Upwork_proposals_with_GPT-4o-mini__Airtable_and_Slack.json)|

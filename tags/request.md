@@ -1,4 +1,4 @@
-# request : 39
+# request : 40
 
 |id|file|
 |----|----|
@@ -41,3 +41,4 @@
 |11967|[11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11967_Review_GitHub_pull_requests_and_label_them_using_OpenAI_GPT-4o-mini_and_Slack.json)|
 |12638|[12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json)|
 |12687|[12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12687_Escalate_unresolved_maintenance_requests_with_GPT-4o__Google_Sheets_and_Slack.json)|
+|13347|[13347_Enrich_chatbot_and_demo_request_leads_with_Lusha__HubSpot__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13347_Enrich_chatbot_and_demo_request_leads_with_Lusha__HubSpot__and_Slack.json)|

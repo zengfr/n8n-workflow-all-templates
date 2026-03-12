@@ -1,4 +1,4 @@
-# orchestrate : 10
+# orchestrate : 15
 
 |id|file|
 |----|----|
@@ -12,3 +12,8 @@
 |13157|[13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13157_Validate_policy_compliance_and_orchestrate_approvals_with_GPT-4o_and_Slack.json)|
 |13308|[13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json)|
 |13316|[13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json)|
+|13338|[13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json)|
+|13352|[13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json)|
+|13426|[13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json)|
+|13453|[13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json)|
+|13592|[13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json)|

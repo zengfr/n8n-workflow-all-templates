@@ -1,4 +1,4 @@
-# query : 40
+# query : 41
 
 |id|file|
 |----|----|
@@ -42,3 +42,4 @@
 |11234|[11234_Simple_Scheduling_and_Internal_Document_Query_Bot_with_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11234_Simple_Scheduling_and_Internal_Document_Query_Bot_with_Telegram.json)|
 |11580|[11580_Automated_Customer_Support_System_with_Gemini_AI__RAG___Security_Guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11580_Automated_Customer_Support_System_with_Gemini_AI__RAG___Security_Guardrails.json)|
 |13038|[13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json)|
+|13458|[13458_Query_Airtable_data_from_ChatGPT_using_an_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13458_Query_Airtable_data_from_ChatGPT_using_an_MCP_server.json)|

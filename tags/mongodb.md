@@ -1,4 +1,4 @@
-# mongodb : 22
+# mongodb : 23
 
 |id|file|
 |----|----|
@@ -24,3 +24,4 @@
 |11634|[11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json)|
 |12338|[12338_Migrate_large_Hugging_Face_datasets_to_MongoDB_with_a_looping_subworkflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12338_Migrate_large_Hugging_Face_datasets_to_MongoDB_with_a_looping_subworkflow.json)|
 |12760|[12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json)|
+|13782|[13782_Generate_LinkedIn_posts_using_Google_Gemini__MongoDB_Atlas__Google_Drive_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13782_Generate_LinkedIn_posts_using_Google_Gemini__MongoDB_Atlas__Google_Drive_and_Sheets.json)|

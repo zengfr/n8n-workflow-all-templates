@@ -1,4 +1,4 @@
-# shopping : 8
+# shopping : 12
 
 |id|file|
 |----|----|
@@ -10,3 +10,7 @@
 |10060|[10060_Google_Shopping_Feed_Optimization_with_Channable__Relevance_AI___Merchant_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10060_Google_Shopping_Feed_Optimization_with_Channable__Relevance_AI___Merchant_API.json)|
 |10805|[10805_AI-Powered_Amazon_Product_Recommendations_via_Telegram_with_Gemini_2.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10805_AI-Powered_Amazon_Product_Recommendations_via_Telegram_with_Gemini_2.5.json)|
 |11001|[11001_AI-Powered_Amazon_Product_Recommendations_with_Gemini_2.5_Flash_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11001_AI-Powered_Amazon_Product_Recommendations_with_Gemini_2.5_Flash_via_Telegram.json)|
+|13506|[13506_Build_a_WhatsApp_AI_shopping_bot_with_virtual_try-on_using_Gemini_and_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13506_Build_a_WhatsApp_AI_shopping_bot_with_virtual_try-on_using_Gemini_and_GPT.json)|
+|13722|[13722_Turn_WhatsApp_into_an_AI_shopping_and_price_comparison_assistant_using_Wati__OpenAI__Serper__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13722_Turn_WhatsApp_into_an_AI_shopping_and_price_comparison_assistant_using_Wati__OpenAI__Serper__and_Google_Sheets.json)|
+|13815|[13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json)|
+|13836|[13836_Monitor_competitor_prices_with_Google_Shopping_and_Google_Sheets__alert_via_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13836_Monitor_competitor_prices_with_Google_Shopping_and_Google_Sheets__alert_via_Slack_and_Gmail.json)|

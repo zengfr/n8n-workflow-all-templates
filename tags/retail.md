@@ -1,4 +1,4 @@
-# retail : 6
+# retail : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |12872|[12872_Send_new_WooCommerce_product_notifications_to_Slack__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12872_Send_new_WooCommerce_product_notifications_to_Slack__Gmail_and_Google_Sheets.json)|
 |12902|[12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json)|
 |13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|
+|13829|[13829_Sync_Shopify_and_WooCommerce_sales_into_a_Google_Sheets_accounting_ledger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13829_Sync_Shopify_and_WooCommerce_sales_into_a_Google_Sheets_accounting_ledger.json)|

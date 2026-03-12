@@ -1,4 +1,4 @@
-# creators : 15
+# creators : 18
 
 |id|file|
 |----|----|
@@ -17,3 +17,6 @@
 |8629|[8629_Automated_Instagram_Commenting_on_Selected_Profiles_with_GPT-4o_and_Phantombuster.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8629_Automated_Instagram_Commenting_on_Selected_Profiles_with_GPT-4o_and_Phantombuster.json)|
 |8630|[8630_Auto-like_Tweets_from_Selected_Profiles_with_Phantombuster___SharePoint_AI_Rotation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8630_Auto-like_Tweets_from_Selected_Profiles_with_Phantombuster___SharePoint_AI_Rotation.json)|
 |13227|[13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json)|
+|13336|[13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json)|
+|13495|[13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json)|
+|13496|[13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json)|

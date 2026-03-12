@@ -1,4 +1,4 @@
-# summarized : 6
+# summarized : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |7622|[7622_Send_AI-Summarized_Unread_Email_Alerts_to_Slack_using_GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7622_Send_AI-Summarized_Unread_Email_Alerts_to_Slack_using_GPT-4o_and_Gmail.json)|
 |9752|[9752_Generate_Invoices_and_Send_AI-Summarized_Reminders_with_Jotform_and_QuickBooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9752_Generate_Invoices_and_Send_AI-Summarized_Reminders_with_Jotform_and_QuickBooks.json)|
 |12664|[12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json)|
+|13404|[13404_Send_weekly_AI_summaries_of_Google_Sheets_data_via_Gmail_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13404_Send_weekly_AI_summaries_of_Google_Sheets_data_via_Gmail_using_OpenAI.json)|

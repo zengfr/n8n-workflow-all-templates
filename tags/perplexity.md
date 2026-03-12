@@ -1,4 +1,4 @@
-# perplexity : 91
+# perplexity : 94
 
 |id|file|
 |----|----|
@@ -93,3 +93,6 @@
 |12703|[12703_Create_a_daily_AI___automation_content_digest_from_YouTube__Reddit__X_and_Perplexity_with_OpenAI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12703_Create_a_daily_AI___automation_content_digest_from_YouTube__Reddit__X_and_Perplexity_with_OpenAI_and_Airtable.json)|
 |13042|[13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13042_Create_WordPress_posts_from_Reddit_content_via_Telegram_bot_and_Perplexity.json)|
 |13249|[13249_Analyze_website_page_gaps_with_GPT-4.1-mini__Perplexity__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13249_Analyze_website_page_gaps_with_GPT-4.1-mini__Perplexity__and_Google_Docs.json)|
+|13378|[13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json)|
+|13449|[13449_Track_AI_search_visibility_across_ChatGPT__Claude__DeepSeek_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13449_Track_AI_search_visibility_across_ChatGPT__Claude__DeepSeek_and_Perplexity.json)|
+|13908|[13908_Generate_AI_market_research_reports_with_Perplexity__Claude__Google_Trends__and_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13908_Generate_AI_market_research_reports_with_Perplexity__Claude__Google_Trends__and_Autype.json)|

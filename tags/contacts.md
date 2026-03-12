@@ -1,4 +1,4 @@
-# contacts : 80
+# contacts : 91
 
 |id|file|
 |----|----|
@@ -82,3 +82,14 @@
 |13233|[13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json)|
 |13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|
 |13324|[13324_Sync_Gmail_sent_email_contacts_with_Odoo_mailing_lists.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13324_Sync_Gmail_sent_email_contacts_with_Odoo_mailing_lists.json)|
+|13344|[13344_Enrich_new_HubSpot_contacts_with_Lusha_and_alert_reps_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13344_Enrich_new_HubSpot_contacts_with_Lusha_and_alert_reps_in_Slack.json)|
+|13346|[13346_Enrich_HubSpot_sales_sequence_contacts_with_Lusha_and_route_to_outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13346_Enrich_HubSpot_sales_sequence_contacts_with_Lusha_and_route_to_outreach.json)|
+|13350|[13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json)|
+|13456|[13456_Send_a_daily_email_summary_of_new_Airtable_contacts_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13456_Send_a_daily_email_summary_of_new_Airtable_contacts_via_Gmail.json)|
+|13460|[13460_Sync_leads_between_Google_Sheets_and_HubSpot_contacts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13460_Sync_leads_between_Google_Sheets_and_HubSpot_contacts.json)|
+|13461|[13461_Search_and_update_HubSpot_contacts_with_GPT-5.2_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13461_Search_and_update_HubSpot_contacts_with_GPT-5.2_AI_assistant.json)|
+|13474|[13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json)|
+|13621|[13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json)|
+|13647|[13647_Extract_LinkedIn_search_results_into_a_Google_Sheet_with_SourceGeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13647_Extract_LinkedIn_search_results_into_a_Google_Sheet_with_SourceGeek.json)|
+|13721|[13721_Create_WordPress_users_from_KlickTipp_and_tag_contacts_based_on_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13721_Create_WordPress_users_from_KlickTipp_and_tag_contacts_based_on_comments.json)|
+|13831|[13831_Match_Zoho_CRM_contacts_to_buyer_personas_using_LinkedIn__Phantombuster_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13831_Match_Zoho_CRM_contacts_to_buyer_personas_using_LinkedIn__Phantombuster_and_OpenAI.json)|

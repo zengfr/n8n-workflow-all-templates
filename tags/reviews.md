@@ -1,4 +1,4 @@
-# reviews : 44
+# reviews : 47
 
 |id|file|
 |----|----|
@@ -46,3 +46,6 @@
 |12654|[12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json)|
 |12827|[12827_Automate_systematic_literature_reviews_with_Google_Drive__GPT-4__Gemini__Qdrant_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12827_Automate_systematic_literature_reviews_with_Google_Drive__GPT-4__Gemini__Qdrant_and_Airtable.json)|
 |13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|
+|13562|[13562_Monitor_Google_reviews_and_draft_AI_responses_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13562_Monitor_Google_reviews_and_draft_AI_responses_with_Gemini_and_Slack.json)|
+|13573|[13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json)|
+|13819|[13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json)|

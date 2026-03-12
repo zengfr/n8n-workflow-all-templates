@@ -1,4 +1,4 @@
-# documents : 78
+# documents : 84
 
 |id|file|
 |----|----|
@@ -80,3 +80,9 @@
 |12799|[12799_Generate_AI_SOPs_from_Google_Drive_with_GPT_4o__Google_Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12799_Generate_AI_SOPs_from_Google_Drive_with_GPT_4o__Google_Docs_and_Sheets.json)|
 |12848|[12848_Facebook_Messenger_Chatbot_That_Learns_From_Your_Documents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12848_Facebook_Messenger_Chatbot_That_Learns_From_Your_Documents.json)|
 |13147|[13147_Chat_with_Google_Drive_documents_using_Pinecone_and_OpenAI_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13147_Chat_with_Google_Drive_documents_using_Pinecone_and_OpenAI_RAG.json)|
+|13387|[13387_Qualify_mortgage_leads_and_collect_documents_with_Gemini__Gmail__Drive__Telegram__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13387_Qualify_mortgage_leads_and_collect_documents_with_Gemini__Gmail__Drive__Telegram__and_Supabase.json)|
+|13544|[13544_Archive_HR_and_legal_documents_with_UploadToURL__Google_Drive_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13544_Archive_HR_and_legal_documents_with_UploadToURL__Google_Drive_and_Airtable.json)|
+|13575|[13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json)|
+|13688|[13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json)|
+|13691|[13691_Validate_customs_clearance_documents_with_Claude_AI__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13691_Validate_customs_clearance_documents_with_Claude_AI__Google_Drive_and_Slack.json)|
+|13784|[13784_Generate_documents_from_saved_templates_and_variables_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13784_Generate_documents_from_saved_templates_and_variables_using_Autype.json)|

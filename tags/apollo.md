@@ -1,4 +1,4 @@
-# apollo : 32
+# apollo : 34
 
 |id|file|
 |----|----|
@@ -34,3 +34,5 @@
 |11647|[11647_Automated_LinkedIn_Lead_Generation___AI_Personalized_Outreach_with_Apollo___Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11647_Automated_LinkedIn_Lead_Generation___AI_Personalized_Outreach_with_Apollo___Instantly.json)|
 |12710|[12710_Enrich_B2B_leads_for_Attio_CRM_with_Apollo__LinkedIn__news_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12710_Enrich_B2B_leads_for_Attio_CRM_with_Apollo__LinkedIn__news_and_GPT-4o.json)|
 |13170|[13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json)|
+|13793|[13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json)|
+|13856|[13856_Scrape_Apollo.io_leads_and_sync_them_to_Google_Sheets_with_ScraperCity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13856_Scrape_Apollo.io_leads_and_sync_them_to_Google_Sheets_with_ScraperCity.json)|

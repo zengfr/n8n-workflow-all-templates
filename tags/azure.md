@@ -1,4 +1,4 @@
-# azure : 46
+# azure : 54
 
 |id|file|
 |----|----|
@@ -48,3 +48,11 @@
 |13178|[13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json)|
 |13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|
 |13264|[13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json)|
+|13518|[13518_Re-engage_HubSpot_leads_using_Azure_OpenAI_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13518_Re-engage_HubSpot_leads_using_Azure_OpenAI_GPT-4o__Gmail_and_Slack.json)|
+|13519|[13519_Get_AI_meeting_briefs_from_Google_Calendar_with_SerpAPI__Azure_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13519_Get_AI_meeting_briefs_from_Google_Calendar_with_SerpAPI__Azure_OpenAI_and_Slack.json)|
+|13520|[13520_Automate_patient_intake_and_AI_risk_triage_with_Azure_OpenAI__Google__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13520_Automate_patient_intake_and_AI_risk_triage_with_Azure_OpenAI__Google__and_Slack.json)|
+|13787|[13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json)|
+|13788|[13788_Optimize_n8n_workflow_JSON_using_Azure_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13788_Optimize_n8n_workflow_JSON_using_Azure_OpenAI_GPT-4o-mini.json)|
+|13791|[13791_Auto-heal_failing_workflows_with_Azure_OpenAI__n8n_API__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13791_Auto-heal_failing_workflows_with_Azure_OpenAI__n8n_API__and_Slack_alerts.json)|
+|13792|[13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json)|
+|13794|[13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json)|

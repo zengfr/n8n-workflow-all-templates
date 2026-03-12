@@ -1,4 +1,4 @@
-# urls : 40
+# urls : 42
 
 |id|file|
 |----|----|
@@ -42,3 +42,5 @@
 |12132|[12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12132_Extract_website_intelligence___classify_ecommerce_URLs_with_Gemini___Firecrawl_to_Google_Sheets.json)|
 |12846|[12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json)|
 |13090|[13090_Enrich_lead_profiles_from_LinkedIn_URLs_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13090_Enrich_lead_profiles_from_LinkedIn_URLs_with_Apify_and_Google_Sheets.json)|
+|13376|[13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json)|
+|13800|[13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json)|

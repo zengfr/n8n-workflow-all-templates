@@ -1,4 +1,4 @@
-# reels : 29
+# reels : 30
 
 |id|file|
 |----|----|
@@ -31,3 +31,4 @@
 |12773|[12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json)|
 |13110|[13110_Generate_daily_AI_reels_from_Google_Drive_images_with_GPT_5.1__Wavespeed_and_Submagic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13110_Generate_daily_AI_reels_from_Google_Drive_images_with_GPT_5.1__Wavespeed_and_Submagic.json)|
 |13149|[13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13149_Generate_and_publish_Instagram_Reels_with_Gemini_and_Veo.json)|
+|13759|[13759_Upload_Instagram_Reels_from_Google_Sheets_with_DeepSeek_AI_captions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13759_Upload_Instagram_Reels_from_Google_Sheets_with_DeepSeek_AI_captions.json)|

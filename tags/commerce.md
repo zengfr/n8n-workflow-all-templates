@@ -1,4 +1,4 @@
-# commerce : 32
+# commerce : 36
 
 |id|file|
 |----|----|
@@ -34,3 +34,7 @@
 |12645|[12645_Generate_scalable_e-commerce_product_images_with_GPT-4_and_NanoBanana_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12645_Generate_scalable_e-commerce_product_images_with_GPT-4_and_NanoBanana_Pro.json)|
 |12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|
 |13197|[13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json)|
+|13541|[13541_Create_e-commerce_listings_from_images_with_UploadToURL__GPT-4o__Shopify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13541_Create_e-commerce_listings_from_images_with_UploadToURL__GPT-4o__Shopify.json)|
+|13594|[13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json)|
+|13673|[13673_Generate_e-commerce_product_descriptions_from_a_form_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13673_Generate_e-commerce_product_descriptions_from_a_form_with_Google_Gemini.json)|
+|13704|[13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json)|

@@ -1,4 +1,4 @@
-# form : 116
+# form : 125
 
 |id|file|
 |----|----|
@@ -118,3 +118,12 @@
 |12866|[12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12866_Generate_long-form_SEO_articles_from_news_with_LINE_approvals_and_Google_Docs.json)|
 |13008|[13008_Vet_new_Form.io_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13008_Vet_new_Form.io_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Pipedrive.json)|
 |13089|[13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json)|
+|13342|[13342_Enrich_new_form_leads_with_Lusha__HubSpot__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13342_Enrich_new_form_leads_with_Lusha__HubSpot__and_Slack_alerts.json)|
+|13343|[13343_Enrich_form_leads_with_Lusha__waterfall_enrichment__HubSpot__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13343_Enrich_form_leads_with_Lusha__waterfall_enrichment__HubSpot__and_Slack.json)|
+|13480|[13480_Send_WhatsApp_follow-up_when_a_new_lead_submits_a_form_with_MoltFlow_and_log_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13480_Send_WhatsApp_follow-up_when_a_new_lead_submits_a_form_with_MoltFlow_and_log_to_Sheets.json)|
+|13555|[13555_Gamify_Keephub_form_response_times_and_email_a_ranked_leaderboard_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13555_Gamify_Keephub_form_response_times_and_email_a_ranked_leaderboard_via_Gmail.json)|
+|13574|[13574_Log_workouts_and_get_AI_fitness_analysis_with_a_form__Google_Gemini__Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13574_Log_workouts_and_get_AI_fitness_analysis_with_a_form__Google_Gemini__Sheets__Slack__and_Gmail.json)|
+|13671|[13671_Review_PDF_contract_risks_with_a_form__Google_Gemini__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13671_Review_PDF_contract_risks_with_a_form__Google_Gemini__Sheets__and_Slack.json)|
+|13673|[13673_Generate_e-commerce_product_descriptions_from_a_form_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13673_Generate_e-commerce_product_descriptions_from_a_form_with_Google_Gemini.json)|
+|13763|[13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json)|
+|13828|[13828_Create_manager_tasks_from_Keephub_form_submissions_with_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13828_Create_manager_tasks_from_Keephub_form_submissions_with_OpenAI_GPT-4.1.json)|

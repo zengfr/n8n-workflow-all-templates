@@ -1,4 +1,4 @@
-# discover : 27
+# discover : 30
 
 |id|file|
 |----|----|
@@ -29,3 +29,6 @@
 |12178|[12178_Discover_viral_social_media_trends_with_Gemini_Flash___Apify_scraping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12178_Discover_viral_social_media_trends_with_Gemini_Flash___Apify_scraping.json)|
 |12459|[12459_Discover_LinkedIn_leads_and_draft_outreach_using_Apify__Google_Sheets__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12459_Discover_LinkedIn_leads_and_draft_outreach_using_Apify__Google_Sheets__and_Gemini.json)|
 |12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|
+|13336|[13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json)|
+|13707|[13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json)|
+|13801|[13801_Discover_daily_business_opportunities_with_Google_Gemini__Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13801_Discover_daily_business_opportunities_with_Google_Gemini__Sheets_and_Telegram.json)|

@@ -1,4 +1,4 @@
-# customjs : 11
+# customjs : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |3873|[3873_Merge_Multiple_PDF_Files_with_CustomJS_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/38/3873_Merge_Multiple_PDF_Files_with_CustomJS_API.json)|
 |5203|[5203_Monitor_Competitor_SEO_Changes_with_CustomJS_Scraper__Google_Sheets___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/52/5203_Monitor_Competitor_SEO_Changes_with_CustomJS_Scraper__Google_Sheets___Slack_Alerts.json)|
 |9772|[9772_Automatic_Invoice_Generation_and_Email_with_Airtable_and_CustomJS_PDF_Generator.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9772_Automatic_Invoice_Generation_and_Email_with_Airtable_and_CustomJS_PDF_Generator.json)|
+|13545|[13545_Host_a_static_HTML_KPI_dashboard_from_Google_Sheets_with_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13545_Host_a_static_HTML_KPI_dashboard_from_Google_Sheets_with_CustomJS.json)|

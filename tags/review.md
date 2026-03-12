@@ -1,4 +1,4 @@
-# review : 71
+# review : 80
 
 |id|file|
 |----|----|
@@ -73,3 +73,12 @@
 |12929|[12929_Create_AI_product_review_videos_with_Gemini__Veo_3__Blotato_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12929_Create_AI_product_review_videos_with_Gemini__Veo_3__Blotato_and_Google_Sheets.json)|
 |13118|[13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json)|
 |13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|
+|13381|[13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json)|
+|13563|[13563_Review_GitHub_pull_requests_with_Gemini_and_post_feedback_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13563_Review_GitHub_pull_requests_with_Gemini_and_post_feedback_automatically.json)|
+|13573|[13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json)|
+|13587|[13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|
+|13652|[13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json)|
+|13671|[13671_Review_PDF_contract_risks_with_a_form__Google_Gemini__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13671_Review_PDF_contract_risks_with_a_form__Google_Gemini__Sheets__and_Slack.json)|
+|13712|[13712_Review_and_approve_Google_Sheets_orders_by_email_and_notify_via_LINE.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13712_Review_and_approve_Google_Sheets_orders_by_email_and_notify_via_LINE.json)|
+|13819|[13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json)|
+|13827|[13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json)|

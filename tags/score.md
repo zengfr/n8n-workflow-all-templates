@@ -1,4 +1,4 @@
-# score : 40
+# score : 49
 
 |id|file|
 |----|----|
@@ -42,3 +42,12 @@
 |13074|[13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13074_Capture_and_score_leads_with_SQL_Server_and_Slack_alerts.json)|
 |13116|[13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13116_Score_and_route_qualified_leads_to_Notion_and_Matrix.json)|
 |13185|[13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13185_Scrape_LinkedIn_comments_and_score_lead_intent_using_ConnectSafely__Azure_OpenAI__and_Google_Sheets.json)|
+|13348|[13348_Score_and_enrich_inbound_leads_with_Lusha__Slack__and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13348_Score_and_enrich_inbound_leads_with_Lusha__Slack__and_HubSpot.json)|
+|13421|[13421_Score_and_route_leads_with_Google_Gemini__Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13421_Score_and_route_leads_with_Google_Gemini__Sheets__Slack_and_Gmail.json)|
+|13522|[13522_Enrich_and_score_Japanese_B2B_leads_with_gBizINFO__web_scraping__and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13522_Enrich_and_score_Japanese_B2B_leads_with_gBizINFO__web_scraping__and_Gemini_AI.json)|
+|13523|[13523_Enrich_and_score_B2B_company_leads_with_Clearbit__Hunter.io__and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13523_Enrich_and_score_B2B_company_leads_with_Clearbit__Hunter.io__and_Gemini_AI.json)|
+|13644|[13644_Score_and_route_new_trial_leads_with_Firecrawl__Scrapin.io__OpenAI__Slack_and_Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13644_Score_and_route_new_trial_leads_with_Firecrawl__Scrapin.io__OpenAI__Slack_and_Instantly.json)|
+|13686|[13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json)|
+|13746|[13746_Qualify_and_score_leads_in_Airtable_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13746_Qualify_and_score_leads_in_Airtable_with_OpenAI_and_Slack_alerts.json)|
+|13763|[13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json)|
+|13765|[13765_Monitor_BOAMP_IT_tenders_and_score_them_with_GPT-4o_Mini_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13765_Monitor_BOAMP_IT_tenders_and_score_them_with_GPT-4o_Mini_to_Supabase.json)|

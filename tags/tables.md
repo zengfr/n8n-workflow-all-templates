@@ -1,4 +1,4 @@
-# tables : 22
+# tables : 24
 
 |id|file|
 |----|----|
@@ -24,3 +24,5 @@
 |12724|[12724_Automated_error_monitoring_and_reporting_system_using_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12724_Automated_error_monitoring_and_reporting_system_using_data_tables.json)|
 |12750|[12750_Warm_up_Gmail_inboxes_with_OpenAI_GPT-4o-mini_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12750_Warm_up_Gmail_inboxes_with_OpenAI_GPT-4o-mini_and_Data_Tables.json)|
 |13245|[13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json)|
+|13442|[13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json)|
+|13536|[13536_Design_scalable_sync_workflows_with_Data_Tables__ProspectPro_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13536_Design_scalable_sync_workflows_with_Data_Tables__ProspectPro_and_HubSpot.json)|

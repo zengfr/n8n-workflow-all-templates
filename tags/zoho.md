@@ -1,4 +1,4 @@
-# zoho : 29
+# zoho : 31
 
 |id|file|
 |----|----|
@@ -31,3 +31,5 @@
 |12679|[12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json)|
 |12876|[12876_Score_Zoho_support_tickets_with_OpenAI_and_sync_upsell_alerts_to_Zoho_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12876_Score_Zoho_support_tickets_with_OpenAI_and_sync_upsell_alerts_to_Zoho_CRM.json)|
 |13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|
+|13831|[13831_Match_Zoho_CRM_contacts_to_buyer_personas_using_LinkedIn__Phantombuster_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13831_Match_Zoho_CRM_contacts_to_buyer_personas_using_LinkedIn__Phantombuster_and_OpenAI.json)|
+|13845|[13845_Forward_Zoho_Mail_emails_to_Gmail_with_Gemini_AI_analysis_and_Telegram_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13845_Forward_Zoho_Mail_emails_to_Gmail_with_Gemini_AI_analysis_and_Telegram_digest.json)|

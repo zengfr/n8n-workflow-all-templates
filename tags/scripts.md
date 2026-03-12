@@ -1,4 +1,4 @@
-# scripts : 19
+# scripts : 20
 
 |id|file|
 |----|----|
@@ -21,3 +21,4 @@
 |12045|[12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12045_Transform_viral_Instagram_Reels_into_original_scripts_with_AI__Perplexity___Apify.json)|
 |12384|[12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json)|
 |12392|[12392_Create_YouTube_videos_with_OpenAI_scripts__ElevenLabs_voice__Pixabay_and_Shotstack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12392_Create_YouTube_videos_with_OpenAI_scripts__ElevenLabs_voice__Pixabay_and_Shotstack.json)|
+|13807|[13807_Generate_multi-scene_AI_videos_from_scripts_with_Claude__Stability_AI_and_Runway.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13807_Generate_multi-scene_AI_videos_from_scripts_with_Claude__Stability_AI_and_Runway.json)|

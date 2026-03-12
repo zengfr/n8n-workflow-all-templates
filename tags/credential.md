@@ -1,4 +1,4 @@
-# credential : 7
+# credential : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |6510|[6510_CYBERPULSE_AI_RedOps__Credential_Trap_Sim__Fake_Login_Page_Simulation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/65/6510_CYBERPULSE_AI_RedOps__Credential_Trap_Sim__Fake_Login_Page_Simulation.json)|
 |7028|[7028_INST_-_The_n8n_Installer__Deploy_Workflows_with_Automatic_Credential_Mapping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7028_INST_-_The_n8n_Installer__Deploy_Workflows_with_Automatic_Credential_Mapping.json)|
 |9154|[9154_Automated_Workflow___Credential_Restoration_System_for_Self-Hosted_Environments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9154_Automated_Workflow___Credential_Restoration_System_for_Self-Hosted_Environments.json)|
+|13331|[13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json)|

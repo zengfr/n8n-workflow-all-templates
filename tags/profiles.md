@@ -1,4 +1,4 @@
-# profiles : 38
+# profiles : 39
 
 |id|file|
 |----|----|
@@ -40,3 +40,4 @@
 |12345|[12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json)|
 |12507|[12507_Build_person_OSINT_profiles_using_Humantic_AI__Hunter__CourtListener_and_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12507_Build_person_OSINT_profiles_using_Humantic_AI__Hunter__CourtListener_and_GPT-5.json)|
 |13090|[13090_Enrich_lead_profiles_from_LinkedIn_URLs_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13090_Enrich_lead_profiles_from_LinkedIn_URLs_with_Apify_and_Google_Sheets.json)|
+|13793|[13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json)|

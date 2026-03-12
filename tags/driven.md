@@ -1,4 +1,4 @@
-# driven : 37
+# driven : 44
 
 |id|file|
 |----|----|
@@ -39,3 +39,10 @@
 |13156|[13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json)|
 |13318|[13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json)|
 |13319|[13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json)|
+|13330|[13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json)|
+|13352|[13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json)|
+|13428|[13428_Analyze_workforce_data_and_generate_planning_reports_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13428_Analyze_workforce_data_and_generate_planning_reports_with_GPT-4o.json)|
+|13432|[13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13432_Validate_academic_promotion_decisions_with_GPT-4o__policy_rules__and_Gmail.json)|
+|13447|[13447_Moderate_and_govern_user_content_with_OpenAI_GPT-4o__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13447_Moderate_and_govern_user_content_with_OpenAI_GPT-4o__Slack_and_Gmail.json)|
+|13451|[13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json)|
+|13528|[13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json)|

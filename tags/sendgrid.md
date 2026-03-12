@@ -1,4 +1,4 @@
-# sendgrid : 13
+# sendgrid : 17
 
 |id|file|
 |----|----|
@@ -15,3 +15,7 @@
 |12073|[12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12073_Healthcare_policy_monitoring_with_ScrapeGraphAI__Pipedrive_and_email_alerts.json)|
 |12460|[12460_Auto-reply_to_emails_using_Google_Gemini_AI_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12460_Auto-reply_to_emails_using_Google_Gemini_AI_and_SendGrid.json)|
 |12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|
+|13336|[13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13336_Discover_SaaS_creators_from_HubSpot_with_influencers.club_and_Gmail_SendGrid.json)|
+|13495|[13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json)|
+|13596|[13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json)|
+|13634|[13634_Share_time-limited_preview_links_with_UploadToURL__SendGrid__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13634_Share_time-limited_preview_links_with_UploadToURL__SendGrid__and_Google_Sheets.json)|

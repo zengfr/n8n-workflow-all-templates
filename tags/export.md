@@ -1,4 +1,4 @@
-# export : 67
+# export : 71
 
 |id|file|
 |----|----|
@@ -69,3 +69,7 @@
 |12084|[12084_Research_content_keywords_with_SE_Ranking_and_export_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12084_Research_content_keywords_with_SE_Ranking_and_export_to_Google_Sheets.json)|
 |12085|[12085_Monitor_backlink_profile_with_SE_Ranking_and_export_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12085_Monitor_backlink_profile_with_SE_Ranking_and_export_to_Google_Sheets.json)|
 |12293|[12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json)|
+|13452|[13452_Export_Glasp_highlights_to_Notion__Slack__Google_Sheets__or_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13452_Export_Glasp_highlights_to_Notion__Slack__Google_Sheets__or_webhooks.json)|
+|13512|[13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json)|
+|13713|[13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json)|
+|13797|[13797_Monitor_Realtor_listings_and_export_CSV_XLSX_with_MrScraper_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13797_Monitor_Realtor_listings_and_export_CSV_XLSX_with_MrScraper_and_Gmail.json)|

@@ -1,4 +1,4 @@
-# demand : 9
+# demand : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |12158|[12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json)|
 |12599|[12599_Analyze_market_demand_using_GPT-4o__XPOZ_MCP__Notion_and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12599_Analyze_market_demand_using_GPT-4o__XPOZ_MCP__Notion_and_email_reports.json)|
 |12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|
+|13899|[13899_Analyze_and_modernize_university_curricula_with_GPT-4o_and_employment_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13899_Analyze_and_modernize_university_curricula_with_GPT-4o_and_employment_data.json)|

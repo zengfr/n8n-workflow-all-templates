@@ -1,4 +1,4 @@
-# tags : 14
+# tags : 18
 
 |id|file|
 |----|----|
@@ -16,3 +16,7 @@
 |12425|[12425_Generate_highly_expressive_audio____using_ElevenLabs_v3_TTS_Audio_Tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12425_Generate_highly_expressive_audio____using_ElevenLabs_v3_TTS_Audio_Tags.json)|
 |13005|[13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13005_Sync_Note.com_articles_to_WordPress_with_OpenAI_categorization_and_tags.json)|
 |13127|[13127_Publish_WordPress_posts_from_Google_Sheets_with_images_and_tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13127_Publish_WordPress_posts_from_Google_Sheets_with_images_and_tags.json)|
+|13663|[13663_Update_KlickTipp_contact_tags_by_tag_names.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13663_Update_KlickTipp_contact_tags_by_tag_names.json)|
+|13664|[13664_Find_KlickTipp_tags_to_remove_by_prefix.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13664_Find_KlickTipp_tags_to_remove_by_prefix.json)|
+|13677|[13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json)|
+|13699|[13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json)|

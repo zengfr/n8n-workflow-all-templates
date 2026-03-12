@@ -1,4 +1,4 @@
-# optimize : 21
+# optimize : 25
 
 |id|file|
 |----|----|
@@ -23,3 +23,7 @@
 |12791|[12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12791_Forecast_demand__optimize_pricing__and_engage_customers_with_GPT_4.1__Postgres__email__and_Slack.json)|
 |12792|[12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json)|
 |13319|[13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json)|
+|13591|[13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json)|
+|13788|[13788_Optimize_n8n_workflow_JSON_using_Azure_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13788_Optimize_n8n_workflow_JSON_using_Azure_OpenAI_GPT-4o-mini.json)|
+|13827|[13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json)|
+|13909|[13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json)|

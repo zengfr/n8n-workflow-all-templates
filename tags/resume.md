@@ -1,4 +1,4 @@
-# resume : 44
+# resume : 45
 
 |id|file|
 |----|----|
@@ -46,3 +46,4 @@
 |11840|[11840_AI-Powered_Cover_Letter_Generator_with_Resume_Matching___Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11840_AI-Powered_Cover_Letter_Generator_with_Resume_Matching___Google_Docs.json)|
 |11912|[11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json)|
 |12014|[12014_Automate_job_search___resume_matching_with_LinkedIn__Gemini_AI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12014_Automate_job_search___resume_matching_with_LinkedIn__Gemini_AI___Google_Sheets.json)|
+|13507|[13507_Match_job_descriptions_with_resumes_using_Google_Gemini_and_log_scores_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13507_Match_job_descriptions_with_resumes_using_Google_Gemini_and_log_scores_to_Google_Sheets.json)|

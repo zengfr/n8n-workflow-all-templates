@@ -1,4 +1,4 @@
-# ups : 28
+# ups : 30
 
 |id|file|
 |----|----|
@@ -30,3 +30,5 @@
 |12746|[12746_Send_AI_pet_grooming_reminders_and_follow-ups_with_GPT-4o_mini__Twilio__email__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12746_Send_AI_pet_grooming_reminders_and_follow-ups_with_GPT-4o_mini__Twilio__email__Google_Sheets_and_Slack.json)|
 |12810|[12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12810_Send_cold_outreach_emails_and_follow-ups_with_Resend__Postgres_and_HubSpot.json)|
 |12985|[12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json)|
+|13466|[13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json)|
+|13723|[13723_Automate_WhatsApp_lead_follow-ups_and_nurturing_with_WATI__Airtable_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13723_Automate_WhatsApp_lead_follow-ups_and_nurturing_with_WATI__Airtable_and_OpenAI.json)|

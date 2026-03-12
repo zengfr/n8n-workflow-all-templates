@@ -1,4 +1,4 @@
-# hub : 26
+# hub : 27
 
 |id|file|
 |----|----|
@@ -28,3 +28,4 @@
 |11783|[11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json)|
 |12179|[12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12179_Score_Upwork_jobs_and_generate_proposals_with_Apify__GPT-4o__Google_Sheets_and_Telegram.json)|
 |13271|[13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json)|
+|13769|[13769_Check_workflow_templates_against_Creator_Hub_guidelines_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13769_Check_workflow_templates_against_Creator_Hub_guidelines_with_Gemini_and_Gmail.json)|

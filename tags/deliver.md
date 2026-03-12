@@ -1,4 +1,4 @@
-# deliver : 13
+# deliver : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |12660|[12660_Deliver_encrypted_payroll_PDFs_via_Google_Drive__Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12660_Deliver_encrypted_payroll_PDFs_via_Google_Drive__Sheets__Gmail_and_Slack.json)|
 |12684|[12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json)|
 |12731|[12731_Grade_and_deliver_multi-course_assignment_feedback_with_GPT-4o__Google_Drive__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12731_Grade_and_deliver_multi-course_assignment_feedback_with_GPT-4o__Google_Drive__Slack__and_Gmail.json)|
+|13527|[13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json)|

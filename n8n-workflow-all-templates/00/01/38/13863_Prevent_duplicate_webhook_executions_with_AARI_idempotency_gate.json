@@ -1,0 +1,316 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Prevent duplicate webhook executions with AARI idempotency gate",
+    "wechat": "youandme10086",
+    "id": 13863,
+    "update_time": "2026-03-12"
+  },
+  "name": "Prevent duplicate webhook executions in n8n",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "sticky-explain",
+      "name": "What this does",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 500,
+        "content": "## Prevent duplicate webhook executions\n\nMany webhook providers use at-least-once delivery.\nIf a webhook times out or fails, the same event may be sent again.\nFrom n8n's perspective it looks like a new trigger — the workflow executes twice.\n\nThis template adds an idempotency check before any side effect:\n• Stripe charge\n• Email send\n• Database insert\n• API call\n\nIf the same `idempotency_key` appears again within 24 hours,\nAARI returns `decision: BLOCK` and the workflow stops.\n\n────────────────────────────\nFingerprint fallback order\n────────────────────────────\n1. body.id / event_id / eventId / webhook_id\n2. headers x-event-id / x-request-id\n3. type:event:action:created:data.object.id:order_id:…\n4. execution.id (same-execution only — not retry-safe)\n\n────────────────────────────\nWho this is for\n────────────────────────────\nAnyone running n8n workflows that receive webhooks and perform side effects — payments, emails, DB writes, API calls.\n\n────────────────────────────\nRequirements\n────────────────────────────\nFree AARI account → api.getaari.com/n8n\n2,500 gate calls/month · No credit card"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-setup",
+      "name": "Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        620
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 380,
+        "height": 340,
+        "content": "## Setup (2 minutes)\n\n**1. Get a free AARI API key:**\nhttps://api.getaari.com/n8n\n\n**2. Create n8n credential:**\nCredentials → New → Header Auth\nHeader name: `X-API-Key`\nValue: your AARI key\n\nSelect it in the **AARI idempotency gate** node.\n\n**3. idempotency_key is pre-set** — auto-detects the event ID from the payload (Stripe, GitHub, Shopify, etc.) or falls back to a body fingerprint.\n\n**4. Connect your action:**\nReplace **✅ Run your action here** with your real node — Stripe charge, send email, DB insert, API call, etc."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-test",
+      "name": "Test",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        1000
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 380,
+        "height": 160,
+        "content": "## Test it\n\nSend the same webhook payload twice.\n\nFirst call → `decision: ALLOW`\nSecond call → `decision: BLOCK`\n\nThe duplicate is caught before any action runs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "webhook-node",
+      "name": "Incoming webhook event",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "path": "webhook-dedup",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aari-gate-node",
+      "name": "AARI idempotency gate",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "url": "https://api.getaari.com/gate",
+        "method": "POST",
+        "options": {
+          "timeout": 10000
+        },
+        "sendBody": true,
+        "specifyBody": "keypair",
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "agent_id",
+              "value": "={{ $workflow.name }}"
+            },
+            {
+              "name": "run_id",
+              "value": "={{ $execution.id }}"
+            },
+            {
+              "name": "action_type",
+              "value": "workflow.side_effect"
+            },
+            {
+              "name": "resource",
+              "value": "n8n"
+            },
+            {
+              "name": "idempotency_key",
+              "value": "={{ $json.body?.id || $json.body?.event_id || $json.body?.eventId || $json.body?.webhook_id || $json.headers?.['x-event-id'] || $json.headers?.['x-request-id'] || [$json.body?.type, $json.body?.event, $json.body?.action, $json.body?.created, $json.body?.data?.object?.id, $json.body?.resource_id, $json.body?.order_id, $json.body?.customer_id, $json.body?.object_id].filter(v => v != null && v !== '').join(':') || $execution.id + '_action' }}"
+            },
+            {
+              "name": "environment",
+              "value": "prod"
+            },
+            {
+              "name": "mode",
+              "value": "advisory"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "AARI API Key"
+        }
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "if-block-node",
+      "name": "Duplicate detected?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        720,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "decision-check",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "BLOCK"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "blocked-node",
+      "name": "⛔ Stop duplicate execution",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        960,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "blocked-status",
+              "name": "status",
+              "type": "string",
+              "value": "duplicate_blocked"
+            },
+            {
+              "id": "blocked-reason",
+              "name": "reason",
+              "type": "string",
+              "value": "={{ $json.policy_hits ? $json.policy_hits.join(', ') : 'idempotency.duplicate' }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "allowed-node",
+      "name": "✅ Run your action here",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        960,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "allowed-status",
+              "name": "status",
+              "type": "string",
+              "value": "approved"
+            },
+            {
+              "id": "allowed-decision",
+              "name": "decision",
+              "type": "string",
+              "value": "={{ $json.decision }}"
+            },
+            {
+              "id": "allowed-action-id",
+              "name": "action_id",
+              "type": "string",
+              "value": "={{ $json.action_id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "complete-node",
+      "name": "📋 Report SUCCESS",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1200,
+        440
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.getaari.com/actions/' + $json.action_id + '/complete' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 5000
+        },
+        "jsonBody": "{\n  \"outcome\": \"SUCCESS\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "AARI API Key"
+        }
+      },
+      "typeVersion": 4.1
+    }
+  ],
+  "notes": "Prevent duplicate webhook executions using AARI idempotency.\n\nQuick start:\n1. Get a free key: https://api.getaari.com/n8n\n2. Create Header Auth credential: X-API-Key → your key\n3. Replace 'Run your action here' with your real action node",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "connections": {
+    "Duplicate detected?": {
+      "main": [
+        [
+          {
+            "node": "⛔ Stop duplicate execution",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "✅ Run your action here",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AARI idempotency gate": {
+      "main": [
+        [
+          {
+            "node": "Duplicate detected?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Incoming webhook event": {
+      "main": [
+        [
+          {
+            "node": "AARI idempotency gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ Run your action here": {
+      "main": [
+        [
+          {
+            "node": "📋 Report SUCCESS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

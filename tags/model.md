@@ -1,4 +1,4 @@
-# model : 42
+# model : 45
 
 |id|file|
 |----|----|
@@ -44,3 +44,6 @@
 |12537|[12537_Run_multi-model_research_analysis_and_email_reports_with_GPT-4__Claude_and_NVIDIA_NIM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12537_Run_multi-model_research_analysis_and_email_reports_with_GPT-4__Claude_and_NVIDIA_NIM.json)|
 |12833|[12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json)|
 |12889|[12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12889_Sanitize_Google_Drive_markdown_text_with_a_local_Ollama_model.json)|
+|13341|[13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json)|
+|13352|[13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json)|
+|13809|[13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json)|

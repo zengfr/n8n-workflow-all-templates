@@ -1,4 +1,4 @@
-# processing : 74
+# processing : 75
 
 |id|file|
 |----|----|
@@ -76,3 +76,4 @@
 |12030|[12030_Automate_tax_deduction_processing_with_GPT-4_receipt_analysis_and_Gmail_reporting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12030_Automate_tax_deduction_processing_with_GPT-4_receipt_analysis_and_Gmail_reporting.json)|
 |12954|[12954_Receipt_Processing_AI_Agent__with_step_by_step_video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12954_Receipt_Processing_AI_Agent__with_step_by_step_video.json)|
 |13192|[13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13192_Process_incoming_files_and_notify_via_email_with_GitHub_storage.json)|
+|13589|[13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json)|

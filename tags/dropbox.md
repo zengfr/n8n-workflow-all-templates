@@ -1,4 +1,4 @@
-# dropbox : 18
+# dropbox : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |10299|[10299_Upload_Files_to_Dropbox_and_Generate_Direct_Download_Links.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10299_Upload_Files_to_Dropbox_and_Generate_Direct_Download_Links.json)|
 |10711|[10711_Upload_Large_Files_to_Dropbox_with_Chunking___Web_UI_Progress_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10711_Upload_Large_Files_to_Dropbox_with_Chunking___Web_UI_Progress_Tracking.json)|
 |11634|[11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11634_Real-time_Public_Transport_Delay_Tracking_with_ScrapeGraphAI__Teams___Dropbox.json)|
+|13679|[13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json)|

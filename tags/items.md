@@ -1,4 +1,4 @@
-# items : 26
+# items : 27
 
 |id|file|
 |----|----|
@@ -28,3 +28,4 @@
 |12495|[12495_Audit_SharePoint_Online_external_sharing_and_anonymous_links_with_Microsoft_Graph.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12495_Audit_SharePoint_Online_external_sharing_and_anonymous_links_with_Microsoft_Graph.json)|
 |13136|[13136_Sync_Fathom_meeting_summaries_and_action_items_with_GoHighLevel_contacts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13136_Sync_Fathom_meeting_summaries_and_action_items_with_GoHighLevel_contacts.json)|
 |13288|[13288_Sync_NetSuite_inventory_items_between_NetSuite_and_Salesforce_products.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13288_Sync_NetSuite_inventory_items_between_NetSuite_and_Salesforce_products.json)|
+|13771|[13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13771_Summarize_meeting_recordings_and_create_Notion_action_items_with_Gemini_AI.json)|

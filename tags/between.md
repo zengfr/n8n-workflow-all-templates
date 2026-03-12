@@ -1,4 +1,4 @@
-# between : 34
+# between : 38
 
 |id|file|
 |----|----|
@@ -36,3 +36,7 @@
 |12902|[12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json)|
 |13233|[13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json)|
 |13288|[13288_Sync_NetSuite_inventory_items_between_NetSuite_and_Salesforce_products.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13288_Sync_NetSuite_inventory_items_between_NetSuite_and_Salesforce_products.json)|
+|13425|[13425_Selectively_import_workflows_between_instances_using_the_n8n_API_and_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13425_Selectively_import_workflows_between_instances_using_the_n8n_API_and_forms.json)|
+|13442|[13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json)|
+|13460|[13460_Sync_leads_between_Google_Sheets_and_HubSpot_contacts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13460_Sync_leads_between_Google_Sheets_and_HubSpot_contacts.json)|
+|13474|[13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json)|

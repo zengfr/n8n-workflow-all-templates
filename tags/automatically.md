@@ -1,4 +1,4 @@
-# automatically : 165
+# automatically : 174
 
 |id|file|
 |----|----|
@@ -167,3 +167,12 @@
 |12747|[12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12747_Back_up_workflows_from_multiple_n8n_instances_to_Google_Drive.json)|
 |12829|[12829_Generate_AI_video_clips_from_YouTube_automatically_with_Reka_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12829_Generate_AI_video_clips_from_YouTube_automatically_with_Reka_Vision.json)|
 |13221|[13221_Categorise_and_label_Gmail_emails_with_GPT-4o_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13221_Categorise_and_label_Gmail_emails_with_GPT-4o_and_OpenAI.json)|
+|13340|[13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json)|
+|13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|
+|13465|[13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json)|
+|13475|[13475_Send_WhatsApp_payment_reminders_automatically_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13475_Send_WhatsApp_payment_reminders_automatically_with_MoltFlow.json)|
+|13563|[13563_Review_GitHub_pull_requests_with_Gemini_and_post_feedback_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13563_Review_GitHub_pull_requests_with_Gemini_and_post_feedback_automatically.json)|
+|13581|[13581_Scan_Gmail_links_with_VirusTotal_and_send_alerts_to_WhatsApp__Teams__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13581_Scan_Gmail_links_with_VirusTotal_and_send_alerts_to_WhatsApp__Teams__and_Sheets.json)|
+|13735|[13735_Sync_markdown_files_from_Google_Drive_to_Confluence_pages_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13735_Sync_markdown_files_from_Google_Drive_to_Confluence_pages_automatically.json)|
+|13827|[13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json)|
+|13892|[13892_Watermark_and_password-protect_new_Google_Drive_PDFs_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13892_Watermark_and_password-protect_new_Google_Drive_PDFs_with_Autype.json)|

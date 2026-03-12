@@ -1,4 +1,4 @@
-# drafts : 12
+# drafts : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |8553|[8553_Auto-Generate___Post_Social_Media_Content_with_GPT-4__Notion___Instagram_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8553_Auto-Generate___Post_Social_Media_Content_with_GPT-4__Notion___Instagram_API.json)|
 |11333|[11333_Generate_Cold_Outreach_Drafts_from_Google_Sheets_with_GPT-4o-mini___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11333_Generate_Cold_Outreach_Drafts_from_Google_Sheets_with_GPT-4o-mini___Gmail.json)|
 |12386|[12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12386_Create_SEO_blog_drafts_in_WordPress_from_trending_topics_with_Perplexity_and_HuggingFace.json)|
+|13463|[13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json)|

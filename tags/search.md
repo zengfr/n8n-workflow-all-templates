@@ -1,4 +1,4 @@
-# search : 191
+# search : 202
 
 |id|file|
 |----|----|
@@ -193,3 +193,14 @@
 |12971|[12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json)|
 |13195|[13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json)|
 |13271|[13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13271_Chat_Hub_Web_Search_Agent_with_Tavily_Search.json)|
+|13383|[13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json)|
+|13410|[13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json)|
+|13449|[13449_Track_AI_search_visibility_across_ChatGPT__Claude__DeepSeek_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13449_Track_AI_search_visibility_across_ChatGPT__Claude__DeepSeek_and_Perplexity.json)|
+|13461|[13461_Search_and_update_HubSpot_contacts_with_GPT-5.2_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13461_Search_and_update_HubSpot_contacts_with_GPT-5.2_AI_assistant.json)|
+|13584|[13584_Automate_LinkedIn_job_search_and_applications_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13584_Automate_LinkedIn_job_search_and_applications_with_Claude_AI_and_Google_Sheets.json)|
+|13647|[13647_Extract_LinkedIn_search_results_into_a_Google_Sheet_with_SourceGeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13647_Extract_LinkedIn_search_results_into_a_Google_Sheet_with_SourceGeek.json)|
+|13670|[13670_Search_for_people_on_LinkedIn_using_the_TexAU_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13670_Search_for_people_on_LinkedIn_using_the_TexAU_API.json)|
+|13800|[13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json)|
+|13805|[13805_Generate_business_research_reports_with_Claude__web_search_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13805_Generate_business_research_reports_with_Claude__web_search_and_Google_Drive.json)|
+|13838|[13838_Detect_content_decay_from_Google_Search_Console_and_alert_via_Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13838_Detect_content_decay_from_Google_Search_Console_and_alert_via_Slack_and_email.json)|
+|13869|[13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13869_Generate_research_proposals_with_GPT-4o__web_search__and_quality_control_agents.json)|

@@ -1,4 +1,4 @@
-# emails : 203
+# emails : 210
 
 |id|file|
 |----|----|
@@ -205,3 +205,10 @@
 |13170|[13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json)|
 |13221|[13221_Categorise_and_label_Gmail_emails_with_GPT-4o_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13221_Categorise_and_label_Gmail_emails_with_GPT-4o_and_OpenAI.json)|
 |13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|
+|13463|[13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13463_Auto-label_Gmail_with_Ollama_AI_and_draft_smart_replies.json)|
+|13830|[13830_Read__analyze__and_auto-reply_to_Gmail_emails_with_OpenAI__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13830_Read__analyze__and_auto-reply_to_Gmail_emails_with_OpenAI__Slack__and_Sheets.json)|
+|13845|[13845_Forward_Zoho_Mail_emails_to_Gmail_with_Gemini_AI_analysis_and_Telegram_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13845_Forward_Zoho_Mail_emails_to_Gmail_with_Gemini_AI_analysis_and_Telegram_digest.json)|
+|13854|[13854_Enrich_leads_from_Google_Sheets_with_ScraperCity_emails__phones__and_validation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13854_Enrich_leads_from_Google_Sheets_with_ScraperCity_emails__phones__and_validation.json)|
+|13858|[13858_Find_business_emails_from_contact_names_and_domains_using_ScraperCity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13858_Find_business_emails_from_contact_names_and_domains_using_ScraperCity.json)|
+|13861|[13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json)|
+|13903|[13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json)|

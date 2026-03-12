@@ -1,4 +1,4 @@
-# health : 30
+# health : 33
 
 |id|file|
 |----|----|
@@ -32,3 +32,6 @@
 |12991|[12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json)|
 |13089|[13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13089_Generate_AI_short-form_health_videos_with_Gemini__Veo_3_and_Google_Sheets.json)|
 |13290|[13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json)|
+|13565|[13565_Monitor_Docker_host_health_via_SSH_with_GPT-4o-mini_and_alerts_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13565_Monitor_Docker_host_health_via_SSH_with_GPT-4o-mini_and_alerts_to_Discord.json)|
+|13595|[13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json)|
+|13646|[13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json)|

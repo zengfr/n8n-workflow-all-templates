@@ -1,4 +1,4 @@
-# code : 42
+# code : 47
 
 |id|file|
 |----|----|
@@ -44,3 +44,8 @@
 |11016|[11016_Hackathon_Participant_Badge_Generator_with_QR_Code__PDF___Email_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11016_Hackathon_Participant_Badge_Generator_with_QR_Code__PDF___Email_Delivery.json)|
 |11622|[11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json)|
 |12131|[12131_Convert_GitHub_code_commits_to_LinkedIn_posts_with_Gemini_AI_and_code_image_generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12131_Convert_GitHub_code_commits_to_LinkedIn_posts_with_Gemini_AI_and_code_image_generation.json)|
+|13409|[13409_Create_an_AI_content_agent_with_Telegram__Gemini__and_Blotato__no-code.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13409_Create_an_AI_content_agent_with_Telegram__Gemini__and_Blotato__no-code.json)|
+|13621|[13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json)|
+|13652|[13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json)|
+|13827|[13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13827_Generate__review__and_optimize_code_with_Cursor_AI__GitHub__Google__and_Slack.json)|
+|13900|[13900_Scan_code_repositories_for_governance_issues_with_GPT-4o_and_severity-based_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13900_Scan_code_repositories_for_governance_issues_with_GPT-4o_and_severity-based_reports.json)|

@@ -1,4 +1,4 @@
-# salesforce : 27
+# salesforce : 31
 
 |id|file|
 |----|----|
@@ -29,3 +29,7 @@
 |11928|[11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11928_Automatically_enrich_companies_in_your_HubSpot__Salesforce_or_Close_CRM.json)|
 |12090|[12090_Provision_new_employee_accounts_to_Google_Workspace__Slack__Jira__and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12090_Provision_new_employee_accounts_to_Google_Workspace__Slack__Jira__and_Salesforce.json)|
 |13288|[13288_Sync_NetSuite_inventory_items_between_NetSuite_and_Salesforce_products.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13288_Sync_NetSuite_inventory_items_between_NetSuite_and_Salesforce_products.json)|
+|13474|[13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json)|
+|13738|[13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json)|
+|13740|[13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json)|
+|13841|[13841_Generate_conference_synthetic_personas_with_Slack__Gemini_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13841_Generate_conference_synthetic_personas_with_Slack__Gemini_and_Salesforce.json)|

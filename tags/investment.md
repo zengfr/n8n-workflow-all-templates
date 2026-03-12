@@ -1,4 +1,4 @@
-# investment : 9
+# investment : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |12039|[12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12039_Analyze_real_estate_submarket_trends_with_GPT-4__Gmail__and_Slack_alerts.json)|
 |12092|[12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json)|
 |12273|[12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json)|
+|13686|[13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json)|

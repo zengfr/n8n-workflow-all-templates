@@ -1,4 +1,4 @@
-# invoice : 100
+# invoice : 102
 
 |id|file|
 |----|----|
@@ -102,3 +102,5 @@
 |13033|[13033_Extract_invoice_data_from_Gmail_PDFs_to_JSON__Google_Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13033_Extract_invoice_data_from_Gmail_PDFs_to_JSON__Google_Sheets_and_Airtable.json)|
 |13071|[13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json)|
 |13115|[13115_Track_invoice_spending_vs_budget_from_Google_Drive_with_GPT-4o_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13115_Track_invoice_spending_vs_budget_from_Google_Drive_with_GPT-4o_and_Telegram_alerts.json)|
+|13469|[13469_Extract_invoice_data_from_Gmail_to_Airtable_with_Mistral_OCR_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13469_Extract_invoice_data_from_Gmail_to_Airtable_with_Mistral_OCR_and_GPT-4.1-mini.json)|
+|13779|[13779_Extract_invoice_data_from_scanned_PDFs_to_Google_Sheets_with_Sarvam_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13779_Extract_invoice_data_from_scanned_PDFs_to_Google_Sheets_with_Sarvam_and_Gemini.json)|

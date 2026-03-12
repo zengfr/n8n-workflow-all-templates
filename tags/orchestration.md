@@ -1,4 +1,4 @@
-# orchestration : 18
+# orchestration : 22
 
 |id|file|
 |----|----|
@@ -20,3 +20,7 @@
 |13316|[13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13316_Evaluate_supply_chain_risk_and_orchestrate_contingencies_with_Claude__Google_Sheets__Gmail_and_Slack.json)|
 |13318|[13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13318_Monitor_employee_policy_compliance_with_GPT-4__Slack__and_email_alerts.json)|
 |13320|[13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13320_Monitor_multi-cloud_costs_and_enforce_policies_with_OpenAI_and_Slack_alerts.json)|
+|13426|[13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json)|
+|13451|[13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json)|
+|13453|[13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json)|
+|13589|[13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json)|

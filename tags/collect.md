@@ -1,4 +1,4 @@
-# collect : 26
+# collect : 27
 
 |id|file|
 |----|----|
@@ -28,3 +28,4 @@
 |12823|[12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12823_Collect_historical_price_data_from_Polymarket_Up_Down_markets_into_Supabase.json)|
 |12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|
 |13250|[13250_Collect_leads_with_a_conversational_GPT-4.1_chatbot_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13250_Collect_leads_with_a_conversational_GPT-4.1_chatbot_and_Google_Sheets.json)|
+|13387|[13387_Qualify_mortgage_leads_and_collect_documents_with_Gemini__Gmail__Drive__Telegram__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13387_Qualify_mortgage_leads_and_collect_documents_with_Gemini__Gmail__Drive__Telegram__and_Supabase.json)|

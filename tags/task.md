@@ -1,4 +1,4 @@
-# task : 77
+# task : 79
 
 |id|file|
 |----|----|
@@ -79,3 +79,5 @@
 |12429|[12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json)|
 |12739|[12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json)|
 |12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|
+|13533|[13533_Send_a_weekly_Keephub_task_progress_report_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13533_Send_a_weekly_Keephub_task_progress_report_to_Slack.json)|
+|13822|[13822_Create_an_autonomous_task-handling_AI_agent_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13822_Create_an_autonomous_task-handling_AI_agent_with_OpenAI_and_Slack.json)|

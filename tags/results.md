@@ -1,4 +1,4 @@
-# results : 32
+# results : 38
 
 |id|file|
 |----|----|
@@ -34,3 +34,9 @@
 |12287|[12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12287_Generate_Sora_videos_from_Google_Sheets_and_save_results_to_Google_Drive.json)|
 |12293|[12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12293_Export_LinkedIn_search_results_to_Google_Sheets_using_ConnectSafely.ai_API.json)|
 |12343|[12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json)|
+|13445|[13445_Gate_deployments_on_WAF_scan_results_with_WAFtester.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13445_Gate_deployments_on_WAF_scan_results_with_WAFtester.json)|
+|13572|[13572_Look_up_English_vocabulary_via_Telegram_and_save_results_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13572_Look_up_English_vocabulary_via_Telegram_and_save_results_to_Notion.json)|
+|13647|[13647_Extract_LinkedIn_search_results_into_a_Google_Sheet_with_SourceGeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13647_Extract_LinkedIn_search_results_into_a_Google_Sheet_with_SourceGeek.json)|
+|13652|[13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json)|
+|13800|[13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json)|
+|13871|[13871_Analyze_Zoom_phone_call_recordings_with_Gemini_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13871_Analyze_Zoom_phone_call_recordings_with_Gemini_and_log_results_to_Google_Sheets.json)|

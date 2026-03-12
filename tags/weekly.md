@@ -1,4 +1,4 @@
-# weekly : 106
+# weekly : 116
 
 |id|file|
 |----|----|
@@ -108,3 +108,13 @@
 |13272|[13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json)|
 |13276|[13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json)|
 |13281|[13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json)|
+|13384|[13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json)|
+|13404|[13404_Send_weekly_AI_summaries_of_Google_Sheets_data_via_Gmail_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13404_Send_weekly_AI_summaries_of_Google_Sheets_data_via_Gmail_using_OpenAI.json)|
+|13444|[13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json)|
+|13533|[13533_Send_a_weekly_Keephub_task_progress_report_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13533_Send_a_weekly_Keephub_task_progress_report_to_Slack.json)|
+|13539|[13539_Monitor_toxic_backlinks_and_email_weekly_Google_Sheets_reports_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13539_Monitor_toxic_backlinks_and_email_weekly_Google_Sheets_reports_with_DataForSEO.json)|
+|13552|[13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json)|
+|13714|[13714_Track_athlete_sessions_and_weekly_performance_with_OpenAI__Google_Sheets__Slack__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13714_Track_athlete_sessions_and_weekly_performance_with_OpenAI__Google_Sheets__Slack__and_email.json)|
+|13772|[13772_Analyze_Google_Forms_feedback_with_Gemini_AI_and_send_weekly_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13772_Analyze_Google_Forms_feedback_with_Gemini_AI_and_send_weekly_reports.json)|
+|13815|[13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json)|
+|13872|[13872_Analyze_Shopify_orders_with_Gemini_AI_and_send_weekly_Slack_insights.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13872_Analyze_Shopify_orders_with_Gemini_AI_and_send_weekly_Slack_insights.json)|

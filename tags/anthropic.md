@@ -1,4 +1,4 @@
-# anthropic : 25
+# anthropic : 36
 
 |id|file|
 |----|----|
@@ -27,3 +27,14 @@
 |12996|[12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json)|
 |13138|[13138_Process_data_rights_requests_and_governance_compliance_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13138_Process_data_rights_requests_and_governance_compliance_with_Anthropic_Claude.json)|
 |13232|[13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json)|
+|13339|[13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json)|
+|13341|[13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json)|
+|13591|[13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13591_Monitor_AI_budgets_and_optimize_costs_with_Anthropic_Claude_and_Slack_alerts.json)|
+|13595|[13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json)|
+|13686|[13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json)|
+|13688|[13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13688_Validate_property_documents_with_Claude__Anthropic___Google_Drive_and_Slack.json)|
+|13692|[13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json)|
+|13698|[13698_Route_engineering_risks_with_Anthropic_multi-agents_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13698_Route_engineering_risks_with_Anthropic_multi-agents_and_Slack_alerts.json)|
+|13706|[13706_Detect_and_isolate_ransomware_with_Claude__Anthropic___EDR__SIEM_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13706_Detect_and_isolate_ransomware_with_Claude__Anthropic___EDR__SIEM_and_Slack.json)|
+|13889|[13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json)|
+|13893|[13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json)|

@@ -1,4 +1,4 @@
-# crm : 137
+# crm : 143
 
 |id|file|
 |----|----|
@@ -139,3 +139,9 @@
 |13231|[13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json)|
 |13232|[13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json)|
 |13277|[13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13277_Sync_Shopify_customers_to_Zoho_CRM_contacts_with_value-based_scoring.json)|
+|13344|[13344_Enrich_new_HubSpot_contacts_with_Lusha_and_alert_reps_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13344_Enrich_new_HubSpot_contacts_with_Lusha_and_alert_reps_in_Slack.json)|
+|13350|[13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13350_Auto-sync_and_qualify_HubSpot_CRM_contacts_with_Lusha_bulk_enrichment.json)|
+|13419|[13419_Sync_Facebook_leads_from_Google_Sheets_to_Perfex_CRM_via_REST_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13419_Sync_Facebook_leads_from_Google_Sheets_to_Perfex_CRM_via_REST_API.json)|
+|13459|[13459_Chat_with_your_Airtable_CRM_using_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13459_Chat_with_your_Airtable_CRM_using_OpenAI_GPT-4.1-mini.json)|
+|13593|[13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json)|
+|13831|[13831_Match_Zoho_CRM_contacts_to_buyer_personas_using_LinkedIn__Phantombuster_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13831_Match_Zoho_CRM_contacts_to_buyer_personas_using_LinkedIn__Phantombuster_and_OpenAI.json)|

@@ -1,4 +1,4 @@
-# case : 8
+# case : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |8952|[8952_Automated_Stripe_Dispute_Alert___Case_Tracking_with_Slack___ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8952_Automated_Stripe_Dispute_Alert___Case_Tracking_with_Slack___ClickUp.json)|
 |12740|[12740_Analyze_legal_contracts_with_GPT-4.1_and_manage_cases_in_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12740_Analyze_legal_contracts_with_GPT-4.1_and_manage_cases_in_Google_Sheets_and_Slack.json)|
 |13012|[13012_Generate_AI_case_studies_from_Feedspace_testimonials_with_Google_Gemini_and_publish_to_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13012_Generate_AI_case_studies_from_Feedspace_testimonials_with_Google_Gemini_and_publish_to_WordPress.json)|
+|13339|[13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json)|
+|13430|[13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json)|

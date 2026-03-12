@@ -1,4 +1,4 @@
-# monthly : 24
+# monthly : 26
 
 |id|file|
 |----|----|
@@ -26,3 +26,5 @@
 |12034|[12034_Automate_monthly_payroll_tax_compliance_with_GPT-4__Google_Sheets_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12034_Automate_monthly_payroll_tax_compliance_with_GPT-4__Google_Sheets_and_Drive.json)|
 |12544|[12544_Consolidate_and_report_monthly_financial_PDFs_with_Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12544_Consolidate_and_report_monthly_financial_PDFs_with_Google_Drive_and_Slack.json)|
 |12646|[12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json)|
+|13497|[13497_Sync_Toggl_Track_time_entries_with_Google_Sheets_detail_and_summary_tabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13497_Sync_Toggl_Track_time_entries_with_Google_Sheets_detail_and_summary_tabs.json)|
+|13725|[13725_Generate_monthly_AI_financial_reports_with_OpenAI_and_email_Slack_distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13725_Generate_monthly_AI_financial_reports_with_OpenAI_and_email_Slack_distribution.json)|

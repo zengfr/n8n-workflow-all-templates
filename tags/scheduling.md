@@ -1,4 +1,4 @@
-# scheduling : 43
+# scheduling : 47
 
 |id|file|
 |----|----|
@@ -45,3 +45,7 @@
 |12167|[12167_Handle_Gmail_reply-based_scheduling_with_Google_Calendar_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12167_Handle_Gmail_reply-based_scheduling_with_Google_Calendar_and_GPT-4o-mini.json)|
 |12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|
 |13319|[13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json)|
+|13352|[13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13352_Orchestrate_AI-driven_hiring_analytics_and_candidate_assessment_with_GPT-4__Claude__Google_Sheets__Gmail_and_Slack.json)|
+|13579|[13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json)|
+|13681|[13681_Generate_and_schedule_LinkedIn_posts_with_Google_Sheets__OpenAI__Gemini_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13681_Generate_and_schedule_LinkedIn_posts_with_Google_Sheets__OpenAI__Gemini_and_Mistral.json)|
+|13709|[13709_Coordinate_smart_factory_operations_with_OpenAI_GPT-4.1-mini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13709_Coordinate_smart_factory_operations_with_OpenAI_GPT-4.1-mini_and_Slack_alerts.json)|

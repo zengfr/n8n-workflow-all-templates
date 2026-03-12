@@ -1,4 +1,4 @@
-# enterprise : 7
+# enterprise : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |9426|[9426_AI-Powered_Reddit_Lead_Generation___Community_Management_with_Advanced_Scoring.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9426_AI-Powered_Reddit_Lead_Generation___Community_Management_with_Advanced_Scoring.json)|
 |11269|[11269_Build_Enterprise_RAG_System_with_Google_Gemini_File_Search___Retell_AI_Voice.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11269_Build_Enterprise_RAG_System_with_Google_Gemini_File_Search___Retell_AI_Voice.json)|
 |12659|[12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json)|
+|13331|[13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json)|
+|13592|[13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json)|

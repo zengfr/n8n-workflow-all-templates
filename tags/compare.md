@@ -1,4 +1,4 @@
-# compare : 23
+# compare : 24
 
 |id|file|
 |----|----|
@@ -25,3 +25,4 @@
 |12316|[12316_Synthesize_and_compare_multiple_LLM_responses_with_OpenRouter_council.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12316_Synthesize_and_compare_multiple_LLM_responses_with_OpenRouter_council.json)|
 |12357|[12357_Compare_products_and_generate_visual_scorecards_in_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12357_Compare_products_and_generate_visual_scorecards_in_Telegram_with_BrowserAct_and_Gemini.json)|
 |12371|[12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12371_Send_seasonal_WooCommerce_sales_trend_reports_to_Slack_and_Google_Sheets.json)|
+|13646|[13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json)|

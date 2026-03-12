@@ -1,4 +1,4 @@
-# tickets : 54
+# tickets : 56
 
 |id|file|
 |----|----|
@@ -56,3 +56,5 @@
 |13163|[13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13163_Route_support_tickets_with_SLA_tracking__Slack_alerts__and_Gmail_confirmations.json)|
 |13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|
 |13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|
+|13705|[13705_Manage_WhatsApp_property_maintenance_tickets_with_WATI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13705_Manage_WhatsApp_property_maintenance_tickets_with_WATI_and_Google_Sheets.json)|
+|13770|[13770_Route_and_prioritize_Gmail_support_tickets_to_Notion_with_Gemini_AI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13770_Route_and_prioritize_Gmail_support_tickets_to_Notion_with_Gemini_AI_and_Slack_alerts.json)|

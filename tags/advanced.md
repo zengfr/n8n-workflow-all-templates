@@ -1,4 +1,4 @@
-# advanced : 31
+# advanced : 32
 
 |id|file|
 |----|----|
@@ -33,3 +33,4 @@
 |11276|[11276_Generate___Publish_AI_Videos_with_Sora_2__Veo_3.1__Gemini___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11276_Generate___Publish_AI_Videos_with_Sora_2__Veo_3.1__Gemini___Blotato.json)|
 |11783|[11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11783_Advanced_Market_Trends___Competitor_GPT-4o_Intelligence_Hub.json)|
 |11989|[11989_Publish_Google_Docs_to_WordPress_with_advance_RankMath_SEO___Gemini_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11989_Publish_Google_Docs_to_WordPress_with_advance_RankMath_SEO___Gemini_analysis.json)|
+|13410|[13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json)|

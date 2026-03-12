@@ -1,4 +1,4 @@
-# woocommerce : 64
+# woocommerce : 69
 
 |id|file|
 |----|----|
@@ -66,3 +66,8 @@
 |13272|[13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13272_Send_weekly_WooCommerce_finance_KPIs_to_Slack_using_HTTP_APIs.json)|
 |13276|[13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13276_Send_weekly_low_stock_alerts_from_WooCommerce_to_Slack_and_Jira.json)|
 |13281|[13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json)|
+|13416|[13416_Send_WhatsApp_new_product_campaigns_from_WooCommerce_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13416_Send_WhatsApp_new_product_campaigns_from_WooCommerce_with_OpenAI_and_Sheets.json)|
+|13487|[13487_Send_WooCommerce_new_order_notifications_via_WhatsApp_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13487_Send_WooCommerce_new_order_notifications_via_WhatsApp_with_MoltFlow.json)|
+|13503|[13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13503_Manage_WooCommerce_store_operations_via_AI_Telegram_bot_with_OpenRouter.json)|
+|13829|[13829_Sync_Shopify_and_WooCommerce_sales_into_a_Google_Sheets_accounting_ledger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13829_Sync_Shopify_and_WooCommerce_sales_into_a_Google_Sheets_accounting_ledger.json)|
+|13840|[13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json)|

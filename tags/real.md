@@ -1,4 +1,4 @@
-# real : 130
+# real : 135
 
 |id|file|
 |----|----|
@@ -132,3 +132,8 @@
 |12904|[12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12904_Detect_WooCommerce_order_delays_with_Gmail_and_Slack_alerts_in_real_time.json)|
 |12995|[12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12995_Score_and_route_real_estate_leads_with_GPT_4.1__MLS_CRM_data__and_Slack_alerts.json)|
 |12996|[12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12996_Qualify_and_route_real_estate_leads_with_Anthropic_Claude__MLS_CRM__and_Google_Sheets.json)|
+|13388|[13388_Sync_Fizzy_cards_with_Basecamp_todos_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13388_Sync_Fizzy_cards_with_Basecamp_todos_in_real_time.json)|
+|13429|[13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json)|
+|13657|[13657_Automate_Real_Estate_Listing_Scraper____with_ScrapeGraph_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13657_Automate_Real_Estate_Listing_Scraper____with_ScrapeGraph_AI_and_Google_Sheets.json)|
+|13665|[13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json)|
+|13797|[13797_Monitor_Realtor_listings_and_export_CSV_XLSX_with_MrScraper_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13797_Monitor_Realtor_listings_and_export_CSV_XLSX_with_MrScraper_and_Gmail.json)|

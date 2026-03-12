@@ -1,4 +1,4 @@
-# channel : 113
+# channel : 117
 
 |id|file|
 |----|----|
@@ -115,3 +115,7 @@
 |13009|[13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13009_Monitor_website_performance_with_Google_PageSpeed__Sheets_and_multi-channel_alerts.json)|
 |13013|[13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13013_Route_Telegram_channel_posts_to_X__Threads__and_LinkedIn_using__mentions.json)|
 |13038|[13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json)|
+|13485|[13485_Forward_Slack_channel_messages_to_WhatsApp_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13485_Forward_Slack_channel_messages_to_WhatsApp_with_MoltFlow.json)|
+|13579|[13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json)|
+|13717|[13717_Run_a_self-hosted_multi-channel_AI_assistant_with_Claude__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13717_Run_a_self-hosted_multi-channel_AI_assistant_with_Claude__Gemini_and_Gmail.json)|
+|13764|[13764_Notify_new_BOAMP_IT_tenders_to_a_Slack_channel_with_the_BOAMP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13764_Notify_new_BOAMP_IT_tenders_to_a_Slack_channel_with_the_BOAMP_API.json)|

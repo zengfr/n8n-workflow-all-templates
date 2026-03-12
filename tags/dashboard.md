@@ -1,4 +1,4 @@
-# dashboard : 30
+# dashboard : 32
 
 |id|file|
 |----|----|
@@ -32,3 +32,5 @@
 |12083|[12083_Google_Calendar_automated_notifications_with_email__SMS___analytics_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12083_Google_Calendar_automated_notifications_with_email__SMS___analytics_dashboard.json)|
 |12092|[12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12092_Automate_investment_risk_monitoring_with_Qwen-Max_AI__Slack___email_alerts.json)|
 |12579|[12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12579_Track_employee_performance_KPIs_from_ClickUp_with_GPT-4.1_and_Google_Sheets.json)|
+|13545|[13545_Host_a_static_HTML_KPI_dashboard_from_Google_Sheets_with_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13545_Host_a_static_HTML_KPI_dashboard_from_Google_Sheets_with_CustomJS.json)|
+|13665|[13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json)|

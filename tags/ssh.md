@@ -1,4 +1,4 @@
-# ssh : 9
+# ssh : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |10471|[10471_Self_Update_Docker-based_n8n_with_Email_Approval_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10471_Self_Update_Docker-based_n8n_with_Email_Approval_and_SSH.json)|
 |11842|[11842_Automated_Credentials_Backup_to_Google_Drive_via_SSH_and_Docker.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11842_Automated_Credentials_Backup_to_Google_Drive_via_SSH_and_Docker.json)|
 |11843|[11843_Chat_with_Gemini_AI_through_Local_CLI_via_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11843_Chat_with_Gemini_AI_through_Local_CLI_via_SSH.json)|
+|13565|[13565_Monitor_Docker_host_health_via_SSH_with_GPT-4o-mini_and_alerts_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13565_Monitor_Docker_host_health_via_SSH_with_GPT-4o-mini_and_alerts_to_Discord.json)|

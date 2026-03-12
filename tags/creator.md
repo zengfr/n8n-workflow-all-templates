@@ -1,4 +1,4 @@
-# creator : 45
+# creator : 51
 
 |id|file|
 |----|----|
@@ -47,3 +47,9 @@
 |12348|[12348_Create_curated_industry_trend_reports_from_Medium_to_Google_Docs_with_Claude_via_OpenRouter_and_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12348_Create_curated_industry_trend_reports_from_Medium_to_Google_Docs_with_Claude_via_OpenRouter_and_BrowserAct.json)|
 |13227|[13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json)|
 |13302|[13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json)|
+|13495|[13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json)|
+|13596|[13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json)|
+|13769|[13769_Check_workflow_templates_against_Creator_Hub_guidelines_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13769_Check_workflow_templates_against_Creator_Hub_guidelines_with_Gemini_and_Gmail.json)|
+|13837|[13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13837_Manage_creator_sponsorship_and_brand_deals_with_Gmail__OpenAI__Notion_and_Telegram.json)|
+|13893|[13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13893_Create_AI_video_ads_from_product_descriptions_using_Anthropic_and_deAPI.json)|
+|13895|[13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json)|

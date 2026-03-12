@@ -1,4 +1,4 @@
-# change : 13
+# change : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |11966|[11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json)|
 |12242|[12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json)|
 |12902|[12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12902_Sync_retail_product_prices_between_Shopify_and_WooCommerce_with_alerts.json)|
+|13351|[13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13351_Detect_job_and_company_changes_with_Lusha_bulk_enrichment_and_HubSpot.json)|

@@ -1,4 +1,4 @@
-# invoices : 55
+# invoices : 59
 
 |id|file|
 |----|----|
@@ -57,3 +57,7 @@
 |13071|[13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json)|
 |13092|[13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json)|
 |13215|[13215_Extract__validate__and_log_email_invoices_from_Gmail_to_Google_Sheets_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13215_Extract__validate__and_log_email_invoices_from_Gmail_to_Google_Sheets_with_GPT-4.json)|
+|13420|[13420_Analyze_invoices_and_predict_cash_flow_with_Gemini__Google_Sheets__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13420_Analyze_invoices_and_predict_cash_flow_with_Gemini__Google_Sheets__Gmail__and_Slack.json)|
+|13615|[13615_Process_vendor_invoices_with_UploadToURL__AWS_Textract__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13615_Process_vendor_invoices_with_UploadToURL__AWS_Textract__and_Google_Sheets.json)|
+|13750|[13750_Analyze_invoices_from_Google_Drive_with_AI_and_store_data_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13750_Analyze_invoices_from_Google_Drive_with_AI_and_store_data_in_Google_Sheets.json)|
+|13803|[13803_Summarize_invoices_with_AWS_Textract__Google_Gemini__and_send_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13803_Summarize_invoices_with_AWS_Textract__Google_Gemini__and_send_to_Slack.json)|

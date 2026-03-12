@@ -1,4 +1,4 @@
-# scraper : 93
+# scraper : 97
 
 |id|file|
 |----|----|
@@ -95,3 +95,7 @@
 |12782|[12782_Automated_Feedaty_Review_Scraper___using_ScrapegraphAI___Gemini_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12782_Automated_Feedaty_Review_Scraper___using_ScrapegraphAI___Gemini_3.json)|
 |12838|[12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12838_Build_a_LinkedIn_job_intelligence_pipeline_with_Apify_and_Google_Sheets.json)|
 |12877|[12877_Scrape_verified_decision-maker_emails_from_Google_with_GPT-4.1_and_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12877_Scrape_verified_decision-maker_emails_from_Google_with_GPT-4.1_and_Apify.json)|
+|13437|[13437_Scrape_Skool_community_data_using_the_Olostep_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13437_Scrape_Skool_community_data_using_the_Olostep_API_and_Google_Sheets.json)|
+|13608|[13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json)|
+|13657|[13657_Automate_Real_Estate_Listing_Scraper____with_ScrapeGraph_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13657_Automate_Real_Estate_Listing_Scraper____with_ScrapeGraph_AI_and_Google_Sheets.json)|
+|13669|[13669_Get_LinkedIn_profile_data_via_TexAU_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13669_Get_LinkedIn_profile_data_via_TexAU_API.json)|

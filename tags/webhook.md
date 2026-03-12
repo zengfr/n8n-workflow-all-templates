@@ -1,4 +1,4 @@
-# webhook : 79
+# webhook : 84
 
 |id|file|
 |----|----|
@@ -81,3 +81,8 @@
 |12871|[12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12871_Sync_inventory_updates_between_systems_via_webhook_and_Google_Sheets_logging.json)|
 |13164|[13164_Send_notifications_across_email__Slack__and_webhook_channels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13164_Send_notifications_across_email__Slack__and_webhook_channels.json)|
 |13196|[13196_Manage_online_bookings_with_webhook__Gmail__Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13196_Manage_online_bookings_with_webhook__Gmail__Google_Calendar_and_Slack.json)|
+|13763|[13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json)|
+|13787|[13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json)|
+|13809|[13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json)|
+|13863|[13863_Prevent_duplicate_webhook_executions_with_AARI_idempotency_gate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13863_Prevent_duplicate_webhook_executions_with_AARI_idempotency_gate.json)|
+|13880|[13880_Generate_Layerre_image_variants_from_a_webhook_and_post_them_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13880_Generate_Layerre_image_variants_from_a_webhook_and_post_them_to_Slack.json)|

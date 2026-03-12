@@ -1,4 +1,4 @@
-# verify : 28
+# verify : 29
 
 |id|file|
 |----|----|
@@ -30,3 +30,4 @@
 |12276|[12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json)|
 |12432|[12432_Verify_service_providers_via_Telegram_using_BrowserAct_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12432_Verify_service_providers_via_Telegram_using_BrowserAct_and_Google_Gemini.json)|
 |12725|[12725_Verify_AI_draft_answers_with_Pearl_Hybrid_Intelligence_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12725_Verify_AI_draft_answers_with_Pearl_Hybrid_Intelligence_and_OpenAI.json)|
+|13530|[13530_Verify_email_content_against_Google_Sheets_and_Gmail_logs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13530_Verify_email_content_against_Google_Sheets_and_Gmail_logs.json)|

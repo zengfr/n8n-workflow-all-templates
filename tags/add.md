@@ -1,4 +1,4 @@
-# add : 67
+# add : 70
 
 |id|file|
 |----|----|
@@ -69,3 +69,6 @@
 |12005|[12005_Movie_release_calendar__Add_TMDB_films_to_Google_Calendar_via_Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12005_Movie_release_calendar__Add_TMDB_films_to_Google_Calendar_via_Telegram_Bot.json)|
 |12310|[12310_Add_LinkedIn_post_commenters_to_HubSpot_CRM_with_Apify_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12310_Add_LinkedIn_post_commenters_to_HubSpot_CRM_with_Apify_enrichment.json)|
 |12422|[12422_Add_MailPoet_subscribers_from_WordPress_forms_via_TWZ_plugin_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12422_Add_MailPoet_subscribers_from_WordPress_forms_via_TWZ_plugin_and_log_to_Google_Sheets.json)|
+|13496|[13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json)|
+|13621|[13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json)|
+|13632|[13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json)|

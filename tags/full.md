@@ -1,4 +1,4 @@
-# full : 34
+# full : 35
 
 |id|file|
 |----|----|
@@ -36,3 +36,4 @@
 |12339|[12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json)|
 |12343|[12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12343_Enrich_contacts_with_Wiza_and_sync_results_to_Airtable_and_HubSpot.json)|
 |12789|[12789_Build_a_full_REST-API_with_n8n_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12789_Build_a_full_REST-API_with_n8n_webhooks.json)|
+|13639|[13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json)|

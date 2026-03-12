@@ -1,4 +1,4 @@
-# or : 54
+# or : 59
 
 |id|file|
 |----|----|
@@ -56,3 +56,8 @@
 |12502|[12502_Analyze_failed_workflows_with_Claude_via_OpenRouter_and_log_to_Sheets_with_Slack__Email__Discord_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12502_Analyze_failed_workflows_with_Claude_via_OpenRouter_and_log_to_Sheets_with_Slack__Email__Discord_alerts.json)|
 |12727|[12727_Generate_VEED_AI_talking_head_videos_from_sheet_rows_with_OpenAI_or_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12727_Generate_VEED_AI_talking_head_videos_from_sheet_rows_with_OpenAI_or_ElevenLabs.json)|
 |12837|[12837_Generate_personalized_cold_email_icebreakers_from_LinkedIn_or_website_data_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12837_Generate_personalized_cold_email_icebreakers_from_LinkedIn_or_website_data_with_GPT-4.json)|
+|13452|[13452_Export_Glasp_highlights_to_Notion__Slack__Google_Sheets__or_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13452_Export_Glasp_highlights_to_Notion__Slack__Google_Sheets__or_webhooks.json)|
+|13642|[13642_Send_WhatsApp_bulk_template_messages_from_Google_Sheets_or_CSV_via_WOZTELL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13642_Send_WhatsApp_bulk_template_messages_from_Google_Sheets_or_CSV_via_WOZTELL.json)|
+|13726|[13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13726_Predict_customer_churn_daily_using_ML_or_LLM_models_and_notify_via_Slack_email.json)|
+|13763|[13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13763_Score_B2B_leads_with_OpenAI_from_webhook_or_form_submissions.json)|
+|13777|[13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json)|

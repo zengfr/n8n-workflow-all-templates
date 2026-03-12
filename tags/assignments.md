@@ -1,4 +1,4 @@
-# assignments : 8
+# assignments : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |10310|[10310_Automate_Peer_Review_Assignments_with_GPT-4-nano__Slack_and_Email_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10310_Automate_Peer_Review_Assignments_with_GPT-4-nano__Slack_and_Email_Notifications.json)|
 |10312|[10312_Automate_Peer_Review_Assignments_with_Sonar_Pro_AI___Multi-Channel_Deadline_Reminders.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10312_Automate_Peer_Review_Assignments_with_Sonar_Pro_AI___Multi-Channel_Deadline_Reminders.json)|
 |11746|[11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json)|
+|13806|[13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json)|

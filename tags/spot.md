@@ -1,4 +1,4 @@
-# spot : 11
+# spot : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |8609|[8609_Real-time_OKX_Spot_Market_Data_with_GPT-4o___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8609_Real-time_OKX_Spot_Market_Data_with_GPT-4o___Telegram.json)|
 |8612|[8612_Fetch_Real-Time_MEXC_Spot_Market_Data_with_GPT-4.1-mini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8612_Fetch_Real-Time_MEXC_Spot_Market_Data_with_GPT-4.1-mini_and_Telegram.json)|
 |9842|[9842_Automate_Bitget_Spot_Trading_with_GPT-4o-mini_AI_Agent_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9842_Automate_Bitget_Spot_Trading_with_GPT-4o-mini_AI_Agent_via_Telegram.json)|
+|13512|[13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13512_Export_your_daily_Binance_spot_portfolio_to_Google_Sheets.json)|

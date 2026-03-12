@@ -1,4 +1,4 @@
-# handle : 14
+# handle : 19
 
 |id|file|
 |----|----|
@@ -16,3 +16,8 @@
 |12400|[12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json)|
 |12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|
 |13220|[13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json)|
+|13429|[13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13429_Handle_LINE_real_estate_inquiries_with_Google_Gemini_and_smart_lead_detection.json)|
+|13467|[13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json)|
+|13594|[13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json)|
+|13693|[13693_Handle_WhatsApp_course_enrollment_and_payments_with_Wati_and_Razorpay.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13693_Handle_WhatsApp_course_enrollment_and_payments_with_Wati_and_Razorpay.json)|
+|13864|[13864_Handle_Spanish-speaking_vet_clinic_bookings_with_GPT-4o__Sheets__Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13864_Handle_Spanish-speaking_vet_clinic_bookings_with_GPT-4o__Sheets__Calendar_and_Gmail.json)|

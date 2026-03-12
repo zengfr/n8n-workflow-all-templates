@@ -1,4 +1,4 @@
-# rag : 184
+# rag : 189
 
 |id|file|
 |----|----|
@@ -186,3 +186,8 @@
 |13147|[13147_Chat_with_Google_Drive_documents_using_Pinecone_and_OpenAI_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13147_Chat_with_Google_Drive_documents_using_Pinecone_and_OpenAI_RAG.json)|
 |13173|[13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13173_Automate_WhatsApp_customer_support_with_GPT_4__RAG__text__voice__image_and_docs.json)|
 |13248|[13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json)|
+|13408|[13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13408_Turn_your_portfolio_into_an_AI_assistant_with_OpenAI__Claude__Pinecone_and_Gmail.json)|
+|13410|[13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json)|
+|13422|[13422_Implement_on-prem_RAG_with_Qdrant_and_Ollama_for_a_self-hosted_KB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13422_Implement_on-prem_RAG_with_Qdrant_and_Ollama_for_a_self-hosted_KB.json)|
+|13568|[13568_Analyze__classify__and_summarize_Gmail_with_OpenAI_RAG_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13568_Analyze__classify__and_summarize_Gmail_with_OpenAI_RAG_and_Google_Sheets.json)|
+|13575|[13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13575_Chat_with_PDF__CSV__and_JSON_documents_using_Google_Gemini_RAG.json)|

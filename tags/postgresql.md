@@ -1,4 +1,4 @@
-# postgresql : 48
+# postgresql : 52
 
 |id|file|
 |----|----|
@@ -50,3 +50,7 @@
 |13032|[13032_Decrypt_legacy_PDF_archives_with_HTML_to_PDF__PostgreSQL_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13032_Decrypt_legacy_PDF_archives_with_HTML_to_PDF__PostgreSQL_and_Google_Drive.json)|
 |13034|[13034_Screen_and_score_resumes_from_Gmail_with_PDF_parsing__HubSpot__Slack_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13034_Screen_and_score_resumes_from_Gmail_with_PDF_parsing__HubSpot__Slack_and_PostgreSQL.json)|
 |13314|[13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13314_Route_and_analyze_customer_feedback_with_Qwen3-VL__Tally__PostgreSQL.json)|
+|13406|[13406_Manage_coupon_campaigns_and_customer_chats_with_WhatsApp_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13406_Manage_coupon_campaigns_and_customer_chats_with_WhatsApp_and_PostgreSQL.json)|
+|13407|[13407_Create_a_human-like_Evolution_API_WhatsApp_agent_with_Redis__PostgreSQL_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13407_Create_a_human-like_Evolution_API_WhatsApp_agent_with_Redis__PostgreSQL_and_Gemini.json)|
+|13652|[13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13652_Review_GitHub_pull_requests_with_AI_and_log_results_to_PostgreSQL_and_Slack.json)|
+|13876|[13876_Screen_CVs_with_OpenAI_and_PostgreSQL_using_chained_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13876_Screen_CVs_with_OpenAI_and_PostgreSQL_using_chained_prompts.json)|

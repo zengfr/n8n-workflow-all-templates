@@ -1,4 +1,4 @@
-# sms : 50
+# sms : 52
 
 |id|file|
 |----|----|
@@ -52,3 +52,5 @@
 |12742|[12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12742_Capture_and_schedule_HVAC_leads_with_OpenAI__Google_Sheets__Slack_and_SMS.json)|
 |13058|[13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13058_Send_application_follow-up_reminders_from_Airtable_via_email_and_SMS.json)|
 |13062|[13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13062_Send_candidate_outcome_emails_and_SMS_and_notify_referrers_with_Airtable.json)|
+|13386|[13386_Wake_up_on_time_using_Google_Maps_traffic__Twilio_SMS__and_iOS_Shortcuts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13386_Wake_up_on_time_using_Google_Maps_traffic__Twilio_SMS__and_iOS_Shortcuts.json)|
+|13651|[13651_Generate_AI_trading_alerts_from_CoinGecko_and_Alpha_Vantage_via_Slack__email_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13651_Generate_AI_trading_alerts_from_CoinGecko_and_Alpha_Vantage_via_Slack__email_and_SMS.json)|

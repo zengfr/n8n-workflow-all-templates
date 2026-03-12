@@ -1,4 +1,4 @@
-# upload : 100
+# upload : 107
 
 |id|file|
 |----|----|
@@ -102,3 +102,10 @@
 |12723|[12723_Translate___and_upload_dubbed_YouTube_videos___using_ElevenLabs_AI_Dubbing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12723_Translate___and_upload_dubbed_YouTube_videos___using_ElevenLabs_AI_Dubbing.json)|
 |12773|[12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12773_Batch_upload_Instagram_Reels_to_YouTube_with_scheduled_delays.json)|
 |13148|[13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json)|
+|13366|[13366_Upload_videos_to_Facebook_Pages_and_Groups_with_Facebook_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13366_Upload_videos_to_Facebook_Pages_and_Groups_with_Facebook_Graph_API.json)|
+|13542|[13542_Music_Producer_Chatbot____using_Gemini___Suno__via_Kei_AI____Google_Drive_Upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13542_Music_Producer_Chatbot____using_Gemini___Suno__via_Kei_AI____Google_Drive_Upload.json)|
+|13751|[13751_Generate_and_host_AI_images_on_your_CDN_with_Gemini_Imagen_3_and_Upload_to_URL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13751_Generate_and_host_AI_images_on_your_CDN_with_Gemini_Imagen_3_and_Upload_to_URL.json)|
+|13759|[13759_Upload_Instagram_Reels_from_Google_Sheets_with_DeepSeek_AI_captions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13759_Upload_Instagram_Reels_from_Google_Sheets_with_DeepSeek_AI_captions.json)|
+|13777|[13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json)|
+|13806|[13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json)|
+|13895|[13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13895_Automated_AI_Long_Video_Creator_______Multi-Platform_Upload_via_Postiz.json)|

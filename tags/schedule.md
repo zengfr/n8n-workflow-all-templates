@@ -1,4 +1,4 @@
-# schedule : 46
+# schedule : 49
 
 |id|file|
 |----|----|
@@ -48,3 +48,6 @@
 |12970|[12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json)|
 |13301|[13301_Schedule_Facebook_posts_from_Google_Sheets_with_approval_and_Drive_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13301_Schedule_Facebook_posts_from_Google_Sheets_with_approval_and_Drive_images.json)|
 |13304|[13304_Schedule_approved_LinkedIn_page_posts_from_Google_Sheets_with_precise_timing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13304_Schedule_approved_LinkedIn_page_posts_from_Google_Sheets_with_precise_timing.json)|
+|13540|[13540_Schedule_social_media_posts_from_local_files_using_UploadToURL__OpenAI__and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13540_Schedule_social_media_posts_from_local_files_using_UploadToURL__OpenAI__and_Buffer.json)|
+|13579|[13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13579_Schedule_client_meetings_via_web_forms_with_Google_Calendar__Zoom_and_multi_channel_notifications.json)|
+|13681|[13681_Generate_and_schedule_LinkedIn_posts_with_Google_Sheets__OpenAI__Gemini_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13681_Generate_and_schedule_LinkedIn_posts_with_Google_Sheets__OpenAI__Gemini_and_Mistral.json)|

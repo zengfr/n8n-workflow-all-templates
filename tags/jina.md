@@ -1,4 +1,4 @@
-# jina : 14
+# jina : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |8406|[8406_Generate_B2B_Leads_from_Any_City___Business_Type_using_GMaps__Jina.ai___GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8406_Generate_B2B_Leads_from_Any_City___Business_Type_using_GMaps__Jina.ai___GPT-5.json)|
 |9599|[9599_Monitor_RSS_Feeds__Extract_Full_Articles_with_Jina_AI__and_Save_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9599_Monitor_RSS_Feeds__Extract_Full_Articles_with_Jina_AI__and_Save_to_Supabase.json)|
 |12504|[12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12504_Research_topics_using_OpenRouter_AI_agents_with_Serper_search_and_Jina_AI_reports.json)|
+|13580|[13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json)|
+|13582|[13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json)|
+|13608|[13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json)|

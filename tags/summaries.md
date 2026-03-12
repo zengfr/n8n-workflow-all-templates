@@ -1,4 +1,4 @@
-# summaries : 108
+# summaries : 110
 
 |id|file|
 |----|----|
@@ -110,3 +110,5 @@
 |12760|[12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json)|
 |12857|[12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12857_Generate_consulting_KPI_summaries_with_GPT-4o-mini__Slack_and_Google_Sheets.json)|
 |13136|[13136_Sync_Fathom_meeting_summaries_and_action_items_with_GoHighLevel_contacts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13136_Sync_Fathom_meeting_summaries_and_action_items_with_GoHighLevel_contacts.json)|
+|13404|[13404_Send_weekly_AI_summaries_of_Google_Sheets_data_via_Gmail_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13404_Send_weekly_AI_summaries_of_Google_Sheets_data_via_Gmail_using_OpenAI.json)|
+|13631|[13631_Monitor_YouTube_channels_and_publish_VideoDB_AI_summaries_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13631_Monitor_YouTube_channels_and_publish_VideoDB_AI_summaries_to_Notion.json)|

@@ -1,4 +1,4 @@
-# decodo : 31
+# decodo : 35
 
 |id|file|
 |----|----|
@@ -33,3 +33,7 @@
 |12146|[12146_Build_a_website-powered_customer_support_chatbot_with_Decodo__Pinecone_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12146_Build_a_website-powered_customer_support_chatbot_with_Decodo__Pinecone_and_Gemini.json)|
 |12304|[12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12304_Find_high-quality_remote_jobs_with_OpenAI__Decodo__and_Google_Sheets.json)|
 |12437|[12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12437_Find_AliExpress_affiliate_products_via_Telegram_with_OpenAI_and_Decodo.json)|
+|13377|[13377_Monitor_product_prices_with_Decodo__Google_Sheets__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13377_Monitor_product_prices_with_Decodo__Google_Sheets__Gemini_and_Gmail.json)|
+|13637|[13637_Generate_rotating_user-agents_and_proxy_IPs_for_scraping_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13637_Generate_rotating_user-agents_and_proxy_IPs_for_scraping_APIs.json)|
+|13737|[13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json)|
+|13817|[13817_Audit_competitor_SEO_content_with_Decodo__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13817_Audit_competitor_SEO_content_with_Decodo__Gemini__and_Google_Sheets.json)|

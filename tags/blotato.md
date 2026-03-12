@@ -1,4 +1,4 @@
-# blotato : 47
+# blotato : 54
 
 |id|file|
 |----|----|
@@ -49,3 +49,10 @@
 |13015|[13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13015_Create_automated_video_ad_clones_with_NanoBanana__Kling__Airtable_and_Blotato.json)|
 |13085|[13085_Create_and_publish_AI_videos_with_Sora_2_Cameos__Gemini__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13085_Create_and_publish_AI_videos_with_Sora_2_Cameos__Gemini__and_Blotato.json)|
 |13168|[13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json)|
+|13340|[13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json)|
+|13357|[13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json)|
+|13409|[13409_Create_an_AI_content_agent_with_Telegram__Gemini__and_Blotato__no-code.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13409_Create_an_AI_content_agent_with_Telegram__Gemini__and_Blotato__no-code.json)|
+|13471|[13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13471_Create_and_publish_AI_social_posts_to_multiple_platforms_using_Blotato.json)|
+|13526|[13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json)|
+|13605|[13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json)|
+|13904|[13904_Auto-create_Instagram_carousel_posts_from_Canva_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13904_Auto-create_Instagram_carousel_posts_from_Canva_with_OpenAI_and_Blotato.json)|

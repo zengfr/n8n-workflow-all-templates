@@ -1,4 +1,4 @@
-# orders : 51
+# orders : 54
 
 |id|file|
 |----|----|
@@ -53,3 +53,6 @@
 |12641|[12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12641_Create_Bosta_shipping_orders_from_Odoo_invoices_using_OpenAI_GPT_models.json)|
 |12906|[12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json)|
 |13197|[13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json)|
+|13594|[13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13594_Handle_e-commerce_support__orders_and_inventory_with_Claude__Shopify_and_Slack.json)|
+|13712|[13712_Review_and_approve_Google_Sheets_orders_by_email_and_notify_via_LINE.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13712_Review_and_approve_Google_Sheets_orders_by_email_and_notify_via_LINE.json)|
+|13872|[13872_Analyze_Shopify_orders_with_Gemini_AI_and_send_weekly_Slack_insights.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13872_Analyze_Shopify_orders_with_Gemini_AI_and_send_weekly_Slack_insights.json)|

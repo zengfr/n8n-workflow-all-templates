@@ -1,4 +1,4 @@
-# rankings : 13
+# rankings : 15
 
 |id|file|
 |----|----|
@@ -15,3 +15,5 @@
 |11630|[11630_Track_SERP_Rankings___Discover_Keywords_using_DataForSEO___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11630_Track_SERP_Rankings___Discover_Keywords_using_DataForSEO___Airtable.json)|
 |12351|[12351_Track_AI_search_rankings_from_Perplexity_via_BrowserAct_to_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12351_Track_AI_search_rankings_from_Perplexity_via_BrowserAct_to_Google_Sheets_and_Slack.json)|
 |12631|[12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12631_Analyze_domain_keyword_rankings_and_summarize_with_SE_Ranking_and_GPT-4.1-mini.json)|
+|13537|[13537_Get_Gmail_alerts_for_dropped_top_10_keyword_rankings_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13537_Get_Gmail_alerts_for_dropped_top_10_keyword_rankings_with_DataForSEO.json)|
+|13737|[13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json)|

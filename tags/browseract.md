@@ -1,4 +1,4 @@
-# browseract : 43
+# browseract : 53
 
 |id|file|
 |----|----|
@@ -45,3 +45,13 @@
 |12704|[12704_Generate_product_videos_from_images_with_BrowserAct_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12704_Generate_product_videos_from_images_with_BrowserAct_and_Google_Drive.json)|
 |12937|[12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12937_Scrape_Google_Maps_business_data_with_BrowserAct_and_Google_Sheets.json)|
 |13170|[13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json)|
+|13374|[13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json)|
+|13376|[13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json)|
+|13378|[13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13378_Track_brand_visibility_on_Perplexity_and_ChatGPT_with_BrowserAct_and_OpenRouter.json)|
+|13379|[13379_Track_competitor_pricing_and_features_with_BrowserAct_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13379_Track_competitor_pricing_and_features_with_BrowserAct_and_Google_Sheets.json)|
+|13380|[13380_Monitor_Clutch_categories_for_new_agencies_with_BrowserAct__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13380_Monitor_Clutch_categories_for_new_agencies_with_BrowserAct__Gemini__and_Slack.json)|
+|13382|[13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json)|
+|13383|[13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json)|
+|13384|[13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13384_Monitor_competitor_campaigns_weekly_using_BrowserAct__OpenRouter__Google_Sheets_and_Slack.json)|
+|13385|[13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13385_Research_and_summarize_B2B_leads_from_Google_Sheets_to_Airtable_with_BrowserAct.json)|
+|13685|[13685_Scrape_Reddit_posts_with_BrowserAct__summarize_with_Gemini__and_save_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13685_Scrape_Reddit_posts_with_BrowserAct__summarize_with_Gemini__and_save_to_Google_Sheets.json)|

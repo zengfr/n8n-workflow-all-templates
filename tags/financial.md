@@ -1,4 +1,4 @@
-# financial : 44
+# financial : 46
 
 |id|file|
 |----|----|
@@ -46,3 +46,5 @@
 |12732|[12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json)|
 |12949|[12949_Generate_weekly_AI_equity_research_reports_with_Google_Sheets__FMP__NewsAPI__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12949_Generate_weekly_AI_equity_research_reports_with_Google_Sheets__FMP__NewsAPI__OpenAI__and_Gmail.json)|
 |13141|[13141_Detect_financial_risk_and_orchestrate_compliance_with_GPT_4o__Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13141_Detect_financial_risk_and_orchestrate_compliance_with_GPT_4o__Slack_and_email.json)|
+|13586|[13586_Monitor_supplier_financial_distress_and_risk_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13586_Monitor_supplier_financial_distress_and_risk_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|
+|13725|[13725_Generate_monthly_AI_financial_reports_with_OpenAI_and_email_Slack_distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13725_Generate_monthly_AI_financial_reports_with_OpenAI_and_email_Slack_distribution.json)|

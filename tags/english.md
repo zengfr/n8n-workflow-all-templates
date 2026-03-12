@@ -1,4 +1,4 @@
-# english : 12
+# english : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |10968|[10968_English_Lesson_Generator_from_Podcasts_with_RSS__GPT-4.1-mini__ElevenLabs_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10968_English_Lesson_Generator_from_Podcasts_with_RSS__GPT-4.1-mini__ElevenLabs_and_Gmail.json)|
 |11245|[11245_Japanese-to-English_Review_Sentiment_Analysis_with_GPT_and_Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11245_Japanese-to-English_Review_Sentiment_Analysis_with_GPT_and_Telegram_Alerts.json)|
 |11896|[11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11896_Translate_English_scripts_to_multilingual_audio_with_GPT-4_and_ElevenLabs.json)|
+|13572|[13572_Look_up_English_vocabulary_via_Telegram_and_save_results_to_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13572_Look_up_English_vocabulary_via_Telegram_and_save_results_to_Notion.json)|

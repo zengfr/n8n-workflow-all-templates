@@ -1,4 +1,4 @@
-# impact : 4
+# impact : 5
 
 |id|file|
 |----|----|
@@ -6,3 +6,4 @@
 |10426|[10426_PartnerStack_Impact___WooCommerce_Product_Creation_with_GPT-4___AI_Images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10426_PartnerStack_Impact___WooCommerce_Product_Creation_with_GPT-4___AI_Images.json)|
 |11514|[11514_Monitor_Commodity_Markets_with_Apify__DeepL_Translation___Sector_Impact_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11514_Monitor_Commodity_Markets_with_Apify__DeepL_Translation___Sector_Impact_Analysis.json)|
 |12037|[12037_Automate_contract_analysis___negotiation_with_GPT-4___financial_impact_assessment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12037_Automate_contract_analysis___negotiation_with_GPT-4___financial_impact_assessment.json)|
+|13587|[13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|

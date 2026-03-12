@@ -1,4 +1,4 @@
-# details : 17
+# details : 19
 
 |id|file|
 |----|----|
@@ -19,3 +19,5 @@
 |8440|[8440_Extract_and_Organize_Contract_Details_from_PDFs_with_Slack__GPT-4o__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8440_Extract_and_Organize_Contract_Details_from_PDFs_with_Slack__GPT-4o__and_Google_Sheets.json)|
 |12527|[12527_Extract_meeting_details_with_GPT-4.1-mini_and_evaluate_accuracy_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12527_Extract_meeting_details_with_GPT-4.1-mini_and_evaluate_accuracy_in_Google_Sheets.json)|
 |12888|[12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12888_Collect_LinkedIn_details_and_generate_CV_feedback_with_Gemini_and_Google_Workspace.json)|
+|13531|[13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13531_Extract_order_details_from_LINE_messages_and_photos_to_Google_Sheets_with_OpenAI.json)|
+|13800|[13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13800_Extract_product_details_from_search_result_URLs_with_MrScraper_and_Google_Sheets.json)|

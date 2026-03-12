@@ -1,4 +1,4 @@
-# tax : 19
+# tax : 20
 
 |id|file|
 |----|----|
@@ -21,3 +21,4 @@
 |12493|[12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json)|
 |12735|[12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json)|
 |12790|[12790_Monitor_revenue_tax_compliance_and_auto-correct_anomalies_with_Anthropic__MagicCSV__Gmail_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12790_Monitor_revenue_tax_compliance_and_auto-correct_anomalies_with_Anthropic__MagicCSV__Gmail_and_WhatsApp.json)|
+|13909|[13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json)|

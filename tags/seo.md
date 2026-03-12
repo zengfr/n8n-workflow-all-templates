@@ -1,4 +1,4 @@
-# seo : 172
+# seo : 180
 
 |id|file|
 |----|----|
@@ -174,3 +174,11 @@
 |12939|[12939_Create_and_publish_SEO_blog_posts_using_Google_Sheets__Gemini_OpenAI__Ideogram__and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12939_Create_and_publish_SEO_blog_posts_using_Google_Sheets__Gemini_OpenAI__Ideogram__and_WordPress.json)|
 |13028|[13028_Create_SEO_blog_posts_with_Gemini__DeepSeek_and_publish_to_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13028_Create_SEO_blog_posts_with_Gemini__DeepSeek_and_publish_to_WordPress.json)|
 |13113|[13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json)|
+|13373|[13373_Run_a_multi-agent_SEO_domain_audit_with_SE_Ranking_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13373_Run_a_multi-agent_SEO_domain_audit_with_SE_Ranking_and_Claude.json)|
+|13381|[13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json)|
+|13383|[13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json)|
+|13564|[13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json)|
+|13596|[13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json)|
+|13739|[13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json)|
+|13758|[13758_Generate_an_SEO_PDF_report_from_HTML_with_Gotenberg_and_Claude_Opus_4.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13758_Generate_an_SEO_PDF_report_from_HTML_with_Gotenberg_and_Claude_Opus_4.6.json)|
+|13817|[13817_Audit_competitor_SEO_content_with_Decodo__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13817_Audit_competitor_SEO_content_with_Decodo__Gemini__and_Google_Sheets.json)|

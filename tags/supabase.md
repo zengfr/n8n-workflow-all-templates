@@ -1,4 +1,4 @@
-# supabase : 117
+# supabase : 123
 
 |id|file|
 |----|----|
@@ -119,3 +119,9 @@
 |13231|[13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13231_Route_Facebook_Story_replies_to_Slack__Telegram__and_Supabase_CRM_by_region.json)|
 |13238|[13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13238_Process_multiple_requests_in_FIFO_using_OpenAI_Batch_API_and_Supabase_Postgres.json)|
 |13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|
+|13387|[13387_Qualify_mortgage_leads_and_collect_documents_with_Gemini__Gmail__Drive__Telegram__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13387_Qualify_mortgage_leads_and_collect_documents_with_Gemini__Gmail__Drive__Telegram__and_Supabase.json)|
+|13410|[13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json)|
+|13534|[13534_Detect_and_move_duplicate_Google_Drive_files_with_Supabase_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13534_Detect_and_move_duplicate_Google_Drive_files_with_Supabase_and_Slack.json)|
+|13749|[13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json)|
+|13765|[13765_Monitor_BOAMP_IT_tenders_and_score_them_with_GPT-4o_Mini_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13765_Monitor_BOAMP_IT_tenders_and_score_them_with_GPT-4o_Mini_to_Supabase.json)|
+|13875|[13875_Analyze_contract_risk_from_PDFs_with_OpenAI__Supabase_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13875_Analyze_contract_risk_from_PDFs_with_OpenAI__Supabase_and_Slack_alerts.json)|

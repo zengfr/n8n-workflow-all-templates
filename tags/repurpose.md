@@ -1,4 +1,4 @@
-# repurpose : 14
+# repurpose : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |12264|[12264_Repurpose_YouTube_videos_into_blogs_and_social_posts_with_GPT-4o__WordPress__LinkedIn__X_and_Instagram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12264_Repurpose_YouTube_videos_into_blogs_and_social_posts_with_GPT-4o__WordPress__LinkedIn__X_and_Instagram.json)|
 |12353|[12353_Repurpose_Instagram_videos_to_YouTube_with_Claude_and_Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12353_Repurpose_Instagram_videos_to_YouTube_with_Claude_and_Google_Sheets_tracking.json)|
 |12847|[12847_Repurpose_LinkedIn_posts_into_X_tweets_with_Apify__Claude_AI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12847_Repurpose_LinkedIn_posts_into_X_tweets_with_Apify__Claude_AI_and_Airtable.json)|
+|13334|[13334_Repurpose_blog_articles_into_social_media_posts_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13334_Repurpose_blog_articles_into_social_media_posts_with_Google_Gemini_AI.json)|
+|13340|[13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json)|
+|13376|[13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json)|

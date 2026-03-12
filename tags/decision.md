@@ -1,4 +1,4 @@
-# decision : 7
+# decision : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |11086|[11086_Scrape_Business_Leads_from_Google_Maps_and_Extract_Decision-Maker_Info_with_Olostep.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11086_Scrape_Business_Leads_from_Google_Maps_and_Extract_Decision-Maker_Info_with_Olostep.json)|
 |12877|[12877_Scrape_verified_decision-maker_emails_from_Google_with_GPT-4.1_and_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12877_Scrape_verified_decision-maker_emails_from_Google_with_GPT-4.1_and_Apify.json)|
 |12944|[12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12944_Create_a_daily_market_brief_from_Google_Sheets__Alpha_Vantage__Reddit__OpenAI__and_Slack.json)|
+|13684|[13684_Audit_AI_decisions_and_route_risks_with_GPT-4.1-mini__Slack__and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13684_Audit_AI_decisions_and_route_risks_with_GPT-4.1-mini__Slack__and_email_reports.json)|
+|13792|[13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json)|

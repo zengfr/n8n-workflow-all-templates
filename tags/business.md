@@ -1,4 +1,4 @@
-# business : 127
+# business : 133
 
 |id|file|
 |----|----|
@@ -129,3 +129,9 @@
 |12956|[12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json)|
 |12984|[12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12984_Discover_local_business_leads_and_run_AI-powered_cold_email_sequences_with_Google_Maps_and_Gmail.json)|
 |13170|[13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13170_Scrape_Apollo_leads_with_BrowserAct__draft_Gemini_emails__and_save_to_Sheets.json)|
+|13580|[13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json)|
+|13582|[13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json)|
+|13777|[13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13777_Generate_styled_PDF_or_DOCX_business_reports_from_Markdown_with_Autype.json)|
+|13801|[13801_Discover_daily_business_opportunities_with_Google_Gemini__Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13801_Discover_daily_business_opportunities_with_Google_Gemini__Sheets_and_Telegram.json)|
+|13805|[13805_Generate_business_research_reports_with_Claude__web_search_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13805_Generate_business_research_reports_with_Claude__web_search_and_Google_Drive.json)|
+|13858|[13858_Find_business_emails_from_contact_names_and_domains_using_ScraperCity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13858_Find_business_emails_from_contact_names_and_domains_using_ScraperCity.json)|

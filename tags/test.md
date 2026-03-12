@@ -1,4 +1,4 @@
-# test : 22
+# test : 25
 
 |id|file|
 |----|----|
@@ -24,3 +24,6 @@
 |11618|[11618_Compare_GPT-4__Claude___Gemini_Responses_with_Contextual_AI_s_LMUnit_Evaluation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11618_Compare_GPT-4__Claude___Gemini_Responses_with_Contextual_AI_s_LMUnit_Evaluation.json)|
 |12422|[12422_Add_MailPoet_subscribers_from_WordPress_forms_via_TWZ_plugin_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12422_Add_MailPoet_subscribers_from_WordPress_forms_via_TWZ_plugin_and_log_to_Google_Sheets.json)|
 |13093|[13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json)|
+|13443|[13443_Test_WAF_security_interactively_with_an_AI_agent_and_WAFtester_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13443_Test_WAF_security_interactively_with_an_AI_agent_and_WAFtester_MCP.json)|
+|13808|[13808_Summarize_daily_Jenkins_test_runs_with_Google_Sheets__HTTP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13808_Summarize_daily_Jenkins_test_runs_with_Google_Sheets__HTTP_and_Gemini_AI.json)|
+|13823|[13823_Build__test_and_deploy_AI_projects_with_Windsurf_CI_CD_and_Vercel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13823_Build__test_and_deploy_AI_projects_with_Windsurf_CI_CD_and_Vercel.json)|

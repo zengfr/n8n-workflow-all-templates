@@ -1,4 +1,4 @@
-# revenue : 18
+# revenue : 20
 
 |id|file|
 |----|----|
@@ -20,3 +20,5 @@
 |12735|[12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json)|
 |12790|[12790_Monitor_revenue_tax_compliance_and_auto-correct_anomalies_with_Anthropic__MagicCSV__Gmail_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12790_Monitor_revenue_tax_compliance_and_auto-correct_anomalies_with_Anthropic__MagicCSV__Gmail_and_WhatsApp.json)|
 |12970|[12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json)|
+|13341|[13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json)|
+|13587|[13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|

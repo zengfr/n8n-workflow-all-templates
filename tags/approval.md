@@ -1,4 +1,4 @@
-# approval : 77
+# approval : 80
 
 |id|file|
 |----|----|
@@ -79,3 +79,6 @@
 |12972|[12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12972_Handle_approval_requests_with_SendGrid_email_and_Baserow_records.json)|
 |13216|[13216_Post_AI_news_to_Telegram_with_Google_Gemini_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13216_Post_AI_news_to_Telegram_with_Google_Gemini_and_human_approval.json)|
 |13301|[13301_Schedule_Facebook_posts_from_Google_Sheets_with_approval_and_Drive_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13301_Schedule_Facebook_posts_from_Google_Sheets_with_approval_and_Drive_images.json)|
+|13426|[13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json)|
+|13712|[13712_Review_and_approve_Google_Sheets_orders_by_email_and_notify_via_LINE.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13712_Review_and_approve_Google_Sheets_orders_by_email_and_notify_via_LINE.json)|
+|13781|[13781_Train_and_deploy_ML_models_with_Claude_and_Slack_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13781_Train_and_deploy_ML_models_with_Claude_and_Slack_approval.json)|

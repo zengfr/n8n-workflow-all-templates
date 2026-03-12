@@ -1,4 +1,4 @@
-# payment : 36
+# payment : 39
 
 |id|file|
 |----|----|
@@ -38,3 +38,6 @@
 |12741|[12741_Send_Stripe_invoice_reminders_with_GPT-4.1-mini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12741_Send_Stripe_invoice_reminders_with_GPT-4.1-mini__Google_Sheets_and_Slack.json)|
 |13178|[13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json)|
 |13197|[13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13197_Process_e-commerce_orders_with_payment_verification__inventory__Gmail__and_Slack.json)|
+|13475|[13475_Send_WhatsApp_payment_reminders_automatically_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13475_Send_WhatsApp_payment_reminders_automatically_with_MoltFlow.json)|
+|13483|[13483_Notify_customers_on_WhatsApp_when_Stripe_payment_succeeds_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13483_Notify_customers_on_WhatsApp_when_Stripe_payment_succeeds_with_MoltFlow.json)|
+|13786|[13786_Bulk_generate_payment_reminder_PDFs_from_NocoDB_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13786_Bulk_generate_payment_reminder_PDFs_from_NocoDB_with_Autype.json)|

@@ -1,4 +1,4 @@
-# management : 148
+# management : 152
 
 |id|file|
 |----|----|
@@ -150,3 +150,7 @@
 |12730|[12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12730_Draft_and_manage_academic_research_papers_with_GPT-4_and_Pinecone.json)|
 |12734|[12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12734_Coordinate_patient_care_and_alerts_with_EHR_FHIR__GPT-4__Twilio__Gmail_and_Slack.json)|
 |12985|[12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12985_Manage_patient_appointments_and_care_follow-ups_with_OpenAI__Gmail_and_Twilio.json)|
+|13337|[13337_Monitor_supply_chain_risks_and_disruptions_with_GPT-4o_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13337_Monitor_supply_chain_risks_and_disruptions_with_GPT-4o_and_Slack_alerts.json)|
+|13339|[13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13339_Track_legal_case_deadlines_and_exceptions_with_Anthropic__court_APIs__Gmail_and_Slack.json)|
+|13639|[13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13639_Manage_Brevo_contact_lists_with_full_CRUD_and_bulk_membership_control.json)|
+|13909|[13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json)|

@@ -1,4 +1,4 @@
-# console : 18
+# console : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |8897|[8897_Detect_Keyword_Cannibalization_with_GPT-4o_and_Google_Search_Console.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8897_Detect_Keyword_Cannibalization_with_GPT-4o_and_Google_Search_Console.json)|
 |11401|[11401_Auto-Audit_SEO_Traffic_Drops_with_AI___Google_Search_Console_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11401_Auto-Audit_SEO_Traffic_Drops_with_AI___Google_Search_Console_to_Slack.json)|
 |11665|[11665_Automate_SEO_Reporting_with_Google_Search_Console__GA4__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11665_Automate_SEO_Reporting_with_Google_Search_Console__GA4__and_Google_Sheets.json)|
+|13838|[13838_Detect_content_decay_from_Google_Search_Console_and_alert_via_Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13838_Detect_content_decay_from_Google_Search_Console_and_alert_via_Slack_and_email.json)|

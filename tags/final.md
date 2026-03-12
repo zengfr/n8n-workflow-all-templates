@@ -1,4 +1,4 @@
-# final : 10
+# final : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |11065|[11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json)|
 |11117|[11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11117_Automated_Product_Health_Monitor_with_Anomaly_Detection___AI_Root_Cause_Analysis.json)|
 |12006|[12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json)|
+|13779|[13779_Extract_invoice_data_from_scanned_PDFs_to_Google_Sheets_with_Sarvam_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13779_Extract_invoice_data_from_scanned_PDFs_to_Google_Sheets_with_Sarvam_and_Gemini.json)|

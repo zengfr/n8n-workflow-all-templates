@@ -1,4 +1,4 @@
-# public : 26
+# public : 30
 
 |id|file|
 |----|----|
@@ -28,3 +28,7 @@
 |12239|[12239_Audit_Confluence_space_permissions_and_public_links_for_compliance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12239_Audit_Confluence_space_permissions_and_public_links_for_compliance.json)|
 |12506|[12506_Research_organizations_with_GPT_5__Gemini__CourtListener__LegiScan_and_OSINT_web_sources.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12506_Research_organizations_with_GPT_5__Gemini__CourtListener__LegiScan_and_OSINT_web_sources.json)|
 |12882|[12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json)|
+|13335|[13335_Analyze_public_consultation_data_and_coordinate_governance_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13335_Analyze_public_consultation_data_and_coordinate_governance_with_Claude_AI.json)|
+|13491|[13491_Protect_public_webhooks_with_Ainoflow_Guard_rate_limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13491_Protect_public_webhooks_with_Ainoflow_Guard_rate_limiting.json)|
+|13638|[13638_Insert_Notion_database_fields_from_a_public_URL_via_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13638_Insert_Notion_database_fields_from_a_public_URL_via_WhatsApp.json)|
+|13665|[13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json)|

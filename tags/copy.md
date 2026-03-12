@@ -1,4 +1,4 @@
-# copy : 46
+# copy : 47
 
 |id|file|
 |----|----|
@@ -48,3 +48,4 @@
 |12177|[12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json)|
 |12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|
 |13222|[13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13222_Create_and_validate_Meta_ad_copy_with_GPT-4o__OriginalVoices__and_Sheets.json)|
+|13596|[13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13596_Generate_SEO_content_and_marketing_copy_with_Claude__Serper__Sheets_and_SendGrid.json)|

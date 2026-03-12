@@ -1,4 +1,4 @@
-# supplier : 6
+# supplier : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |7129|[7129_Monitor_Supplier_Financial_Health_with_ScrapeGraphAI___Multi-Channel_Risk_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/71/7129_Monitor_Supplier_Financial_Health_with_ScrapeGraphAI___Multi-Channel_Risk_Alerts.json)|
 |12158|[12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json)|
 |12638|[12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12638_Manage_supplier_quote_requests_and_follow-ups_with_Gmail__Sheets__GPT-4o-mini_and_WhatsApp.json)|
+|13330|[13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13330_Detect_procurement_fraud_and_monitor_supplier_compliance_with_GPT-4o_and_Slack.json)|
+|13586|[13586_Monitor_supplier_financial_distress_and_risk_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13586_Monitor_supplier_financial_distress_and_risk_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|

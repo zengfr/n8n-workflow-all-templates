@@ -1,4 +1,4 @@
-# co : 12
+# co : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |8113|[8113_Automated_Monthly_Energy_Reports_with_PostgreSQL__PDF.co___Email_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8113_Automated_Monthly_Energy_Reports_with_PostgreSQL__PDF.co___Email_Delivery.json)|
 |10201|[10201_Optimize_Resumes___Generate_Cover_Letters_with_Gemini_AI_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10201_Optimize_Resumes___Generate_Cover_Letters_with_Gemini_AI_and_PDF.co.json)|
 |12779|[12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json)|
+|13659|[13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json)|

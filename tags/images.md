@@ -1,4 +1,4 @@
-# images : 212
+# images : 222
 
 |id|file|
 |----|----|
@@ -214,3 +214,13 @@
 |13303|[13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13303_Generate_product_and_marketing_images_using_Riverflow_2.0_on_Replicate.json)|
 |13306|[13306_Enhance_images_with_Riverflow_2.0_reference-based_super-resolution_via_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13306_Enhance_images_with_Riverflow_2.0_reference-based_super-resolution_via_Replicate.json)|
 |13323|[13323_Cross-post_social_content_from_Google_Sheets_to_5_platforms_with_OpenAI_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13323_Cross-post_social_content_from_Google_Sheets_to_5_platforms_with_OpenAI_images.json)|
+|13367|[13367_Generate_Images_on_Telegram_____from_Text_and_Voice_using_Grok_Imagine___Kie_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13367_Generate_Images_on_Telegram_____from_Text_and_Voice_using_Grok_Imagine___Kie_AI.json)|
+|13541|[13541_Create_e-commerce_listings_from_images_with_UploadToURL__GPT-4o__Shopify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13541_Create_e-commerce_listings_from_images_with_UploadToURL__GPT-4o__Shopify.json)|
+|13646|[13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13646_Compare_LINE_palm_images_and_log_Gemini_health_insights_to_Google_Sheets.json)|
+|13679|[13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json)|
+|13704|[13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13704_Generate_Shopify_product_images_using_AI_Agent_and_deAPI.json)|
+|13751|[13751_Generate_and_host_AI_images_on_your_CDN_with_Gemini_Imagen_3_and_Upload_to_URL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13751_Generate_and_host_AI_images_on_your_CDN_with_Gemini_Imagen_3_and_Upload_to_URL.json)|
+|13778|[13778_Generate_hyper-realistic_images_from_Telegram_via_Gemini_Nano_Banana_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13778_Generate_hyper-realistic_images_from_Telegram_via_Gemini_Nano_Banana_2.json)|
+|13859|[13859_Create_personalized_images_from_Google_Sheets_data_with_Layerre.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13859_Create_personalized_images_from_Google_Sheets_data_with_Layerre.json)|
+|13880|[13880_Generate_Layerre_image_variants_from_a_webhook_and_post_them_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13880_Generate_Layerre_image_variants_from_a_webhook_and_post_them_to_Slack.json)|
+|13881|[13881_Generate_images_from_Airtable_records_with_Layerre_and_Canva.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13881_Generate_images_from_Airtable_records_with_Layerre_and_Canva.json)|

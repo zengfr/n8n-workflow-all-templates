@@ -1,4 +1,4 @@
-# my : 140
+# my : 143
 
 |id|file|
 |----|----|
@@ -142,3 +142,6 @@
 |12676|[12676_Monitor_.my_domains_with_MYNIC_RDAP_and_send_alerts_via_Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12676_Monitor_.my_domains_with_MYNIC_RDAP_and_send_alerts_via_Gmail_and_Discord.json)|
 |12746|[12746_Send_AI_pet_grooming_reminders_and_follow-ups_with_GPT-4o_mini__Twilio__email__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12746_Send_AI_pet_grooming_reminders_and_follow-ups_with_GPT-4o_mini__Twilio__email__Google_Sheets_and_Slack.json)|
 |12751|[12751_Score_and_route_leads_with_Clearbit__Mattermost_and_Trello.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12751_Score_and_route_leads_with_Clearbit__Mattermost_and_Trello.json)|
+|13530|[13530_Verify_email_content_against_Google_Sheets_and_Gmail_logs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13530_Verify_email_content_against_Google_Sheets_and_Gmail_logs.json)|
+|13566|[13566_Validate_email_font_families_from_Gmail_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13566_Validate_email_font_families_from_Gmail_with_Google_Sheets.json)|
+|13679|[13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json)|

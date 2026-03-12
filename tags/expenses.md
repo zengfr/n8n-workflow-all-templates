@@ -1,4 +1,4 @@
-# expenses : 12
+# expenses : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |11368|[11368_Track_Expenses_Automatically_with_Telegram_Bot_using_GPT-4o__OCR_and_Voice_Recognition.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11368_Track_Expenses_Automatically_with_Telegram_Bot_using_GPT-4o__OCR_and_Voice_Recognition.json)|
 |12256|[12256_Review_and_approve_employee_expenses_with_forms__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12256_Review_and_approve_employee_expenses_with_forms__OpenAI_and_Google_Workspace.json)|
 |12680|[12680_Track_receipt_expenses_via_LINE_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12680_Track_receipt_expenses_via_LINE_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json)|
+|13557|[13557_Track_expenses_and_income_in_Google_Sheets_from_Telegram_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13557_Track_expenses_and_income_in_Google_Sheets_from_Telegram_with_Google_Gemini.json)|
+|13654|[13654_Scan_WhatsApp_receipt_photos_and_track_expenses_using_Wati_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13654_Scan_WhatsApp_receipt_photos_and_track_expenses_using_Wati_and_GPT-4o.json)|
+|13667|[13667_Track_Telegram_expenses_with_GPT-4_and_Google_Sheets__self-learning_categories.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13667_Track_Telegram_expenses_with_GPT-4_and_Google_Sheets__self-learning_categories.json)|
+|13909|[13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json)|

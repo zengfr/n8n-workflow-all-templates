@@ -1,4 +1,4 @@
-# blog : 141
+# blog : 145
 
 |id|file|
 |----|----|
@@ -143,3 +143,7 @@
 |12858|[12858_Generate_Blog_Posts_on_Autopilot_with_GPT_5__Tavily_and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12858_Generate_Blog_Posts_on_Autopilot_with_GPT_5__Tavily_and_WordPress.json)|
 |12939|[12939_Create_and_publish_SEO_blog_posts_using_Google_Sheets__Gemini_OpenAI__Ideogram__and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12939_Create_and_publish_SEO_blog_posts_using_Google_Sheets__Gemini_OpenAI__Ideogram__and_WordPress.json)|
 |13028|[13028_Create_SEO_blog_posts_with_Gemini__DeepSeek_and_publish_to_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13028_Create_SEO_blog_posts_with_Gemini__DeepSeek_and_publish_to_WordPress.json)|
+|13334|[13334_Repurpose_blog_articles_into_social_media_posts_with_Google_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13334_Repurpose_blog_articles_into_social_media_posts_with_Google_Gemini_AI.json)|
+|13376|[13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json)|
+|13381|[13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13381_Generate_AI_SEO_blog_posts_with_human_review_using_SE_Ranking_and_Claude.json)|
+|13739|[13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json)|

@@ -1,4 +1,4 @@
-# html : 43
+# html : 48
 
 |id|file|
 |----|----|
@@ -45,3 +45,8 @@
 |12963|[12963_Evaluate_organizational_data_maturity_and_email_HTML_reports_with_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12963_Evaluate_organizational_data_maturity_and_email_HTML_reports_with_Postgres.json)|
 |13032|[13032_Decrypt_legacy_PDF_archives_with_HTML_to_PDF__PostgreSQL_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13032_Decrypt_legacy_PDF_archives_with_HTML_to_PDF__PostgreSQL_and_Google_Drive.json)|
 |13126|[13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13126_Summarize_Gmail_emails_with_Gemini_and_send_an_HTML_action_digest.json)|
+|13509|[13509_Fetch_Threads_analytics_for_your_latest_posts_and_email_an_HTML_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13509_Fetch_Threads_analytics_for_your_latest_posts_and_email_an_HTML_report.json)|
+|13545|[13545_Host_a_static_HTML_KPI_dashboard_from_Google_Sheets_with_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13545_Host_a_static_HTML_KPI_dashboard_from_Google_Sheets_with_CustomJS.json)|
+|13599|[13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json)|
+|13739|[13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13739_Convert_Google_Drive_PDFs_into_SEO_blog_HTML_using_OpenAI_GPT-4.1.json)|
+|13758|[13758_Generate_an_SEO_PDF_report_from_HTML_with_Gotenberg_and_Claude_Opus_4.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13758_Generate_an_SEO_PDF_report_from_HTML_with_Gotenberg_and_Claude_Opus_4.6.json)|

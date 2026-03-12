@@ -1,4 +1,4 @@
-# it : 42
+# it : 44
 
 |id|file|
 |----|----|
@@ -44,3 +44,5 @@
 |12562|[12562_Build_a_prospecting_list_with_LeadIQ_and_save_it_to_Airtable_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12562_Build_a_prospecting_list_with_LeadIQ_and_save_it_to_Airtable_CRM.json)|
 |13148|[13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13148_Summarize_Gmail_into_Notion_with_OpenAI_and_create_audio_digests_in_Google_Drive.json)|
 |13264|[13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json)|
+|13764|[13764_Notify_new_BOAMP_IT_tenders_to_a_Slack_channel_with_the_BOAMP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13764_Notify_new_BOAMP_IT_tenders_to_a_Slack_channel_with_the_BOAMP_API.json)|
+|13765|[13765_Monitor_BOAMP_IT_tenders_and_score_them_with_GPT-4o_Mini_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13765_Monitor_BOAMP_IT_tenders_and_score_them_with_GPT-4o_Mini_to_Supabase.json)|

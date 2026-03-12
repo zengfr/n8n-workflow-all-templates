@@ -1,4 +1,4 @@
-# technical : 25
+# technical : 26
 
 |id|file|
 |----|----|
@@ -27,3 +27,4 @@
 |12485|[12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12485_Generate_daily_stock_buy_sell_signals_using_technical_indicators_and_Google_Sheets.json)|
 |12811|[12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12811_Run_automated_technical_SEO_audits_with_SE_Ranking_and_Google_Sheets.json)|
 |12908|[12908_Generate_technical_n8n_workflow_reports_with_GPT-4.1_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12908_Generate_technical_n8n_workflow_reports_with_GPT-4.1_and_Google_Docs.json)|
+|13597|[13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json)|

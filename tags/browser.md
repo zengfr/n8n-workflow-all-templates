@@ -1,4 +1,4 @@
-# browser : 10
+# browser : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |6638|[6638_Automate_Browser_Tasks_with_Airtop___GPT-4_-_Reddit_Posting_Example.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/66/6638_Automate_Browser_Tasks_with_Airtop___GPT-4_-_Reddit_Posting_Example.json)|
 |7033|[7033_Automate_Competitor_Research___Intelligence_with_Browser_Use_Cloud_AI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7033_Automate_Competitor_Research___Intelligence_with_Browser_Use_Cloud_AI_and_Slack.json)|
 |7932|[7932_Automate_Cross-Posting_from_Telegram_to_Facebook_with_Airtop_Browser_Automation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7932_Automate_Cross-Posting_from_Telegram_to_Facebook_with_Airtop_Browser_Automation.json)|
+|13375|[13375_Audit_browser_and_proxy_fingerprint_IP_integrity_with_GPT-4o__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13375_Audit_browser_and_proxy_fingerprint_IP_integrity_with_GPT-4o__Sheets_and_Slack.json)|
+|13793|[13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13793_Enrich_LinkedIn_profiles_with_Apollo_and_display_candidate_pages_in_the_browser.json)|

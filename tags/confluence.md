@@ -1,4 +1,4 @@
-# confluence : 6
+# confluence : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |12237|[12237_Generate_stale_page_reports_for_Confluence_spaces_with_REST_API_v1_and_v2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12237_Generate_stale_page_reports_for_Confluence_spaces_with_REST_API_v1_and_v2.json)|
 |12238|[12238_Scan_Confluence_pages_with_the_REST_API_for_inactive_page_owners.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12238_Scan_Confluence_pages_with_the_REST_API_for_inactive_page_owners.json)|
 |12239|[12239_Audit_Confluence_space_permissions_and_public_links_for_compliance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12239_Audit_Confluence_space_permissions_and_public_links_for_compliance.json)|
+|13735|[13735_Sync_markdown_files_from_Google_Drive_to_Confluence_pages_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13735_Sync_markdown_files_from_Google_Drive_to_Confluence_pages_automatically.json)|

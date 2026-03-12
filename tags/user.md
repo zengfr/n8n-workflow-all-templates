@@ -1,4 +1,4 @@
-# user : 57
+# user : 60
 
 |id|file|
 |----|----|
@@ -59,3 +59,6 @@
 |11859|[11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json)|
 |13093|[13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json)|
 |13154|[13154_Moderate_user_content_and_route_governance_decisions_with_Claude_and_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13154_Moderate_user_content_and_route_governance_decisions_with_Claude_and_APIs.json)|
+|13435|[13435_Mine_user_complaints_and_generate_insight_reports_with_Olostep__Gemini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13435_Mine_user_complaints_and_generate_insight_reports_with_Olostep__Gemini_and_Google_Docs.json)|
+|13447|[13447_Moderate_and_govern_user_content_with_OpenAI_GPT-4o__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13447_Moderate_and_govern_user_content_with_OpenAI_GPT-4o__Slack_and_Gmail.json)|
+|13637|[13637_Generate_rotating_user-agents_and_proxy_IPs_for_scraping_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13637_Generate_rotating_user-agents_and_proxy_IPs_for_scraping_APIs.json)|

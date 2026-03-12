@@ -1,4 +1,4 @@
-# structured : 41
+# structured : 43
 
 |id|file|
 |----|----|
@@ -43,3 +43,5 @@
 |11736|[11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11736_Generate_Document_Summaries___Q_As_from_PDF_TXT_using_GPT-4o_with_Slack_Alerts.json)|
 |12799|[12799_Generate_AI_SOPs_from_Google_Drive_with_GPT_4o__Google_Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12799_Generate_AI_SOPs_from_Google_Drive_with_GPT_4o__Google_Docs_and_Sheets.json)|
 |13004|[13004_Extract_structured_data_from_Gmail_attachments_to_Google_Sheets__GPT_vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13004_Extract_structured_data_from_Gmail_attachments_to_Google_Sheets__GPT_vision.json)|
+|13599|[13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13599_Generate_structured_exams_from_PDFs_with_OpenAI_GPT-4o_and_HTML_to_PDF.json)|
+|13750|[13750_Analyze_invoices_from_Google_Drive_with_AI_and_store_data_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13750_Analyze_invoices_from_Google_Drive_with_AI_and_store_data_in_Google_Sheets.json)|

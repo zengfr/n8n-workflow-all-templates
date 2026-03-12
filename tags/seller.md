@@ -1,4 +1,4 @@
-# seller : 6
+# seller : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |5572|[5572_Connect_AI_Agents_to_eBay_Seller_Metrics_API_via_MCP_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/55/5572_Connect_AI_Agents_to_eBay_Seller_Metrics_API_via_MCP_Server.json)|
 |7005|[7005_Automate_WhatsApp_Sales_with_DeepSeek_AI__Google_Sheets_and_Gmail_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7005_Automate_WhatsApp_Sales_with_DeepSeek_AI__Google_Sheets_and_Gmail_Notifications.json)|
 |13311|[13311_Monitor_and_enforce_seller_compliance_with_GPT-4o__email_alerts_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13311_Monitor_and_enforce_seller_compliance_with_GPT-4o__email_alerts_and_Slack.json)|
+|13913|[13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json)|

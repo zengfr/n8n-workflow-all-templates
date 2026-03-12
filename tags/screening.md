@@ -1,4 +1,4 @@
-# screening : 37
+# screening : 38
 
 |id|file|
 |----|----|
@@ -39,3 +39,4 @@
 |11912|[11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11912_Automated_resume_screening___interview_scheduling_with_Gmail__GPT___Airtable.json)|
 |12157|[12157_Automate_job_applicant_screening_with_GPT-4__Gmail___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12157_Automate_job_applicant_screening_with_GPT-4__Gmail___Google_Sheets.json)|
 |12268|[12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json)|
+|13876|[13876_Screen_CVs_with_OpenAI_and_PostgreSQL_using_chained_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13876_Screen_CVs_with_OpenAI_and_PostgreSQL_using_chained_prompts.json)|

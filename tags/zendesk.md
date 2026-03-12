@@ -1,4 +1,4 @@
-# zendesk : 42
+# zendesk : 44
 
 |id|file|
 |----|----|
@@ -44,3 +44,5 @@
 |12906|[12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json)|
 |13178|[13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13178_Escalate_payment_issues_with_Azure_OpenAI__Google_Sheets__Slack_and_Zendesk.json)|
 |13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|
+|13546|[13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json)|
+|13553|[13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json)|

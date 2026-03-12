@@ -1,4 +1,4 @@
-# docs : 115
+# docs : 120
 
 |id|file|
 |----|----|
@@ -117,3 +117,8 @@
 |13241|[13241_Generate_HR_offer_letters_and_contracts_with_GPT-4.1-mini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13241_Generate_HR_offer_letters_and_contracts_with_GPT-4.1-mini_and_Google_Docs.json)|
 |13249|[13249_Analyze_website_page_gaps_with_GPT-4.1-mini__Perplexity__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13249_Analyze_website_page_gaps_with_GPT-4.1-mini__Perplexity__and_Google_Docs.json)|
 |13278|[13278_Generate_and_track_offer_letters_with_Google_Sheets__Docs__Drive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13278_Generate_and_track_offer_letters_with_Google_Sheets__Docs__Drive_and_Gmail.json)|
+|13435|[13435_Mine_user_complaints_and_generate_insight_reports_with_Olostep__Gemini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13435_Mine_user_complaints_and_generate_insight_reports_with_Olostep__Gemini_and_Google_Docs.json)|
+|13553|[13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13553_Generate_continuous_PRD_updates_in_Google_Docs_from_Slack__Zoom__Jira__Zendesk__Figma_and_analytics_using_OpenAI.json)|
+|13802|[13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json)|
+|13835|[13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json)|
+|13887|[13887_Analyze_YouTube_videos_and_auto-generate_AI_reports_in_Google_Docs_with_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13887_Analyze_YouTube_videos_and_auto-generate_AI_reports_in_Google_Docs_with_DeepSeek.json)|

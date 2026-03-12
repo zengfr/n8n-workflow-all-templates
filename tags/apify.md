@@ -1,4 +1,4 @@
-# apify : 147
+# apify : 151
 
 |id|file|
 |----|----|
@@ -149,3 +149,7 @@
 |13096|[13096_Monitor_and_analyze_competitor_Facebook_ads_with_Apify__GPT-4o__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13096_Monitor_and_analyze_competitor_Facebook_ads_with_Apify__GPT-4o__Gemini__and_Google_Sheets.json)|
 |13169|[13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json)|
 |13248|[13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13248_Turn_websites_into_RAG_chatbot_knowledge_bases_with_Apify__OpenAI_and_Pinecone.json)|
+|13525|[13525_Generate_content_ideas_from_social_trends_with_Apify__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13525_Generate_content_ideas_from_social_trends_with_Apify__Gemini__and_Google_Sheets.json)|
+|13580|[13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json)|
+|13582|[13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json)|
+|13675|[13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json)|

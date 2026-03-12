@@ -1,4 +1,4 @@
-# creatomate : 15
+# creatomate : 16
 
 |id|file|
 |----|----|
@@ -17,3 +17,4 @@
 |10308|[10308_Generate_AI_Short-Form_Videos_with_Creatomate__ElevenLabs___Pexels_Stock.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10308_Generate_AI_Short-Form_Videos_with_Creatomate__ElevenLabs___Pexels_Stock.json)|
 |10735|[10735_Generate_Animal_Battle_Videos_with_Flux_AI__Creatomate___Multi-Platform_Publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10735_Generate_Animal_Battle_Videos_with_Flux_AI__Creatomate___Multi-Platform_Publishing.json)|
 |11631|[11631_AI-Driven_Instagram_Reels_Creation_and_Publishing_with_GPT__Creatomate_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11631_AI-Driven_Instagram_Reels_Creation_and_Publishing_with_GPT__Creatomate_and_Slack.json)|
+|13676|[13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json)|

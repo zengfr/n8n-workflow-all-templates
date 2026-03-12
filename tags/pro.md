@@ -1,4 +1,4 @@
-# pro : 52
+# pro : 54
 
 |id|file|
 |----|----|
@@ -54,3 +54,5 @@
 |12752|[12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12752_Generate_UGC-style_AI_videos_with_Google_Sheets__NanoBanana_Pro_and_Veo_3.1.json)|
 |13168|[13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json)|
 |13261|[13261_Multi-AI_Council_Research____GPT_5.2__Claude_Opus_4.6___Gemini_3_Pro_Aggregation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13261_Multi-AI_Council_Research____GPT_5.2__Claude_Opus_4.6___Gemini_3_Pro_Aggregation.json)|
+|13605|[13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json)|
+|13675|[13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json)|

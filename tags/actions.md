@@ -1,4 +1,4 @@
-# actions : 6
+# actions : 9
 
 |id|file|
 |----|----|
@@ -8,3 +8,6 @@
 |9549|[9549_Convert_Fathom_meeting_transcripts_to_formatted_Google_Docs_with_AI_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9549_Convert_Fathom_meeting_transcripts_to_formatted_Google_Docs_with_AI_summaries.json)|
 |12269|[12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json)|
 |12336|[12336_Monitor_GitHub_repo_access_and_push_events_with_GitHub_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12336_Monitor_GitHub_repo_access_and_push_events_with_GitHub_and_Slack_alerts.json)|
+|13331|[13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json)|
+|13338|[13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13338_Validate_property_compliance_risk_and_orchestrate_actions_with_OpenAI__Google_Calendar__Gmail__Slack__and_Google_Sheets.json)|
+|13451|[13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json)|

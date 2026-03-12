@@ -1,4 +1,4 @@
-# bookings : 18
+# bookings : 22
 
 |id|file|
 |----|----|
@@ -20,3 +20,7 @@
 |12063|[12063_Sync_AI-enriched_TimeRex_bookings_to_Google_Sheets_and_Slack_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12063_Sync_AI-enriched_TimeRex_bookings_to_Google_Sheets_and_Slack_with_Gemini.json)|
 |12079|[12079_Handle_Calendly_bookings__cancellations_and_reschedules_with_Gmail__Google_Calendar__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12079_Handle_Calendly_bookings__cancellations_and_reschedules_with_Gmail__Google_Calendar__Sheets_and_Slack.json)|
 |13196|[13196_Manage_online_bookings_with_webhook__Gmail__Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13196_Manage_online_bookings_with_webhook__Gmail__Google_Calendar_and_Slack.json)|
+|13453|[13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json)|
+|13697|[13697_Send_WhatsApp_appointment_reminders_and_reschedule_bookings_with_Wati_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13697_Send_WhatsApp_appointment_reminders_and_reschedule_bookings_with_Wati_and_Google_Sheets.json)|
+|13733|[13733_Manage_WhatsApp_vehicle_service_reminders_and_bookings_with_WATI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13733_Manage_WhatsApp_vehicle_service_reminders_and_bookings_with_WATI_and_Google_Sheets.json)|
+|13864|[13864_Handle_Spanish-speaking_vet_clinic_bookings_with_GPT-4o__Sheets__Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13864_Handle_Spanish-speaking_vet_clinic_bookings_with_GPT-4o__Sheets__Calendar_and_Gmail.json)|

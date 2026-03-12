@@ -1,4 +1,4 @@
-# nano : 56
+# nano : 57
 
 |id|file|
 |----|----|
@@ -58,3 +58,4 @@
 |12363|[12363_Generate_YouTube_thumbnails_via_Telegram_using_BrowserAct_and_Gemini__Nano_Banana_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12363_Generate_YouTube_thumbnails_via_Telegram_using_BrowserAct_and_Gemini__Nano_Banana_Pro.json)|
 |12542|[12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json)|
 |12772|[12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12772_Monitor_brand_mentions_with_GPT-5_Nano__Brave_Search__Gmail_and_Google_Sheets.json)|
+|13778|[13778_Generate_hyper-realistic_images_from_Telegram_via_Gemini_Nano_Banana_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13778_Generate_hyper-realistic_images_from_Telegram_via_Gemini_Nano_Banana_2.json)|

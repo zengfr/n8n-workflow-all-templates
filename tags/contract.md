@@ -1,4 +1,4 @@
-# contract : 17
+# contract : 21
 
 |id|file|
 |----|----|
@@ -19,3 +19,7 @@
 |12659|[12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12659_Manage_enterprise_contract_approvals_and_audit_PDFs_with_HubSpot__Google_Drive_and_Slack.json)|
 |12740|[12740_Analyze_legal_contracts_with_GPT-4.1_and_manage_cases_in_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12740_Analyze_legal_contracts_with_GPT-4.1_and_manage_cases_in_Google_Sheets_and_Slack.json)|
 |12959|[12959_Generate_consulting_proposals_and_contracts_with_GPT-4o__Google_Docs__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12959_Generate_consulting_proposals_and_contracts_with_GPT-4o__Google_Docs__Gmail_and_Slack.json)|
+|13671|[13671_Review_PDF_contract_risks_with_a_form__Google_Gemini__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13671_Review_PDF_contract_risks_with_a_form__Google_Gemini__Sheets__and_Slack.json)|
+|13683|[13683_Audit_contract_governance_risk_with_OpenAI__Slack_and_email_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13683_Audit_contract_governance_risk_with_OpenAI__Slack_and_email_routing.json)|
+|13757|[13757_Automate_contract_signing_from_Tally_to_Airtable_and_DocuSign.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13757_Automate_contract_signing_from_Tally_to_Airtable_and_DocuSign.json)|
+|13875|[13875_Analyze_contract_risk_from_PDFs_with_OpenAI__Supabase_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13875_Analyze_contract_risk_from_PDFs_with_OpenAI__Supabase_and_Slack_alerts.json)|

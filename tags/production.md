@@ -1,4 +1,4 @@
-# production : 15
+# production : 18
 
 |id|file|
 |----|----|
@@ -17,3 +17,6 @@
 |7125|[7125_Monitor_Solar_Energy_Production___Send_Alerts_with_Gmail__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/71/7125_Monitor_Solar_Energy_Production___Send_Alerts_with_Gmail__Google_Sheets__and_Slack.json)|
 |8404|[8404_Automate_AI_Video_Creation___Multi-Platform_Publishing_with_Gemini___Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8404_Automate_AI_Video_Creation___Multi-Platform_Publishing_with_Gemini___Creatomate.json)|
 |12020|[12020_Automated_podcast_production___publishing_with_OpenAI__Airtable___Buzzsprout.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12020_Automated_podcast_production___publishing_with_OpenAI__Airtable___Buzzsprout.json)|
+|13847|[13847_Production_AI_Playbook__Human_Oversight__Exercise_1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13847_Production_AI_Playbook__Human_Oversight__Exercise_1.json)|
+|13848|[13848_Production_AI_Playbook__Human_Oversight__Exercise_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13848_Production_AI_Playbook__Human_Oversight__Exercise_2.json)|
+|13849|[13849_Production_AI_Playbook__Human_Oversight__Exercise_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13849_Production_AI_Playbook__Human_Oversight__Exercise_3.json)|

@@ -1,4 +1,4 @@
-# entries : 10
+# entries : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |8132|[8132_Remove_Duplicate_Entries___Update_Google_Sheets_Based_on_Profile_URLs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8132_Remove_Duplicate_Entries___Update_Google_Sheets_Based_on_Profile_URLs.json)|
 |8810|[8810_Convert_Event_Text_to_Calendar_Entries_with_AI_and_NextCloud_Google_Zoho.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8810_Convert_Event_Text_to_Calendar_Entries_with_AI_and_NextCloud_Google_Zoho.json)|
 |11445|[11445_Create_AI_Diary_Entries_from_LINE_Photos_with_OpenAI_Vision_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11445_Create_AI_Diary_Entries_from_LINE_Photos_with_OpenAI_Vision_and_Google_Drive.json)|
+|13497|[13497_Sync_Toggl_Track_time_entries_with_Google_Sheets_detail_and_summary_tabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13497_Sync_Toggl_Track_time_entries_with_Google_Sheets_detail_and_summary_tabs.json)|

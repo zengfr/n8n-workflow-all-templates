@@ -1,4 +1,4 @@
-# influencer : 14
+# influencer : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |10333|[10333_Automate_Instagram_Influencer_Contract_Compliance_with_Claude_AI___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10333_Automate_Instagram_Influencer_Contract_Compliance_with_Claude_AI___Slack_Alerts.json)|
 |10364|[10364_Generate_Influencer_Posts_with_GPT-4__Google_Sheets__and_Media_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10364_Generate_Influencer_Posts_with_GPT-4__Google_Sheets__and_Media_APIs.json)|
 |11808|[11808_Influencer_Brand_Safety_Auditor_with_Engagement_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11808_Influencer_Brand_Safety_Auditor_with_Engagement_Analysis.json)|
+|13708|[13708_Detect_influencer_fraud_and_fake_followers_with_Instagram__X__TikTok_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13708_Detect_influencer_fraud_and_fake_followers_with_Instagram__X__TikTok_and_Claude.json)|

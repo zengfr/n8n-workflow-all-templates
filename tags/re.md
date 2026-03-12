@@ -1,4 +1,4 @@
-# re : 8
+# re : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |9237|[9237_Weekly_Client_Re-engagement_System_with_GoHighLevel__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9237_Weekly_Client_Re-engagement_System_with_GoHighLevel__Gmail__Sheets__and_Slack.json)|
 |10328|[10328_Personalized_Cold_Lead_Re-Engagement_with_Zoho_CRM_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10328_Personalized_Cold_Lead_Re-Engagement_with_Zoho_CRM_and_GPT-4o-mini.json)|
 |12712|[12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12712_Re-engage_dormant_leads_with_Claude_emails_using_Crunchbase__NewsAPI__Hunter__and_Gmail.json)|
+|13518|[13518_Re-engage_HubSpot_leads_using_Azure_OpenAI_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13518_Re-engage_HubSpot_leads_using_Azure_OpenAI_GPT-4o__Gmail_and_Slack.json)|
+|13843|[13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json)|

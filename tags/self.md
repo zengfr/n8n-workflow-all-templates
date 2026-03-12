@@ -1,4 +1,4 @@
-# self : 22
+# self : 27
 
 |id|file|
 |----|----|
@@ -24,3 +24,8 @@
 |10471|[10471_Self_Update_Docker-based_n8n_with_Email_Approval_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10471_Self_Update_Docker-based_n8n_with_Email_Approval_and_SSH.json)|
 |12242|[12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12242_Back_up_self-hosted_workflows_to_Google_Drive_daily_with_change_detection.json)|
 |12907|[12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12907_Qualify_leads_from_Gemini_chat_to_Google_Sheets_and_Slack_with_self-optimization.json)|
+|13422|[13422_Implement_on-prem_RAG_with_Qdrant_and_Ollama_for_a_self-hosted_KB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13422_Implement_on-prem_RAG_with_Qdrant_and_Ollama_for_a_self-hosted_KB.json)|
+|13608|[13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json)|
+|13667|[13667_Track_Telegram_expenses_with_GPT-4_and_Google_Sheets__self-learning_categories.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13667_Track_Telegram_expenses_with_GPT-4_and_Google_Sheets__self-learning_categories.json)|
+|13717|[13717_Run_a_self-hosted_multi-channel_AI_assistant_with_Claude__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13717_Run_a_self-hosted_multi-channel_AI_assistant_with_Claude__Gemini_and_Gmail.json)|
+|13791|[13791_Auto-heal_failing_workflows_with_Azure_OpenAI__n8n_API__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13791_Auto-heal_failing_workflows_with_Azure_OpenAI__n8n_API__and_Slack_alerts.json)|

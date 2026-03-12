@@ -1,4 +1,4 @@
-# make : 7
+# make : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |9505|[9505_Make_UGC_ads_from_app_screen_recordings_with_Gemini__Sora_2__and_VideoBGRemover.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9505_Make_UGC_ads_from_app_screen_recordings_with_Gemini__Sora_2__and_VideoBGRemover.json)|
 |12856|[12856_Make_outbound_sales_calls_from_Google_Sheets_using_a_Retell_AI_voice_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12856_Make_outbound_sales_calls_from_Google_Sheets_using_a_Retell_AI_voice_agent.json)|
 |13114|[13114_Make_outbound_sales_calls_from_Google_Sheets_using_a_VAPI_voice_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13114_Make_outbound_sales_calls_from_Google_Sheets_using_a_VAPI_voice_agent.json)|
+|13794|[13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13794_Convert_Make.com_blueprints_to_workflows_with_Azure_OpenAI_and_Google_Sheets.json)|

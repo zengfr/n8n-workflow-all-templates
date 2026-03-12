@@ -1,4 +1,4 @@
-# security : 43
+# security : 47
 
 |id|file|
 |----|----|
@@ -45,3 +45,7 @@
 |11635|[11635_Track_Software_Security_Patents_with_ScrapeGraphAI__Notion__and_Pushover_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11635_Track_Software_Security_Patents_with_ScrapeGraphAI__Notion__and_Pushover_Alerts.json)|
 |11975|[11975_AI-powered_security_analysis_for_n8n_with_Google_Gemini_and_n8n_audit_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11975_AI-powered_security_analysis_for_n8n_with_Google_Gemini_and_n8n_audit_API.json)|
 |12024|[12024_Automated_APK_security_scanning___PDF_reporting_with_MobSF__AI___Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12024_Automated_APK_security_scanning___PDF_reporting_with_MobSF__AI___Google_Drive.json)|
+|13322|[13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json)|
+|13443|[13443_Test_WAF_security_interactively_with_an_AI_agent_and_WAFtester_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13443_Test_WAF_security_interactively_with_an_AI_agent_and_WAFtester_MCP.json)|
+|13444|[13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13444_Run_weekly_WAF_security_audits_with_WAFtester_and_Slack_alerts.json)|
+|13445|[13445_Gate_deployments_on_WAF_scan_results_with_WAFtester.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13445_Gate_deployments_on_WAF_scan_results_with_WAFtester.json)|

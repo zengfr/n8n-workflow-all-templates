@@ -1,4 +1,4 @@
-# welcome : 16
+# welcome : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |10138|[10138_Newsletter_Signup_Flow_with_Email_Verification_API__Gmail___Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10138_Newsletter_Signup_Flow_with_Email_Verification_API__Gmail___Google_Sheets_Tracking.json)|
 |10398|[10398_Smart_CSM_Assignment___AI_Welcome_Emails_for_HubSpot_Deal_Wins_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10398_Smart_CSM_Assignment___AI_Welcome_Emails_for_HubSpot_Deal_Wins_with_Gmail.json)|
 |10745|[10745_Typeform_Lead_Qualification_with_Vero__Gmail__Google_Sheets___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10745_Typeform_Lead_Qualification_with_Vero__Gmail__Google_Sheets___Slack_Notifications.json)|
+|13861|[13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json)|

@@ -1,4 +1,4 @@
-# energy : 6
+# energy : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |8113|[8113_Automated_Monthly_Energy_Reports_with_PostgreSQL__PDF.co___Email_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8113_Automated_Monthly_Energy_Reports_with_PostgreSQL__PDF.co___Email_Delivery.json)|
 |9010|[9010_Import_E.ON_W1000_Energy_Meter_Data_to_Home_Assistant_with_Spook_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9010_Import_E.ON_W1000_Energy_Meter_Data_to_Home_Assistant_with_Spook_Integration.json)|
 |12198|[12198_Monitor_IoT_sustainability_compliance_and_ESG_reports_with_OpenAI__Airtable__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12198_Monitor_IoT_sustainability_compliance_and_ESG_reports_with_OpenAI__Airtable__Slack_and_Gmail.json)|
+|13915|[13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json)|

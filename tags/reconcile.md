@@ -1,4 +1,4 @@
-# reconcile : 5
+# reconcile : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |12385|[12385_Detect_financial_anomalies_and_reconcile_revenue_with_GPT-4o_and_API_integrations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12385_Detect_financial_anomalies_and_reconcile_revenue_with_GPT-4o_and_API_integrations.json)|
 |12493|[12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json)|
 |12732|[12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json)|
+|13909|[13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json)|

@@ -1,4 +1,4 @@
-# ideas : 48
+# ideas : 50
 
 |id|file|
 |----|----|
@@ -50,3 +50,5 @@
 |12497|[12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12497_Generate_pain-driven_content_ideas_from_market_signals_with_GPT-4o__Xpoz_MCP__Google_Sheets__ClickUp__and_Slack.json)|
 |12509|[12509_Generate_YouTube_content_ideas_with_Firecrawl__OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12509_Generate_YouTube_content_ideas_with_Firecrawl__OpenAI_and_Notion.json)|
 |12780|[12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12780_Generate_podcast_topic_ideas_from_RSS_feeds_with_Gemini__SerpAPI_and_Notion.json)|
+|13525|[13525_Generate_content_ideas_from_social_trends_with_Apify__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13525_Generate_content_ideas_from_social_trends_with_Apify__Gemini__and_Google_Sheets.json)|
+|13825|[13825_Generate_visual_diagrams_and_content_assets_from_ideas_with_Claude_and_NapkinAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13825_Generate_visual_diagrams_and_content_assets_from_ideas_with_Claude_and_NapkinAI.json)|

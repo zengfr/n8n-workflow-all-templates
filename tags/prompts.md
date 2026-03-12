@@ -1,4 +1,4 @@
-# prompts : 46
+# prompts : 49
 
 |id|file|
 |----|----|
@@ -48,3 +48,6 @@
 |12168|[12168_Automate_video_creation_with_Gemini_Prompts_and_Vertex_AI_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12168_Automate_video_creation_with_Gemini_Prompts_and_Vertex_AI_to_Google_Drive.json)|
 |12510|[12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12510_Generate_Instagram_carousels_from_Telegram_prompts_using_OpenAI_and_Kie_AI.json)|
 |13169|[13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13169_Extract_YouTube_video_clips_with_Claude_and_Apify_from_natural_language_prompts.json)|
+|13787|[13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13787_Generate_workflow_JSON_files_from_webhook_prompts_using_Azure_OpenAI_GPT-4o-mini.json)|
+|13826|[13826_Generate_AI_songs_from_text_prompts_with_Suno__OpenAI__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13826_Generate_AI_songs_from_text_prompts_with_Suno__OpenAI__Google_Drive_and_Slack.json)|
+|13876|[13876_Screen_CVs_with_OpenAI_and_PostgreSQL_using_chained_prompts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13876_Screen_CVs_with_OpenAI_and_PostgreSQL_using_chained_prompts.json)|

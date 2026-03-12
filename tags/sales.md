@@ -1,4 +1,4 @@
-# sales : 143
+# sales : 153
 
 |id|file|
 |----|----|
@@ -145,3 +145,13 @@
 |13220|[13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json)|
 |13232|[13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13232_Generate_AI_sales_proposals_using_Anthropic_Claude__PDF_Noodle_and_your_CRM.json)|
 |13281|[13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13281_Send_weekly_WooCommerce_sales_KPIs_to_Slack_and_Google_Sheets.json)|
+|13346|[13346_Enrich_HubSpot_sales_sequence_contacts_with_Lusha_and_route_to_outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13346_Enrich_HubSpot_sales_sequence_contacts_with_Lusha_and_route_to_outreach.json)|
+|13486|[13486_Send_a_daily_sales_report_to_WhatsApp_from_Google_Sheets_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13486_Send_a_daily_sales_report_to_WhatsApp_from_Google_Sheets_with_MoltFlow.json)|
+|13529|[13529_Run_an_AI_SDR_sales_pipeline_with_OpenAI__Google_Sheets__Gmail_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13529_Run_an_AI_SDR_sales_pipeline_with_OpenAI__Google_Sheets__Gmail_and_Calendar.json)|
+|13593|[13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13593_Analyze_customer_sales_calls_and_update_CRM_with_Whisper_and_GPT-4.json)|
+|13644|[13644_Score_and_route_new_trial_leads_with_Firecrawl__Scrapin.io__OpenAI__Slack_and_Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13644_Score_and_route_new_trial_leads_with_Firecrawl__Scrapin.io__OpenAI__Slack_and_Instantly.json)|
+|13738|[13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json)|
+|13740|[13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json)|
+|13746|[13746_Qualify_and_score_leads_in_Airtable_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13746_Qualify_and_score_leads_in_Airtable_with_OpenAI_and_Slack_alerts.json)|
+|13829|[13829_Sync_Shopify_and_WooCommerce_sales_into_a_Google_Sheets_accounting_ledger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13829_Sync_Shopify_and_WooCommerce_sales_into_a_Google_Sheets_accounting_ledger.json)|
+|13840|[13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json)|

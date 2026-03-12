@@ -1,4 +1,4 @@
-# wordpress : 143
+# wordpress : 149
 
 |id|file|
 |----|----|
@@ -145,3 +145,9 @@
 |13113|[13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json)|
 |13127|[13127_Publish_WordPress_posts_from_Google_Sheets_with_images_and_tags.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13127_Publish_WordPress_posts_from_Google_Sheets_with_images_and_tags.json)|
 |13171|[13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13171_Translate_RSS_news_and_publish_to_WordPress__Facebook__LinkedIn_and_Telegram.json)|
+|13383|[13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13383_Generate_SEO_articles_from_search_queries_to_WordPress_with_BrowserAct_and_OpenRouter.json)|
+|13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|
+|13543|[13543_Translate_WordPress_posts_and_ACF_fields_using_DeepL_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13543_Translate_WordPress_posts_and_ACF_fields_using_DeepL_and_OpenAI.json)|
+|13635|[13635_List_properties_instantly_with_UploadToURL__OpenAI_Vision__WordPress_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13635_List_properties_instantly_with_UploadToURL__OpenAI_Vision__WordPress_and_Airtable.json)|
+|13721|[13721_Create_WordPress_users_from_KlickTipp_and_tag_contacts_based_on_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13721_Create_WordPress_users_from_KlickTipp_and_tag_contacts_based_on_comments.json)|
+|13767|[13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13767_Automated_NASA_Image___Content_Publisher_for_WordPress_and_Multi-Social_Media.json)|

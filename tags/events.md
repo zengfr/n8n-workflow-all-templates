@@ -1,4 +1,4 @@
-# events : 59
+# events : 60
 
 |id|file|
 |----|----|
@@ -61,3 +61,4 @@
 |12081|[12081_Sync_Google_Calendar_events_to_Google_Sheets_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12081_Sync_Google_Calendar_events_to_Google_Sheets_with_Slack_notifications.json)|
 |12336|[12336_Monitor_GitHub_repo_access_and_push_events_with_GitHub_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12336_Monitor_GitHub_repo_access_and_push_events_with_GitHub_and_Slack_alerts.json)|
 |12618|[12618_RSVP_s_lead_scoring_for_Events__GPT-4o-mini___HubSpot_Sync___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12618_RSVP_s_lead_scoring_for_Events__GPT-4o-mini___HubSpot_Sync___Slack_Alerts.json)|
+|13734|[13734_Manage_Google_Calendar_events_with_GPT_4_and_an_AI_assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13734_Manage_Google_Calendar_events_with_GPT_4_and_an_AI_assistant.json)|

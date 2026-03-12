@@ -1,4 +1,4 @@
-# checks : 13
+# checks : 15
 
 |id|file|
 |----|----|
@@ -15,3 +15,5 @@
 |13011|[13011_Analyze_Binance_Futures_markets_with_TA_indicators__OpenAI_news_checks__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13011_Analyze_Binance_Futures_markets_with_TA_indicators__OpenAI_news_checks__and_Telegram_alerts.json)|
 |13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|
 |13290|[13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13290_Monitor_scheduled_workflow_health_in_n8n_with_automatic_trigger_checks.json)|
+|13465|[13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13465_Publish_LinkedIn_posts_from_tech_trends_with_Ollama_AI_quality_checks.json)|
+|13710|[13710_Grade_exam_answers_with_GPT_4.1_mini__plagiarism_checks__Slack_alerts_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13710_Grade_exam_answers_with_GPT_4.1_mini__plagiarism_checks__Slack_alerts_and_Google_Sheets_logging.json)|

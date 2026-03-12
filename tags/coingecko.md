@@ -1,4 +1,4 @@
-# coingecko : 22
+# coingecko : 23
 
 |id|file|
 |----|----|
@@ -24,3 +24,4 @@
 |10400|[10400_Monitor_Cryptocurrency_Trading_Activity_with_CoinGecko_and_Send_Alerts_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10400_Monitor_Cryptocurrency_Trading_Activity_with_CoinGecko_and_Send_Alerts_to_Discord.json)|
 |11966|[11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11966_Crypto_volume_change_Discord_alerts__5-20___with_CoinGecko__Top_1000_coins.json)|
 |12548|[12548_Analyze_crypto_markets_with_CoinGecko_MCP_and_C1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12548_Analyze_crypto_markets_with_CoinGecko_MCP_and_C1.json)|
+|13651|[13651_Generate_AI_trading_alerts_from_CoinGecko_and_Alpha_Vantage_via_Slack__email_and_SMS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13651_Generate_AI_trading_alerts_from_CoinGecko_and_Alpha_Vantage_via_Slack__email_and_SMS.json)|

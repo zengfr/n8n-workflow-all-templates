@@ -1,4 +1,4 @@
-# gap : 7
+# gap : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |8446|[8446_Analyze_Competitor_Content_Gaps_with_Gemini_AI__Apify___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8446_Analyze_Competitor_Content_Gaps_with_Gemini_AI__Apify___Google_Sheets.json)|
 |9140|[9140_Personalize_Candidate_Feedback_with_GPT-4o__Google_Sheets___Gmail_for_HR_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9140_Personalize_Candidate_Feedback_with_GPT-4o__Google_Sheets___Gmail_for_HR_Teams.json)|
 |11893|[11893_Automate_SEO_research___content_gap_analysis_with_GPT-4o__SerpAPI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11893_Automate_SEO_research___content_gap_analysis_with_GPT-4o__SerpAPI__and_Gmail.json)|
+|13508|[13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json)|

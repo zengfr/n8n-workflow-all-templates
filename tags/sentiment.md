@@ -1,4 +1,4 @@
-# sentiment : 73
+# sentiment : 77
 
 |id|file|
 |----|----|
@@ -75,3 +75,7 @@
 |12758|[12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12758_Analyze_meeting_sentiment_with_Azure_OpenAI_and_save_insights_to_Google_Sheets.json)|
 |12795|[12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json)|
 |13234|[13234_Extract_and_analyze___ALL_Facebook_post_comments_with_sentiment_AI_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13234_Extract_and_analyze___ALL_Facebook_post_comments_with_sentiment_AI_using_Gemini.json)|
+|13573|[13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json)|
+|13738|[13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13738_Route_event_sales_leads_with_Gmail__Google_Gemini__Sheets_and_Salesforce.json)|
+|13740|[13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13740_Route_and_qualify_email_leads_with_Gmail__Gemini__Slack__Sheets_and_Salesforce.json)|
+|13818|[13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json)|

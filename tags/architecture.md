@@ -1,4 +1,4 @@
-# architecture : 5
+# architecture : 7
 
 |id|file|
 |----|----|
@@ -7,3 +7,5 @@
 |7504|[7504_Collaborative_Sales_Planning_with_Multi-Agent_AI__Google_Docs__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7504_Collaborative_Sales_Planning_with_Multi-Agent_AI__Google_Docs__and_Slack.json)|
 |9500|[9500_Standardized_Workflow_Design_Pattern_with_Color-Coding_System_for_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9500_Standardized_Workflow_Design_Pattern_with_Color-Coding_System_for_Teams.json)|
 |12285|[12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json)|
+|13362|[13362_Transform_GitHub_repos_into_evidence-based_architecture_blueprints_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13362_Transform_GitHub_repos_into_evidence-based_architecture_blueprints_with_Claude.json)|
+|13792|[13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json)|

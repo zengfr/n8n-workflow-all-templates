@@ -1,4 +1,4 @@
-# construction : 17
+# construction : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |12176|[12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12176_Estimate_construction_costs_from_text__photos_and_PDFs_with_Telegram__GPT_4_Gemini_and_DDC_CWICR.json)|
 |12177|[12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12177_Estimate_4D_5D_construction_costs_from_Revit_BIM_models_with_DDC_CWICR.json)|
 |12921|[12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12921_Monitor_construction_execution_from_Google_Drive_photos_with_GPT_4.1_mini__Gmail_and_Google_Sheets.json)|
+|13687|[13687_Predict_construction_delays_with_Claude__OpenWeather_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13687_Predict_construction_delays_with_Claude__OpenWeather_and_Slack_alerts.json)|

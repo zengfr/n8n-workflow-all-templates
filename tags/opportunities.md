@@ -1,4 +1,4 @@
-# opportunities : 13
+# opportunities : 16
 
 |id|file|
 |----|----|
@@ -15,3 +15,6 @@
 |12102|[12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12102_Monitor_Reddit_for_sales_opportunities_with_GPT-4o_and_create_Asana_tasks.json)|
 |12273|[12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12273_Analyze_real_estate_submarket_opportunities_with_GPT-4__MLS__Gmail_and_Slack.json)|
 |12809|[12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12809_Find_SEO_keyword_opportunities_with_SE_Ranking__AI_search__and_Google_Sheets.json)|
+|13508|[13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13508_Find_competitor_keyword_gaps_and_log_opportunities_to_Notion_with_DataForSEO.json)|
+|13707|[13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13707_Discover_viral_content_opportunities_from_Twitter__Reddit_and_Google_Trends_with_Claude_AI.json)|
+|13801|[13801_Discover_daily_business_opportunities_with_Google_Gemini__Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13801_Discover_daily_business_opportunities_with_Google_Gemini__Sheets_and_Telegram.json)|

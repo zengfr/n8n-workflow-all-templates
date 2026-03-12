@@ -1,4 +1,4 @@
-# fetch : 26
+# fetch : 27
 
 |id|file|
 |----|----|
@@ -28,3 +28,4 @@
 |10733|[10733_Sync_Amazon_Luna_Prime_Games_to_Google_Sheets_with_Automatic_Updates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10733_Sync_Amazon_Luna_Prime_Games_to_Google_Sheets_with_Automatic_Updates.json)|
 |11997|[11997_Fetch_property_listings_from_99Acres___MagicBricks_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11997_Fetch_property_listings_from_99Acres___MagicBricks_with_Apify_and_Google_Sheets.json)|
 |12539|[12539_Fetch_reliable_FX_exchange_rates_with_Frankfurter_and_open.er-api.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12539_Fetch_reliable_FX_exchange_rates_with_Frankfurter_and_open.er-api.json)|
+|13509|[13509_Fetch_Threads_analytics_for_your_latest_posts_and_email_an_HTML_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13509_Fetch_Threads_analytics_for_your_latest_posts_and_email_an_HTML_report.json)|

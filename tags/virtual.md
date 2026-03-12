@@ -1,4 +1,4 @@
-# virtual : 12
+# virtual : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |8326|[8326_Create_an_AI-Powered_Virtual_Receptionist_with_Google_Calendar___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8326_Create_an_AI-Powered_Virtual_Receptionist_with_Google_Calendar___Sheets.json)|
 |10033|[10033_WhatsApp_Virtual_Receptionist_with_Gemini_AI_-_Handles_Text___Voice_with_Knowledge_Base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10033_WhatsApp_Virtual_Receptionist_with_Gemini_AI_-_Handles_Text___Voice_with_Knowledge_Base.json)|
 |12115|[12115_AI_Virtual_Try-On_Image__Video_Generation_for_Telegram__Discord___YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12115_AI_Virtual_Try-On_Image__Video_Generation_for_Telegram__Discord___YouTube.json)|
+|13506|[13506_Build_a_WhatsApp_AI_shopping_bot_with_virtual_try-on_using_Gemini_and_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13506_Build_a_WhatsApp_AI_shopping_bot_with_virtual_try-on_using_Gemini_and_GPT.json)|

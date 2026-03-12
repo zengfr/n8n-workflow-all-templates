@@ -1,0 +1,741 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Process vendor invoices with UploadToURL, AWS Textract, and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 13615,
+    "update_time": "2026-03-12"
+  },
+  "nodes": [
+    {
+      "id": "d1ba6277-b3f7-487b-a77b-ff5f2c2d1a6d",
+      "name": "📋 Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        64
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 532,
+        "content": "## invoice data with UploadToURL, AWS Textract, and Google Sheets\nThe Problem: Manually keying data from paper or PDF invoices into spreadsheets is slow and prone to human error.\nThe Solution: An automated Accounts Payable pipeline that hosts scans via UploadToURL, extracts data via AWS Textract, and logs it to Google Sheets.\n\n⚙️ How it Works\nWebhook: Receives an invoice scan (Binary or URL).\n\nUploadToURL: Hosts the file and returns a clean CDN link for the audit trail.\n\nAWS Textract: Automatically reads the document to extract Vendor, Amount, and Due Date.\n\nData Sync: Checks for duplicates and logs the extracted info to Google Sheets and Slack.\n\n🔐 Credentials & Setup\nNode: Install n8n-nodes-uploadtourl via Community Nodes.\n\nAPIs: UploadToURL, AWS (Textract), Google Sheets, and Slack.\n\nVariables: Set GSHEET_SPREADSHEET_ID and SLACK_FINANCE_CHANNEL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e2da2c6-3c46-44f8-bb2d-90a50d4b780f",
+      "name": "Section 1 — Intake",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        608
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1048,
+        "height": 579,
+        "content": "## 1 — Intake & upload\n\n**Webhook → Validate → Has Remote URL? → Upload to URL (×2) → Extract CDN URL**\n\nAccepts `POST` with `fileUrl` or binary PDF/image. Validates file extension against allowlist (`pdf`, `jpg`, `jpeg`, `png`, `tiff`). UploadToURL hosts the file via the native community node. Both upload paths normalise into a single CDN URL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f64ef54b-433f-4c77-8668-b851e939466f",
+      "name": "Section 2 — OCR",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1728,
+        560
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 621,
+        "content": "## 2 — OCR extraction\n\n**AWS Textract → Parse & Validate Extracted Data**\n\nTextract runs `AnalyzeExpense` on the CDN URL and returns structured expense fields. The parse node extracts: vendor name, invoice number, total amount, currency, and due date. Flags any missing required fields as `incomplete` status rather than failing hard — so partial extractions still get recorded."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f416608-8948-4a18-8282-fa11699ac19b",
+      "name": "Section 3 — Sheets",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2192,
+        560
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 872,
+        "height": 749,
+        "content": "## 3 — Duplicate check & Sheets write\n\n**Search Sheets → IF Duplicate? → Append Row or Update Row**\n\nSearches the Google Sheet for an existing row matching the invoice number before writing. Duplicates get flagged with status `duplicate` and skipped. New invoices are appended with status `pending`. Existing rows with the same number but `incomplete` status get updated with the new extraction."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a93a57c0-2fbe-478c-bb8f-8834c2614eb2",
+      "name": "Section 4 — Notify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3136,
+        512
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 744,
+        "height": 783,
+        "content": "## 4 — Notification & response\n\n**Slack → Build Response → Respond to Webhook**\n\nSlack posts to the finance channel with vendor, amount, due date, status badge, and a direct link to the CDN file. Webhook returns `201` with the full invoice record including the Google Sheets row ID."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "387f9899-ab39-45c9-962b-e14346742684",
+      "name": "Webhook - Receive Invoice",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        672,
+        912
+      ],
+      "webhookId": "invoice-webhook-001",
+      "parameters": {
+        "path": "invoice-processing",
+        "options": {
+          "allowedOrigins": "*"
+        },
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "72b70229-44fe-466e-b905-e9d5ef31a89a",
+      "name": "Validate Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        912
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\n\n// ── File source check ────────────────────────────────────────\nif (!body.fileUrl && !body.filename) {\n  throw new Error('Provide either fileUrl (remote document) or filename (for binary upload).');\n}\n\n// ── Filename & extension allowlist ───────────────────────────\nconst filename = body.filename ||\n  body.fileUrl?.split('?')[0].split('/').pop() ||\n  'invoice.pdf';\nconst ext = filename.split('.').pop()?.toLowerCase() || 'pdf';\nconst allowedExts = ['pdf', 'jpg', 'jpeg', 'png', 'tiff'];\nif (!allowedExts.includes(ext)) {\n  throw new Error(`File type .${ext} not allowed. Accepted: ${allowedExts.join(', ')}`);\n}\n\n// ── MIME type map ─────────────────────────────────────────────\nconst mimeMap = {\n  pdf: 'application/pdf',\n  jpg: 'image/jpeg', jpeg: 'image/jpeg',\n  png: 'image/png',\n  tiff: 'image/tiff'\n};\nconst mimeType = mimeMap[ext] || 'application/octet-stream';\n\n// ── Structured filename ───────────────────────────────────────\nconst ts = new Date().toISOString().split('T')[0];\nconst structuredFilename = `invoice_${ts}_${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;\n\n// ── Sanitise metadata ─────────────────────────────────────────\nconst sanitise = s => String(s || '').trim().slice(0, 255);\n\nreturn [{\n  json: {\n    fileUrl: body.fileUrl || null,\n    filename,\n    structuredFilename,\n    mimeType,\n    ext,\n    uploadedBy: sanitise(body.uploadedBy) || 'Unknown',\n    department: sanitise(body.department) || 'General',\n    notes: sanitise(body.notes),\n    receivedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7baa95a9-7c6f-4087-a216-07d673641e1a",
+      "name": "Has Remote URL?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1104,
+        912
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-fileurl",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.fileUrl }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1dac0a61-337e-447b-9365-1a7d351c7c8b",
+      "name": "Upload to URL - Remote",
+      "type": "n8n-nodes-uploadtourl.uploadToUrl",
+      "position": [
+        1328,
+        784
+      ],
+      "parameters": {
+        "operation": "uploadFile"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "43224235-9279-4ae6-939c-e110767e89d0",
+      "name": "Upload to URL - Binary",
+      "type": "n8n-nodes-uploadtourl.uploadToUrl",
+      "position": [
+        1328,
+        1024
+      ],
+      "parameters": {
+        "operation": "uploadFile"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f4933ee-dce5-4f2c-8c4a-50134010e4ff",
+      "name": "Extract CDN URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1552,
+        912
+      ],
+      "parameters": {
+        "jsCode": "const uploadResp = $input.first().json;\nconst meta = $('Validate Payload').first().json;\n\nconst cdnUrl =\n  uploadResp.url ||\n  uploadResp.link ||\n  uploadResp.data?.url ||\n  uploadResp.file?.url ||\n  uploadResp.shortUrl;\n\nif (!cdnUrl) {\n  throw new Error('Upload to URL returned no public URL. Raw: ' + JSON.stringify(uploadResp).slice(0, 300));\n}\n\nreturn [{\n  json: {\n    ...meta,\n    cdnUrl: cdnUrl.replace(/^http:\\/\\//, 'https://'),\n    uploadId: uploadResp.id || uploadResp.data?.id || null,\n    fileSizeBytes: uploadResp.size || uploadResp.data?.size || null\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "06f9c319-8d0c-4229-941c-be1dedb27ece",
+      "name": "AWS Textract - Analyse Expense",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Calls Textract AnalyzeExpense. Alternatively set TEXTRACT_S3_BUCKET variable and upload the CDN file to S3 first, or use the AWS SDK via a Code node if you prefer direct API calls with SigV4 signing.",
+      "position": [
+        1760,
+        912
+      ],
+      "parameters": {
+        "url": "https://textract.us-east-1.amazonaws.com/",
+        "method": "POST",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={\n  \"Document\": {\n    \"S3Object\": {\n      \"Bucket\": \"{{ $vars.TEXTRACT_S3_BUCKET || '' }}\",\n      \"Name\": \"{{ $json.structuredFilename }}\"\n    }\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-amz-json-1.1"
+            },
+            {
+              "name": "X-Amz-Target",
+              "value": "Textract.AnalyzeExpense"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ec7c192d-43a4-461a-af7b-6e7ab7a42572",
+      "name": "Parse & Validate Extracted Data",
+      "type": "n8n-nodes-base.code",
+      "notes": "Extracts vendor, invoice number, amount, due date, currency, issue date, and line items from Textract response. Partial extractions are allowed — missing fields are flagged as 'incomplete' rather than throwing an error.",
+      "position": [
+        1984,
+        912
+      ],
+      "parameters": {
+        "jsCode": "const textractResp = $input.first().json;\nconst meta = $('Extract CDN URL').first().json;\n\n// ── Helper: pull value from Textract ExpenseFields ────────────\nconst getField = (fields, ...labels) => {\n  for (const label of labels) {\n    const match = fields?.find(\n      f => f.Type?.Text?.toUpperCase() === label.toUpperCase()\n    );\n    if (match?.ValueDetection?.Text) return match.ValueDetection.Text.trim();\n  }\n  return null;\n};\n\n// ── Extract summary fields from Textract response ─────────────\nconst summaryFields =\n  textractResp.ExpenseDocuments?.[0]?.SummaryFields || [];\n\nconst rawVendor    = getField(summaryFields, 'VENDOR_NAME', 'NAME', 'SUPPLIER_NAME');\nconst rawInvoiceNo = getField(summaryFields, 'INVOICE_RECEIPT_ID', 'INVOICE_NUMBER', 'RECEIPT_ID', 'PO_NUMBER');\nconst rawAmount    = getField(summaryFields, 'AMOUNT_DUE', 'TOTAL', 'AMOUNT', 'GRAND_TOTAL', 'INVOICE_TOTAL');\nconst rawDueDate   = getField(summaryFields, 'DUE_DATE', 'PAYMENT_DUE_DATE', 'PAY_BY');\nconst rawCurrency  = getField(summaryFields, 'CURRENCY') || 'USD';\nconst rawIssueDate = getField(summaryFields, 'INVOICE_RECEIPT_DATE', 'DATE', 'ISSUE_DATE');\n\n// ── Normalise amount ──────────────────────────────────────────\nconst parseAmount = raw => {\n  if (!raw) return null;\n  const cleaned = raw.replace(/[^0-9.,-]/g, '').replace(',', '');\n  const val = parseFloat(cleaned);\n  return isNaN(val) ? null : val;\n};\n\n// ── Normalise date to YYYY-MM-DD ──────────────────────────────\nconst parseDate = raw => {\n  if (!raw) return null;\n  try {\n    const d = new Date(raw);\n    if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];\n  } catch {}\n  return raw; // return raw if unparseable\n};\n\nconst vendor    = rawVendor || 'Unknown Vendor';\nconst invoiceNo = rawInvoiceNo || `AUTO-${Date.now()}`;\nconst amount    = parseAmount(rawAmount);\nconst dueDate   = parseDate(rawDueDate);\nconst issueDate = parseDate(rawIssueDate);\nconst currency  = rawCurrency.toUpperCase().slice(0, 3);\n\n// ── Determine completeness ────────────────────────────────────\nconst missingFields = [];\nif (!rawVendor)    missingFields.push('vendor');\nif (!rawInvoiceNo) missingFields.push('invoice_number');\nif (amount === null) missingFields.push('amount');\nif (!dueDate)      missingFields.push('due_date');\n\nconst extractionStatus = missingFields.length === 0 ? 'complete' : 'incomplete';\n\n// ── Extract line items (first 10) ────────────────────────────\nconst lineItemGroups =\n  textractResp.ExpenseDocuments?.[0]?.LineItemGroups || [];\nconst lineItems = lineItemGroups\n  .flatMap(g => g.LineItems || [])\n  .slice(0, 10)\n  .map(item => {\n    const fields = item.LineItemExpenseFields || [];\n    return {\n      description: getField(fields, 'ITEM', 'PRODUCT_CODE', 'EXPENSE_ROW') || '',\n      quantity: getField(fields, 'QUANTITY') || '',\n      unitPrice: getField(fields, 'UNIT_PRICE', 'PRICE') || '',\n      total: getField(fields, 'AMOUNT') || ''\n    };\n  });\n\nreturn [{\n  json: {\n    ...meta,\n    // Extracted fields\n    vendor,\n    invoiceNo,\n    amount,\n    currency,\n    dueDate,\n    issueDate,\n    lineItems,\n    // Status\n    extractionStatus,\n    missingFields,\n    invoiceStatus: 'pending',\n    // Raw for audit\n    textractConfidence: textractResp.ExpenseDocuments?.[0]?.SummaryFields?.length || 0\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ccfa60e6-3bb1-42e1-baad-40101ac8dac7",
+      "name": "Sheets - Search for Duplicate",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Searches the Invoices sheet for an existing row with the same invoice number before appending. Prevents duplicate entries from re-submissions.",
+      "position": [
+        2208,
+        912
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $vars.GSHEET_SHEET_NAME || 'Invoices' }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GSHEET_SPREADSHEET_ID }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "2decb2b2-38a5-4496-8e6d-4e7ef2a633de",
+      "name": "Resolve Write Action",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2432,
+        912
+      ],
+      "parameters": {
+        "jsCode": "const searchResult = $input.first().json;\nconst invoiceData = $('Parse & Validate Extracted Data').first().json;\n\n// Sheets returns an array of matching rows\nconst existingRows = Array.isArray(searchResult) ? searchResult : (searchResult.values || []);\nconst existingRow = existingRows.length > 0 ? existingRows[0] : null;\n\nlet writeAction = 'append'; // default\nlet isDuplicate = false;\n\nif (existingRow) {\n  const existingStatus = existingRow['Status'] || existingRow.status || '';\n  if (existingStatus.toLowerCase() === 'incomplete' && invoiceData.extractionStatus === 'complete') {\n    // Allow update: previous extraction was partial, this one is complete\n    writeAction = 'update';\n  } else {\n    // True duplicate — skip write\n    writeAction = 'skip';\n    isDuplicate = true;\n  }\n}\n\nreturn [{\n  json: {\n    ...invoiceData,\n    writeAction,\n    isDuplicate,\n    existingRowId: existingRow?.row_number || existingRow?.id || null\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a896e1e7-badf-4f73-856a-1c24dba5c76a",
+      "name": "Route Write Action",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2640,
+        912
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Append",
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.writeAction }}",
+                    "rightValue": "append"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Update",
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.writeAction }}",
+                    "rightValue": "update"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Skip",
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.writeAction }}",
+                    "rightValue": "skip"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "6f449dac-6818-4b2a-8010-ce7aa63621b6",
+      "name": "Sheets - Append New Invoice",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2864,
+        784
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Notes": "={{ $json.notes }}",
+            "Amount": "={{ $json.amount }}",
+            "Status": "={{ $json.invoiceStatus }}",
+            "Vendor": "={{ $json.vendor }}",
+            "Currency": "={{ $json.currency }}",
+            "Due Date": "={{ $json.dueDate }}",
+            "File URL": "={{ $json.cdnUrl }}",
+            "Department": "={{ $json.department }}",
+            "Invoice No": "={{ $json.invoiceNo }}",
+            "Issue Date": "={{ $json.issueDate }}",
+            "Received At": "={{ $json.receivedAt }}",
+            "Uploaded By": "={{ $json.uploadedBy }}",
+            "Missing Fields": "={{ $json.missingFields.join(', ') }}",
+            "Extraction Status": "={{ $json.extractionStatus }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $vars.GSHEET_SHEET_NAME || 'Invoices' }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GSHEET_SPREADSHEET_ID }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "6e3ae140-0628-4065-ab0c-95c462149a66",
+      "name": "Sheets - Update Incomplete Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Updates an existing row that was previously marked incomplete. Only runs when a previous extraction was partial and this submission fills in the missing fields.",
+      "position": [
+        2864,
+        960
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Amount": "={{ $json.amount }}",
+            "Status": "={{ $json.invoiceStatus }}",
+            "Vendor": "={{ $json.vendor }}",
+            "Currency": "={{ $json.currency }}",
+            "Due Date": "={{ $json.dueDate }}",
+            "File URL": "={{ $json.cdnUrl }}",
+            "Invoice No": "={{ $json.invoiceNo }}",
+            "Issue Date": "={{ $json.issueDate }}",
+            "Missing Fields": "",
+            "Extraction Status": "complete"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $vars.GSHEET_SHEET_NAME || 'Invoices' }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GSHEET_SPREADSHEET_ID }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e13af7ba-f0c5-446f-847e-72e0b35b174c",
+      "name": "Mark as Duplicate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2864,
+        1152
+      ],
+      "parameters": {
+        "jsCode": "// Duplicate — skip Sheets write, pass through for Slack + response\nconst data = $input.first().json;\nreturn [{\n  json: {\n    ...data,\n    invoiceStatus: 'duplicate',\n    sheetsRowId: data.existingRowId,\n    skippedWrite: true\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9c046373-967e-460d-ad0c-f6aa49a9ec8e",
+      "name": "Merge Sheets Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3088,
+        960
+      ],
+      "parameters": {
+        "jsCode": "// Normalise response from all three Sheets branches\nconst sheetsResp = $input.first().json;\nconst invoiceData = $('Resolve Write Action').first().json;\n\nconst sheetsRowId =\n  sheetsResp.updatedRange ||\n  sheetsResp.updates?.updatedRange ||\n  invoiceData.sheetsRowId ||\n  null;\n\nreturn [{\n  json: {\n    ...invoiceData,\n    sheetsRowId,\n    sheetsWritten: !invoiceData.skippedWrite\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f9d2cf02-9a1f-4651-8f00-7a47930b835b",
+      "name": "Slack - Notify Finance",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Posts to the finance channel. Uses emoji badges: ✅ complete, 🟡 incomplete extraction, ⚠️ duplicate. Lists any missing fields so the team knows to review manually.",
+      "position": [
+        3312,
+        864
+      ],
+      "webhookId": "b53b0856-2ff5-4158-b363-d33646c9a31a",
+      "parameters": {
+        "text": "={{ $json.invoiceStatus === 'duplicate' ? '⚠️' : $json.extractionStatus === 'incomplete' ? '🟡' : '✅' }} *Invoice received*\n\n*Vendor:* {{ $json.vendor }}\n*Invoice No:* `{{ $json.invoiceNo }}`\n*Amount:* {{ $json.currency }} {{ $json.amount !== null ? $json.amount.toFixed(2) : 'Not detected' }}\n*Due Date:* {{ $json.dueDate || 'Not detected' }}\n*Status:* {{ $json.invoiceStatus }} | Extraction: {{ $json.extractionStatus }}\n*Uploaded by:* {{ $json.uploadedBy }} ({{ $json.department }})\n{{ $json.missingFields.length > 0 ? '*Missing fields:* ' + $json.missingFields.join(', ') : '' }}\n\n:paperclip: <{{ $json.cdnUrl }}|View invoice document>",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "feedd89b-b558-4d47-95c3-c64f26da22d2",
+      "name": "Build Final Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3520,
+        960
+      ],
+      "parameters": {
+        "jsCode": "const slackResp = $input.first().json;\nconst data = $('Merge Sheets Result').first().json;\n\nreturn [{\n  json: {\n    success: true,\n    message: data.invoiceStatus === 'duplicate'\n      ? `Invoice ${data.invoiceNo} already exists — skipped write.`\n      : `Invoice ${data.invoiceNo} from ${data.vendor} recorded successfully.`,\n    invoiceNo: data.invoiceNo,\n    vendor: data.vendor,\n    amount: data.amount,\n    currency: data.currency,\n    dueDate: data.dueDate,\n    issueDate: data.issueDate,\n    invoiceStatus: data.invoiceStatus,\n    extractionStatus: data.extractionStatus,\n    missingFields: data.missingFields,\n    fileUrl: data.cdnUrl,\n    sheetsRowId: data.sheetsRowId,\n    sheetsWritten: data.sheetsWritten,\n    uploadedBy: data.uploadedBy,\n    department: data.department,\n    receivedAt: data.receivedAt,\n    processedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7bd9385e-5445-408b-a413-157e5ce60323",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        3744,
+        960
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 201,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract CDN URL": {
+      "main": [
+        [
+          {
+            "node": "AWS Textract - Analyse Expense",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Remote URL?": {
+      "main": [
+        [
+          {
+            "node": "Upload to URL - Remote",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload to URL - Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Payload": {
+      "main": [
+        [
+          {
+            "node": "Has Remote URL?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Merge Sheets Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Write Action": {
+      "main": [
+        [
+          {
+            "node": "Sheets - Append New Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sheets - Update Incomplete Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark as Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Sheets Result": {
+      "main": [
+        [
+          {
+            "node": "Slack - Notify Finance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Final Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Write Action": {
+      "main": [
+        [
+          {
+            "node": "Route Write Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Notify Finance": {
+      "main": [
+        [
+          {
+            "node": "Build Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to URL - Binary": {
+      "main": [
+        [
+          {
+            "node": "Extract CDN URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to URL - Remote": {
+      "main": [
+        [
+          {
+            "node": "Extract CDN URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Receive Invoice": {
+      "main": [
+        [
+          {
+            "node": "Validate Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets - Append New Invoice": {
+      "main": [
+        [
+          {
+            "node": "Merge Sheets Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets - Search for Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Resolve Write Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS Textract - Analyse Expense": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate Extracted Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets - Update Incomplete Row": {
+      "main": [
+        [
+          {
+            "node": "Merge Sheets Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Validate Extracted Data": {
+      "main": [
+        [
+          {
+            "node": "Sheets - Search for Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# cinematic : 7
+# cinematic : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |8004|[8004_Generate___Publish_AI_Cinematic_Videos_to_YouTube_Shorts_using_VEO3___Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8004_Generate___Publish_AI_Cinematic_Videos_to_YouTube_Shorts_using_VEO3___Gemini.json)|
 |8564|[8564_Turn_Text_into_Cinematic_Videos_using_GPT-4__Dumpling_FLUX.1_Pro__and_Veo_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8564_Turn_Text_into_Cinematic_Videos_using_GPT-4__Dumpling_FLUX.1_Pro__and_Veo_3.json)|
 |12769|[12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12769_Turn_an_image_into_a_cinematic_video_with_NanoBanana_Ultra__Kling__Blotato.json)|
+|13752|[13752_Generate_cinematic_videos_with_OpenAI_Sora_and_uploadtourl_hosting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13752_Generate_cinematic_videos_with_OpenAI_Sora_and_uploadtourl_hosting.json)|

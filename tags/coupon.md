@@ -1,4 +1,4 @@
-# coupon : 8
+# coupon : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |9292|[9292_Auto_Send_Thank-You_Messages___Loyalty_Coupons_via_WhatsApp_from_Shopify_using_Rapiwa.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9292_Auto_Send_Thank-You_Messages___Loyalty_Coupons_via_WhatsApp_from_Shopify_using_Rapiwa.json)|
 |9900|[9900_Track_Coupon_Points_with_Google_Sheets__Drive_Storage__and_Gmail_Weekly_Summary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9900_Track_Coupon_Points_with_Google_Sheets__Drive_Storage__and_Gmail_Weekly_Summary.json)|
 |12461|[12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json)|
+|13406|[13406_Manage_coupon_campaigns_and_customer_chats_with_WhatsApp_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13406_Manage_coupon_campaigns_and_customer_chats_with_WhatsApp_and_PostgreSQL.json)|

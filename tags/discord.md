@@ -1,4 +1,4 @@
-# discord : 95
+# discord : 99
 
 |id|file|
 |----|----|
@@ -97,3 +97,7 @@
 |12795|[12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12795_Analyze_crypto_market_sentiment_and_send_Discord_alerts_with_Gemini_Gemini_2.5.json)|
 |12796|[12796_Track_CoinMarketCap_crypto_sector_pumps_with_Gemini_AI_and_send_digests_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12796_Track_CoinMarketCap_crypto_sector_pumps_with_Gemini_AI_and_send_digests_to_Discord.json)|
 |13236|[13236_Post_images_from_Google_Drive_to_Discord_using_Gemini_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13236_Post_images_from_Google_Drive_to_Discord_using_Gemini_Gemini_AI.json)|
+|13527|[13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13527_Summarize_AI_news_from_RSS__Reddit_and_HN_with_Claude_to_Discord_and_Slack.json)|
+|13565|[13565_Monitor_Docker_host_health_via_SSH_with_GPT-4o-mini_and_alerts_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13565_Monitor_Docker_host_health_via_SSH_with_GPT-4o-mini_and_alerts_to_Discord.json)|
+|13677|[13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json)|
+|13749|[13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13749_Summarize_YouTube_video_transcripts_in_Discord_with_Gemini_and_Supabase.json)|

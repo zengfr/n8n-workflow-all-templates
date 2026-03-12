@@ -1,4 +1,4 @@
-# over : 8
+# over : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |7152|[7152_Loop_Over_Items___Beginner_Example.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/71/7152_Loop_Over_Items___Beginner_Example.json)|
 |9686|[9686_Monitoring_Team_Capacity_in_Jira_and_Sending_Alerts_for_Over-Allocation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9686_Monitoring_Team_Capacity_in_Jira_and_Sending_Alerts_for_Over-Allocation.json)|
 |12882|[12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12882_Find_qualified_leads_in_Reddit_posts_with_Firecrawl_and_GPT-4.1-mini.json)|
+|13840|[13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json)|
